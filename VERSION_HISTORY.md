@@ -1,9 +1,3 @@
-# HutechExam2024
-
-*With a high spirit and determination, I will do all my best for this project and for my beloved school!*
-
----
-
 ### 17-04-2024 5pm
 - Fix CSS form signin vs info
 - Cập nhật login và logout sv
