@@ -1,0 +1,79 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="./css/admin/MessageBox.css" rel="stylesheet">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div class="modal-backdroup show"></div>
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">BỔ SUNG SINH VIÊN VÀO CA THI</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tên ca thi: </p>
+                    <span class="content-p">@tenCaThi</span>
+                    <p>Tên môn thi: </p>
+                    <span class="content-p">@tenMonThi</span>
+                    <p>Ngày thi: </p>
+                    <span class="content-p">@ngayThi</span>
+                    <p>Thời lượng thi: </p>
+                    <span class="content-p">@thoiLuongThi</span>
+                    <p>MSSV: </p>
+                    <span><input type="text" @bind="@MSSV" @onkeydown="onKeyDownInput" /></span>
+                    <p>Họ và lót: </p>
+                    <span class="content-p" style="color:red">@hoTenLot</span>
+                    <p>Tên sinh viên: </p>
+                    <span class="content-p" style="color:red">@tenSinhVien</span>
+                    <p>Check: </p>
+                    @{
+                        if (is_existMSSV == true)
+                        {
+                            <p style="color: green">Đã tìm thấy SV</p>
+                        }
+                        else if(is_existMSSV == false)
+                        {
+                            <p style="color: red">Không tìm thấy SV</p>
+                        }
+                        else
+                        {
+                            <p>Vui lòng nhấn check</p>
+                        }
+                    }
+                </div>
+                <div class="modal-footer">
+                    @{
+                        if (is_existMSSV == true)
+                        {
+                            <button type="button" style="opacity: 0.5" class="btn btn-info">Check MSSV</button>
+                            <button type="button" @onclick="onClickLuu" class="btn btn-success">Lưu</button>
+                        }
+                        else
+                        {
+                            <button type="button" @onclick="handleCheck" class="btn btn-info">Check MSSV</button>
+                            <button type="button" style="opacity: 0.5" class="btn btn-success">Lưu</button>
+                        }
+                    }
+                    <button type="button" @onclick="onClickThoat" class="btn btn-secondary">Thoát</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+
