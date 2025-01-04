@@ -9,14 +9,16 @@ namespace Hutech.Exam.Server.BUS
         private readonly NhomCauHoiService _nhomCauHoiService;
         private readonly CauHoiService _cauHoiService;
         private readonly CauTraLoiService _cauTraLoiService;
+        public readonly DeThiService _deThiService;
 
-        public CustomDeThiService(CustomDeThi customDeThi, ChiTietDeThiHoanViService chiTietDeThiHoanViService, NhomCauHoiService nhomCauHoiService, CauHoiService cauHoiService, CauTraLoiService cauTraLoiService)
+        public CustomDeThiService(CustomDeThi customDeThi, ChiTietDeThiHoanViService chiTietDeThiHoanViService, NhomCauHoiService nhomCauHoiService, CauHoiService cauHoiService, CauTraLoiService cauTraLoiService, DeThiService deThiService)
         {
             _customDeThi = customDeThi;
             _chiTietDeThiHoanViService = chiTietDeThiHoanViService;
             _nhomCauHoiService = nhomCauHoiService;
             _cauHoiService = cauHoiService;
             _cauTraLoiService = cauTraLoiService;
+            _deThiService = deThiService;
         }       
         public List<CustomDeThi> handleDeThi(long ma_de_hoan_vi)
         { 
@@ -53,12 +55,14 @@ namespace Hutech.Exam.Server.BUS
             chiTietDeThi.MaCauHoi = cauHoi.MaCauHoi;
 
             // lấy nội dung của mã nhóm cha (nếu có)
-            if (nhomCauHoi.MaNhomCha != 1)
+            if (nhomCauHoi.MaNhomCha != -1)
                 chiTietDeThi.NoiDungCauHoiNhomCha = getNoiDungCauHoiNhom(nhomCauHoi.MaNhomCha).NoiDung;
             chiTietDeThi.NoiDungCauHoiNhom = nhomCauHoi.NoiDung;
             chiTietDeThi.NoiDungCauHoi = cauHoi.NoiDung;
             chiTietDeThi.KieuNoiDungCauHoi = cauHoi.KieuNoiDung;
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();
+            // Xem coi đề thi có bỏ chương phần không
+            chiTietDeThi.boChuongPhan = _deThiService.SelectBy_ma_de_hv(chiTietDeThiHoanVi.MaDeHv).BoChuongPhan;
 
             // lấy nội dung câu hỏi bằng dictionary
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();

@@ -18,6 +18,9 @@ body{
 a {
     text-decoration: none;
 }
+p {
+    margin-bottom: 0 !important;
+}
 
 .btn {
     display: flex;
@@ -78,14 +81,12 @@ a {
 
 .header .logo {
     position: absolute;
-    margin-bottom: 1%;
     height: 70%;
     margin-left: 3%;
 }
 
 .header .logo_time {
     position: absolute;
-    margin-top: -2%;
     height: 50%;
     margin-left: 3%;
 }

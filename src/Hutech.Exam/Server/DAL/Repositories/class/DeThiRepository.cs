@@ -11,5 +11,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             return sql.ExcuteReader();
         }
+        public IDataReader SelectBy_ma_de_hv(long ma_de_hv)
+        {
+            DatabaseReader sql = new DatabaseReader("tbl_DeThi_SelectBy_ma_de_hv");
+            sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hv);
+            return sql.ExcuteReader();
+        }
     }
 }

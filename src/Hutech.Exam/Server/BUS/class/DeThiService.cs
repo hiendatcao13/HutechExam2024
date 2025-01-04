@@ -20,7 +20,7 @@ namespace Hutech.Exam.Server.BUS
             deThi.NgayTao = dataReader.GetDateTime(3);
             deThi.NguoiTao = dataReader.GetInt32(4);
             deThi.GhiChu = dataReader.IsDBNull(5) ? null : dataReader.GetString(5);
-            deThi.LuuTam = dataReader.IsDBNull(6) ? null : dataReader.GetBoolean(6);
+            deThi.LuuTam = dataReader.GetBoolean(6);
             deThi.DaDuyet = dataReader.GetBoolean(7);
             deThi.TongSoDeHoanVi = dataReader.IsDBNull(8) ? null : dataReader.GetInt32(8);
             deThi.BoChuongPhan = dataReader.GetBoolean(9);
@@ -30,6 +30,18 @@ namespace Hutech.Exam.Server.BUS
         {
             TblDeThi deThi = new TblDeThi();
             using(IDataReader dataReader = _deThiRepository.SelectOne(ma_de_thi))
+            {
+                if (dataReader.Read())
+                {
+                    deThi = getProperty(dataReader);
+                }
+            }
+            return deThi;
+        }
+        public TblDeThi SelectBy_ma_de_hv(long ma_de_hv)
+        {
+            TblDeThi deThi = new TblDeThi();
+            using (IDataReader dataReader = _deThiRepository.SelectBy_ma_de_hv(ma_de_hv))
             {
                 if (dataReader.Read())
                 {
