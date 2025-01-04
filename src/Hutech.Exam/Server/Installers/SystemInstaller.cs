@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.ResponseCompression;
+using System.Configuration;
 
 namespace Hutech.Exam.Server.Installers
 {
@@ -8,6 +9,10 @@ namespace Hutech.Exam.Server.Installers
         public void InstallService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSignalR();
+
+            services.AddOptions();
+            services.AddMemoryCache();
+
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddResponseCompression(option =>

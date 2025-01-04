@@ -14,3 +14,17 @@ function changeColorTime() {
     clockElement.style.color = "red";
     clockElement.style.fontWeight = 600;
 }
+
+// focus trang thi
+function focusPage(dotNetObjRef) {
+    $(document).on('visibilitychange', function () {
+
+        if (document.visibilityState == 'hidden') {
+            console.log("hello");
+            dotNetObjRef.invokeMethodAsync('ketThucThoiGianLamBai');
+        } else {
+            // page is visible
+        }
+    });
+}
+

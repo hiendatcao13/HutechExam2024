@@ -9,6 +9,8 @@ using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
+using Azure;
+using System.Xml.Linq;
 namespace Hutech.Exam.Client.Pages
 {
 

@@ -1,31 +1,26 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager navManager
 
-@{
-    var currentUrl = navManager.ToAbsoluteUri(navManager.Uri);
-}
-<AuthorizeView>
-    <Authorized>
-        <main>
+
+<!--Hoạt động của ErrorBoundary như try catch-->
+<ErrorBoundary @ref=_errorBoundary Context="errorContent">
+    <ChildContent>
+        <MainLayoutConent>
             @Body
-            <!--Load thư viện canvas ảnh cho điểm thí sinh-->
-            <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script> 
-        </main>
-    </Authorized>
-    <NotAuthorized>
-        <!--Chỉ cho phép duy nhất trang login cho admin và sinh viên-->
-        @if (currentUrl.AbsolutePath == "/" || currentUrl.AbsolutePath == "/admin")
-        {
-            <main>
-                @Body
-            </main>
-        }
-        else
-        {
-            <Forbidden403></Forbidden403>
-        }
-    </NotAuthorized>
+        </MainLayoutConent>
+    </ChildContent>
+    <ErrorContent>
+        <MainLayoutConent>
+            @Body
+        </MainLayoutConent>
+        <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
+    </ErrorContent>
+</ErrorBoundary>
 
-</AuthorizeView>
+@code{
+    private ErrorBoundary? _errorBoundary;
+    // Hiển thị alert báo lỗi -> click ok -> refresh lại page
+    private void ResetErrorBoundary() => _errorBoundary?.Recover();
+}
+
 
 

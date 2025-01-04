@@ -130,5 +130,19 @@ namespace Hutech.Exam.Server.BUS
                 throw new Exception("Can not insert chi tiet ca thi");
             }
         }
+        public void Remove(int ma_chi_tiet_ca_thi)
+        {
+            if (!_chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi))
+            {
+                throw new Exception("Can not delete chi tiet ca thi");
+            }
+        }
+        public void Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
+        {
+            if (!_chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau))
+            {
+                throw new Exception("Can not update chi tiet ca thi");
+            }
+        }
     }
 }

@@ -1,8 +1,10 @@
-﻿using Hutech.Exam.Server.Authentication;
+﻿using AspNetCoreRateLimit;
+using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
+using Hutech.Exam.Server.Middleware;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -19,9 +21,18 @@ ConfigureServices(builder.Services, builder.Configuration);
 
 
 var app = builder.Build();
-Configure(app);
 
-app.Run();
+//Khởi chạy RabbitMQ
+var scope = app.Services.CreateScope();
+var consumeService = scope.ServiceProvider.GetRequiredService<RabbitMqCTBTService>();
+if (consumeService != null)
+{
+    Task.Run(() => consumeService.ConsumeMessages());
+}
+
+// Thêm các middleware trung gian xử lí các request, trước khi trả về reponse
+app.UseMiddleware<GlobalExceptionMiddleware>();
+Configure(app);
 
 static void Configure(WebApplication app)
 {
@@ -45,6 +56,7 @@ static void Configure(WebApplication app)
 
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseClientRateLimiting();
 
 
     app.MapRazorPages();
@@ -52,11 +64,13 @@ static void Configure(WebApplication app)
     app.MapFallbackToFile("index.html");
     app.MapHub<ChiTietCaThiHub>("/ChiTietCaThiHub");
 
+    app.Run();
 }
 
 static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
     services.InstallerServicesInAssembly(configuration);
+
 
     services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));

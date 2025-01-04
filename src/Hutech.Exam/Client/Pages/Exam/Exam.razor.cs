@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Net;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
@@ -73,6 +74,11 @@ namespace Hutech.Exam.Client.Pages.Exam
                 navManager?.NavigateTo("/");
             }
             await checkPage();
+            // chế độ focus page
+            if (js != null)
+            {
+                js?.InvokeVoidAsync("focusPage", DotNetObjectReference.Create(this));
+            }
             await base.OnInitializedAsync();
         }
         private async Task onClickNopBai()
@@ -84,8 +90,8 @@ namespace Hutech.Exam.Client.Pages.Exam
                 {
                     await UpdateChiTietBaiThi();
                     // Cập nhật cho quản trị viên biết sinh đã hoàn thành bài thi
-                    if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
-                        await sendMessage((int)chiTietCaThi.MaCaThi);
+                    //if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
+                    //    await sendMessage((int)chiTietCaThi.MaCaThi);
                     if (myData != null)
                     {
                         myData.chiTietBaiThis = chiTietBaiThis;
@@ -95,7 +101,8 @@ namespace Hutech.Exam.Client.Pages.Exam
                 }
             }
         }
-        private async Task ketThucThoiGianLamBai()
+        [JSInvokable]
+        public async Task ketThucThoiGianLamBai()
         {
             await UpdateChiTietBaiThi();
             // Cập nhật cho quản trị viên biết sinh đã hoàn thành bài thi
@@ -106,6 +113,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 myData.chiTietBaiThis = chiTietBaiThis;
                 myData.listDapAnKhoanh = listDapAn;
             }
+
             navManager?.NavigateTo("/result");
         }
         private void khoiTaoBanDau()
@@ -157,7 +165,8 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (caThi != null && chiTietCaThi != null && myData != null && thoi_gian_con_lai != null)
             {
                 tong_so_giay += (caThi.ThoiGianThi + chiTietCaThi.GioCongThem + myData.bonusTime - (int)thoi_gian_con_lai) * 60;
-                tong_so_giay = (tong_so_giay > caThi.ThoiGianThi * 60) ? caThi.ThoiGianThi * 60 : tong_so_giay;
+                //js?.InvokeVoidAsync("alert", "thoi gian con lai: " + thoi_gian_con_lai + ", tong_so_giay: " + tong_so_giay);
+                tong_so_giay = (tong_so_giay > (caThi.ThoiGianThi * 60)) ? (caThi.ThoiGianThi * 60) : tong_so_giay;
             }
             displayTime = FormatTime(tong_so_giay);
             int so_giay_hien_tai = tong_so_giay;
@@ -215,14 +224,19 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private double? thoiGianConLai()
         {
-            TimeSpan? result = null;
-            if(caThi != null)
-            {
-                DateTime currentTime = new DateTime();
-                string formatTime = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd
-                DateTime.TryParse(formatTime, out currentTime);
-                result = currentTime - caThi.ThoiGianBatDau;
-            }
+            if (caThi == null) return null;
+
+            DateTime currentTime = DateTime.Now;
+            DateTime thoiGianBatDau = caThi.ThoiGianBatDau;
+
+            // Ensure both dates are in the same format
+            string currentTimeFormatted = currentTime.ToString("MM/dd/yyyy HH:mm:ss");
+            string thoiGianBatDauFormatted = thoiGianBatDau.ToString("MM/dd/yyyy HH:mm:ss");
+
+            DateTime.TryParse(currentTimeFormatted, out currentTime);
+            DateTime.TryParse(thoiGianBatDauFormatted, out thoiGianBatDau);
+
+            TimeSpan? result = currentTime - thoiGianBatDau;
             return result?.TotalMinutes;
         }
         private string FormatTime(int totalSeconds)
@@ -237,6 +251,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private void dungThoiGian() => timer?.Stop();
         private void tiepTucThoiGian() => timer?.Start();
+
+
 
     }
 }

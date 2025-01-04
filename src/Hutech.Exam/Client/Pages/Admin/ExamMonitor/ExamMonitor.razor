@@ -30,7 +30,7 @@
             <div class="function_left">
                 <div class="grid-container">
                     <img class="frame" src="./images/admin/monitor/frame.svg" alt="" />
-                    <button class="btn add-student" @onclick="onClickThemSV">Thêm sinh viên</button>
+                    <button class="btn add-student" @onclick="onClickThemSV">Thêm SV</button>
                     <img class="frame" src="./images/admin/monitor/frame-1.svg" alt="" />
                     <button class="btn refresh" @onclick="refresh">Refresh</button>
                     <img src="./images/admin/monitor/print.svg" alt="" />
@@ -38,7 +38,7 @@
                     <img class="frame" src="./images/admin/monitor/pdf.svg" alt="" />
                     <button class="btn export-pdf">Export PDF</button>
                     <img class="frame" src="./images/admin/monitor/excel.svg" alt="" />
-                    <button class="btn export-excel">Export EXCEL</button>
+                    <button class="btn export-excel" @onclick="onClickDownloadExcel">Export EXCEL</button>
                 </div>
             </div>
             <!-- function right -->
@@ -50,9 +50,10 @@
                                 <th>STT</th>
                                 <th>Mã số sinh viên</th>
                                 <th>Họ và tên</th>
+                                <th>Mã đề</th>
                                 <th>Trạng thái</th>
                                 <th>Đăng nhập</th>
-                                <th>Giờ cộng thêm phút</th>
+                                <th>Phút cộng thêm</th>
                                 <th>Điểm</th>
                                 <th>Chức năng</th>
                             </tr>
@@ -68,6 +69,7 @@
                                         <td>@STT</td>
                                         <td>@sinhVien?.MaSoSinhVien</td>
                                         <td>@sinhVien?.HoVaTenLot @sinhVien?.TenSinhVien</td>
+                                        <td>@item.MaDeThi</td>
                                         @if(item.DaHoanThanh)
                                         {
                                             <td>Đã thi</td>
@@ -111,6 +113,8 @@
                                         }
                                         <td>
                                             <button class="btnPlus" @onclick="() => onClickCongGioThem(item)">+</button>
+                                            <button class="btnModify" @onclick="() => onClickSuaSV(item)">o</button>
+                                            <button class="btnDelete" @onclick="() => onClickRemoveCTCT(item)">x</button>
                                         </td>
                                     </tr>
                                     STT++;
@@ -137,8 +141,29 @@
         <Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSV 
             tenCaThi="@myData.caThi?.TenCaThi" tenMonThi="@myData.caThi?.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
             ngayThi="@myData.caThi?.ThoiGianBatDau" thoiLuongThi="@myData.caThi?.ThoiGianThi" onClickThoat="onClickThoatMBThemSV" onClickCheck="onClickCheckSV" 
-            onClickLuu="onClickLuuMBThemSV" @ref="@MBThemSV">
+            onClickLuu="onClickLuuMBThemSV" onClickTaoMoi="onClickTaoMoiSV" @ref="@MBThemSV">
         </Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSV>
     }
+    @if(isShowMBExcel){
+        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSVExcel
+            listKhoa="@listKhoa" onClickLuu="onClickLuuMBThemSVExcel" onClickThoat="onClickThoatMBThemSVExcel" @ref="@MBThemSVExcel">
+        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSVExcel>
+    }
+    @if(isShowMBSuaSV){
+        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBSuaSV
+            mssv="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.MaSoSinhVien" hoVaTenLot="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.HoVaTenLot" tenSV="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.TenSinhVien"
+            selected_ma_de="@displayCTCTMBSuaSV?.MaDeThi" onClickThoat="onClickThoatMBSuaSV" onClickLuu="onCLickLuuMBSuaSV" listMaDes="@listMaDes" @ref="@MBSuaSV">
+        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBSuaSV>
+    }
+    <script>
+    function downloadFile(fileName, base64Data) {
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = 'data:application/octet-stream;base64,' + base64Data;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    </script>
 </body>
 </html>

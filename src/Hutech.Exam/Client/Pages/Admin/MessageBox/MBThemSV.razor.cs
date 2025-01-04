@@ -16,12 +16,16 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
         public string? tenSinhVien { get; set; }
         public string? hoTenLot { get; set; }
         public string? MSSV { get; set; }
+        public string? lop { get; set; }
+        public bool isMale = false; 
         [Parameter]
         public EventCallback onClickLuu { get; set; }
         [Parameter]
         public EventCallback onClickThoat { get; set; }
         [Parameter]
         public EventCallback onClickCheck { get; set; }
+        [Parameter]
+        public EventCallback onClickTaoMoi { get; set; }
 
         private void onKeyDownInput()
         {
@@ -33,6 +37,10 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
         {
             onClickCheck.InvokeAsync();
             StateHasChanged();
+        }
+        public void onClickMale()
+        {
+            isMale = true;
         }
     }
 }

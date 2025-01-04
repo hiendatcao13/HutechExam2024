@@ -1,0 +1,46 @@
+﻿@inject IJSRuntime js
+
+<div class="error-overlay" style="font-family:'Segoe UI-Bold', 'Helvetica'"></div>
+<div class="error-content d-grid" style="place-content: center">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="m-0">Unexpected Error</h5>
+        </div>
+        <div class="card-body">
+            <p>Oops, có lỗi không mong muốn xảy ra</p>
+            <pre class="p-3" style="--bs-bg-opacity: 0.25; background-color: aliceblue">Hệ thống có lỗi phát sinh. Vui lòng chờ trong giây lát</pre>
+        </div>
+        <div class="card-footer d-flex">
+            <button type="button" class="btn btn-success ms-auto" @onclick="@OnHandle">OK</button>
+        </div>
+    </div>
+
+</div>
+<style type="text/css">
+    .error-overlay{
+        position: fixed;
+        left: 0; 
+        right: 0; 
+        top: 0; 
+        bottom: 0;
+        background: black;
+        opacity: 0.8;
+        z-index: 5000;
+    }
+    .error-content{
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: transparent;
+        z-index: 5001;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public Exception Error { get; set; } = new();
+    [Parameter, EditorRequired]
+    public EventCallback OnHandle { get; set; } 
+}

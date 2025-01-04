@@ -1,6 +1,7 @@
 using Blazored.SessionStorage;
 using Hutech.Exam.Client;
 using Hutech.Exam.Client.Authentication;
+using Hutech.Exam.Client.BUS;
 using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Client.Pages.Admin.DAL;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -22,4 +23,6 @@ builder.Services.AddAuthorizationCore();
 // bien toan cuc
 builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
+
+builder.Services.AddScoped<ApiService>();
 await builder.Build().RunAsync();

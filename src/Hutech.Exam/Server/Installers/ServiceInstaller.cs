@@ -33,7 +33,13 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<SinhVienLopAoService>();
             services.AddScoped<SinhVienService>();
             services.AddScoped<UserService>();
+
+            // sử dụng custom lại đề
             services.AddScoped<CustomDeThiService>();
+
+
+            //sử dụng RabbitMQ
+            services.AddScoped<RabbitMqCTBTService>();
 
         }
     }

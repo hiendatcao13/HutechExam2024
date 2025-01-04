@@ -53,6 +53,12 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private async Task UpdateChiTietBaiThi()
         {
+            //for(int i = 0; i < 10; i++)
+            //{
+            //    var jsonString = JsonSerializer.Serialize(dsBaiThi_Update);
+            //    if (httpClient != null)
+            //        await httpClient.PostAsync("api/Exam/UpdateChiTietBaiThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            //}
             var jsonString = JsonSerializer.Serialize(dsBaiThi_Update);
             dsBaiThi_Update?.Clear(); // xóa toàn bộ các phần tử khi đã được update, tiếp tục lưu những phần tử sv làm
             if (httpClient != null)

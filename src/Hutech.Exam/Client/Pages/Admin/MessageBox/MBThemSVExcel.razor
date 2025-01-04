@@ -1,0 +1,82 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="./css/admin/MessageBox.css" rel="stylesheet">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div class="modal-backdroup show"></div>
+    <div class="modal fade show" style="display: block; background-color: rgba(0, 0, 0, 0.8) !important" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color: darkgreen">THÊM SINH VIÊN BẰNG FILE EXCEL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="display:block">
+                    <p>Bảng sheet theo trình tự: <b>[MSSV], [HoVaTenLot], [Ten], [Lop], [GioiTinh] 0(Nam)/1(Nữ)</b></p>
+                    <p>Vui lòng chọn khoa (có thể bỏ qua): <span>
+                        <select @bind="ma_khoa_selected">
+                            @{
+                                if(listKhoa != null){
+                                    foreach(var item in listKhoa){
+                                        <option value="@item.MaKhoa">@item.TenKhoa</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="flex-fill fw-bolder text-end p-1">Upload Excel: </span>
+                        <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control-sm w-70" onchange="handleFileUpload" accept=".xls,.xlsx">
+                        </Microsoft.AspNetCore.Components.Forms.InputFile>
+                    </p>
+                    <p style="color:cadetblue">
+                        <span style="color:black">Chế độ kiểm tra:</span>
+                        <input type="checkbox" @onclick="onClickCheckNull" checked="checked"/>
+                        <label>Null</label>
+                        <input type="checkbox" @onclick="onClickCheckMSSV"/>
+                        <span><label>MSSV chứa chữ</label></span>
+                        <input type="checkbox" @onclick="onClickCheckName"/>
+                        <span><label>Họ và Tên chứa số</label></span>
+                        <input type="checkbox" @onclick="onClickCheckSex" />
+                        <span><label>Giới tính (0/1)</label></span><br/>
+                        <input type="checkbox" @onclick="onClickCheckExist" />
+                        <span><label>Tự động bỏ qua SV đã tồn tại trong ca thi</label></span>
+                    </p>
+                    <p style="color:orangered">
+                        <small>Lưu ý: File excel phải có tiêu đề HEADING, dữ liệu đọc bắt đầu từ ô A2 tại sheet 1. 
+                            File tối đa 5MB. MSSV bắt buộc không được rỗng. Các dữ liệu sẽ cập nhật real-time mỗi khi có bất kì thao tác.
+                            Vui lòng liên hệ phòng đào tạo để cập nhật thông tin đầy đủ cho thí sinh và chắc chắn các đề thi phải được tạo sẵn trước đó.</small>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    @{
+                        if(isReadyToSave){
+                            <button type="button" @onclick="onClickLuu" class="btn btn-success">Lưu</button>
+                        }
+                        else{
+                            <button type="button" style="opacity: 0.5" class="btn btn-success">Lưu</button>
+                        }
+                    }
+                    <button type="button" @onclick="onClickThoat" class="btn btn-secondary">Thoát</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+

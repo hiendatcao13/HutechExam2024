@@ -114,15 +114,21 @@ namespace Hutech.Exam.Client.Pages
                 await js.InvokeVoidAsync("alert", "Ca thi này hiện chưa được kích hoạt hoặc dừng tạm thời. Vui lòng liên hệ quản trị để kích hoạt ca thi");
                 return;
             }
-            DateTime currentTime = new DateTime();
-            string formatTime = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd
+            string formatTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại
+            string formatThoiGianThi = (caThi != null) ? caThi.ThoiGianBatDau.ToString("dd/MM/yyyy HH:mm:ss") : "";
+
+            DateTime currentTime = DateTime.Now;
+            DateTime thoiGianThi = new DateTime();
+
+            DateTime.TryParse(formatThoiGianThi, out thoiGianThi);
             DateTime.TryParse(formatTime, out currentTime);
-            if (caThi != null && js != null && DateTime.Compare(caThi.ThoiGianBatDau,currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0)
+
+            if (caThi != null && js != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
                 await js.InvokeVoidAsync("alert", "Ca thi này hiện chưa đến thời gian làm bài. Vui lòng thí sinh chờ đợi đến giờ thi");
                 return;
             }
-            if (caThi != null && js != null && DateTime.Compare(caThi.ThoiGianBatDau.AddMinutes(THOI_GIAN_SAU_THI),currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
+            if (caThi != null && js != null && DateTime.Compare(thoiGianThi.AddMinutes(THOI_GIAN_SAU_THI),currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
                 await js.InvokeVoidAsync("alert", "Ca thi này hiện quá giờ làm bài. Vui lòng thí sinh liên hệ với quản trị viên");
                 return;

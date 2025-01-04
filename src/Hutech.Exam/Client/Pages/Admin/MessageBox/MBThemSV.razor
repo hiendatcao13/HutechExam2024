@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <link href="./css/admin/MessageBox.css" rel="stylesheet">
     <title>Document</title>
@@ -15,7 +15,7 @@
 <body>
 
     <div class="modal-backdroup show"></div>
-    <div class="modal fade show" style="display: block;" tabindex="-1">
+    <div class="modal fade show" style="display: block; background-color: rgba(0, 0, 0, 0.8) !important" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -35,24 +35,51 @@
                     <p>MSSV: </p>
                     <span><input type="text" @bind="@MSSV" @onkeydown="onKeyDownInput" /></span>
                     <p>Họ và lót: </p>
-                    <span class="content-p" style="color:red">@hoTenLot</span>
+                    @{
+                        if (is_existMSSV == false)
+                        {
+                            <span><input type="text" @bind="@hoTenLot" /></span>
+                        }
+                        else
+                        {
+                            <span class="content-p" style="color:red">@hoTenLot</span>
+                        }
+                    }
                     <p>Tên sinh viên: </p>
-                    <span class="content-p" style="color:red">@tenSinhVien</span>
+                    @{
+                        if (is_existMSSV == false){
+                            <span><input type="text" @bind="@tenSinhVien" /></span>
+                        }
+                        else{
+                            <span class="content-p" style="color:red">@tenSinhVien</span>
+                        }
+                    }
+                    @if(is_existMSSV == false){
+                        <p>Lớp (có thể bỏ qua): </p>
+                        <span><input type="text" @bind="@lop" /></span>
+                        <p>Giới tính: </p>
+                        <span><input class="radio-input" type="radio" value="" @onchange="onClickMale"/> (Chọn nếu nam)</span>
+                    }
                     <p>Check: </p>
                     @{
                         if (is_existMSSV == true)
                         {
-                            <p style="color: green">Đã tìm thấy SV</p>
+                            <p style="color: green">Đã tìm thấy trong CSDL</p>
                         }
                         else if(is_existMSSV == false)
                         {
-                            <p style="color: red">Không tìm thấy SV</p>
+                            <p style="color: red">Không tìm thấy trong CSDL</p>
                         }
                         else
                         {
                             <p>Vui lòng nhấn check</p>
                         }
                     }
+                    <p style="color:orangered">
+                        <small>
+                            Lưu ý: Hãy chắc chắn rằng các mã đề hoán vị đã được tạo sẵn.
+                        </small>
+                    </p>
                 </div>
                 <div class="modal-footer">
                     @{
@@ -64,6 +91,9 @@
                         else
                         {
                             <button type="button" @onclick="handleCheck" class="btn btn-info">Check MSSV</button>
+                            if(is_existMSSV == false){
+                                <button type="button" @onclick="onClickTaoMoi" class="btn btn-danger">Tạo mới</button>
+                            }
                             <button type="button" style="opacity: 0.5" class="btn btn-success">Lưu</button>
                         }
                     }

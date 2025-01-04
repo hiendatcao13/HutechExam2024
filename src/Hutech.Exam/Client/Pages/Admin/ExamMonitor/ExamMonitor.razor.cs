@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
+using Ninject.Activation;
+using OfficeOpenXml;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace Hutech.Exam.Client.Pages.Admin
+namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor
     {
@@ -39,11 +41,17 @@ namespace Hutech.Exam.Client.Pages.Admin
         private MBCongGio? MBCongGio { get; set; }
         private int ma_ca_thi { get; set; }
         private bool isShowMBThemSV { get; set; }
-        private bool isExsistSVMB { get; set; } // biến check sinh viên tồn tại trong database
         private MBThemSV? MBThemSV { get; set; }
         private SinhVien? sinhVienMBThemSV { get; set; }
         private HubConnection? hubConnection { get; set; }
         private string? input_MSSV { get; set; }
+        private bool isShowMBExcel { get; set; }
+        private MBThemSVExcel? MBThemSVExcel { get; set; }
+        private List<Khoa>? listKhoa { get; set; }
+        private bool isShowMBSuaSV { get; set; }
+        private List<long>? listMaDes { get; set; }
+        private MBSuaSV? MBSuaSV { get; set; }
+        private ChiTietCaThi? displayCTCTMBSuaSV { get; set; }
 
         protected async override Task OnInitializedAsync()
         {
@@ -109,44 +117,6 @@ namespace Hutech.Exam.Client.Pages.Admin
                 navManager?.NavigateTo("/admin", true);
             }
         }
-
-        private async Task congGioSinhVien(ChiTietCaThi chiTietCaThi)
-        {
-            var jsonString = JsonSerializer.Serialize(chiTietCaThi);
-            if (httpClient != null)
-                await httpClient.PostAsync($"api/Admin/CongGioSinhVien?chiTietCaThi={chiTietCaThi}", new StringContent(jsonString, Encoding.UTF8, "application/json"));
-            if (isConnectHub())
-                await sendMessage(ma_ca_thi);
-        }
-
-        private async Task onClickCongGioThem(ChiTietCaThi chiTietCaThi)
-        {
-            bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Cộng giờ thêm được dùng trong trường hợp thí sinh bị treo máy hoặc nguyên nhân thích đáng khác");
-            if (result && js != null)
-            {
-                isShowMessageBox = true;
-                displayChiTietCaThi = chiTietCaThi;
-            }
-        }
-
-        private async Task onClickMBLuu()
-        {
-            if(displayChiTietCaThi != null && MBCongGio != null && MBCongGio.thoiGianCongThem != null)
-            {
-                displayChiTietCaThi.ThoiDiemCong = DateTime.Now;
-                displayChiTietCaThi.LyDoCong = MBCongGio.lyDoCong;
-                displayChiTietCaThi.GioCongThem = (int)MBCongGio.thoiGianCongThem;
-                await congGioSinhVien(displayChiTietCaThi);
-            }
-            onClickMBThoat();
-        }
-
-        private void onClickMBThoat()
-        {
-            isShowMessageBox = false;
-            StateHasChanged();
-        }
-        
         private async void onClickResetLogin(SinhVien sinhVien)
         {
             bool result = (js != null) && await js.InvokeAsync<bool>("confirm", $"Thí sinh đăng nhập lần cuối vào lúc {sinhVien.LastLoggedIn}. Hãy cân nhắc thời gian trên và chắc chắn rằng sinh viên không gian lận");
@@ -160,111 +130,95 @@ namespace Hutech.Exam.Client.Pages.Admin
                 }
             }
         }
-        private void onClickThemSV()
+
+        private async Task congGioSinhVien(ChiTietCaThi chiTietCaThi)
         {
-            js?.InvokeVoidAsync("alert", "Chức năng thêm sinh viên vào ca thi chỉ dành cho trường hợp khẩn cấp");
-            if (MBThemSV != null)
-                MBThemSV.is_existMSSV = null;
-            isShowMBThemSV = true;
-            StateHasChanged();
-        }
-        private void onClickThoatMBThemSV()
-        {
-            isShowMBThemSV = false;
-            StateHasChanged();
-        }
-        private async Task onClickCheckSV()
-        {
-            if(chiTietCaThis != null && MBThemSV != null)
-            {
-                if(MBThemSV.MSSV == null)
-                {
-                    js?.InvokeVoidAsync("alert", "Vui lòng nhập đầy đủ thông tin");
-                    return;
-                }
-                SinhVien? sinhVien = chiTietCaThis.FirstOrDefault(p => p.MaSinhVienNavigation?.MaSoSinhVien == MBThemSV.MSSV)?.MaSinhVienNavigation;
-                if (sinhVien != null)
-                {
-                    js?.InvokeVoidAsync("alert", "Sinh viên này đã nằm trong ca thi. Vui lòng kiểm tra");
-                    return;
-                }
-            }
-            HttpResponseMessage? response = null;
-            if (httpClient != null && MBThemSV != null)
-                response = await httpClient.GetAsync($"api/Admin/GetThongTinSinhVien?ma_so_sinh_vien={MBThemSV.MSSV}");
-            if (response != null && response.IsSuccessStatusCode)
-            {
-                var resultString = await response.Content.ReadAsStringAsync();
-                sinhVienMBThemSV = JsonSerializer.Deserialize<SinhVien>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            }
-            if (sinhVienMBThemSV != null && sinhVienMBThemSV.TenSinhVien != null && MBThemSV != null)
-            {
-                MBThemSV.is_existMSSV = true;
-                MBThemSV.hoTenLot = sinhVienMBThemSV.HoVaTenLot;
-                MBThemSV.tenSinhVien = sinhVienMBThemSV.TenSinhVien;
-            }
-            else if(MBThemSV != null)
-                MBThemSV.is_existMSSV = false;
-            StateHasChanged();
-        }
-        private async Task onClickLuuMBThemSV()
-        {
-            long? ma_de_hoan_vi = chooseRandomDeThiHV();
-            if(ma_de_hoan_vi == null)
-            {
-                js?.InvokeVoidAsync("alert","Thêm sinh viên cho trường hợp khẩn cấp thất bại. Hãy chắc chắn là các đề đã được tạo và ca thi này phải tồn tại ít nhất 1 sinh viên");
-                return;
-            }
+            var jsonString = JsonSerializer.Serialize(chiTietCaThi);
             if (httpClient != null)
-                await httpClient.PostAsync($"api/Admin/InsertCTCT?ma_ca_thi={ma_ca_thi}&ma_sinh_vien={sinhVienMBThemSV?.MaSinhVien}&ma_de_hoan_vi={ma_de_hoan_vi}", null);
+                await httpClient.PostAsync($"api/Admin/CongGioSinhVien?chiTietCaThi={chiTietCaThi}", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             if (isConnectHub())
                 await sendMessage(ma_ca_thi);
-            onClickThoatMBThemSV();
         }
-        private long? chooseRandomDeThiHV()
+        private async Task onClickRemoveCTCT(ChiTietCaThi chiTietCaThi)
         {
-            // lưu ý là đây là thêm sinh viên trường hợp khẩn cấp, tức là database đã đầy đủ, mọi sinh viên đã có đủ đề
-            if(chiTietCaThis != null)
+            await getAllDeThi();
+            string? ten_sv = chiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + chiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
+            bool result = await js.InvokeAsync<bool>("confirm", $"Bạn muốn xóa sinh viên {ten_sv}?");
+            if (result)
             {
-                int count = chiTietCaThis.Count();
-                Random rd = new Random();
-                int index = rd.Next(0, count - 1);
-                return chiTietCaThis[index].MaDeThi;
+                if (httpClient != null)
+                    await httpClient.DeleteAsync($"api/ExamMonitor/RemoveCTCT?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}");
+                if (isConnectHub())
+                    await sendMessage(ma_ca_thi);
             }
-            return null;
         }
-        private void onChangeInputMSSV(ChangeEventArgs e)
-        {
-            if (e.Value != null)
-            {
-                if (e.Value.ToString() == "" && chiTietCaThis != null)
-                    displayChiTietCaThis = chiTietCaThis.ToList();
-                else if(displayChiTietCaThis != null && chiTietCaThis != null)
-                {
-                    displayChiTietCaThis.Clear();
-                    string temp = "" + e.Value.ToString();
-                    var item = chiTietCaThis.Where(p => 
-                        p.MaSinhVienNavigation != null && 
-                        p.MaSinhVienNavigation.MaSoSinhVien != null && 
-                        p.MaSinhVienNavigation.MaSoSinhVien.Contains(temp)
-                    ).ToList();
-                    displayChiTietCaThis.AddRange(item);
-                }
-            }
-            StateHasChanged();
-        }
-        private void refresh()
+
+        private async void refresh()
         {
             displayChiTietCaThis = chiTietCaThis;
             input_MSSV = "";
+            if (isConnectHub())
+                await sendMessage(ma_ca_thi);
         }
-        
+        public async Task<byte[]> GenerateExcelAsync()
+        {
+            // Cấp phép cho EPPlus
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var package = new ExcelPackage())
+            {
+                // Tạo worksheet
+                var worksheet = package.Workbook.Worksheets.Add("Data");
+
+                // Thêm dữ liệu
+                worksheet.Cells[1, 1].Value = "ISTT";
+                worksheet.Cells[1, 2].Value = "MSSV";
+                worksheet.Cells[1, 3].Value = "HoVaTenLot";
+                worksheet.Cells[1, 4].Value = "TenSinhVien";
+                worksheet.Cells[1, 5].Value = "Diem";
+
+                if(chiTietCaThis != null)
+                {
+                    int rowIndex = 2; // Bắt đầu từ hàng thứ 2 (dòng dữ liệu)
+                    foreach (var item in chiTietCaThis)
+                    {
+                        SinhVien? sv = item.MaSinhVienNavigation;
+                        if (sv != null)
+                        {
+                            worksheet.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
+                            worksheet.Cells[rowIndex, 2].Value = sv.MaSoSinhVien;
+                            worksheet.Cells[rowIndex, 3].Value = sv.HoVaTenLot;
+                            worksheet.Cells[rowIndex, 4].Value = sv.TenSinhVien;
+                            worksheet.Cells[rowIndex, 5].Value = item.Diem;
+                            rowIndex++;
+                        }
+                    }
+                }
+
+                // Tự động điều chỉnh cột
+                worksheet.Cells.AutoFitColumns();
+
+                // Trả về dữ liệu Excel dưới dạng mảng byte
+                return await Task.FromResult(package.GetAsByteArray());
+            }
+        }
+        private async Task onClickDownloadExcel()
+        {
+            var excelData = await GenerateExcelAsync();
+            var base64 = Convert.ToBase64String(excelData);
+            var fileName = $"Bảng điểm ca thi {ma_ca_thi}.xlsx";
+
+            // Tạo link tải xuống
+            js?.InvokeVoidAsync("downloadFile", fileName, base64);
+        }
+
         private async Task Start()
         {
             sinhVien = new SinhVien();
-            isShowMessageBox = false;
+            isShowMessageBox = isShowMBExcel = false;
             chiTietCaThis = new List<ChiTietCaThi>();
             displayChiTietCaThis = new List<ChiTietCaThi>();
+            displayCTCTMBSuaSV = new ChiTietCaThi();
             MB_ly_do_cong = "";
             MB_thoi_gian_cong = 0;
             displayChiTietCaThi = new ChiTietCaThi();

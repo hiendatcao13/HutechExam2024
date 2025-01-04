@@ -19,14 +19,16 @@ namespace Hutech.Exam.Server.Controllers
         private readonly AudioListenedService _audioListenedService;
         private readonly CustomDeThiService _customDeThiService;
         private readonly CaThiService _caThiService;
+        private readonly RabbitMqCTBTService _rabbitMqService;
         public ExamController(ChiTietDeThiHoanViService chiTietDeThiHoanViService, ChiTietBaiThiService chiTietBaiThiService, 
-            AudioListenedService audioListenedService, CustomDeThiService customDeThiService, CaThiService caThiService)
+            AudioListenedService audioListenedService, CustomDeThiService customDeThiService, CaThiService caThiService, RabbitMqCTBTService rabbitMqService)
         {
             _chiTietDeThiHoanViService = chiTietDeThiHoanViService;
             _chiTietBaiThiService = chiTietBaiThiService;
             _audioListenedService = audioListenedService;
             _customDeThiService = customDeThiService;
             _caThiService = caThiService;
+            _rabbitMqService = rabbitMqService;
         }
         [HttpGet("GetDeThi")]
         [Cache]
@@ -89,21 +91,41 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("UpdateChiTietBaiThi")]
-        public async Task<ActionResult> UpdateChiTietBaiThi([FromBody] List<ChiTietBaiThi> chiTietBaiThis)
+        [AllowAnonymous]
+        public async Task<ActionResult<List<ChiTietBaiThi>>> UpdateChiTietBaiThi([FromBody] List<ChiTietBaiThi> chiTietBaiThis)
         {
-            if (chiTietBaiThis.Count == 0)
-                return Ok();
             List<int>? listDapAn = await this.GetListDapAnWithCacheAsync(chiTietBaiThis[0].MaDeHv);
-            // nếu thứ tự là 0 là đã insert trước đó, chỉ update và ngược lại thì insert và update
-            foreach(var item in chiTietBaiThis)
+            if(chiTietBaiThis.Count != 0)
             {
-                if (item.ThuTu != 0)
-                    _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
-                if (listDapAn != null && item.CauTraLoi != null)
-                    item.KetQua = (listDapAn.Contains((int)item.CauTraLoi)) ? true : false;
+                foreach (var item in chiTietBaiThis)
+                {
+                    if (listDapAn != null && item.CauTraLoi != null)
+                        item.KetQua = (listDapAn.Contains((int)item.CauTraLoi)) ? true : false;
+                }
+                try
+                {
+                    await _rabbitMqService.PublishMessage(chiTietBaiThis);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { Success = false, Error = ex.Message });
+                }
             }
-            _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
-            return Ok();
+            return Ok(new { Success = true, Message = "Message sent successfully!" });
+
+            //    if (chiTietBaiThis.Count == 0)
+            //        return Ok();
+            //    List<int>? listDapAn = await this.GetListDapAnWithCacheAsync(chiTietBaiThis[0].MaDeHv);
+            //    // nếu thứ tự là 0 là đã insert trước đó, chỉ update và ngược lại thì insert và update
+            //    foreach(var item in chiTietBaiThis)
+            //    {
+            //        if (item.ThuTu != 0)
+            //            _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
+            //        if (listDapAn != null && item.CauTraLoi != null)
+            //            item.KetQua = (listDapAn.Contains((int)item.CauTraLoi)) ? true : false;
+            //    }
+            //    _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
+            //    return Ok();
         }
 
         [HttpGet("AudioListendCount")]

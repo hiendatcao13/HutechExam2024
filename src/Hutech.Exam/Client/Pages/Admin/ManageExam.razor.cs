@@ -11,6 +11,7 @@ using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared;
+using Hutech.Exam.Shared.API;
 
 namespace Hutech.Exam.Client.Pages.Admin
 {
@@ -77,6 +78,8 @@ namespace Hutech.Exam.Client.Pages.Admin
             if (response != null && response.IsSuccessStatusCode )
             {
                 var resultString = await response.Content.ReadAsStringAsync();
+                //ApiResponse<List<CaThi>>? temp = JsonSerializer.Deserialize<ApiResponse<List<CaThi>>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                //displayCaThis = caThis = temp.result;
                 displayCaThis = caThis = JsonSerializer.Deserialize<List<CaThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
         }
@@ -191,11 +194,17 @@ namespace Hutech.Exam.Client.Pages.Admin
             if (httpClient != null && showCaThiMessageBox != null)
                 response = await httpClient.GetAsync($"api/Admin/HuyKichHoatCaThi?ma_ca_thi={showCaThiMessageBox.MaCaThi}");
         }
-        private async Task KetThucCaThi()
+        private async Task<bool> KetThucCaThi()
         {
             HttpResponseMessage? response = null;
             if (httpClient != null && showCaThiMessageBox != null)
                 response = await httpClient.GetAsync($"api/Admin/KetThucCaThi?ma_ca_thi={showCaThiMessageBox.MaCaThi}");
+            if (response != null && response.IsSuccessStatusCode)
+            {
+                var resultString = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<bool>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            }
+            return false;
         }
         private async Task onClickKichHoatCaThi()
         {
@@ -211,7 +220,7 @@ namespace Hutech.Exam.Client.Pages.Admin
         {
             // chỉ hủy kích hoạt ca thi khi mà không còn thí sinh nào đang thi
 
-            bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận mà tất cả sinh viên đã làm trong ca thi này. " +
+            bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận đáp án mà tất cả sinh viên đã làm trong ca thi này. " +
                 "Nếu bạn chỉ muốn dừng tạm thời ca thi, hãy chọn \"Dừng ca thi\".");
             if (result && showCaThiMessageBox != null)
             {
@@ -226,7 +235,12 @@ namespace Hutech.Exam.Client.Pages.Admin
             bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn kết thúc ca thi. Việc này sẽ không thể kích hoạt lại ca thi này nữa");
             if (result && showCaThiMessageBox != null)
             {
-                await KetThucCaThi();
+                bool isKetThuc = await KetThucCaThi();
+                if (!isKetThuc)
+                {
+                    js?.InvokeVoidAsync("alert", "Ca thi không thể kết thúc khi có thí sinh chưa hoàn thành bài thi. Vui lòng hủy kích hoạt ca thi trước");
+                    return;
+                }
                 await reLoadingComponent(showCaThiMessageBox.MaCaThi);
             }
             showMessageBox = false;
@@ -292,6 +306,10 @@ namespace Hutech.Exam.Client.Pages.Admin
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageStatusCaThi", ma_ca_thi);
+        }
+        private bool verifyPassword(string password, string hashedPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

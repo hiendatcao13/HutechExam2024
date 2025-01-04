@@ -42,17 +42,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_ca_thi_UpdateBatDau");
             sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau);
+            sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau ?? (Object)DBNull.Value);
             return sql.ExcuteNonQuery() != 0; // check xem có sự thay đổi không
         }
         public bool UpdateKetThuc(int ma_chi_tiet_ca_thi, DateTime? thoi_gian_ket_thuc, double diem, int? so_cau_dung, int? tong_so_cau)
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_ca_thi_UpdateKetThuc");
             sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@thoi_gian_ket_thuc", SqlDbType.DateTime, thoi_gian_ket_thuc);
+            sql.SqlParams("@thoi_gian_ket_thuc", SqlDbType.DateTime, thoi_gian_ket_thuc ?? (Object)DBNull.Value);
             sql.SqlParams("@diem", SqlDbType.Float, diem);
-            sql.SqlParams("@so_cau_dung", SqlDbType.Int, so_cau_dung);
-            sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau);
+            sql.SqlParams("@so_cau_dung", SqlDbType.Int, so_cau_dung ?? (Object)DBNull.Value);
+            sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau ?? (Object)DBNull.Value);
             return sql.ExcuteNonQuery() != 0;
         }
 
@@ -61,8 +61,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
             DatabaseReader sql = new DatabaseReader("chi_tiet_ca_thi_CongGio");
             sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
             sql.SqlParams("@gio_cong_them", SqlDbType.Int, gio_cong_them);
-            sql.SqlParams("@thoi_diem_cong", SqlDbType.DateTime, thoi_diem_cong);
-            sql.SqlParams("@ly_do_cong", SqlDbType.NVarChar, ly_do_cong);
+            sql.SqlParams("@thoi_diem_cong", SqlDbType.DateTime, thoi_diem_cong ?? (Object)DBNull.Value);
+            sql.SqlParams("@ly_do_cong", SqlDbType.NVarChar, ly_do_cong ?? (Object)DBNull.Value);
             return sql.ExcuteNonQuery() != 0;
         }
         public bool Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
@@ -72,6 +72,22 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
             sql.SqlParams("@ma_de_thi", SqlDbType.BigInt, ma_de_thi);
             sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau);
+            return sql.ExcuteNonQuery() != 0;
+        }
+        public bool Remove(int ma_chi_tiet_ca_thi)
+        {
+            DatabaseReader sql = new DatabaseReader("chi_tiet_ca_thi_Remove");
+            sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
+            return sql.ExcuteNonQuery() != 0;
+        }
+        public bool Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
+        {
+            DatabaseReader sql = new DatabaseReader("chi_tiet_ca_thi_Update");
+            sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi ?? (Object)DBNull.Value);
+            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien ?? (Object)DBNull.Value);
+            sql.SqlParams("@ma_de_thi", SqlDbType.BigInt, ma_de_thi ?? (Object)DBNull.Value);
+            sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau ?? (Object)DBNull.Value);
             return sql.ExcuteNonQuery() != 0;
         }
     }

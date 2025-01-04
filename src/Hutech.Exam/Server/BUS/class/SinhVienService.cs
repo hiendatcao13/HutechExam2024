@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.Models;
+using System;
 using System.Data;
 using System.Diagnostics;
 
@@ -83,6 +84,25 @@ namespace Hutech.Exam.Server.BUS
                 }
             }
             return sv;
+        }
+        public long Insert(SinhVien sinhVien)
+        {
+            Object ma_sinh_vien = _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
+                sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId);
+            try
+            {
+                return Convert.ToInt64(ma_sinh_vien);
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+        }
+        public void Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
+            DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
+        {
+            if (!_sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
+            ngay_sinh, ma_lop, dia_chi, email, dien_thoai, ma_so_sinh_vien))
+            {
+                throw new Exception("Can not update sinh vien");
+            }
         }
     }
 }

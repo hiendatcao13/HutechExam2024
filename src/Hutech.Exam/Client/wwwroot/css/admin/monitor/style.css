@@ -348,7 +348,7 @@ td {
 }
 
 .btnPlus{
-  font-size: calc(var(--fraction-font-size) + 15px);
+  font-size: calc(var(--fraction-font-size) + 5px);
   background: none;
   border: none;
 }
@@ -358,4 +358,27 @@ td {
   padding: 3px 10px;
   color:#fff;
 }
+.btnModify {
+    font-size: calc(var(--fraction-font-size) + 5px);
+    background: none;
+    border: none;
+}
 
+    .btnModify:hover {
+        font-weight: 700;
+        background-color: lightskyblue;
+        padding: 3px 10px;
+        color: #fff;
+    }
+.btnDelete {
+    font-size: calc(var(--fraction-font-size) + 5px);
+    background: none;
+    border: none;
+}
+
+    .btnDelete:hover {
+        font-weight: 700;
+        background-color: red;
+        padding: 3px 10px;
+        color: #fff;
+    }

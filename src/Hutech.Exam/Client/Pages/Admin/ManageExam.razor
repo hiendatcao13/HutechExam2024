@@ -10,7 +10,6 @@
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="./css/admin/ManageExam.css"/>
-
 </head>
 
 <body>
@@ -68,7 +67,18 @@
                     <td>@item.TenCaThi</td>
                     <td>@item.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi</td>
                     <td>@item.ThoiGianBatDau</td>
-                    @if (item.KetThuc)
+                    @if(item.KetThuc){
+                        <td><button class="btn-i"><i class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
+                    }
+                    else{
+                        if(item.IsActivated){
+                            <td><button class="btn-i"><i style="color: green;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
+                        }
+                        else{
+                            <td><button class="btn-i"><i style="color: red;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
+                        }
+                    }
+                    @* @if (!item.KetThuc)
                     {
                         <td><button class="btn-i"><i style="color: red;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
                     }
@@ -79,7 +89,7 @@
                     else
                     {
                         <td><button class="btn-i"><i class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
-                    }
+                    } *@
                     <td><button class="btn btnPlus" @onclick="() => OnClickChiTietCaThi(item)">+</button></td>
                 </tr>
                 stt++;
@@ -106,5 +116,4 @@
         </Hutech.Exam.Client.Pages.Admin.MessageBox.MBKichHoatCaThi>
     }
 </body>
-    
 </html>

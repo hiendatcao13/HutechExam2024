@@ -95,6 +95,8 @@ public partial class Result
             chiTietCaThi.TongSoCau = customDeThis.Count;
             var jsonString = JsonSerializer.Serialize(chiTietCaThi);
             await httpClient.PostAsync("api/Result/UpdateKetThuc", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
+                await sendMessage((int)chiTietCaThi.MaCaThi);
         }
     }
     private void tinhDiemSo()
@@ -202,6 +204,11 @@ public partial class Result
     {
         if (hubConnection != null)
             await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
+    }
+    private async Task sendMessage(int ma_ca_thi)
+    {
+        if (hubConnection != null)
+            await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
     }
     private void resetLogin()
     {

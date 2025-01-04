@@ -3,6 +3,7 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
+using Hutech.Exam.Shared.API;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,21 +70,32 @@ namespace Hutech.Exam.Server.Controllers.Admin
             return Ok();
         }
         [HttpGet("KetThucCaThi")]
-        public ActionResult KetThucCaThi([FromQuery] int ma_ca_thi)
+        public ActionResult<bool> KetThucCaThi([FromQuery] int ma_ca_thi)
         {
-            this.UpdateTinhTrangCaThi(ma_ca_thi, false);
+            List<ChiTietCaThi> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+            foreach(var item in chiTietCaThis)
+            {
+                if (!item.DaHoanThanh) // Yêu cầu kết thúc ca thi chỉ thực hiện khi các thí sinh đã hoàn thành bài thi
+                    return Ok(false);
+            }
             _caThiService.ca_thi_Ketthuc(ma_ca_thi);
-            return Ok();
+            this.UpdateTinhTrangCaThi(ma_ca_thi, false);
+            return Ok(true);
         }
         [HttpGet("HuyKichHoatCaThi")]
         public ActionResult HuyKichHoatCaThi([FromQuery] int ma_ca_thi)
         {
-            this.UpdateTinhTrangCaThi(ma_ca_thi, false);
             List<ChiTietCaThi> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
             foreach(var item in chiTietCaThis)
             {
+                if (!item.DaHoanThanh) // cập nhật những thí sinh đang thi, chưa thi thành đã hoàn thành
+                {
+                    item.ThoiGianKetThuc = DateTime.Now;
+                    _chiTietCaThiService.UpdateKetThuc(item);
+                }
                 List<ChiTietBaiThi> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(item.MaChiTietCaThi);
                 this.removeListCTBT(chiTietBaiThis);
+                this.UpdateTinhTrangCaThi(ma_ca_thi, false);
             }
             return Ok();
         }
@@ -93,6 +105,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
             List<CaThi> result = _caThiService.ca_thi_GetAll();
             foreach (var item in result)
                 item.MaChiTietDotThiNavigation = getThongTinChiTietDotThi(item.MaChiTietDotThi);
+            //return new ApiResponse<List<CaThi>>(result);
             return result;
         }
         [HttpGet("GetThongTinCaThi")]
@@ -127,12 +140,6 @@ namespace Hutech.Exam.Server.Controllers.Admin
         {
             SinhVien sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
             return sinhVien;
-        }
-        [HttpPost("InsertCTCT")]
-        public ActionResult InsertCTCT([FromQuery] int ma_ca_thi, [FromQuery] long ma_sinh_vien, [FromQuery] long ma_de_hoan_vi)
-        {
-            _chiTietCaThiService.Insert(ma_ca_thi, ma_sinh_vien, ma_de_hoan_vi, 0);
-            return Ok();
         }
         private SinhVien getThongTinSinhVien(long ma_sinh_vien)
         {
