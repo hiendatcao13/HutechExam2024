@@ -41,11 +41,11 @@ namespace Hutech.Exam.Server.DAL.DataReader
         }
         private void checkError(string nameOfProcedure, string connectionString)
         {
-            if (nameOfProcedure.IsNullOrEmpty() || nameOfProcedure.Length == 0)
+            if (nameOfProcedure == "" || nameOfProcedure == null || nameOfProcedure.Length == 0)
             {
                 throw new ArgumentNullException("Name Procedure");
             }
-            if (connectionString.IsNullOrEmpty() || connectionString.Length == 0)
+            if (connectionString == "" || connectionString == null || connectionString.Length == 0)
             {
                 throw new ArgumentNullException("ConnectString");
             }

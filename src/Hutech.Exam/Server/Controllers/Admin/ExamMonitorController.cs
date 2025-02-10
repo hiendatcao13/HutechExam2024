@@ -57,7 +57,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
         [HttpPost("InsertSV")]
         public ActionResult InsertSV([FromQuery] string? ten_lop,[FromQuery] int ma_ca_thi, [FromBody] SinhVienDto sinhVien)
         {
-            if (!ten_lop.IsNullOrEmpty() && ten_lop != null)
+            if (ten_lop != "" && ten_lop != null)
             {
                 // nếu lớp không tồn tại trong CSDL, sẽ để giá trị null và thêm sau vì nếu tạo lớp thì sẽ phải tạo trường Khoa
                 int ma_lop = _lopService.SelectBy_ten_lop(ten_lop).MaLop;

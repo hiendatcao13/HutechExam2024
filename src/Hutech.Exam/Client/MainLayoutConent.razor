@@ -1,31 +1,31 @@
 ﻿@inject NavigationManager navManager
+
 @{
-    var currentUrl = navManager.ToAbsoluteUri(navManager.Uri);
+    var currentPath = new Uri(navManager.Uri).AbsolutePath;
+    var isLoginPage = currentPath == "/" || currentPath == "/admin";
 }
+
 <AuthorizeView>
     <Authorized>
         <main>
             @ChildContent
-            <!--Load thư viện canvas ảnh cho điểm thí sinh-->
-            <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
-            @* <script src="/js/security.js"></script> *@
         </main>
     </Authorized>
+
     <NotAuthorized>
-        <!--Chỉ cho phép duy nhất trang login cho admin và sinh viên-->
-        @if (currentUrl.AbsolutePath == "/" || currentUrl.AbsolutePath == "/admin")
-        {
-            <main>
+        <main>
+            @if (isLoginPage)
+            {
                 @ChildContent
-                @* <script src="/js/security.js"></script> *@
-            </main>
-        }
-        else
-        {
-            <Forbidden403></Forbidden403>
-        }
+            }
+            else
+            {
+                <Forbidden403></Forbidden403>
+            }
+        </main>
     </NotAuthorized>
 </AuthorizeView>
+
 @code {
     [Parameter, EditorRequired]
     public RenderFragment? ChildContent { get; set; }
