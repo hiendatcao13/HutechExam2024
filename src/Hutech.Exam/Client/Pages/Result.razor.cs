@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions;
 using Microsoft.AspNetCore.SignalR.Client;
+using Hutech.Exam.Shared.DTO.Custom;
 namespace Hutech.Exam.Client.Pages;
 
 public partial class Result

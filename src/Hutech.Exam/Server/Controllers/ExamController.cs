@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.Attributes;
 using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

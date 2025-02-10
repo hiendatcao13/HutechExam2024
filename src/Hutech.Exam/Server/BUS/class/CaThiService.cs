@@ -89,5 +89,27 @@ namespace Hutech.Exam.Server.BUS
                 throw new Exception("Không thể kết thúc ca thi " + ex.Message);
             }
         }
+        public void Remove(int ma_ca_thi)
+        {
+            try
+            {
+                _caThiRepository.Remove(ma_ca_thi);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Không thể xóa ca thi " + ex.Message);
+            }
+        }
+        public void Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        {
+            try
+            {
+                _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Không thể cập nhật ca thi " + ex.Message);
+            }
+        }
     }
 }

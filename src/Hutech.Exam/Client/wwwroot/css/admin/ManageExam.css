@@ -165,17 +165,43 @@ i {
     outline: none;
     border: none;
 }
-.btnPlus{
-    width: 30%;
+.btnPlus {
+    font-size: calc(var(--fraction-font-size) + 5px);
+    background: none;
+    border: none;
+    font-weight: 900;
 }
     .btnPlus:hover {
-        background-color: deepskyblue;
-        color: black;
+        font-weight: 700;
+        background-color: #32cd32;
+        padding: 3px 10px;
+        color: #fff;
     }
 
-
-/* đổi màu
-td i{
-    color: green;
+.btnModify {
+    font-size: calc(var(--fraction-font-size) + 5px);
+    background: none;
+    border: none;
+    font-weight: 700;
 }
-*/
+
+    .btnModify:hover {
+        font-weight: 700;
+        background-color: lightskyblue;
+        padding: 3px 10px;
+        color: #fff;
+    }
+
+.btnDelete {
+    font-size: calc(var(--fraction-font-size) + 5px);
+    background: none;
+    border: none;
+    font-weight: 700;
+}
+
+    .btnDelete:hover {
+        font-weight: 700;
+        background-color: red;
+        padding: 3px 10px;
+        color: #fff;
+    }

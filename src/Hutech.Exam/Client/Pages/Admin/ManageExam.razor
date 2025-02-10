@@ -78,19 +78,11 @@
                             <td><button class="btn-i"><i style="color: red;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
                         }
                     }
-                    @* @if (!item.KetThuc)
-                    {
-                        <td><button class="btn-i"><i style="color: red;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
-                    }
-                    else if (item.IsActivated)
-                    {
-                        <td><button class="btn-i"><i style="color: green;" class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
-                    }
-                    else
-                    {
-                        <td><button class="btn-i"><i class="fa-solid fa-circle-play" @onclick="() => onClickShowMessageBox(item)"></i></button></td>
-                    } *@
-                    <td><button class="btn btnPlus" @onclick="() => OnClickChiTietCaThi(item)">+</button></td>
+                    <td>
+                        <button class="btnPlus" @onclick="() => OnClickChiTietCaThi(item)">+</button>
+                        <button class="btnModify">o</button>
+                        <button class="btnDelete" @onclick="() => onClickXoaCaThi(item.MaCaThi)">x</button>
+                        </td>
                 </tr>
                 stt++;
             }

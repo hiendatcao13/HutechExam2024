@@ -1,4 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO.Custom;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;

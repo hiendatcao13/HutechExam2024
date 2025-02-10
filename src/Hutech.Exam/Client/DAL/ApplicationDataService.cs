@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.Models;
 using System.Numerics;
 
 namespace Hutech.Exam.Client.DAL

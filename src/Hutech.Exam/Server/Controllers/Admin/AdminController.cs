@@ -141,6 +141,18 @@ namespace Hutech.Exam.Server.Controllers.Admin
             SinhVien sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
             return sinhVien;
         }
+        [HttpDelete("DeleteCaThi")]
+        public ActionResult DeleteCaThi([FromQuery] int ma_ca_thi)
+        {
+            _caThiService.Remove(ma_ca_thi);
+            return Ok();
+        }
+        [HttpPost("UpdateCaThi")]
+        public ActionResult UpdateCaThi([FromBody] CaThi caThi)
+        {
+            _caThiService.Update(caThi.MaCaThi, caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+            return Ok();
+        }
         private SinhVien getThongTinSinhVien(long ma_sinh_vien)
         {
             return _sinhVienService.SelectOne(ma_sinh_vien);

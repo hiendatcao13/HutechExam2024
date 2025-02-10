@@ -1,6 +1,6 @@
 ﻿
 using Hutech.Exam.Server.DAL.Repositories;
-using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Shared.DTO.Custom;
 
 namespace Hutech.Exam.Server.Installers
 {

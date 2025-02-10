@@ -10,6 +10,7 @@ using System.Net;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.IdentityModel.Tokens;
+using Hutech.Exam.Shared.DTO.Custom;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {

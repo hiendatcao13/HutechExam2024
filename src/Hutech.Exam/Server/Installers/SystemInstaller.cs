@@ -14,6 +14,7 @@ namespace Hutech.Exam.Server.Installers
             services.AddMemoryCache();
 
             services.AddControllersWithViews();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddRazorPages();
             services.AddResponseCompression(option =>
             {

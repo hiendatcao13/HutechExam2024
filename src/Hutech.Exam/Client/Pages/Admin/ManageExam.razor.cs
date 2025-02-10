@@ -260,6 +260,13 @@ namespace Hutech.Exam.Client.Pages.Admin
             showMessageBox = false;
             StateHasChanged();
         }
+        private async Task onClickXoaCaThi(int ma_ca_thi)
+        {
+            if (httpClient != null)
+                await httpClient.DeleteAsync($"api/Admin/DeleteCaThi?ma_ca_thi={ma_ca_thi}");
+            if(isConnectHub())
+                await sendMessage();
+        }
         private async Task createHubConnection()
         {
             if (navManager != null)
