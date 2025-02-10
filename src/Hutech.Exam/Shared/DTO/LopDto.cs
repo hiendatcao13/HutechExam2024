@@ -17,6 +17,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public int? MaKhoa { get; set; }
 
-        public virtual Khoa? MaKhoaNavigation { get; set; }
+        public virtual KhoaDto? MaKhoaNavigation { get; set; }
     }
 }

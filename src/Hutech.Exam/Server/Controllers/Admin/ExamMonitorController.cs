@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,10 +36,10 @@ namespace Hutech.Exam.Server.Controllers.Admin
             return Ok();
         }
         [HttpPost("UpdateCTCT")]
-        public ActionResult UpdateCTCT([FromBody] ChiTietCaThi chiTietCaThi)
+        public ActionResult UpdateCTCT([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             _chiTietCaThiService.Update(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, chiTietCaThi.TongSoCau);
-            SinhVien? sinhVien = chiTietCaThi.MaSinhVienNavigation;
+            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
             if (sinhVien != null)
                 _sinhvienService.Update(sinhVien.MaSinhVien, sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi, sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien);
             return Ok();
@@ -48,13 +49,13 @@ namespace Hutech.Exam.Server.Controllers.Admin
         {
             List<long> deThiHVs = new List<long>();
             int ma_de_thi = _caThiService.SelectOne(ma_ca_thi).MaDeThi;
-            List<TblDeThiHoanVi> deThiHoanVis = _deThiHoanViService.SelectBy_MaDeThi(ma_de_thi).ToList();
+            List<DeThiHoanViDto> deThiHoanVis = _deThiHoanViService.SelectBy_MaDeThi(ma_de_thi).ToList();
             foreach(var item in deThiHoanVis)
                 deThiHVs.Add(item.MaDeHv);
             return deThiHVs;
         }
         [HttpPost("InsertSV")]
-        public ActionResult InsertSV([FromQuery] string? ten_lop,[FromQuery] int ma_ca_thi, [FromBody] SinhVien sinhVien)
+        public ActionResult InsertSV([FromQuery] string? ten_lop,[FromQuery] int ma_ca_thi, [FromBody] SinhVienDto sinhVien)
         {
             if (!ten_lop.IsNullOrEmpty() && ten_lop != null)
             {
@@ -80,12 +81,12 @@ namespace Hutech.Exam.Server.Controllers.Admin
         }
 
         [HttpGet("GetAllKhoa")]
-        public ActionResult<List<Khoa>> GetAllKhoa()
+        public ActionResult<List<KhoaDto>> GetAllKhoa()
         {
             return _khoaService.GetAll();
         }
         [HttpPost("InsertListSV")]
-        public ActionResult<bool> InsertListSV([FromQuery] int ma_khoa, [FromQuery] int ma_ca_thi, [FromBody] List<SinhVien> sinhViens)
+        public ActionResult<bool> InsertListSV([FromQuery] int ma_khoa, [FromQuery] int ma_ca_thi, [FromBody] List<SinhVienDto> sinhViens)
         {
             // lấy ngẫu nhiên đề
             List<long>? maDeHVs = this.GetAllDeThi(ma_ca_thi).Value;
@@ -110,7 +111,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
                 item.DiaChi = ""; // trả mặc định lại cho địa chỉ
                 if (item.MaSoSinhVien != null) // thêm sinh viên vào ca thi
                 {
-                    SinhVien sinhVien = _sinhvienService.SelectBy_ma_so_sinh_vien(item.MaSoSinhVien);
+                    SinhVienDto sinhVien = _sinhvienService.SelectBy_ma_so_sinh_vien(item.MaSoSinhVien);
                     if(sinhVien.MaSinhVien == 0)
                     {
                         long msv = _sinhvienService.Insert(item);

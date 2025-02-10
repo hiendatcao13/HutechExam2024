@@ -3,6 +3,7 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Hutech.Exam.Server.Attributes;
+using Hutech.Exam.Shared.DTO;
 
 
 namespace Hutech.Exam.Server.Controllers;
@@ -29,18 +30,18 @@ namespace Hutech.Exam.Server.Controllers;
         _chiTietBaiThiService = chiTietBaiThiService;
     }
     [HttpGet("GetThongTinSinhVien")]
-    public ActionResult<SinhVien> GetThongTinSinhVien([FromQuery] long ma_sinh_vien)
+    public ActionResult<SinhVienDto> GetThongTinSinhVien([FromQuery] long ma_sinh_vien)
     {
         return _sinhVienService.SelectOne(ma_sinh_vien);
     }
     [HttpGet("GetThongTinCaThi")]
-    public ActionResult<CaThi> GetThongTinCaThi([FromQuery] int ma_ca_thi)
+    public ActionResult<CaThiDto> GetThongTinCaThi([FromQuery] int ma_ca_thi)
     {
         return _caThiService.SelectOne(ma_ca_thi);
     }
     [HttpGet("GetChiTietCaThiSelectBy_SinhVien")]
     // lấy chi tiết các thông tin của 1 sinh viên thi vào 1 ca giờ cụ thể (đề thi hoán vị)
-    public ActionResult<ChiTietCaThi> GetChiTietCaThiSelectBy_SinhVien([FromQuery] int ma_ca_thi, [FromQuery] long ma_sinh_vien)
+    public ActionResult<ChiTietCaThiDto> GetChiTietCaThiSelectBy_SinhVien([FromQuery] int ma_ca_thi, [FromQuery] long ma_sinh_vien)
     {
         return _chiTietCaThiService.SelectBy_MaCaThi_MaSinhVien(ma_ca_thi, ma_sinh_vien);
     }
@@ -48,7 +49,7 @@ namespace Hutech.Exam.Server.Controllers;
     public ActionResult<int> GetListDungSai([FromQuery] int ma_chi_tiet_ca_thi, int tong_so_cau)
     {
         List<bool?> result = new List<bool?>();
-        List<ChiTietBaiThi> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi).OrderBy(p => p.ThuTu).ToList();
+        List<ChiTietBaiThiDto> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi).OrderBy(p => p.ThuTu).ToList();
         for(int i = 1; i <= tong_so_cau; i++)
         {
             bool? ketQua = chiTietBaiThis?.FirstOrDefault(p => p.ThuTu == i)?.KetQua;
@@ -57,7 +58,7 @@ namespace Hutech.Exam.Server.Controllers;
         return Ok(result);
     }
     [HttpPost("UpdateKetThuc")]
-    public ActionResult UpdateKetThuc([FromBody] ChiTietCaThi chiTietCaThi)
+    public ActionResult UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
     {
         _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
         return Ok();

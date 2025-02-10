@@ -21,6 +21,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public int? DapAn { get; set; }
 
-        public virtual TblNhomCauHoiHoanVi Ma { get; set; } = null!;
+        public virtual NhomCauHoiHoanViDto Ma { get; set; } = null!;
     }
 }

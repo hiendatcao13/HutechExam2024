@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop;
@@ -46,7 +47,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                     js?.InvokeVoidAsync("alert", "Vui lòng nhập đầy đủ thông tin");
                     return;
                 }
-                SinhVien? sinhVien = chiTietCaThis.FirstOrDefault(p => p.MaSinhVienNavigation?.MaSoSinhVien == MBThemSV.MSSV)?.MaSinhVienNavigation;
+                SinhVienDto? sinhVien = chiTietCaThis.FirstOrDefault(p => p.MaSinhVienNavigation?.MaSoSinhVien == MBThemSV.MSSV)?.MaSinhVienNavigation;
                 if (sinhVien != null)
                 {
                     js?.InvokeVoidAsync("alert", "Sinh viên này đã nằm trong ca thi. Vui lòng kiểm tra");
@@ -59,7 +60,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                sinhVienMBThemSV = JsonSerializer.Deserialize<SinhVien>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                sinhVienMBThemSV = JsonSerializer.Deserialize<SinhVienDto>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             if (sinhVienMBThemSV != null && sinhVienMBThemSV.TenSinhVien != null && MBThemSV != null)
             {

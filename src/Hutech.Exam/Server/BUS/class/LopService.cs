@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,23 +9,27 @@ namespace Hutech.Exam.Server.BUS
     public class LopService
     {
         private readonly ILopRepository _lopRepository;
-        public LopService(ILopRepository lopRepository)
+        private readonly IMapper _mapper;
+        public LopService(ILopRepository lopRepository, IMapper mapper)
         {
             _lopRepository = lopRepository;
+            _mapper = mapper;
         }
 
-        private Lop getProperty(IDataReader dataReader)
+        private LopDto getProperty(IDataReader dataReader)
         {
-            Lop lop = new Lop();
-            lop.MaLop = dataReader.GetInt32(0);
-            lop.TenLop = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-            lop.NgayBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2);
-            lop.MaKhoa = dataReader.IsDBNull(3) ? null : dataReader.GetInt32(3);
-            return lop;
+            Lop lop = new()
+            {
+                MaLop = dataReader.GetInt32(0),
+                TenLop = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
+                NgayBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2),
+                MaKhoa = dataReader.IsDBNull(3) ? null : dataReader.GetInt32(3)
+            };
+            return _mapper.Map<LopDto>(lop);
         }
-        public Lop SelectBy_ten_lop(string ten_lop)
+        public LopDto SelectBy_ten_lop(string ten_lop)
         {
-            Lop lop = new Lop();
+            LopDto lop = new();
             using(IDataReader dataReader = _lopRepository.SelectBy_ten_lop(ten_lop))
             {
                 if (dataReader.Read())

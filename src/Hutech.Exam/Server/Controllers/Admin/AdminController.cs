@@ -4,6 +4,7 @@ using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.API;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +27,8 @@ namespace Hutech.Exam.Server.Controllers.Admin
         private readonly ChiTietCaThiService _chiTietCaThiService;
         private readonly SinhVienService _sinhVienService;
         private readonly ChiTietBaiThiService _chiTietBaiThiService;
-        private readonly DeThiHoanViService _deThiHoanViService;
         public AdminController(UserService userService, CaThiService caThiService, ChiTietDotThiService chiTietDotThiService, DotThiService dotThiService,
-            LopAoService lopAoService, MonHocService monHocService, ChiTietCaThiService chiTietCaThiService, SinhVienService sinhVienService, ChiTietBaiThiService chiTietBaiThiService, DeThiHoanViService deThiHoanViService)
+            LopAoService lopAoService, MonHocService monHocService, ChiTietCaThiService chiTietCaThiService, SinhVienService sinhVienService, ChiTietBaiThiService chiTietBaiThiService)
         {
             _userService = userService;
             _caThiService = caThiService;
@@ -39,7 +39,6 @@ namespace Hutech.Exam.Server.Controllers.Admin
             _chiTietCaThiService = chiTietCaThiService;
             _sinhVienService = sinhVienService;
             _chiTietBaiThiService = chiTietBaiThiService;
-            _deThiHoanViService = deThiHoanViService;
         }
         //API Manager & Control
         [HttpPost("Verify")]
@@ -59,7 +58,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
             }
         }
         [HttpPost("getThongTinUser")]
-        public ActionResult<User> getThongTinUser([FromQuery] string loginName)
+        public ActionResult<UserDto> getThongTinUser([FromQuery] string loginName)
         {
             return _userService.SelectByLoginName(loginName);
         }
@@ -72,7 +71,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
         [HttpGet("KetThucCaThi")]
         public ActionResult<bool> KetThucCaThi([FromQuery] int ma_ca_thi)
         {
-            List<ChiTietCaThi> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+            List<ChiTietCaThiDto> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
             foreach(var item in chiTietCaThis)
             {
                 if (!item.DaHoanThanh) // Yêu cầu kết thúc ca thi chỉ thực hiện khi các thí sinh đã hoàn thành bài thi
@@ -85,7 +84,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
         [HttpGet("HuyKichHoatCaThi")]
         public ActionResult HuyKichHoatCaThi([FromQuery] int ma_ca_thi)
         {
-            List<ChiTietCaThi> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+            List<ChiTietCaThiDto> chiTietCaThis = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
             foreach(var item in chiTietCaThis)
             {
                 if (!item.DaHoanThanh) // cập nhật những thí sinh đang thi, chưa thi thành đã hoàn thành
@@ -93,31 +92,31 @@ namespace Hutech.Exam.Server.Controllers.Admin
                     item.ThoiGianKetThuc = DateTime.Now;
                     _chiTietCaThiService.UpdateKetThuc(item);
                 }
-                List<ChiTietBaiThi> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(item.MaChiTietCaThi);
+                List<ChiTietBaiThiDto> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(item.MaChiTietCaThi);
                 this.removeListCTBT(chiTietBaiThis);
                 this.UpdateTinhTrangCaThi(ma_ca_thi, false);
             }
             return Ok();
         }
         [HttpGet("GetAllCaThi")]
-        public ActionResult<List<CaThi>> GetAllCaThi()
+        public ActionResult<List<CaThiDto>> GetAllCaThi()
         {
-            List<CaThi> result = _caThiService.ca_thi_GetAll();
+            List<CaThiDto> result = _caThiService.ca_thi_GetAll();
             foreach (var item in result)
                 item.MaChiTietDotThiNavigation = getThongTinChiTietDotThi(item.MaChiTietDotThi);
             //return new ApiResponse<List<CaThi>>(result);
             return result;
         }
         [HttpGet("GetThongTinCaThi")]
-        public ActionResult<CaThi> GetThongTinCaThi([FromQuery] int ma_ca_thi)
+        public ActionResult<CaThiDto> GetThongTinCaThi([FromQuery] int ma_ca_thi)
         {
             return _caThiService.SelectOne(ma_ca_thi);
         }
         //API Monitor
         [HttpGet("GetThongTinCTCaThiTheoMaCaThi")]
-        public ActionResult<List<ChiTietCaThi>> GetThongTinCTCaThiTheoMaCaThi([FromQuery] int ma_ca_thi)
+        public ActionResult<List<ChiTietCaThiDto>> GetThongTinCTCaThiTheoMaCaThi([FromQuery] int ma_ca_thi)
         {
-            List<ChiTietCaThi> result = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+            List<ChiTietCaThiDto> result = _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
             foreach (var item in result)
                 if(item.MaSinhVien != null)
                     item.MaSinhVienNavigation = getThongTinSinhVien((long)item.MaSinhVien);
@@ -130,15 +129,15 @@ namespace Hutech.Exam.Server.Controllers.Admin
             return Ok();
         }
         [HttpPost("CongGioSinhVien")]
-        public ActionResult CongGioSinhVien([FromBody]ChiTietCaThi chiTietCaThi)
+        public ActionResult CongGioSinhVien([FromBody]ChiTietCaThiDto chiTietCaThi)
         {
             _chiTietCaThiService.CongGio(chiTietCaThi);
             return Ok();
         }
         [HttpGet("GetThongTinSinhVien")]
-        public ActionResult<SinhVien> GetThongTinSinhVien([FromQuery] string ma_so_sinh_vien)
+        public ActionResult<SinhVienDto> GetThongTinSinhVien([FromQuery] string ma_so_sinh_vien)
         {
-            SinhVien sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
+            SinhVienDto sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
             return sinhVien;
         }
         [HttpDelete("DeleteCaThi")]
@@ -148,37 +147,37 @@ namespace Hutech.Exam.Server.Controllers.Admin
             return Ok();
         }
         [HttpPost("UpdateCaThi")]
-        public ActionResult UpdateCaThi([FromBody] CaThi caThi)
+        public ActionResult UpdateCaThi([FromBody] CaThiDto caThi)
         {
             _caThiService.Update(caThi.MaCaThi, caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
             return Ok();
         }
-        private SinhVien getThongTinSinhVien(long ma_sinh_vien)
+        private SinhVienDto getThongTinSinhVien(long ma_sinh_vien)
         {
             return _sinhVienService.SelectOne(ma_sinh_vien);
         }
-        private ChiTietDotThi getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
+        private ChiTietDotThiDto getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
         {
-            ChiTietDotThi chiTietDotThi = _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
+            ChiTietDotThiDto chiTietDotThi = _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
             chiTietDotThi.MaDotThiNavigation = getThongTinDotThi(chiTietDotThi.MaDotThi);
             chiTietDotThi.MaLopAoNavigation = getThongTinLopAo(chiTietDotThi.MaLopAo);
             return chiTietDotThi;
         }
-        private DotThi getThongTinDotThi(int ma_dot_thi)
+        private DotThiDto getThongTinDotThi(int ma_dot_thi)
         {
             return _dotThiService.SelectOne(ma_dot_thi);
         }
-        private LopAo getThongTinLopAo(int ma_lop_ao)
+        private LopAoDto getThongTinLopAo(int ma_lop_ao)
         {
-            LopAo lopAo = _lopAoService.SelectOne(ma_lop_ao);
+            LopAoDto lopAo = _lopAoService.SelectOne(ma_lop_ao);
             lopAo.MaMonHocNavigation = getThongTinMonHoc(ma_lop_ao);
             return lopAo;
         }
-        private MonHoc getThongTinMonHoc(int ma_mon_hoc)
+        private MonHocDto getThongTinMonHoc(int ma_mon_hoc)
         {
             return _monHocService.SelectOne(ma_mon_hoc);
         }
-        private void removeListCTBT(List<ChiTietBaiThi> chiTietBaiThis)
+        private void removeListCTBT(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
             foreach (var item in chiTietBaiThis)
                 _chiTietBaiThiService.Delete(item.MaChiTietBaiThi);

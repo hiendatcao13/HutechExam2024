@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace Hutech.Exam.Client.Pages.Admin.MessageBox
@@ -11,7 +12,7 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
         public string? hoVaTenLot { get; set; }
         [Parameter]
         public string? tenSV { get; set; }
-        public ChiTietCaThi? chiTietCaThi { get; set; }
+        public ChiTietCaThiDto? chiTietCaThi { get; set; }
         [Parameter]
         public EventCallback onClickThoat { get; set; }
         [Parameter]

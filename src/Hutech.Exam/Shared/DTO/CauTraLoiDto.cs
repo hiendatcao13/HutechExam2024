@@ -21,6 +21,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool HoanVi { get; set; }
 
-        public virtual TblCauHoi MaCauHoiNavigation { get; set; } = null!;
+        public virtual CauHoiDto MaCauHoiNavigation { get; set; } = null!;
     }
 }

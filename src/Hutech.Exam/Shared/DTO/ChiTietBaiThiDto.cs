@@ -29,6 +29,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public int ThuTu { get; set; }
 
-        public virtual ChiTietCaThi MaChiTietCaThiNavigation { get; set; } = null!;
+        public virtual ChiTietCaThiDto MaChiTietCaThiNavigation { get; set; } = null!;
     }
 }

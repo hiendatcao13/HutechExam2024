@@ -19,10 +19,10 @@ namespace Hutech.Exam.Shared.DTO
 
         public string LanThi { get; set; } = null!;
 
-        public virtual ICollection<CaThi> CaThis { get; set; } = new List<CaThi>();
+        public virtual ICollection<CaThiDto> CaThis { get; set; } = new List<CaThiDto>();
 
-        public virtual DotThi MaDotThiNavigation { get; set; } = null!;
+        public virtual DotThiDto MaDotThiNavigation { get; set; } = null!;
 
-        public virtual LopAo MaLopAoNavigation { get; set; } = null!;
+        public virtual LopAoDto MaLopAoNavigation { get; set; } = null!;
     }
 }

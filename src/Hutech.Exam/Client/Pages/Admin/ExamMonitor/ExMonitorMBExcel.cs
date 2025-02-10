@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Client.Pages.Admin.MessageBox;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                listKhoa = JsonSerializer.Deserialize<List<Khoa>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                listKhoa = JsonSerializer.Deserialize<List<KhoaDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
         }
         private async Task showMBThemSVExcel()
@@ -34,7 +35,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             StateHasChanged();
         }
-        private async Task InsertListSV(int ma_khoa, List<SinhVien> sinhViens)
+        private async Task InsertListSV(int ma_khoa, List<SinhVienDto> sinhViens)
         {
             var jsonString = JsonSerializer.Serialize(sinhViens);
             HttpResponseMessage? response = null;

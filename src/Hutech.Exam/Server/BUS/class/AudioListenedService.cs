@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System;
 using System.Data;
@@ -8,18 +10,22 @@ namespace Hutech.Exam.Server.BUS
     public class AudioListenedService
     {
         private readonly IAudioListenedRepository _audioListenedRepository;
-        public AudioListenedService(IAudioListenedRepository audioListenedRepository)
+        private readonly IMapper _mapper;
+        public AudioListenedService(IAudioListenedRepository audioListenedRepository, IMapper mapper)
         {
             _audioListenedRepository = audioListenedRepository;
+            _mapper = mapper;
         }
-        private TblAudioListened getProperty(IDataReader dataReader)
+        private AudioListenedDto getProperty(IDataReader dataReader)
         {
-            TblAudioListened audioListened = new TblAudioListened();
-            audioListened.ListenId = dataReader.GetInt64(0);
-            audioListened.MaChiTietCaThi = dataReader.GetInt32(1);
-            audioListened.FileName = dataReader.GetString(2);
-            audioListened.ListenedCount = dataReader.GetInt32(3);
-            return audioListened;
+            TblAudioListened audioListened = new()
+            {
+                ListenId = dataReader.GetInt64(0),
+                MaChiTietCaThi = dataReader.GetInt32(1),
+                FileName = dataReader.GetString(2),
+                ListenedCount = dataReader.GetInt32(3)
+            };
+            return _mapper.Map<AudioListenedDto>(audioListened);
         }
         public int SelectOne(int ma_chi_tiet_ca_thi, string fileName)
         {

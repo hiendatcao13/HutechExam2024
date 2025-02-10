@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.DTO.Custom;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
 using System.Text;
@@ -28,7 +29,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             if (chiTietBaiThis != null && chiTietCaThi != null)
             {
@@ -44,7 +45,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             if (chiTietBaiThis != null && chiTietCaThi != null)
             {

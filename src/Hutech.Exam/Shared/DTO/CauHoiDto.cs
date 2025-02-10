@@ -21,6 +21,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool? HoanVi { get; set; }
 
-        public virtual ICollection<TblCauTraLoi> TblCauTraLois { get; set; } = new List<TblCauTraLoi>();
+        public virtual ICollection<CauTraLoiDto> TblCauTraLois { get; set; } = new List<CauTraLoiDto>();
     }
 }

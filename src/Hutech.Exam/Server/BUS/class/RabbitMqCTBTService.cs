@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.Controllers;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -70,7 +71,7 @@ namespace Hutech.Exam.Server.BUS
                     var body = ea.Body.ToArray();
                     var messageJson = Encoding.UTF8.GetString(body);
                     // Chuyển đổi JSON thành đối tượng kiểu T
-                    var messages = JsonSerializer.Deserialize<List<ChiTietBaiThi>>(messageJson);
+                    var messages = JsonSerializer.Deserialize<List<ChiTietBaiThiDto>>(messageJson);
                     if (messages != null)
                     {
                         // Gọi hàm xử lý message
@@ -90,7 +91,7 @@ namespace Hutech.Exam.Server.BUS
             }
             
         }
-        private void processMessage(List<ChiTietBaiThi> chiTietBaiThis)
+        private void processMessage(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
             // Lưu message vào database hoặc thực hiện một hành động cụ thể
             if (chiTietBaiThis.Count != 0)

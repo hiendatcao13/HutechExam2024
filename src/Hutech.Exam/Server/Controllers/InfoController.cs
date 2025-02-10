@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,9 +34,9 @@ namespace Hutech.Exam.Server.Controllers
             _dotThiService = dotThiService;
         }
         [HttpGet("GetThongTinChiTietCaThi")]
-        public ActionResult<List<ChiTietCaThi>> GetThongTinChiTietCaThi([FromQuery] long ma_sinh_vien)
+        public ActionResult<List<ChiTietCaThiDto>> GetThongTinChiTietCaThi([FromQuery] long ma_sinh_vien)
         {
-            List<ChiTietCaThi> result = _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien, DateTime.Now);
+            List<ChiTietCaThiDto> result = _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien, DateTime.Now);
             foreach (var item in result)
             {
                 item.MaCaThiNavigation = (item.MaCaThi != null) ? getThongTinCaThi((int)item.MaCaThi) : null;
@@ -44,45 +45,45 @@ namespace Hutech.Exam.Server.Controllers
             //TH thí sinh không có ca thi
             if(result.Count == 0)
             {
-                ChiTietCaThi newChiTietCaThi = new ChiTietCaThi();
+                ChiTietCaThiDto newChiTietCaThi = new ChiTietCaThiDto();
                 newChiTietCaThi.MaSinhVienNavigation = getThongTinSV(ma_sinh_vien);
                 result.Add(newChiTietCaThi);
             }
             return result;
         }
-        private SinhVien? getThongTinSV(long ma_sinh_vien)
+        private SinhVienDto? getThongTinSV(long ma_sinh_vien)
         {
             return _sinhVienService.SelectOne(ma_sinh_vien);
         }
-        private CaThi getThongTinCaThi(int ma_ca_thi)
+        private CaThiDto getThongTinCaThi(int ma_ca_thi)
         {
-            CaThi caThi = _caThiService.SelectOne(ma_ca_thi);
+            CaThiDto caThi = _caThiService.SelectOne(ma_ca_thi);
             caThi.MaChiTietDotThiNavigation = getThongTinChiTietDotThi(caThi.MaChiTietDotThi);
             return caThi;
         }
-        private ChiTietDotThi getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
+        private ChiTietDotThiDto getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
         {
-            ChiTietDotThi chiTietDotThi = _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
+            ChiTietDotThiDto chiTietDotThi = _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
             chiTietDotThi.MaDotThiNavigation = getThongTinDotThi(chiTietDotThi.MaDotThi);
             chiTietDotThi.MaLopAoNavigation = getThongTinLopAo(chiTietDotThi.MaLopAo);
             return chiTietDotThi;
         }
-        private DotThi getThongTinDotThi(int ma_dot_thi)
+        private DotThiDto getThongTinDotThi(int ma_dot_thi)
         {
             return _dotThiService.SelectOne(ma_dot_thi);
         }
-        private LopAo getThongTinLopAo(int ma_lop_ao)
+        private LopAoDto getThongTinLopAo(int ma_lop_ao)
         {
-            LopAo lopAo = _lopAoService.SelectOne(ma_lop_ao);
+            LopAoDto lopAo = _lopAoService.SelectOne(ma_lop_ao);
             lopAo.MaMonHocNavigation = getThongTinMonHoc(ma_lop_ao);
             return lopAo;
         }
-        private MonHoc getThongTinMonHoc(int ma_mon_hoc)
+        private MonHocDto getThongTinMonHoc(int ma_mon_hoc)
         {
             return _monHocService.SelectOne(ma_mon_hoc);
         }
         [HttpPost("UpdateBatDauThi")]
-        public ActionResult UpdateBatDauThi([FromBody] ChiTietCaThi chiTietCaThi)
+        public ActionResult UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
             return Ok();

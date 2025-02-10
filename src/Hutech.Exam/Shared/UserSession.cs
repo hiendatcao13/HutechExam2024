@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace Hutech.Exam.Shared
         public string? Token { get; set; }
         public int ExpireIn { get; set; }
         public DateTime ExpiryTimeStamp { get; set; }
-        public SinhVien? NavigateSinhVien { get; set; }
-        public User? NavigateUser { get; set; }
+        public SinhVienDto? NavigateSinhVien { get; set; }
+        public UserDto? NavigateUser { get; set; }
     }
 }

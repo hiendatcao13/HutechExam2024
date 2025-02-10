@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,36 +9,40 @@ namespace Hutech.Exam.Server.BUS
     public class DotThiService
     {
         private readonly IDotThiRepository _dotThiRepository;
-        public DotThiService(IDotThiRepository dotThiRepository)
+        private readonly IMapper _mapper;
+        public DotThiService(IDotThiRepository dotThiRepository, IMapper mapper)
         {
             _dotThiRepository = dotThiRepository;
+            _mapper = mapper;
         }
-        private DotThi getProperty(IDataReader dataReader)
+        private DotThiDto getProperty(IDataReader dataReader)
         {
-            DotThi dotThi = new DotThi();
-            dotThi.MaDotThi = dataReader.GetInt32(0);
-            dotThi.TenDotThi = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-            dotThi.ThoiGianBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2);
-            dotThi.ThoiGianKetThuc = dataReader.IsDBNull(3) ? null : dataReader.GetDateTime(3);
-            dotThi.NamHoc = dataReader.IsDBNull(4) ? null : dataReader.GetInt32(4);
-            return dotThi;
+            DotThi dotThi = new()
+            {
+                MaDotThi = dataReader.GetInt32(0),
+                TenDotThi = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
+                ThoiGianBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2),
+                ThoiGianKetThuc = dataReader.IsDBNull(3) ? null : dataReader.GetDateTime(3),
+                NamHoc = dataReader.IsDBNull(4) ? null : dataReader.GetInt32(4)
+            };
+            return _mapper.Map<DotThiDto>(dotThi);
         }
-        public List<DotThi> GetAll()
+        public List<DotThiDto> GetAll()
         {
-            List<DotThi> result = new List<DotThi>();
+            List<DotThiDto> result = new();
             using (IDataReader dataReader = _dotThiRepository.GetAll())
             {
                 while (dataReader.Read())
                 {
-                    DotThi dotThi = getProperty(dataReader);
+                    DotThiDto dotThi = getProperty(dataReader);
                     result.Add(dotThi);
                 }
             }
             return result;
         }
-        public DotThi SelectOne(int ma_dot_thi)
+        public DotThiDto SelectOne(int ma_dot_thi)
         {
-            DotThi dotThi = new DotThi();
+            DotThiDto dotThi = new();
             using(IDataReader dataReader = _dotThiRepository.SelectOne(ma_dot_thi))
             {
                 if (dataReader.Read())

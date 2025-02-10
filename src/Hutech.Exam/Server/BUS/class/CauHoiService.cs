@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,24 +9,26 @@ namespace Hutech.Exam.Server.BUS
     public class CauHoiService
     {
         private readonly ICauHoiRepository _cauHoiRepository;
-        public CauHoiService(ICauHoiRepository cauHoiRepository)
+        private IMapper _mapper;
+        public CauHoiService(ICauHoiRepository cauHoiRepository, IMapper mapper)
         {
             _cauHoiRepository = cauHoiRepository;
+            _mapper = mapper;
         }
-        private TblCauHoi getProperty(IDataReader dataReader)
+        private CauHoiDto getProperty(IDataReader dataReader)
         {
-            TblCauHoi cauHoi = new TblCauHoi();
+            TblCauHoi cauHoi = new();
             cauHoi.MaCauHoi = dataReader.GetInt32(0);
             cauHoi.TieuDe = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
             cauHoi.KieuNoiDung = dataReader.GetInt32(2);
             cauHoi.NoiDung = dataReader.IsDBNull(3) ? null : dataReader.GetString(3);
             cauHoi.GhiChu = dataReader.IsDBNull(4) ? null : dataReader.GetString(4);
             cauHoi.HoanVi = dataReader.IsDBNull(5) ? null : dataReader.GetBoolean(5);
-            return cauHoi;
+            return _mapper.Map<CauHoiDto>(cauHoi);
         }
-        public TblCauHoi SelectOne(int ma_cau_hoi)
+        public CauHoiDto SelectOne(int ma_cau_hoi)
         {
-            TblCauHoi cauHoi = new TblCauHoi();
+            CauHoiDto cauHoi = new();
             using(IDataReader dataReader = _cauHoiRepository.SelectOne(ma_cau_hoi))
             {
                 if (dataReader.Read())

@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,32 +9,36 @@ namespace Hutech.Exam.Server.BUS
     public class ChiTietCaThiService
     {
         private readonly IChiTietCaThiRepository _chiTietCaThiRepository;
-        public ChiTietCaThiService(IChiTietCaThiRepository chiTietCaThiRepository)
+        private readonly IMapper _mapper;
+        public ChiTietCaThiService(IChiTietCaThiRepository chiTietCaThiRepository, IMapper mapper)
         {
             _chiTietCaThiRepository = chiTietCaThiRepository;
+            _mapper = mapper;
         }
-        private ChiTietCaThi getProperty(IDataReader dataReader)
+        private ChiTietCaThiDto getProperty(IDataReader dataReader)
         {
-            ChiTietCaThi chiTietCaThi = new ChiTietCaThi();
-            chiTietCaThi.MaChiTietCaThi = dataReader.GetInt32(0);
-            chiTietCaThi.MaCaThi = dataReader.IsDBNull(1) ? null : dataReader.GetInt32(1);
-            chiTietCaThi.MaSinhVien = dataReader.IsDBNull(2) ? null : dataReader.GetInt64(2);
-            chiTietCaThi.MaDeThi = dataReader.IsDBNull(3) ? null : dataReader.GetInt64(3);
-            chiTietCaThi.ThoiGianBatDau = dataReader.IsDBNull(4) ? null : dataReader.GetDateTime(4);
-            chiTietCaThi.ThoiGianKetThuc = dataReader.IsDBNull(5) ? null : dataReader.GetDateTime(5);
-            chiTietCaThi.DaThi = dataReader.GetBoolean(6);
-            chiTietCaThi.DaHoanThanh = dataReader.GetBoolean(7);
-            chiTietCaThi.Diem = dataReader.GetDouble(8);
-            chiTietCaThi.TongSoCau = dataReader.IsDBNull(9) ? null : dataReader.GetInt32(9);
-            chiTietCaThi.SoCauDung = dataReader.IsDBNull(10) ? null : dataReader.GetInt32(10);
-            chiTietCaThi.GioCongThem = dataReader.GetInt32(11);
-            chiTietCaThi.ThoiDiemCong = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12);
-            chiTietCaThi.LyDoCong = dataReader.IsDBNull(13) ? null : dataReader.GetString(13);
-            return chiTietCaThi;
+            ChiTietCaThi chiTietCaThi = new()
+            {
+                MaChiTietCaThi = dataReader.GetInt32(0),
+                MaCaThi = dataReader.IsDBNull(1) ? null : dataReader.GetInt32(1),
+                MaSinhVien = dataReader.IsDBNull(2) ? null : dataReader.GetInt64(2),
+                MaDeThi = dataReader.IsDBNull(3) ? null : dataReader.GetInt64(3),
+                ThoiGianBatDau = dataReader.IsDBNull(4) ? null : dataReader.GetDateTime(4),
+                ThoiGianKetThuc = dataReader.IsDBNull(5) ? null : dataReader.GetDateTime(5),
+                DaThi = dataReader.GetBoolean(6),
+                DaHoanThanh = dataReader.GetBoolean(7),
+                Diem = dataReader.GetDouble(8),
+                TongSoCau = dataReader.IsDBNull(9) ? null : dataReader.GetInt32(9),
+                SoCauDung = dataReader.IsDBNull(10) ? null : dataReader.GetInt32(10),
+                GioCongThem = dataReader.GetInt32(11),
+                ThoiDiemCong = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12),
+                LyDoCong = dataReader.IsDBNull(13) ? null : dataReader.GetString(13)
+            };
+            return _mapper.Map<ChiTietCaThiDto>(chiTietCaThi);
         }
-        public ChiTietCaThi SelectOne(int chi_tiet_ca_thi)
+        public ChiTietCaThiDto SelectOne(int chi_tiet_ca_thi)
         {
-            ChiTietCaThi chiTietCaThi = new ChiTietCaThi();
+            ChiTietCaThiDto chiTietCaThi = new();
             using (IDataReader dataReader = _chiTietCaThiRepository.SelectOne(chi_tiet_ca_thi))
             {
                 if (dataReader.Read())
@@ -42,9 +48,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietCaThi;
         }
-        public List<ChiTietCaThi> SelectBy_ma_ca_thi(int ma_ca_thi)
+        public List<ChiTietCaThiDto> SelectBy_ma_ca_thi(int ma_ca_thi)
         {
-            List<ChiTietCaThi> result = new List<ChiTietCaThi>();
+            List<ChiTietCaThiDto> result = new();
             using(IDataReader dataReader = _chiTietCaThiRepository.SelectBy_ma_ca_thi(ma_ca_thi))
             {
                 while (dataReader.Read())
@@ -54,9 +60,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public ChiTietCaThi SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)
+        public ChiTietCaThiDto SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)
         {
-            ChiTietCaThi chiTietCaThi = new ChiTietCaThi();
+            ChiTietCaThiDto chiTietCaThi = new();
             using(IDataReader dataReader = _chiTietCaThiRepository.SelectBy_MaCaThi_MaSinhVien(ma_ca_thi, ma_sinh_vien))
             {
                 if (dataReader.Read())
@@ -66,9 +72,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietCaThi;
         }
-        public List<ChiTietCaThi> SelectBy_ma_sinh_vien(long ma_sinh_vien)
+        public List<ChiTietCaThiDto> SelectBy_ma_sinh_vien(long ma_sinh_vien)
         {
-            List<ChiTietCaThi> result = new List<ChiTietCaThi>();
+            List<ChiTietCaThiDto> result = new();
             using(IDataReader dataReader = _chiTietCaThiRepository.SelectBy_ma_sinh_vien(ma_sinh_vien))
             {
                 while (dataReader.Read())
@@ -78,9 +84,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public List<ChiTietCaThi> SelectBy_MaSinhVienThi(long ma_sinh_vien, DateTime ngay_hien_tai)
+        public List<ChiTietCaThiDto> SelectBy_MaSinhVienThi(long ma_sinh_vien, DateTime ngay_hien_tai)
         {
-            List<ChiTietCaThi> result = new List<ChiTietCaThi>();
+            List<ChiTietCaThiDto> result = new();
             using (IDataReader dataReader = _chiTietCaThiRepository.SelectBy_MaSinhVienThi(ma_sinh_vien, ngay_hien_tai))
             {
                 while (dataReader.Read())
@@ -90,7 +96,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public void UpdateBatDau(ChiTietCaThi chiTietCaThi)
+        public void UpdateBatDau(ChiTietCaThiDto chiTietCaThi)
         {
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
             DateTime? thoi_gian_bat_dau = chiTietCaThi.ThoiGianBatDau;
@@ -99,7 +105,7 @@ namespace Hutech.Exam.Server.BUS
                 throw new Exception("Can't UpdateBatDau table chi_tiet_ca_thi");
             }
         }
-        public void UpdateKetThuc(ChiTietCaThi chiTietCaThi)
+        public void UpdateKetThuc(ChiTietCaThiDto chiTietCaThi)
         {
             //float diem, int so_cau_dung, int tong_so_cau
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
@@ -112,7 +118,7 @@ namespace Hutech.Exam.Server.BUS
                 throw new Exception("Can't UpdateKetThuc table chi_tiet_ca_thi");
             }
         }
-        public void CongGio(ChiTietCaThi chiTietCaThi)
+        public void CongGio(ChiTietCaThiDto chiTietCaThi)
         {
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
             int gio_cong_them = chiTietCaThi.GioCongThem;

@@ -11,6 +11,7 @@ using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO;
 namespace Hutech.Exam.Client.Pages;
 
 public partial class Result
@@ -27,9 +28,9 @@ public partial class Result
     IJSRuntime? js { get; set; }
     private Canvas2DContext? _context { get; set; }
     protected BECanvasComponent? _canvasReference { get; set; }
-    private SinhVien? sinhVien { get; set; }
-    private CaThi? caThi { get; set; }
-    private ChiTietCaThi? chiTietCaThi { get; set; }
+    private SinhVienDto? sinhVien { get; set; }
+    private CaThiDto? caThi { get; set; }
+    private ChiTietCaThiDto? chiTietCaThi { get; set; }
     private List<CustomDeThi>? customDeThis { get; set; }
     private List<int>? listDapAnThucTe { get; set; }
     private List<bool?>? ketQuaDapAn { get; set; }
@@ -155,9 +156,9 @@ public partial class Result
     }
     private void khoiTaoBanDau()
     {
-        sinhVien = new SinhVien();
-        caThi = new CaThi();
-        chiTietCaThi = new ChiTietCaThi();
+        sinhVien = new();
+        caThi = new();
+        chiTietCaThi = new();
         if(myData != null)
         {
             customDeThis = myData.customDeThis;

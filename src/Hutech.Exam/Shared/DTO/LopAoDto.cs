@@ -17,8 +17,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public int? MaMonHoc { get; set; }
 
-        public virtual ICollection<ChiTietDotThi> ChiTietDotThis { get; set; } = new List<ChiTietDotThi>();
+        public virtual ICollection<ChiTietDotThiDto> ChiTietDotThis { get; set; } = new List<ChiTietDotThiDto>();
 
-        public virtual MonHoc? MaMonHocNavigation { get; set; }
+        public virtual MonHocDto? MaMonHocNavigation { get; set; }
     }
 }

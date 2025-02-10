@@ -11,6 +11,7 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.IdentityModel.Tokens;
 using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
@@ -27,12 +28,12 @@ namespace Hutech.Exam.Client.Pages.Exam
         NavigationManager? navManager { get; set; }
         [Inject]
         IJSRuntime? js { get; set; }
-        private SinhVien? sinhVien { get; set; }
-        private CaThi? caThi { get; set; }
-        private static ChiTietCaThi? chiTietCaThi { get; set; }
+        private SinhVienDto? sinhVien { get; set; }
+        private CaThiDto? caThi { get; set; }
+        private static ChiTietCaThiDto? chiTietCaThi { get; set; }
         private List<CustomDeThi>? customDeThis { get; set; }
-        private static List<ChiTietBaiThi>? chiTietBaiThis { get; set; }
-        private static List<ChiTietBaiThi>? dsBaiThi_Update { get; set; } // lưu ds các câu sv vừa mới trả lời về server
+        private static List<ChiTietBaiThiDto>? chiTietBaiThis { get; set; }
+        private static List<ChiTietBaiThiDto>? dsBaiThi_Update { get; set; } // lưu ds các câu sv vừa mới trả lời về server
         private static List<int>? cau_da_chons { get; set; } // lưu vết các đáp án đã khoanh trước đó
         private List<int>? cau_da_chons_tagA { get; set; }// lưu vết các đáp án đã khoanh trước đó cho tag Answer button
         private List<string>? alphabet { get; set; }
@@ -119,17 +120,17 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private void khoiTaoBanDau()
         {
-            chiTietBaiThis = new List<ChiTietBaiThi>();
-            sinhVien = new SinhVien();
+            chiTietBaiThis = new();
+            sinhVien = new();
             if (myData != null)
                 sinhVien = myData.sinhVien;
-            caThi = new CaThi();
-            chiTietCaThi = new ChiTietCaThi();
+            caThi = new();
+            chiTietCaThi = new();
             listDapAn = new List<int>();
             cau_da_chons = new List<int>();
             cau_da_chons_tagA = new List<int>();
-            dsBaiThi_Update = new List<ChiTietBaiThi>();
-            customDeThis = new List<CustomDeThi>();
+            dsBaiThi_Update = new();
+            customDeThis = new();
         }
         private async Task Start()
         {
@@ -141,7 +142,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 await getDeThi(chiTietCaThi.MaDeThi);
                 await modifyNhomCauHoi();
             }
-            chiTietBaiThis = new List<ChiTietBaiThi>();
+            chiTietBaiThis = new();
             isDisableAudio = new List<bool>();
             // Cập nhật cho quản trị viên biết sinh viên đang thi
             if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)

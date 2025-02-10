@@ -19,6 +19,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public int? NamHoc { get; set; }
 
-        public virtual ICollection<ChiTietDotThi> ChiTietDotThis { get; set; } = new List<ChiTietDotThi>();
+        public virtual ICollection<ChiTietDotThiDto> ChiTietDotThis { get; set; } = new List<ChiTietDotThiDto>();
     }
 }

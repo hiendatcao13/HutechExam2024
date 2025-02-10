@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Client.Pages.Admin.DAL;
 using Hutech.Exam.Client.Pages.Admin.MessageBox;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -31,27 +32,27 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         IJSRuntime? js { get; set; }
         [Inject]
         Blazored.SessionStorage.ISessionStorageService? sessionStorage { get; set; }
-        private SinhVien? sinhVien { get; set; }
-        private List<ChiTietCaThi>? chiTietCaThis { get; set; }
-        private List<ChiTietCaThi>? displayChiTietCaThis { get; set; }
+        private SinhVienDto? sinhVien { get; set; }
+        private List<ChiTietCaThiDto>? chiTietCaThis { get; set; }
+        private List<ChiTietCaThiDto>? displayChiTietCaThis { get; set; }
         private bool isShowMessageBox { get; set; } // messageBox cộng giờ this
-        private ChiTietCaThi? displayChiTietCaThi { get; set; } // hiển thị tên 1 đối tượng sinh viên cho MB cộng giờ
+        private ChiTietCaThiDto? displayChiTietCaThi { get; set; } // hiển thị tên 1 đối tượng sinh viên cho MB cộng giờ
         private string? MB_ly_do_cong { get; set; }
         private int? MB_thoi_gian_cong { get; set; }
         private MBCongGio? MBCongGio { get; set; }
         private int ma_ca_thi { get; set; }
         private bool isShowMBThemSV { get; set; }
         private MBThemSV? MBThemSV { get; set; }
-        private SinhVien? sinhVienMBThemSV { get; set; }
+        private SinhVienDto? sinhVienMBThemSV { get; set; }
         private HubConnection? hubConnection { get; set; }
         private string? input_MSSV { get; set; }
         private bool isShowMBExcel { get; set; }
         private MBThemSVExcel? MBThemSVExcel { get; set; }
-        private List<Khoa>? listKhoa { get; set; }
+        private List<KhoaDto>? listKhoa { get; set; }
         private bool isShowMBSuaSV { get; set; }
         private List<long>? listMaDes { get; set; }
         private MBSuaSV? MBSuaSV { get; set; }
-        private ChiTietCaThi? displayCTCTMBSuaSV { get; set; }
+        private ChiTietCaThiDto? displayCTCTMBSuaSV { get; set; }
 
         protected async override Task OnInitializedAsync()
         {
@@ -63,7 +64,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
                 if (myData != null && myData.caThi == null && js != null && sessionStorage != null)
                 {
-                    myData.caThi = await sessionStorage.GetItemAsync<CaThi>("ca_thi");
+                    myData.caThi = await sessionStorage.GetItemAsync<CaThiDto>("ca_thi");
                     if(myData.caThi == null)
                     {
                         await js.InvokeVoidAsync("alert", "Cách hoạt động trang web không bình thường. Vui lòng quay lại");
@@ -90,7 +91,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                chiTietCaThis = JsonSerializer.Deserialize<List<ChiTietCaThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                chiTietCaThis = JsonSerializer.Deserialize<List<ChiTietCaThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                 displayChiTietCaThis = chiTietCaThis?.ToList();
             }
             StateHasChanged();
@@ -103,7 +104,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (response != null && response.IsSuccessStatusCode && myData != null)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                myData.caThi = JsonSerializer.Deserialize<CaThi>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                myData.caThi = JsonSerializer.Deserialize<CaThiDto>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             StateHasChanged();
         }
@@ -117,7 +118,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 navManager?.NavigateTo("/admin", true);
             }
         }
-        private async void onClickResetLogin(SinhVien sinhVien)
+        private async void onClickResetLogin(SinhVienDto sinhVien)
         {
             bool result = (js != null) && await js.InvokeAsync<bool>("confirm", $"Thí sinh đăng nhập lần cuối vào lúc {sinhVien.LastLoggedIn}. Hãy cân nhắc thời gian trên và chắc chắn rằng sinh viên không gian lận");
             if (result && httpClient != null)
@@ -131,7 +132,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
         }
 
-        private async Task congGioSinhVien(ChiTietCaThi chiTietCaThi)
+        private async Task congGioSinhVien(ChiTietCaThiDto chiTietCaThi)
         {
             var jsonString = JsonSerializer.Serialize(chiTietCaThi);
             if (httpClient != null)
@@ -139,7 +140,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (isConnectHub())
                 await sendMessage(ma_ca_thi);
         }
-        private async Task onClickRemoveCTCT(ChiTietCaThi chiTietCaThi)
+        private async Task onClickRemoveCTCT(ChiTietCaThiDto chiTietCaThi)
         {
             await getAllDeThi();
             string? ten_sv = chiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + chiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
@@ -182,7 +183,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                     int rowIndex = 2; // Bắt đầu từ hàng thứ 2 (dòng dữ liệu)
                     foreach (var item in chiTietCaThis)
                     {
-                        SinhVien? sv = item.MaSinhVienNavigation;
+                        SinhVienDto? sv = item.MaSinhVienNavigation;
                         if (sv != null)
                         {
                             worksheet.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
@@ -214,14 +215,14 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task Start()
         {
-            sinhVien = new SinhVien();
+            sinhVien = new();
             isShowMessageBox = isShowMBExcel = false;
-            chiTietCaThis = new List<ChiTietCaThi>();
-            displayChiTietCaThis = new List<ChiTietCaThi>();
-            displayCTCTMBSuaSV = new ChiTietCaThi();
+            chiTietCaThis = new();
+            displayChiTietCaThis = new();
+            displayCTCTMBSuaSV = new();
             MB_ly_do_cong = "";
             MB_thoi_gian_cong = 0;
-            displayChiTietCaThi = new ChiTietCaThi();
+            displayChiTietCaThi = new();
             if (myData != null && myData.caThi != null)
                 ma_ca_thi = myData.caThi.MaCaThi;
             else

@@ -1,2 +1,5 @@
 10/02/2025 - 9:00AM
 - Tạo các class DTOs
+--------------------------------------
+10/02/2025 - 12:00PM
+- Sửa các Services, Controllers và Client Pages chỉ thao tác với Dtos

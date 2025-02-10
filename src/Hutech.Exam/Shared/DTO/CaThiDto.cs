@@ -34,8 +34,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool Approved { get; set; }
 
-        public virtual ICollection<ChiTietCaThi> ChiTietCaThis { get; set; } = new List<ChiTietCaThi>();
+        public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
 
-        public virtual ChiTietDotThi MaChiTietDotThiNavigation { get; set; } = null!;
+        public virtual ChiTietDotThiDto MaChiTietDotThiNavigation { get; set; } = null!;
     }
 }

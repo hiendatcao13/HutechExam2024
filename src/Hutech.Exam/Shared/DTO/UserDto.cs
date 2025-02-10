@@ -9,7 +9,7 @@ namespace Hutech.Exam.Shared.DTO
     public class UserDto
     {
         // loại bỏ Comment, PasswordSalt, DateCreated, FailedPwdAttemptCount, FailedPwdAttemptWindowStart, FailedPwdAnswerCount
-        // FailedPwdAnswerWindowStart, IsBuildInUser
+        // FailedPwdAnswerWindowStart, IsBuildInUser, Password
         public Guid UserId { get; set; }
 
         public string LoginName { get; set; } = null!;
@@ -18,7 +18,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public string Name { get; set; } = null!;
 
-        public string Password { get; set; } = null!;
+        //public string Password { get; set; } = null!;
 
         public bool IsDeleted { get; set; }
 

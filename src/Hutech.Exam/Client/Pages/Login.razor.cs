@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Azure;
 using System.Xml.Linq;
+using Hutech.Exam.Shared.DTO;
 namespace Hutech.Exam.Client.Pages
 {
 
@@ -26,7 +27,7 @@ namespace Hutech.Exam.Client.Pages
         IJSRuntime? js { get; set; }
         [CascadingParameter]
         private Task<AuthenticationState>? authenticationState { get; set; }
-        SinhVien? sv { get; set; }
+        SinhVienDto? sv { get; set; }
         UserSession? userSession { get; set; }
         private string? ma_so_sinh_vien = "";
         private string? password = "";
@@ -35,7 +36,7 @@ namespace Hutech.Exam.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Start();
-            sv = new SinhVien();
+            sv = new();
             //nếu đã tồn tại người dùng đăng nhập trước đó, chuyển trang
             var customAuthStateProvider = (authenticationStateProvider != null) ? (CustomAuthenticationStateProvider)authenticationStateProvider : null;
             var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;

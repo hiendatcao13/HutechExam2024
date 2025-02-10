@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.IdentityModel.Tokens;
@@ -12,17 +13,17 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
     public partial class MBThemSVExcel
     {
         [Parameter]
-        public List<Khoa>? listKhoa { get; set; }
+        public List<KhoaDto>? listKhoa { get; set; }
         [Parameter]
         public EventCallback onClickLuu { get; set; }
         [Parameter]
         public EventCallback onClickThoat { get; set; }
         public int ma_khoa_selected = -1;
-        public List<SinhVien>? sinhViens { get; set; }
+        public List<SinhVienDto>? sinhViens { get; set; }
         public bool isReadyToSave = false;
         private ErrorMessage? errorMessages { get; set; }
         [Parameter]
-        public List<SinhVien>? sinhVienGocs { get; set; } // ds sinh viên đã tồn tại trong ca thi
+        public List<SinhVienDto>? sinhVienGocs { get; set; } // ds sinh viên đã tồn tại trong ca thi
         [Inject]
         IJSRuntime? js { get; set; }
         private bool isCheckNull = true;
@@ -46,7 +47,7 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
                 js?.InvokeVoidAsync("alert", "Định dạng file không phải Excel hoặc file rỗng");
                 return;
             }
-            sinhViens = new List<SinhVien>();
+            sinhViens = new List<SinhVienDto>();
 
             using var memoryStream = new MemoryStream();
             await file.OpenReadStream(maxAllowedSize: 5*1024*1024).CopyToAsync(memoryStream); // 3 MB
@@ -59,7 +60,7 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
 
             for (int row = 2; row <= rowCount; row++) // Bỏ qua dòng tiêu đề
             {
-                SinhVien sinhVien = new SinhVien();
+                SinhVienDto sinhVien = new SinhVienDto();
                 sinhVien.MaSinhVien = row; // lưu tạm thời mã sinh viên thành dòng bị lỗi
                 sinhVien.MaSoSinhVien = worksheet.Cells[row, 1].Text?.Trim();
                 sinhVien.HoVaTenLot = worksheet.Cells[row, 2].Text?.Trim();
@@ -69,7 +70,7 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
                 sinhVien.GioiTinh = (!gioiTinhText.IsNullOrEmpty() && (gioiTinhText == "1" || gioiTinhText == "0")) ? short.Parse(gioiTinhText) : null ;
 
                 //Kiểm tra trùng lặp
-                SinhVien? temp = sinhViens.Where(p => p.MaSoSinhVien == sinhVien.MaSoSinhVien).FirstOrDefault();
+                SinhVienDto? temp = sinhViens.Where(p => p.MaSoSinhVien == sinhVien.MaSoSinhVien).FirstOrDefault();
                 if(temp != null  && errorMessages != null)
                 {
                     errorMessages.errorDoubles.Add((int)temp.MaSinhVien);
@@ -77,7 +78,7 @@ namespace Hutech.Exam.Client.Pages.Admin.MessageBox
                 }
 
                 //Kiểm tra có tồn tại trong ca thi chưa
-                SinhVien? temp2 = sinhVienGocs?.Where(p => p.MaSoSinhVien == sinhVien.MaSoSinhVien).FirstOrDefault();
+                SinhVienDto? temp2 = sinhVienGocs?.Where(p => p.MaSoSinhVien == sinhVien.MaSoSinhVien).FirstOrDefault();
                 if (!isCheckExist && errorMessages != null)
                 {
                     if (temp != null)

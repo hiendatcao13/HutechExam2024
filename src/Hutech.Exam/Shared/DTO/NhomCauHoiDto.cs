@@ -29,6 +29,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool? LaCauHoiNhom { get; set; }
 
-        public virtual TblDeThi MaDeThiNavigation { get; set; } = null!;
+        public virtual DeThiDto MaDeThiNavigation { get; set; } = null!;
     }
 }

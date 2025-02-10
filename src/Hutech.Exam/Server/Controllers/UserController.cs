@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace Hutech.Exam.Server.Controllers
                 return Unauthorized();
             }
         }
-        private bool checkLogin(SinhVien sinhVien)
+        private bool checkLogin(SinhVienDto sinhVien)
         {
             // đã có máy đăng nhập trước đó
             if (sinhVien.IsLoggedIn == true)

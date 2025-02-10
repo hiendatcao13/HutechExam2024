@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Collections.Generic;
 using System.Data;
@@ -8,36 +10,40 @@ namespace Hutech.Exam.Server.BUS
     public class ChiTietDotThiService
     {
         private readonly IChiTietDotThiResposity _chiTietDotThiResposity;
-        public ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository)
+        private readonly IMapper _mapper;
+        public ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository, IMapper mapper)
         {
             _chiTietDotThiResposity = chiTietDotThiRepository;
+            _mapper = mapper;
         }
-        private ChiTietDotThi getProperty(IDataReader dataReader)
+        private ChiTietDotThiDto getProperty(IDataReader dataReader)
         {
-            ChiTietDotThi chiTietDotThi = new ChiTietDotThi();
-            chiTietDotThi.MaChiTietDotThi = dataReader.GetInt32(0);
-            chiTietDotThi.TenChiTietDotThi = dataReader.GetString(1);
-            chiTietDotThi.MaLopAo = dataReader.GetInt32(2);
-            chiTietDotThi.MaDotThi = dataReader.GetInt32(3);
-            chiTietDotThi.LanThi = dataReader.GetString(4);
-            return chiTietDotThi;
+            ChiTietDotThi chiTietDotThi = new()
+            {
+                MaChiTietDotThi = dataReader.GetInt32(0),
+                TenChiTietDotThi = dataReader.GetString(1),
+                MaLopAo = dataReader.GetInt32(2),
+                MaDotThi = dataReader.GetInt32(3),
+                LanThi = dataReader.GetString(4)
+            };
+            return _mapper.Map<ChiTietDotThiDto>(chiTietDotThi);
         }
-        public List<ChiTietDotThi> SelectBy_MaDotThi(int ma_dot_thi)
+        public List<ChiTietDotThiDto> SelectBy_MaDotThi(int ma_dot_thi)
         {
-            List<ChiTietDotThi> list = new List<ChiTietDotThi>();
+            List<ChiTietDotThiDto> list = new();
             using(IDataReader dataReader = _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi))
             {
                 while(dataReader.Read())
                 {
-                    ChiTietDotThi chiTietDotThi = getProperty(dataReader);
+                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
                     list.Add(chiTietDotThi);
                 }
             }
             return list;
         }
-        public ChiTietDotThi SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
+        public ChiTietDotThiDto SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
         {
-            ChiTietDotThi chiTietDotThi = new ChiTietDotThi();
+            ChiTietDotThiDto chiTietDotThi = new();
             using (IDataReader dataReader = _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao))
             {
 
@@ -48,9 +54,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietDotThi;
         }
-        public ChiTietDotThi SelectOne(int ma_chi_tiet_dot_thi)
+        public ChiTietDotThiDto SelectOne(int ma_chi_tiet_dot_thi)
         {
-            ChiTietDotThi chiTietDotThi = new ChiTietDotThi();
+            ChiTietDotThiDto chiTietDotThi = new();
             using (IDataReader dataReader = _chiTietDotThiResposity.SelectOne(ma_chi_tiet_dot_thi))
             {
 

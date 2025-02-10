@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,45 +9,49 @@ namespace Hutech.Exam.Server.BUS
     public class CaThiService
     {
         private readonly ICaThiRepository _caThiRepository;
-        public CaThiService(ICaThiRepository caThiRepository)
+        private readonly IMapper _mapper;
+        public CaThiService(ICaThiRepository caThiRepository, IMapper mapper)
         {
             _caThiRepository = caThiRepository;
+            _mapper = mapper;
         }
-        private CaThi getProperty(IDataReader dataReader)
+        private CaThiDto getProperty(IDataReader dataReader)
         {
-            CaThi caThi = new CaThi();
-            caThi.MaCaThi = dataReader.GetInt32(0);
-            caThi.TenCaThi = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-            caThi.MaChiTietDotThi = dataReader.GetInt32(2);
-            caThi.ThoiGianBatDau = dataReader.GetDateTime(3);
-            caThi.MaDeThi = dataReader.GetInt32(4);
-            caThi.IsActivated = dataReader.GetBoolean(5);
-            caThi.ActivatedDate = dataReader.IsDBNull(6) ? null : dataReader.GetDateTime(6);
-            caThi.ThoiGianThi = dataReader.GetInt32(7);
-            caThi.KetThuc = dataReader.GetBoolean(8);
-            caThi.ThoiDiemKetThuc = dataReader.IsDBNull(9) ? null : dataReader.GetDateTime(9);
-            caThi.MatMa =  dataReader.IsDBNull(10) ? null : dataReader.GetString(10);
-            caThi.Approved = dataReader.GetBoolean(11);
-            caThi.ApprovedDate = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12);
-            caThi.ApprovedComments = dataReader.IsDBNull(13) ? null : dataReader.GetString(13);
-            return caThi;
+            CaThi caThi = new()
+            {
+                MaCaThi = dataReader.GetInt32(0),
+                TenCaThi = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
+                MaChiTietDotThi = dataReader.GetInt32(2),
+                ThoiGianBatDau = dataReader.GetDateTime(3),
+                MaDeThi = dataReader.GetInt32(4),
+                IsActivated = dataReader.GetBoolean(5),
+                ActivatedDate = dataReader.IsDBNull(6) ? null : dataReader.GetDateTime(6),
+                ThoiGianThi = dataReader.GetInt32(7),
+                KetThuc = dataReader.GetBoolean(8),
+                ThoiDiemKetThuc = dataReader.IsDBNull(9) ? null : dataReader.GetDateTime(9),
+                MatMa = dataReader.IsDBNull(10) ? null : dataReader.GetString(10),
+                Approved = dataReader.GetBoolean(11),
+                ApprovedDate = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12),
+                ApprovedComments = dataReader.IsDBNull(13) ? null : dataReader.GetString(13)
+            };
+            return _mapper.Map<CaThiDto>(caThi);
         }
-        public List<CaThi> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
+        public List<CaThiDto> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
         {
-            List<CaThi> list = new List<CaThi>();
+            List<CaThiDto> result = new();
             using(IDataReader dataReader = _caThiRepository.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi))
             {
                 while (dataReader.Read())
                 {
-                    CaThi caThi = getProperty(dataReader);
-                    list.Add(caThi);
+                    CaThiDto caThi = getProperty(dataReader);
+                    result.Add(caThi);
                 }
             }
-            return list;
+            return result;
         }
-        public CaThi SelectOne(int ma_ca_thi)
+        public CaThiDto SelectOne(int ma_ca_thi)
         {
-            CaThi caThi = new CaThi();
+            CaThiDto caThi = new();
             using(IDataReader dataReader = _caThiRepository.SelectOne(ma_ca_thi))
             {
                 if (dataReader.Read())
@@ -55,18 +61,18 @@ namespace Hutech.Exam.Server.BUS
             }
             return caThi;
         }
-        public List<CaThi> ca_thi_GetAll()
+        public List<CaThiDto> ca_thi_GetAll()
         {
-            List<CaThi> list = new List<CaThi>();
+            List<CaThiDto> result = new();
             using (IDataReader dataReader = _caThiRepository.ca_thi_GetAll())
             {
                 while (dataReader.Read())
                 {
-                    CaThi caThi = getProperty(dataReader);
-                    list.Add(caThi);
+                    CaThiDto caThi = getProperty(dataReader);
+                    result.Add(caThi);
                 }
             }
-            return list;
+            return result;
         }
         public void ca_thi_Activate(int ma_ca_thi, bool IsActivated)
         {

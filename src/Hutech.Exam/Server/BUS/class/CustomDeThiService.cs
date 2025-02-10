@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Shared.DTO.Custom;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
 
 namespace Hutech.Exam.Server.BUS
@@ -24,33 +25,33 @@ namespace Hutech.Exam.Server.BUS
         public List<CustomDeThi> handleDeThi(long ma_de_hoan_vi)
         { 
             List<CustomDeThi> result = new List<CustomDeThi>();
-            List<TblChiTietDeThiHoanVi> chiTietDeThiHoanVis = getNoiDungChiTietDeThiHV(ma_de_hoan_vi);
+            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = getNoiDungChiTietDeThiHV(ma_de_hoan_vi);
             foreach (var item in chiTietDeThiHoanVis)
                 result.Add(getNoiDungFromCTDeThiHV(item));
             return result;
         }
-        private List<TblChiTietDeThiHoanVi> getNoiDungChiTietDeThiHV(long ma_de_hoan_vi)
+        private List<ChiTietDeThiHoanViDto> getNoiDungChiTietDeThiHV(long ma_de_hoan_vi)
         {
             return _chiTietDeThiHoanViService.SelectBy_MaDeHV(ma_de_hoan_vi); ;
         }
-        private TblNhomCauHoi getNoiDungCauHoiNhom(int ma_cau_hoi_nhom)
+        private NhomCauHoiDto getNoiDungCauHoiNhom(int ma_cau_hoi_nhom)
         {
             return _nhomCauHoiService.SelectOne(ma_cau_hoi_nhom);
         }
-        private TblCauHoi getNoiDungCauHoi(int ma_cau_hoi)
+        private CauHoiDto getNoiDungCauHoi(int ma_cau_hoi)
         {
             return _cauHoiService.SelectOne(ma_cau_hoi);
         }
-        private List<TblCauTraLoi> getNoiDungCauTraLoi(int ma_cau_hoi)
+        private List<CauTraLoiDto> getNoiDungCauTraLoi(int ma_cau_hoi)
         {
             return _cauTraLoiService.SelectBy_MaCauHoi(ma_cau_hoi);
         }
-        private CustomDeThi getNoiDungFromCTDeThiHV(TblChiTietDeThiHoanVi chiTietDeThiHoanVi)
+        private CustomDeThi getNoiDungFromCTDeThiHV(ChiTietDeThiHoanViDto chiTietDeThiHoanVi)
         {
-            CustomDeThi chiTietDeThi = new CustomDeThi();
-            TblNhomCauHoi nhomCauHoi = getNoiDungCauHoiNhom(chiTietDeThiHoanVi.MaNhom);
-            TblCauHoi cauHoi = getNoiDungCauHoi(chiTietDeThiHoanVi.MaCauHoi);
-            List<TblCauTraLoi> cauTraLois = getNoiDungCauTraLoi(chiTietDeThiHoanVi.MaCauHoi);
+            CustomDeThi chiTietDeThi = new();
+            NhomCauHoiDto nhomCauHoi = getNoiDungCauHoiNhom(chiTietDeThiHoanVi.MaNhom);
+            CauHoiDto cauHoi = getNoiDungCauHoi(chiTietDeThiHoanVi.MaCauHoi);
+            List<CauTraLoiDto> cauTraLois = getNoiDungCauTraLoi(chiTietDeThiHoanVi.MaCauHoi);
 
             chiTietDeThi.MaNhom = nhomCauHoi.MaNhom;
             chiTietDeThi.MaCauHoi = cauHoi.MaCauHoi;

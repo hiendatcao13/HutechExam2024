@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 using System.Data.Common;
@@ -8,22 +10,26 @@ namespace Hutech.Exam.Server.BUS
     public class LopAoService
     {
         private readonly ILopAoRepository _lopAoRepository;
-        public LopAoService(ILopAoRepository lopAoRepository)
+        private readonly IMapper _mapper;
+        public LopAoService(ILopAoRepository lopAoRepository, IMapper mapper)
         {
             _lopAoRepository = lopAoRepository;
+            _mapper = mapper;
         }
-        private LopAo getProperty(IDataReader dataReader)
+        private LopAoDto getProperty(IDataReader dataReader)
         {
-            LopAo lopAo = new LopAo();
-            lopAo.MaLopAo = dataReader.GetInt32(0);
-            lopAo.TenLopAo = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-            lopAo.NgayBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2);
-            lopAo.MaMonHoc = dataReader.IsDBNull(3) ? null : dataReader.GetInt32(3);
-            return lopAo;
+            LopAo lopAo = new()
+            {
+                MaLopAo = dataReader.GetInt32(0),
+                TenLopAo = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
+                NgayBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2),
+                MaMonHoc = dataReader.IsDBNull(3) ? null : dataReader.GetInt32(3)
+            };
+            return _mapper.Map<LopAoDto>(lopAo);
         }
-        public LopAo SelectOne(int ma_lop_ao)
+        public LopAoDto SelectOne(int ma_lop_ao)
         {
-            LopAo lopAo = new LopAo();
+            LopAoDto lopAo = new();
             using(IDataReader dataReader = _lopAoRepository.SelectOne(ma_lop_ao))
             {
                 if (dataReader.Read())
@@ -33,25 +39,25 @@ namespace Hutech.Exam.Server.BUS
             }
             return lopAo;
         }
-        public List<LopAo> SelectBy_ma_mon_hoc(int ma_mon_hoc)
+        public List<LopAoDto> SelectBy_ma_mon_hoc(int ma_mon_hoc)
         {
-            List<LopAo> list = new List<LopAo>();
+            List<LopAoDto> list = new();
             using(IDataReader dataReader = _lopAoRepository.SelectBy_ma_mon_hoc(ma_mon_hoc))
             {
                 while (dataReader.Read())
                 {
-                    LopAo lopAo = getProperty(dataReader);
+                    LopAoDto lopAo = getProperty(dataReader);
                     list.Add(lopAo);
                 }
             }
             return list;
         }
-        public List<LopAo> SelectBy_ListChiTietDotThi(List<ChiTietDotThi> list)
+        public List<LopAoDto> SelectBy_ListChiTietDotThi(List<ChiTietDotThi> list)
         {
-            List<LopAo> result = new List<LopAo>();
+            List<LopAoDto> result = new();
             foreach(var chiTietDotThi in list)
             {
-                LopAo lopAo = this.SelectOne(chiTietDotThi.MaLopAo);
+                LopAoDto lopAo = this.SelectOne(chiTietDotThi.MaLopAo);
                 // tránh bị trùng lặp
                 if (!result.Contains(lopAo))
                 {

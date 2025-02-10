@@ -15,6 +15,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public string? TenMonHoc { get; set; }
 
-        public virtual ICollection<LopAo> LopAos { get; set; } = new List<LopAo>();
+        public virtual ICollection<LopAoDto> LopAos { get; set; } = new List<LopAoDto>();
     }
 }

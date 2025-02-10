@@ -1,4 +1,6 @@
-﻿using Hutech.Exam.Server.DAL.Repositories;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -7,28 +9,32 @@ namespace Hutech.Exam.Server.BUS
     public class DeThiService
     {
         private readonly IDeThiRepository _deThiRepository;
-        public DeThiService(IDeThiRepository deThiRepository)
+        private readonly IMapper _mapper;
+        public DeThiService(IDeThiRepository deThiRepository, IMapper mapper)
         {
             _deThiRepository = deThiRepository;
+            _mapper = mapper;
         }
-        private TblDeThi getProperty(IDataReader dataReader)
+        private DeThiDto getProperty(IDataReader dataReader)
         {
-            TblDeThi deThi = new TblDeThi();
-            deThi.MaDeThi = dataReader.GetInt32(0);
-            deThi.MaMonHoc = dataReader.GetInt32(1);
-            deThi.TenDeThi = dataReader.GetString(2);
-            deThi.NgayTao = dataReader.GetDateTime(3);
-            deThi.NguoiTao = dataReader.GetInt32(4);
-            deThi.GhiChu = dataReader.IsDBNull(5) ? null : dataReader.GetString(5);
-            deThi.LuuTam = dataReader.GetBoolean(6);
-            deThi.DaDuyet = dataReader.GetBoolean(7);
-            deThi.TongSoDeHoanVi = dataReader.IsDBNull(8) ? null : dataReader.GetInt32(8);
-            deThi.BoChuongPhan = dataReader.GetBoolean(9);
-            return deThi;
+            TblDeThi deThi = new()
+            {
+                MaDeThi = dataReader.GetInt32(0),
+                MaMonHoc = dataReader.GetInt32(1),
+                TenDeThi = dataReader.GetString(2),
+                NgayTao = dataReader.GetDateTime(3),
+                NguoiTao = dataReader.GetInt32(4),
+                GhiChu = dataReader.IsDBNull(5) ? null : dataReader.GetString(5),
+                LuuTam = dataReader.GetBoolean(6),
+                DaDuyet = dataReader.GetBoolean(7),
+                TongSoDeHoanVi = dataReader.IsDBNull(8) ? null : dataReader.GetInt32(8),
+                BoChuongPhan = dataReader.GetBoolean(9)
+            };
+            return _mapper.Map<DeThiDto>(deThi);
         }
-        public TblDeThi SelectOne(int ma_de_thi)
+        public DeThiDto SelectOne(int ma_de_thi)
         {
-            TblDeThi deThi = new TblDeThi();
+            DeThiDto deThi = new();
             using(IDataReader dataReader = _deThiRepository.SelectOne(ma_de_thi))
             {
                 if (dataReader.Read())
@@ -38,9 +44,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return deThi;
         }
-        public TblDeThi SelectBy_ma_de_hv(long ma_de_hv)
+        public DeThiDto SelectBy_ma_de_hv(long ma_de_hv)
         {
-            TblDeThi deThi = new TblDeThi();
+            DeThiDto deThi = new();
             using (IDataReader dataReader = _deThiRepository.SelectBy_ma_de_hv(ma_de_hv))
             {
                 if (dataReader.Read())

@@ -15,6 +15,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public DateTime? NgayThanhLap { get; set; }
 
-        public virtual ICollection<Lop> Lops { get; set; } = new List<Lop>();
+        public virtual ICollection<LopDto> Lops { get; set; } = new List<LopDto>();
     }
 }

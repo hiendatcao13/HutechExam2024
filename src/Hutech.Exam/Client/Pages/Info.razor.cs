@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Globalization;
+using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Client.Pages
 {
@@ -31,14 +32,14 @@ namespace Hutech.Exam.Client.Pages
         IJSRuntime? js { get; set; }
         [CascadingParameter]
         private Task<AuthenticationState>? authenticationState { get; set; }
-        private SinhVien? sinhVien { get; set; }
-        private CaThi? caThi { get; set; }
-        private MonHoc? monHoc { get; set; }
-        private List<ChiTietCaThi>? chiTietCaThis { get; set; }
+        private SinhVienDto? sinhVien { get; set; }
+        private CaThiDto? caThi { get; set; }
+        private MonHocDto? monHoc { get; set; }
+        private List<ChiTietCaThiDto>? chiTietCaThis { get; set; }
         string selectoption_cathi = "";
         private System.Timers.Timer? timer { get; set; }
         private string? displayTime { get; set; }
-        private ChiTietCaThi? selectedCTCaThi { get; set; }
+        private ChiTietCaThiDto? selectedCTCaThi { get; set; }
         private HubConnection? hubConnection { get; set; }
         protected override async Task OnInitializedAsync()
         {
@@ -68,12 +69,12 @@ namespace Hutech.Exam.Client.Pages
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                chiTietCaThis = JsonSerializer.Deserialize<List<ChiTietCaThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                chiTietCaThis = JsonSerializer.Deserialize<List<ChiTietCaThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                 if(chiTietCaThis != null && myData != null)
                     sinhVien = myData.sinhVien = chiTietCaThis[0]?.MaSinhVienNavigation;
             }
         }
-        private void onClickCaThi(ChiTietCaThi chiTietCaThi)
+        private void onClickCaThi(ChiTietCaThiDto chiTietCaThi)
         {
             if(myData != null)
             {
@@ -149,11 +150,11 @@ namespace Hutech.Exam.Client.Pages
         private async Task Start()
         {
             await initialHubConnection();
-            sinhVien = new SinhVien();
-            caThi = new CaThi();
+            sinhVien = new();
+            caThi = new();
             displayTime = DateTime.Now.ToString("hh:mm:ss tt");
-            chiTietCaThis = new List<ChiTietCaThi>();
-            selectedCTCaThi = new ChiTietCaThi();
+            chiTietCaThis = new();
+            selectedCTCaThi = new();
             if(myData != null)
                 myData.bonusTime = THOI_GIAN_TRUOC_THI;
             var authState = (authenticationState!= null) ? await authenticationState : null;

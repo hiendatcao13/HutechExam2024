@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor
     {
-        private async Task onClickSuaSV(ChiTietCaThi chiTietCaThi)
+        private async Task onClickSuaSV(ChiTietCaThiDto chiTietCaThi)
         {
             await getAllDeThi();
             displayCTCTMBSuaSV = chiTietCaThi;

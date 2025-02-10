@@ -25,10 +25,10 @@ var app = builder.Build();
 //Khởi chạy RabbitMQ
 var scope = app.Services.CreateScope();
 var consumeService = scope.ServiceProvider.GetRequiredService<RabbitMqCTBTService>();
-if (consumeService != null)
-{
-    Task.Run(() => consumeService.ConsumeMessages());
-}
+//if (consumeService != null)
+//{
+//    Task.Run(() => consumeService.ConsumeMessages());
+//}
 
 // Thêm các middleware trung gian xử lí các request, trước khi trả về reponse
 app.UseMiddleware<GlobalExceptionMiddleware>();

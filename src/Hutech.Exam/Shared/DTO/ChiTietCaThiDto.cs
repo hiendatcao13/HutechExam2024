@@ -37,10 +37,10 @@ namespace Hutech.Exam.Shared.DTO
 
         public string? LyDoCong { get; set; }
 
-        public virtual ICollection<ChiTietBaiThi> ChiTietBaiThis { get; set; } = new List<ChiTietBaiThi>();
+        public virtual ICollection<ChiTietBaiThiDto> ChiTietBaiThis { get; set; } = new List<ChiTietBaiThiDto>();
 
-        public virtual CaThi? MaCaThiNavigation { get; set; }
+        public virtual CaThiDto? MaCaThiNavigation { get; set; }
 
-        public virtual SinhVien? MaSinhVienNavigation { get; set; }
+        public virtual SinhVienDto? MaSinhVienNavigation { get; set; }
     }
 }

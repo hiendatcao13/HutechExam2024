@@ -39,6 +39,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public byte[]? Photo { get; set; }
 
-        public virtual ICollection<ChiTietCaThi> ChiTietCaThis { get; set; } = new List<ChiTietCaThi>();
+        public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
     }
 }

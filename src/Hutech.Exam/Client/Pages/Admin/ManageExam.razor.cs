@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.API;
+using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Client.Pages.Admin
 {
@@ -33,11 +34,11 @@ namespace Hutech.Exam.Client.Pages.Admin
         Blazored.SessionStorage.ISessionStorageService? sessionStorage { get; set; }
         private string? input_maCaThi { get; set; }
         private DateTime? input_Date { get; set; }
-        private List<CaThi>? caThis { get; set; }
-        private List<CaThi>? displayCaThis { get; set; }
+        private List<CaThiDto>? caThis { get; set; }
+        private List<CaThiDto>? displayCaThis { get; set; }
         private bool showMessageBox { get; set; }
-        private CaThi? showCaThiMessageBox { get; set; }
-        private User? user { get; set; }
+        private CaThiDto? showCaThiMessageBox { get; set; }
+        private UserDto? user { get; set; }
         private HubConnection? hubConnection { get; set; }
         protected override async Task OnInitializedAsync()
         {
@@ -68,7 +69,7 @@ namespace Hutech.Exam.Client.Pages.Admin
         private async Task getThongTinUser(string loginName)
         {
             if (sessionStorage != null)
-                user = await sessionStorage.GetItemAsync<User>("user");
+                user = await sessionStorage.GetItemAsync<UserDto>("user");
         }
         private async Task getAllCaThi()
         {
@@ -80,7 +81,7 @@ namespace Hutech.Exam.Client.Pages.Admin
                 var resultString = await response.Content.ReadAsStringAsync();
                 //ApiResponse<List<CaThi>>? temp = JsonSerializer.Deserialize<ApiResponse<List<CaThi>>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                 //displayCaThis = caThis = temp.result;
-                displayCaThis = caThis = JsonSerializer.Deserialize<List<CaThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                displayCaThis = caThis = JsonSerializer.Deserialize<List<CaThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
         }
 
@@ -157,23 +158,23 @@ namespace Hutech.Exam.Client.Pages.Admin
 
         private async Task Start()
         {
-            caThis = new List<CaThi>();
-            displayCaThis = new List<CaThi>();
+            caThis = new();
+            displayCaThis = new();
             showMessageBox = false;
-            showCaThiMessageBox = new CaThi();
-            user = new User();
+            showCaThiMessageBox = new();
+            user = new();
             await getAllCaThi();
             await createHubConnection();
             await checkAdmin();
         }
-        private void onClickShowMessageBox(CaThi caThi)
+        private void onClickShowMessageBox(CaThiDto caThi)
         {
             showMessageBox = true;
             showCaThiMessageBox = caThi;
             StateHasChanged();
         }
 
-        private async Task OnClickChiTietCaThi(CaThi caThi)
+        private async Task OnClickChiTietCaThi(CaThiDto caThi)
         {
             if(myData != null && sessionStorage != null)
             {
@@ -313,10 +314,6 @@ namespace Hutech.Exam.Client.Pages.Admin
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageStatusCaThi", ma_ca_thi);
-        }
-        private bool verifyPassword(string password, string hashedPassword)
-        {
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

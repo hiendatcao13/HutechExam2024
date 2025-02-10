@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BCrypt.Net;
+using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Server.Authentication
 {
@@ -22,11 +23,13 @@ namespace Hutech.Exam.Server.Authentication
         public JwtAuthenticationManager(SinhVienService sinhVienService)
         {
             _sinhVienService = sinhVienService;
+            _userService = null!;
         }
         //Overloading for admin, monitor
         public JwtAuthenticationManager(UserService userService)
         {
             _userService = userService;
+            _sinhVienService = null!;
         }
         public UserSession? GenerateJwtToken(string username)
         {
@@ -36,7 +39,7 @@ namespace Hutech.Exam.Server.Authentication
                 return null;
             }
             /*Xác thực sinh viên có tồn tại trong database không ?*/
-            SinhVien sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(username);
+            SinhVienDto sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(username);
             if (sinhVien == null || sinhVien.MaSoSinhVien == null)
             {
                 return null;
@@ -93,7 +96,7 @@ namespace Hutech.Exam.Server.Authentication
             {
                 return null;
             }
-            User navigateUser = _userService.SelectByLoginName(username);
+            UserDto navigateUser = _userService.SelectByLoginName(username);
             // kiểm tra xem tài khoản có bị khóa hoặc bị xóa không ?
             if(navigateUser.IsLockedOut || navigateUser.IsDeleted)
             {
