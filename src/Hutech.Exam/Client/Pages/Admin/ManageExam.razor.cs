@@ -3,15 +3,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Hutech.Exam.Client.Pages.Admin.DAL;
-using Hutech.Exam.Shared.Models;
 using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
-using System.Net.Http.Json;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
-using Hutech.Exam.Shared;
-using Hutech.Exam.Shared.API;
 using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Client.Pages.Admin

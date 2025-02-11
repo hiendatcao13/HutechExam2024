@@ -8,3 +8,6 @@
 - Nâng cấp net7 -> net9
 - Tải các file boostrap offline tránh lỗi các file link mạng bị lỗi
 - Tối ưu các dòng code gọi lấy file boostrap nhiều lần
+--------------------------------------
+11/02/2025 - 6:00PM
+- Buid docker file

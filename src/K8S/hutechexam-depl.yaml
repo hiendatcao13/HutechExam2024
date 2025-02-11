@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hutechexam-deployment
+  labels:
+    app: hutechexam
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hutechexam
+  template:
+    metadata:
+      labels:
+        app: hutechexam
+    spec:
+      containers:
+      - name: hutechexam-container
+        image: hutech-exam:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 8081
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"

@@ -1,17 +1,12 @@
 ﻿using Hutech.Exam.Client.DAL;
-using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Authorization;
-using System.Net;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.JSInterop;
 using System.Text;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Globalization;
 using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Client.Pages

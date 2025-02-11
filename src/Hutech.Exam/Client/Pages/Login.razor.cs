@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using System.Text.Json;
 using Hutech.Exam.Shared;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -9,8 +8,6 @@ using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
-using Azure;
-using System.Xml.Linq;
 using Hutech.Exam.Shared.DTO;
 namespace Hutech.Exam.Client.Pages
 {
