@@ -30,26 +30,27 @@ namespace Hutech.Exam.Server.Controllers;
         _chiTietBaiThiService = chiTietBaiThiService;
     }
     [HttpGet("GetThongTinSinhVien")]
-    public ActionResult<SinhVienDto> GetThongTinSinhVien([FromQuery] long ma_sinh_vien)
+    public async Task<ActionResult<SinhVienDto>> GetThongTinSinhVien([FromQuery] long ma_sinh_vien)
     {
-        return _sinhVienService.SelectOne(ma_sinh_vien);
+        return await _sinhVienService.SelectOne(ma_sinh_vien);
     }
     [HttpGet("GetThongTinCaThi")]
-    public ActionResult<CaThiDto> GetThongTinCaThi([FromQuery] int ma_ca_thi)
+    public async Task<ActionResult<CaThiDto>> GetThongTinCaThi([FromQuery] int ma_ca_thi)
     {
-        return _caThiService.SelectOne(ma_ca_thi);
+        return await _caThiService.SelectOne(ma_ca_thi);
     }
     [HttpGet("GetChiTietCaThiSelectBy_SinhVien")]
     // lấy chi tiết các thông tin của 1 sinh viên thi vào 1 ca giờ cụ thể (đề thi hoán vị)
-    public ActionResult<ChiTietCaThiDto> GetChiTietCaThiSelectBy_SinhVien([FromQuery] int ma_ca_thi, [FromQuery] long ma_sinh_vien)
+    public async Task<ActionResult<ChiTietCaThiDto>> GetChiTietCaThiSelectBy_SinhVien([FromQuery] int ma_ca_thi, [FromQuery] long ma_sinh_vien)
     {
-        return _chiTietCaThiService.SelectBy_MaCaThi_MaSinhVien(ma_ca_thi, ma_sinh_vien);
+        return await _chiTietCaThiService.SelectBy_MaCaThi_MaSinhVien(ma_ca_thi, ma_sinh_vien);
     }
     [HttpGet("GetListDungSai")]
-    public ActionResult<int> GetListDungSai([FromQuery] int ma_chi_tiet_ca_thi, int tong_so_cau)
+    public async Task<ActionResult<int>> GetListDungSai([FromQuery] int ma_chi_tiet_ca_thi, int tong_so_cau)
     {
         List<bool?> result = new List<bool?>();
-        List<ChiTietBaiThiDto> chiTietBaiThis = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi).OrderBy(p => p.ThuTu).ToList();
+        var items = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
+        List<ChiTietBaiThiDto> chiTietBaiThis = items.OrderBy(p => p.ThuTu).ToList();
         for(int i = 1; i <= tong_so_cau; i++)
         {
             bool? ketQua = chiTietBaiThis?.FirstOrDefault(p => p.ThuTu == i)?.KetQua;
@@ -58,9 +59,9 @@ namespace Hutech.Exam.Server.Controllers;
         return Ok(result);
     }
     [HttpPost("UpdateKetThuc")]
-    public ActionResult UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
+    public async Task<ActionResult> UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
     {
-        _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
+        await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
         return Ok();
     }
 }

@@ -8,9 +8,10 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Hutech.Exam.Server.DAL.DataReader
 {
-    public class DatabaseReader
+    public class DatabaseReader : IDisposable
     {
-        public static readonly int THOI_GIAN_HUY_BO = 5; // (giây), là n giây connection pool tồn tại và sẽ được hủy bỏ sau n giây đó
+        private static readonly int THOI_GIAN_HUY_BO = 10; // (giây), là n giây thực hiện procedure sẽ được hủy bỏ sau n giây đó
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // (giây), là n giây connection pool tồn tại và sẽ được hủy bỏ sau n giây đó
         private string? _connectionString { get; set; }
         private IConfiguration? _configuration { get; set; }
         private List<SqlParameter> _params { get; set; }
@@ -27,7 +28,7 @@ namespace Hutech.Exam.Server.DAL.DataReader
         private void Initalize(string nameOfProcedure)
         {
             configureConnectionString();
-            if(_connectionString != null)
+            if (_connectionString != null)
                 checkError(nameOfProcedure, _connectionString);
         }
         private void configureConnectionString()
@@ -36,163 +37,128 @@ namespace Hutech.Exam.Server.DAL.DataReader
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             _configuration = builder.Build();
             string? connectionString = _configuration.GetConnectionString("DefaultConnection");
-            if(connectionString != null)
+            if (connectionString != null)
                 _connectionString = connectionString;
         }
         private void checkError(string nameOfProcedure, string connectionString)
         {
-            if (nameOfProcedure == "" || nameOfProcedure == null || nameOfProcedure.Length == 0)
+            if (string.IsNullOrWhiteSpace(nameOfProcedure))
             {
-                throw new ArgumentNullException("Name Procedure");
+                throw new ArgumentNullException(nameof(nameOfProcedure));
             }
-            if (connectionString == "" || connectionString == null || connectionString.Length == 0)
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                throw new ArgumentNullException("ConnectString");
+                throw new ArgumentNullException(nameof(connectionString));
             }
         }
         public void SqlParams(string nameOfParam, SqlDbType sqltype, object value)
         {
-            SqlParameter parameter = new SqlParameter(nameOfParam, sqltype);
-            parameter.Value = value;
+            SqlParameter parameter = new SqlParameter(nameOfParam, sqltype)
+            {
+                Value = value
+            };
             _params.Add(parameter);
         }
         // return lines
-        public int ExcuteNonQuery()
+        public async Task<int> ExcuteNonQuery()
         {
-            // check if connect is opened
-            if (connection != null && connection.State == System.Data.ConnectionState.Closed)
+            if (connection == null)
+                throw new InvalidOperationException("Connection is not initialized.");
+
+            if (connection.State == System.Data.ConnectionState.Closed)
             {
-                connection.Open();
+                await connection.OpenAsync(_cancellationTokenSource.Token);
             }
-            if(connection != null)
+
+            using (SqlTransaction transaction = connection.BeginTransaction())
             {
-                using (SqlTransaction transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        using (SqlCommand command = connection.CreateCommand())
-                        {
-                            command.Transaction = transaction;
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.CommandText = _nameOfProcedure;
-                            foreach (var param in _params)
-                            {
-                                command.Parameters.Add(param);
-                            }
-                            int result = command.ExecuteNonQuery();
-                            transaction.Commit();
-                            return result;
-                        }
-                    }
-                    catch (SqlException ex)
-                    {
-                        // Erorr 208: not found procedure in SQL
-                        if (ex.Number == 208)
-                        {
-                            throw new Exception("Procedure: " + _nameOfProcedure + " not found in SQL Server", ex);
-                        }
-                        if (transaction != null)
-                        {
-                            transaction.Rollback();
-                        }
-                        throw new Exception("An error occurred: " + ex.Message, ex);
-                    }
-                    finally
-                    {
-                        Dispose();
-                    }
-                }
-            }
-            return -1;
-        }
-        // return the first value in the first line (id)
-        public Object ExecuteScalar()
-        {
-            // check if connect is opened
-            if (connection!= null && connection.State == System.Data.ConnectionState.Closed)
-            {
-                connection.Open();
-            }
-            try
-            {
-                if(connection != null)
+                try
                 {
                     using (SqlCommand command = connection.CreateCommand())
                     {
+                        command.Transaction = transaction;
                         command.CommandType = CommandType.StoredProcedure;
                         command.CommandText = _nameOfProcedure;
-                        foreach (var param in _params)
-                        {
-                            command.Parameters.Add(param);
-                        }
-                        var result = command.ExecuteScalar();
+                        command.Parameters.AddRange(_params.ToArray());
+                        command.CommandTimeout = THOI_GIAN_HUY_BO;
+                        int result = await command.ExecuteNonQueryAsync();
+                        transaction.Commit();
                         return result;
                     }
                 }
-                throw new Exception("Can not read");
+                catch (SqlException ex)
+                {
+                    if (ex.Number == 208)
+                    {
+                        throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
+                    }
+                    transaction.Rollback();
+                    throw new Exception("An error occurred: " + ex.Message, ex);
+                }
+                finally
+                {
+                    Dispose();
+                }
+            }
+        }
+        // return the first value in the first line (id)
+        public async Task<object?> ExecuteScalar()
+        {
+            if (connection == null)
+                throw new InvalidOperationException("Connection is not initialized.");
+
+            if (connection.State == System.Data.ConnectionState.Closed)
+            {
+                await connection.OpenAsync(_cancellationTokenSource.Token);
+            }
+
+            try
+            {
+                SqlCommand command = connection.CreateCommand(); // ❌ Không dùng `using`
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = _nameOfProcedure;
+                command.Parameters.AddRange(_params.ToArray());
+                command.CommandTimeout = THOI_GIAN_HUY_BO;
+
+                return await command.ExecuteScalarAsync();
             }
             catch (SqlException ex)
             {
-                // Erorr 208: not found procedure in SQL
                 if (ex.Number == 208)
                 {
-                    throw new Exception("Procedure: " + _nameOfProcedure + " not found in SQL Server", ex);
+                    throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
                 }
                 throw new Exception("An error occurred: " + ex.Message, ex);
-            }
-            finally
-            {
-                // kết nối chỉ được 10 giây để đọc, sau đó sẽ được đóng kết nối lại để tránh rò rỉ connection
-                Task.Run(async () => // Tiếp tục thực hiện các công việc khác mà không cần phải chờ kết nối được đóng.
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(THOI_GIAN_HUY_BO));
-                    Dispose();
-                });
             }
         }
 
-        public SqlDataReader ExcuteReader()
+        public async Task<SqlDataReader> ExecuteReader()
         {
-            // check if connect is opened
-            if (connection!= null && connection.State == System.Data.ConnectionState.Closed)
+            if (connection == null)
+                throw new InvalidOperationException("Connection is not initialized.");
+
+            if (connection.State == System.Data.ConnectionState.Closed)
             {
-                connection.Open();
+                await connection.OpenAsync(_cancellationTokenSource.Token);
             }
+
             try
             {
-                if(connection != null)
-                {
-                    using (SqlCommand command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = _nameOfProcedure;
-                        foreach (var param in _params)
-                        {
-                            command.Parameters.Add(param);
-                        }
-                        SqlDataReader result = command.ExecuteReader();
-                        return result;
-                    }
-                }
-                throw new Exception("Can not read");
+                SqlCommand command = connection.CreateCommand(); // ❌ Không dùng `using` ở đây
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = _nameOfProcedure;
+                command.Parameters.AddRange(_params.ToArray());
+                command.CommandTimeout = THOI_GIAN_HUY_BO;
+
+                return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection);
             }
             catch (SqlException ex)
             {
-                // Erorr 208: not found procedure in SQL
                 if (ex.Number == 208)
                 {
-                    throw new Exception("Procedure: " + _nameOfProcedure + " not found in SQL Server", ex);
+                    throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
                 }
                 throw new Exception("An error occurred: " + ex.Message, ex);
-            }
-            finally
-            {
-                // kết nối chỉ được 10 giây để đọc, sau đó sẽ được đóng kết nối lại để tránh rò rỉ connection
-                Task.Run(async () => // Tiếp tục thực hiện các công việc khác mà không cần phải chờ kết nối được đóng.
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(THOI_GIAN_HUY_BO));
-                    Dispose();
-                });
             }
         }
         public void Dispose()

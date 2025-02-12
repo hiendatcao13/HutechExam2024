@@ -23,10 +23,10 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("Verify")]
         [AllowAnonymous]
-        public ActionResult<UserSession> Verify([FromQuery]string ma_so_sinh_vien)
+        public async Task<ActionResult<UserSession>> Verify([FromQuery]string ma_so_sinh_vien)
         {
             var JwtAuthencationManager = new JwtAuthenticationManager(_sinhVienService);
-            var userSession = JwtAuthencationManager.GenerateJwtToken(ma_so_sinh_vien);
+            var userSession = await JwtAuthencationManager.GenerateJwtToken(ma_so_sinh_vien);
             if(userSession != null && userSession.NavigateSinhVien!= null && checkLogin(userSession.NavigateSinhVien))
             {
                 UpdateLogin(userSession.NavigateSinhVien.MaSinhVien);
@@ -51,14 +51,14 @@ namespace Hutech.Exam.Server.Controllers
             }
             return true;
         }
-        private void UpdateLogin(long ma_sinh_vien)
+        private async Task UpdateLogin(long ma_sinh_vien)
         {
-            _sinhVienService.Login(ma_sinh_vien, DateTime.Now);
+            await _sinhVienService.Login(ma_sinh_vien, DateTime.Now);
         }
         [HttpGet("UpdateLogout")]
-        public ActionResult UpdateLogout([FromQuery] long ma_sinh_vien)
+        public async Task<ActionResult> UpdateLogout([FromQuery] long ma_sinh_vien)
         {
-            _sinhVienService.Logout(ma_sinh_vien, DateTime.Now);
+            await _sinhVienService.Logout(ma_sinh_vien, DateTime.Now);
             return Ok();
         }
     }

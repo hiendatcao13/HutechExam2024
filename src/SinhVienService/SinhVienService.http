@@ -1,0 +1,6 @@
+@SinhVienService_HostAddress = http://localhost:5285
+
+GET {{SinhVienService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -11,3 +11,8 @@
 --------------------------------------
 11/02/2025 - 6:00PM
 - Buid docker file
+--------------------------------------
+12/02/2025 6:00PM
+- Sửa lại nghiệp vụ cho DatabaseReader
+- Các nghiệp vụ lấy dữ liệu từ database, API, repo, BUS đều async/await
+- Phân chia lại các folder cho dự án

@@ -27,10 +27,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<LopAoDto>(lopAo);
         }
-        public LopAoDto SelectOne(int ma_lop_ao)
+        public async Task<LopAoDto> SelectOne(int ma_lop_ao)
         {
             LopAoDto lopAo = new();
-            using(IDataReader dataReader = _lopAoRepository.SelectOne(ma_lop_ao))
+            using(IDataReader dataReader = await _lopAoRepository.SelectOne(ma_lop_ao))
             {
                 if (dataReader.Read())
                 {
@@ -39,10 +39,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return lopAo;
         }
-        public List<LopAoDto> SelectBy_ma_mon_hoc(int ma_mon_hoc)
+        public async Task<List<LopAoDto>> SelectBy_ma_mon_hoc(int ma_mon_hoc)
         {
             List<LopAoDto> list = new();
-            using(IDataReader dataReader = _lopAoRepository.SelectBy_ma_mon_hoc(ma_mon_hoc))
+            using(IDataReader dataReader = await _lopAoRepository.SelectBy_ma_mon_hoc(ma_mon_hoc))
             {
                 while (dataReader.Read())
                 {
@@ -52,12 +52,12 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
-        public List<LopAoDto> SelectBy_ListChiTietDotThi(List<ChiTietDotThi> list)
+        public async Task<List<LopAoDto>> SelectBy_ListChiTietDotThi(List<ChiTietDotThi> list)
         {
             List<LopAoDto> result = new();
             foreach(var chiTietDotThi in list)
             {
-                LopAoDto lopAo = this.SelectOne(chiTietDotThi.MaLopAo);
+                LopAoDto lopAo = await this.SelectOne(chiTietDotThi.MaLopAo);
                 // tránh bị trùng lặp
                 if (!result.Contains(lopAo))
                 {

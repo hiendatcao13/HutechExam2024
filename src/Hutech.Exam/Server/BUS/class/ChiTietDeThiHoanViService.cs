@@ -28,10 +28,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<ChiTietDeThiHoanViDto>(chiTietDeThiHoanVi);
         }
-        public List<ChiTietDeThiHoanViDto> SelectBy_MaDeHV(long maDeHV)
+        public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV)
         {
             List<ChiTietDeThiHoanViDto> result = new();
-            using(IDataReader dataReader = _chiTietDeThiHoanViRepository.SelectBy_MaDeHV(maDeHV))
+            using(IDataReader dataReader = await _chiTietDeThiHoanViRepository.SelectBy_MaDeHV(maDeHV))
             {
                 while (dataReader.Read())
                 {
@@ -41,10 +41,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public List<ChiTietDeThiHoanViDto> SelectBy_MaDeHV_MaNhom(long ma_de_hoan_vi, int ma_nhom)
+        public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV_MaNhom(long ma_de_hoan_vi, int ma_nhom)
         {
             List<ChiTietDeThiHoanViDto> list = new();
-            using (IDataReader dataReader = _chiTietDeThiHoanViRepository.SelectBy_MaDeHV_MaNhom(ma_de_hoan_vi, ma_nhom))
+            using (IDataReader dataReader = await _chiTietDeThiHoanViRepository.SelectBy_MaDeHV_MaNhom(ma_de_hoan_vi, ma_nhom))
             {
                 while (dataReader.Read())
                 {

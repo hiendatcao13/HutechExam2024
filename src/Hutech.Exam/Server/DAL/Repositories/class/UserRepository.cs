@@ -1,30 +1,29 @@
 ﻿using Hutech.Exam.Server.DAL.DataReader;
-using Hutech.Exam.Shared.Models;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public IDataReader SelectOne(Guid userId)
+        public async Task<IDataReader> SelectOne(Guid userId)
         {
             DatabaseReader sql = new DatabaseReader("User_SelectOne");
             sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
-        public IDataReader SelectByLoginName(string loginName)
+        public async Task<IDataReader> SelectByLoginName(string loginName)
         {
             DatabaseReader sql = new DatabaseReader("User_SelectByLoginName");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
-        public IDataReader Login(string loginName)
+        public async Task<IDataReader> Login(string loginName)
         {
             DatabaseReader sql = new DatabaseReader("User_Login");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
-        public bool Update(Guid userId,string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut, 
+        public async Task<bool> Update(Guid userId,string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut, 
             DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount, 
             DateTime? failedPwdAttemptWindowStart, string? comment)
         {
@@ -41,7 +40,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@FailedPwdAttemptCount", SqlDbType.Int, (failedPwdAttemptCount == null) ? DBNull.Value : failedPwdAttemptCount);
             sql.SqlParams("@FailedPwdAttemptWindowStart", SqlDbType.DateTime, (failedPwdAttemptWindowStart == null) ? DBNull.Value : failedPwdAttemptWindowStart);
             sql.SqlParams("Comment", SqlDbType.NText, (comment == null) ? DBNull.Value : comment);
-            return sql.ExcuteNonQuery() != 0;
+            return await sql.ExcuteNonQuery() != 0;
         }
     }
 }

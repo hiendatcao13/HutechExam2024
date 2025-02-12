@@ -36,10 +36,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CaThiDto>(caThi);
         }
-        public List<CaThiDto> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
+        public async Task<List<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
         {
             List<CaThiDto> result = new();
-            using(IDataReader dataReader = _caThiRepository.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi))
+            using(IDataReader dataReader = await _caThiRepository.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi))
             {
                 while (dataReader.Read())
                 {
@@ -49,10 +49,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public CaThiDto SelectOne(int ma_ca_thi)
+        public async Task<CaThiDto> SelectOne(int ma_ca_thi)
         {
             CaThiDto caThi = new();
-            using(IDataReader dataReader = _caThiRepository.SelectOne(ma_ca_thi))
+            using(IDataReader dataReader = await _caThiRepository.SelectOne(ma_ca_thi))
             {
                 if (dataReader.Read())
                 {
@@ -61,10 +61,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return caThi;
         }
-        public List<CaThiDto> ca_thi_GetAll()
+        public async Task<List<CaThiDto>> ca_thi_GetAll()
         {
             List<CaThiDto> result = new();
-            using (IDataReader dataReader = _caThiRepository.ca_thi_GetAll())
+            using (IDataReader dataReader = await _caThiRepository.ca_thi_GetAll())
             {
                 while (dataReader.Read())
                 {
@@ -74,43 +74,43 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public void ca_thi_Activate(int ma_ca_thi, bool IsActivated)
+        public async Task ca_thi_Activate(int ma_ca_thi, bool IsActivated)
         {
             try
             {
-                _caThiRepository.ca_thi_Activate(ma_ca_thi, IsActivated);
+                await _caThiRepository.ca_thi_Activate(ma_ca_thi, IsActivated);
             } catch(Exception ex)
             {
                 throw new Exception("Không thể kích hoạt hoặc hủy kích hoạt ca thi " + ex.Message);
             }
         }
-        public void ca_thi_Ketthuc(int ma_ca_thi)
+        public async Task ca_thi_Ketthuc(int ma_ca_thi)
         {
             try
             {
-                _caThiRepository.ca_thi_Ketthuc(ma_ca_thi);
+                await _caThiRepository.ca_thi_Ketthuc(ma_ca_thi);
             }
             catch (Exception ex)
             {
                 throw new Exception("Không thể kết thúc ca thi " + ex.Message);
             }
         }
-        public void Remove(int ma_ca_thi)
+        public async Task Remove(int ma_ca_thi)
         {
             try
             {
-                _caThiRepository.Remove(ma_ca_thi);
+                await _caThiRepository.Remove(ma_ca_thi);
             }
             catch (Exception ex)
             {
                 throw new Exception("Không thể xóa ca thi " + ex.Message);
             }
         }
-        public void Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
         {
             try
             {
-                _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi);
+                await _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi);
             }
             catch (Exception ex)
             {

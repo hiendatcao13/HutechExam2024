@@ -26,10 +26,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<KhoaDto>(khoa);
         }
-        public List<KhoaDto> GetAll()
+        public async Task<List<KhoaDto>> GetAll()
         {
             List<KhoaDto> results = new List<KhoaDto>();
-            using (IDataReader dataReader = _khoaRepository.GetAll())
+            using (IDataReader dataReader = await _khoaRepository.GetAll())
             {
                 while (dataReader.Read())                {
                     results.Add(getProperty(dataReader));

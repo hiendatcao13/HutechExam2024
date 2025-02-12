@@ -16,15 +16,14 @@ function changeColorTime() {
 }
 
 // focus trang thi
-function focusPage(dotNetObjRef) {
-    $(document).on('visibilitychange', function () {
+//function focusPage(dotNetObjRef) {
+//    $(document).on('visibilitychange', function () {
 
-        if (document.visibilityState == 'hidden') {
-            console.log("hello");
-            dotNetObjRef.invokeMethodAsync('ketThucThoiGianLamBai');
-        } else {
-            // page is visible
-        }
-    });
-}
+//        if (document.visibilityState == 'hidden') {
+//            dotNetObjRef.invokeMethodAsync('ketThucThoiGianLamBai');
+//        } else {
+//            // page is visible
+//        }
+//    });
+//}
 

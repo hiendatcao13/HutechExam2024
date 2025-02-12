@@ -27,10 +27,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<LopDto>(lop);
         }
-        public LopDto SelectBy_ten_lop(string ten_lop)
+        public async Task<LopDto> SelectBy_ten_lop(string ten_lop)
         {
             LopDto lop = new();
-            using(IDataReader dataReader = _lopRepository.SelectBy_ten_lop(ten_lop))
+            using(IDataReader dataReader = await _lopRepository.SelectBy_ten_lop(ten_lop))
             {
                 if (dataReader.Read())
                 {
@@ -39,9 +39,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return lop;
         }
-        public int Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
+        public async Task<int> Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
         {
-            Object ma_lop = _lopRepository.Insert(ten_lop, ngay_bat_dau, ma_khoa);
+            object? ma_lop = await _lopRepository.Insert(ten_lop, ngay_bat_dau, ma_khoa);
             try
             {
                 return Convert.ToInt32(ma_lop);

@@ -6,10 +6,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class KhoaRepository : IKhoaRepository
     {
-        public IDataReader GetAll()
+        public async Task<IDataReader> GetAll()
         {
             DatabaseReader sql = new DatabaseReader("khoa_GetAll");
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
     }
 }

@@ -5,17 +5,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class LopAoRepository : ILopAoRepository
     {
-        public IDataReader SelectOne(int ma_lop_ao)
+        public async Task<IDataReader> SelectOne(int ma_lop_ao)
         {
             DatabaseReader sql = new DatabaseReader("lop_ao_SelectOne");
             sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
-        public IDataReader SelectBy_ma_mon_hoc(int ma_mon_hoc)
+        public async Task<IDataReader> SelectBy_ma_mon_hoc(int ma_mon_hoc)
         {
             DatabaseReader sql = new DatabaseReader("lop_ao_SelectBy_ma_mon_hoc");
             sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
     }
 }

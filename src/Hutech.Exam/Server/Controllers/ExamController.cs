@@ -34,9 +34,9 @@ namespace Hutech.Exam.Server.Controllers
         }
         [HttpGet("GetDeThi")]
         [Cache]
-        public ActionResult<List<CustomDeThi>> GetDeThi([FromQuery] long ma_de_thi_hoan_vi)
+        public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromQuery] long ma_de_thi_hoan_vi)
         {
-            List<CustomDeThi> result = _customDeThiService.handleDeThi(ma_de_thi_hoan_vi);
+            List<CustomDeThi> result = await _customDeThiService.handleDeThi(ma_de_thi_hoan_vi);
             return result;
         }
         public async Task<List<int>?> GetListDapAnWithCacheAsync(long maDeHv)
@@ -53,7 +53,7 @@ namespace Hutech.Exam.Server.Controllers
             }
 
             // Nếu không có, thực hiện logic lấy dữ liệu từ database
-            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = _chiTietDeThiHoanViService.SelectBy_MaDeHV(maDeHv);
+            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = await _chiTietDeThiHoanViService.SelectBy_MaDeHV(maDeHv);
             List<int> listDapAn = new List<int>();
             foreach (var item in chiTietDeThiHoanVis)
             {
@@ -67,29 +67,30 @@ namespace Hutech.Exam.Server.Controllers
             return listDapAn;
         }
         [HttpGet("IsActiveCaThi")]
-        public ActionResult<bool> IsActiveCaThi([FromQuery] int ma_ca_thi)
+        public async Task<ActionResult<bool>> IsActiveCaThi([FromQuery] int ma_ca_thi)
         {
-            CaThiDto caThi = _caThiService.SelectOne(ma_ca_thi);
+            CaThiDto caThi = await _caThiService.SelectOne(ma_ca_thi);
             return (caThi.IsActivated);
         }
         // Insert (có trả về list bài thi) giúp cho sinh viên tiếp tục thi trong trường hợp treo máy
 
         [HttpPost("InsertChiTietBaiThi")]
-        public ActionResult<List<ChiTietBaiThiDto>> InsertChiTietBaiThi([FromQuery] int ma_chi_tiet_ca_thi ,[FromQuery] long ma_de_thi_hoan_vi)
+        public async Task<ActionResult<List<ChiTietBaiThiDto>>> InsertChiTietBaiThi([FromQuery] int ma_chi_tiet_ca_thi ,[FromQuery] long ma_de_thi_hoan_vi)
         {
-            List<CustomDeThi>? customDeThis = this.GetDeThi(ma_de_thi_hoan_vi).Value;
-            _chiTietBaiThiService.insertChiTietBaiThis_SelectByChiTietDeThiHV(customDeThis, ma_chi_tiet_ca_thi, ma_de_thi_hoan_vi);
+            var ketQua = await this.GetDeThi(ma_de_thi_hoan_vi);
+            List<CustomDeThi>? customDeThis = ketQua.Value;
+            await _chiTietBaiThiService.insertChiTietBaiThis_SelectByChiTietDeThiHV(customDeThis, ma_chi_tiet_ca_thi, ma_de_thi_hoan_vi);
 
             // tránh trường hợp lấy đề của những môn khác
-            List<ChiTietBaiThiDto> result = _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
+            List<ChiTietBaiThiDto> result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
 
             return result;
         }
         [HttpGet("InsertCTBT_DaVaoThi")] // khi này sinh viên đã thi trước đó và tiếp tục thi nên không cần insert chi tiet bai thi nữa mà chỉ lấy -> tối ưu API
-        public ActionResult<List<ChiTietBaiThiDto>> InsertCTBT_DaVaoThi([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] long ma_de_thi_hoan_vi)
+        public async Task<ActionResult<List<ChiTietBaiThiDto>>> InsertCTBT_DaVaoThi([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] long ma_de_thi_hoan_vi)
         {
             // tránh trường hợp lấy đề của những môn khác
-            return _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
+            return await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
         }
 
         [HttpPost("UpdateChiTietBaiThi")]
@@ -122,23 +123,23 @@ namespace Hutech.Exam.Server.Controllers
             foreach (var item in chiTietBaiThis)
             {
                 if (item.ThuTu != 0)
-                    _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
+                    await _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
                 if (listDapAn != null && item.CauTraLoi != null)
                     item.KetQua = (listDapAn.Contains((int)item.CauTraLoi)) ? true : false;
             }
-            _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
+            await _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
             return Ok();
         }
 
         [HttpGet("AudioListendCount")]
-        public ActionResult<int> AudioListendCount([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
+        public async Task<ActionResult<int>> AudioListendCount([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
         {
-            return _audioListenedService.SelectOne(ma_chi_tiet_ca_thi, filename);
+            return await _audioListenedService.SelectOne(ma_chi_tiet_ca_thi, filename);
         }
         [HttpGet("AddOrUpdateAudio")]
-        public ActionResult AddOrUpdateAudio([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
+        public async Task<ActionResult> AddOrUpdateAudio([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
         {
-            _audioListenedService.Save(ma_chi_tiet_ca_thi, filename);
+            await _audioListenedService.Save(ma_chi_tiet_ca_thi, filename);
             return Ok();
         }
 

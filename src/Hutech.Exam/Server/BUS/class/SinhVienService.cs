@@ -39,10 +39,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<SinhVienDto>(sv);
         }
-        public List<SinhVienDto> GetAll()
+        public async Task<List<SinhVienDto>> GetAll()
         {
             List<SinhVienDto> result = new();
-            using(IDataReader dataReader = _sinhVienRepository.GetAll())
+            using(IDataReader dataReader = await _sinhVienRepository.GetAll())
             {
                 while (dataReader.Read())
                 {
@@ -52,10 +52,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public SinhVienDto SelectBy_ma_so_sinh_vien(string ma_so_sinh_vien)
+        public async Task<SinhVienDto> SelectBy_ma_so_sinh_vien(string ma_so_sinh_vien)
         {
             SinhVienDto sv = new();
-            using (IDataReader dataReader = _sinhVienRepository.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien))
+            using (IDataReader dataReader = await _sinhVienRepository.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien))
             {
                 if (dataReader.Read())
                 {
@@ -64,25 +64,25 @@ namespace Hutech.Exam.Server.BUS
             }
             return sv;
         }
-        public void Login(long ma_sinh_vien, DateTime last_log_in)
+        public async Task Login(long ma_sinh_vien, DateTime last_log_in)
         {
-            if(!_sinhVienRepository.Login(ma_sinh_vien, last_log_in))
+            if(!await _sinhVienRepository.Login(ma_sinh_vien, last_log_in))
             {
                 throw new Exception("Can't update SinhVien Login");
             }
         }
-        public void Logout(long ma_sinh_vien, DateTime last_log_out)
+        public async Task Logout(long ma_sinh_vien, DateTime last_log_out)
         {
-            if(!_sinhVienRepository.Logout(ma_sinh_vien, last_log_out))
+            if(!await _sinhVienRepository.Logout(ma_sinh_vien, last_log_out))
             {
                 throw new Exception("Can't update SinhVien Logout");
             }
         }
         //lấy thông tin của 1 sinh viên từ mã số sinh viên
-        public SinhVienDto SelectOne(long ma_sinh_vien)
+        public async Task<SinhVienDto> SelectOne(long ma_sinh_vien)
         {
             SinhVienDto sv = new();
-            using(IDataReader dataReader = _sinhVienRepository.SelectOne(ma_sinh_vien))
+            using(IDataReader dataReader = await _sinhVienRepository.SelectOne(ma_sinh_vien))
             {
                 if(dataReader.Read())
                 {
@@ -91,9 +91,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return sv;
         }
-        public long Insert(SinhVienDto sinhVien)
+        public async Task<long> Insert(SinhVienDto sinhVien)
         {
-            Object ma_sinh_vien = _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
+            object? ma_sinh_vien = await _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
                 sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId);
             try
             {
@@ -101,10 +101,10 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
-        public void Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
+        public async Task Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
             DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
         {
-            if (!_sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
+            if (!await _sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
             ngay_sinh, ma_lop, dia_chi, email, dien_thoai, ma_so_sinh_vien))
             {
                 throw new Exception("Can not update sinh vien");

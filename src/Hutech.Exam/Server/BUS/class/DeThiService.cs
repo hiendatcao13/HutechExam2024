@@ -32,10 +32,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<DeThiDto>(deThi);
         }
-        public DeThiDto SelectOne(int ma_de_thi)
+        public async Task<DeThiDto> SelectOne(int ma_de_thi)
         {
             DeThiDto deThi = new();
-            using(IDataReader dataReader = _deThiRepository.SelectOne(ma_de_thi))
+            using(IDataReader dataReader = await _deThiRepository.SelectOne(ma_de_thi))
             {
                 if (dataReader.Read())
                 {
@@ -44,10 +44,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return deThi;
         }
-        public DeThiDto SelectBy_ma_de_hv(long ma_de_hv)
+        public async Task<DeThiDto> SelectBy_ma_de_hv(long ma_de_hv)
         {
             DeThiDto deThi = new();
-            using (IDataReader dataReader = _deThiRepository.SelectBy_ma_de_hv(ma_de_hv))
+            using (IDataReader dataReader = await _deThiRepository.SelectBy_ma_de_hv(ma_de_hv))
             {
                 if (dataReader.Read())
                 {

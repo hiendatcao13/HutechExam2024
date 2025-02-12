@@ -32,10 +32,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
-        public List<NhomCauHoiDto> SelectBy_MaDeThi(int ma_de_thi)
+        public async Task<List<NhomCauHoiDto>> SelectBy_MaDeThi(int ma_de_thi)
         {
             List<NhomCauHoiDto> list = new();
-            using(IDataReader dataReader = _nhomCauHoiRepository.SelectBy_MaDeThi(ma_de_thi))
+            using(IDataReader dataReader = await _nhomCauHoiRepository.SelectBy_MaDeThi(ma_de_thi))
             {
                 while (dataReader.Read())
                 {
@@ -45,10 +45,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
-        public NhomCauHoiDto SelectOne(int ma_nhom)
+        public async Task<NhomCauHoiDto> SelectOne(int ma_nhom)
         {
             NhomCauHoiDto nhomCauHoi = new();
-            using(IDataReader dataReader = _nhomCauHoiRepository.SelectOne(ma_nhom))
+            using(IDataReader dataReader = await _nhomCauHoiRepository.SelectOne(ma_nhom))
             {
                 if (dataReader.Read())
                 {

@@ -22,49 +22,53 @@ namespace Hutech.Exam.Server.BUS
             _cauTraLoiService = cauTraLoiService;
             _deThiService = deThiService;
         }       
-        public List<CustomDeThi> handleDeThi(long ma_de_hoan_vi)
+        public async Task<List<CustomDeThi>> handleDeThi(long ma_de_hoan_vi)
         { 
             List<CustomDeThi> result = new List<CustomDeThi>();
-            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = getNoiDungChiTietDeThiHV(ma_de_hoan_vi);
+            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = await getNoiDungChiTietDeThiHV(ma_de_hoan_vi);
             foreach (var item in chiTietDeThiHoanVis)
-                result.Add(getNoiDungFromCTDeThiHV(item));
+                result.Add(await getNoiDungFromCTDeThiHV(item));
             return result;
         }
-        private List<ChiTietDeThiHoanViDto> getNoiDungChiTietDeThiHV(long ma_de_hoan_vi)
+        private async Task<List<ChiTietDeThiHoanViDto>> getNoiDungChiTietDeThiHV(long ma_de_hoan_vi)
         {
-            return _chiTietDeThiHoanViService.SelectBy_MaDeHV(ma_de_hoan_vi); ;
+            return await _chiTietDeThiHoanViService.SelectBy_MaDeHV(ma_de_hoan_vi); ;
         }
-        private NhomCauHoiDto getNoiDungCauHoiNhom(int ma_cau_hoi_nhom)
+        private async Task<NhomCauHoiDto> getNoiDungCauHoiNhom(int ma_cau_hoi_nhom)
         {
-            return _nhomCauHoiService.SelectOne(ma_cau_hoi_nhom);
+            return await _nhomCauHoiService.SelectOne(ma_cau_hoi_nhom);
         }
-        private CauHoiDto getNoiDungCauHoi(int ma_cau_hoi)
+        private async Task<CauHoiDto> getNoiDungCauHoi(int ma_cau_hoi)
         {
-            return _cauHoiService.SelectOne(ma_cau_hoi);
+            return await _cauHoiService.SelectOne(ma_cau_hoi);
         }
-        private List<CauTraLoiDto> getNoiDungCauTraLoi(int ma_cau_hoi)
+        private async Task<List<CauTraLoiDto>> getNoiDungCauTraLoi(int ma_cau_hoi)
         {
-            return _cauTraLoiService.SelectBy_MaCauHoi(ma_cau_hoi);
+            return await _cauTraLoiService.SelectBy_MaCauHoi(ma_cau_hoi);
         }
-        private CustomDeThi getNoiDungFromCTDeThiHV(ChiTietDeThiHoanViDto chiTietDeThiHoanVi)
+        private async Task<CustomDeThi> getNoiDungFromCTDeThiHV(ChiTietDeThiHoanViDto chiTietDeThiHoanVi)
         {
             CustomDeThi chiTietDeThi = new();
-            NhomCauHoiDto nhomCauHoi = getNoiDungCauHoiNhom(chiTietDeThiHoanVi.MaNhom);
-            CauHoiDto cauHoi = getNoiDungCauHoi(chiTietDeThiHoanVi.MaCauHoi);
-            List<CauTraLoiDto> cauTraLois = getNoiDungCauTraLoi(chiTietDeThiHoanVi.MaCauHoi);
+            NhomCauHoiDto nhomCauHoi = await getNoiDungCauHoiNhom(chiTietDeThiHoanVi.MaNhom);
+            CauHoiDto cauHoi = await getNoiDungCauHoi(chiTietDeThiHoanVi.MaCauHoi);
+            List<CauTraLoiDto> cauTraLois = await getNoiDungCauTraLoi(chiTietDeThiHoanVi.MaCauHoi);
 
             chiTietDeThi.MaNhom = nhomCauHoi.MaNhom;
             chiTietDeThi.MaCauHoi = cauHoi.MaCauHoi;
 
             // lấy nội dung của mã nhóm cha (nếu có)
             if (nhomCauHoi.MaNhomCha != -1)
-                chiTietDeThi.NoiDungCauHoiNhomCha = getNoiDungCauHoiNhom(nhomCauHoi.MaNhomCha).NoiDung;
+            {
+                var ketQua = await getNoiDungCauHoiNhom(nhomCauHoi.MaNhomCha);
+                chiTietDeThi.NoiDungCauHoiNhomCha = ketQua.NoiDung;
+            }
             chiTietDeThi.NoiDungCauHoiNhom = nhomCauHoi.NoiDung;
             chiTietDeThi.NoiDungCauHoi = cauHoi.NoiDung;
             chiTietDeThi.KieuNoiDungCauHoi = cauHoi.KieuNoiDung;
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();
             // Xem coi đề thi có bỏ chương phần không
-            chiTietDeThi.boChuongPhan = _deThiService.SelectBy_ma_de_hv(chiTietDeThiHoanVi.MaDeHv).BoChuongPhan;
+            var deThi = await _deThiService.SelectBy_ma_de_hv(chiTietDeThiHoanVi.MaDeHv);
+            chiTietDeThi.boChuongPhan = deThi.BoChuongPhan;
 
             // lấy nội dung câu hỏi bằng dictionary
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();

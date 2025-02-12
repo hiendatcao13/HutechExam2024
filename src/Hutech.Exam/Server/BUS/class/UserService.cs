@@ -42,10 +42,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<UserDto>(user);
         }
-        public UserDto SelectOne(Guid userId)
+        public async Task<UserDto> SelectOne(Guid userId)
         {
             UserDto user = new();
-            using (IDataReader dataReader = _userRepository.SelectOne(userId))
+            using (IDataReader dataReader = await _userRepository.SelectOne(userId))
             {
                 if (dataReader.Read())
                 {
@@ -54,10 +54,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return user;
         }
-        public UserDto SelectByLoginName(string loginName)
+        public async Task<UserDto> SelectByLoginName(string loginName)
         {
             UserDto user = new();
-            using (IDataReader dataReader = _userRepository.SelectByLoginName(loginName))
+            using (IDataReader dataReader = await _userRepository.SelectByLoginName(loginName))
             {
                 if (dataReader.Read())
                 {
@@ -66,10 +66,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return user;
         }
-        public List<string> Login(string loginName)
+        public async Task<List<string>> Login(string loginName)
         {
             List<string> user = new();
-            using(IDataReader dataReader = _userRepository.Login(loginName))
+            using(IDataReader dataReader = await _userRepository.Login(loginName))
             {
                 if (dataReader.Read())
                 {
@@ -79,11 +79,11 @@ namespace Hutech.Exam.Server.BUS
             }
             return user;
         }
-        public bool Update(Guid userId, string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut,
+        public async Task<bool> Update(Guid userId, string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut,
             DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount,
             DateTime? failedPwdAttemptWindowStart, string? comment)
         {
-            return _userRepository.Update(userId, loginName, username, email, name, isDeleted, isLockedOut, lastActivityDate, lastLoginDate, lastLockedOutDate, failedPwdAttemptCount, failedPwdAttemptWindowStart, comment);
+            return await _userRepository.Update(userId, loginName, username, email, name, isDeleted, isLockedOut, lastActivityDate, lastLoginDate, lastLockedOutDate, failedPwdAttemptCount, failedPwdAttemptWindowStart, comment);
         }
     }
 }

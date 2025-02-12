@@ -27,10 +27,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<DotThiDto>(dotThi);
         }
-        public List<DotThiDto> GetAll()
+        public async Task<List<DotThiDto>> GetAll()
         {
             List<DotThiDto> result = new();
-            using (IDataReader dataReader = _dotThiRepository.GetAll())
+            using (IDataReader dataReader = await _dotThiRepository.GetAll())
             {
                 while (dataReader.Read())
                 {
@@ -40,10 +40,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public DotThiDto SelectOne(int ma_dot_thi)
+        public async Task<DotThiDto> SelectOne(int ma_dot_thi)
         {
             DotThiDto dotThi = new();
-            using(IDataReader dataReader = _dotThiRepository.SelectOne(ma_dot_thi))
+            using(IDataReader dataReader = await _dotThiRepository.SelectOne(ma_dot_thi))
             {
                 if (dataReader.Read())
                 {

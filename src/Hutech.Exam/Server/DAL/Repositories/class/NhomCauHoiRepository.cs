@@ -5,17 +5,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class NhomCauHoiRepository : INhomCauHoiRepository
     {
-        public IDataReader SelectBy_MaDeThi(int ma_de_thi)
+        public async Task<IDataReader> SelectBy_MaDeThi(int ma_de_thi)
         {
             DatabaseReader sql = new DatabaseReader("tbl_NhomCauHoi_SelectBy_MaDeThi");
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
-        public IDataReader SelectOne(int ma_nhom)
+        public async Task<IDataReader> SelectOne(int ma_nhom)
         {
             DatabaseReader sql = new DatabaseReader("tbl_NhomCauHoi_SelectOne");
             sql.SqlParams("@MaNhom", SqlDbType.Int, ma_nhom);
-            return sql.ExcuteReader();
+            return await sql.ExecuteReader();
         }
     }
 }

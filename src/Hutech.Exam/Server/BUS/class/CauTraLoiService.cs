@@ -28,10 +28,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CauTraLoiDto>(cauTraLoi);
         }
-        public List<CauTraLoiDto> SelectBy_MaCauHoi(int ma_cau_hoi)
+        public async Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi)
         {
             List<CauTraLoiDto> result = new();
-            using (IDataReader dataReader = _cauTraLoiRepository.SelectBy_MaCauHoi(ma_cau_hoi))
+            using (IDataReader dataReader = await _cauTraLoiRepository.SelectBy_MaCauHoi(ma_cau_hoi))
             {
                 while (dataReader.Read())
                 {

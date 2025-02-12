@@ -31,7 +31,7 @@ namespace Hutech.Exam.Server.Authentication
             _userService = userService;
             _sinhVienService = null!;
         }
-        public UserSession? GenerateJwtToken(string username)
+        public async Task<UserSession?> GenerateJwtToken(string username)
         {
             //username chính là ma_so_sinh_vien
             if (string.IsNullOrEmpty(username))
@@ -39,7 +39,7 @@ namespace Hutech.Exam.Server.Authentication
                 return null;
             }
             /*Xác thực sinh viên có tồn tại trong database không ?*/
-            SinhVienDto sinhVien = _sinhVienService.SelectBy_ma_so_sinh_vien(username);
+            SinhVienDto sinhVien = await _sinhVienService.SelectBy_ma_so_sinh_vien(username);
             if (sinhVien == null || sinhVien.MaSoSinhVien == null)
             {
                 return null;
@@ -79,14 +79,14 @@ namespace Hutech.Exam.Server.Authentication
             return userSession;
         }
         // Overloading for monitor, admin
-        public UserSession? GenerateJwtToken(string username, string password)
+        public async Task<UserSession?> GenerateJwtToken(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 return null;
             }
             /*Xác thực user có tồn tại trong database không ?*/
-            List<string> user = _userService.Login(username);
+            List<string> user = await _userService.Login(username);
             if (user == null || user.Count == 0)
             {
                 return null;
@@ -96,7 +96,7 @@ namespace Hutech.Exam.Server.Authentication
             {
                 return null;
             }
-            UserDto navigateUser = _userService.SelectByLoginName(username);
+            UserDto navigateUser = await _userService.SelectByLoginName(username);
             // kiểm tra xem tài khoản có bị khóa hoặc bị xóa không ?
             if(navigateUser.IsLockedOut || navigateUser.IsDeleted)
             {

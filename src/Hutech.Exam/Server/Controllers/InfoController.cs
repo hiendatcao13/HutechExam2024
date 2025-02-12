@@ -34,58 +34,58 @@ namespace Hutech.Exam.Server.Controllers
             _dotThiService = dotThiService;
         }
         [HttpGet("GetThongTinChiTietCaThi")]
-        public ActionResult<List<ChiTietCaThiDto>> GetThongTinChiTietCaThi([FromQuery] long ma_sinh_vien)
+        public async Task<ActionResult<List<ChiTietCaThiDto>>> GetThongTinChiTietCaThi([FromQuery] long ma_sinh_vien)
         {
-            List<ChiTietCaThiDto> result = _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien, DateTime.Now);
+            List<ChiTietCaThiDto> result = await _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien, DateTime.Now);
             foreach (var item in result)
             {
-                item.MaCaThiNavigation = (item.MaCaThi != null) ? getThongTinCaThi((int)item.MaCaThi) : null;
-                item.MaSinhVienNavigation = getThongTinSV(ma_sinh_vien);
+                item.MaCaThiNavigation = (item.MaCaThi != null) ? await getThongTinCaThi((int)item.MaCaThi) : null;
+                item.MaSinhVienNavigation = await getThongTinSV(ma_sinh_vien);
             }
             //TH thí sinh không có ca thi
             if(result.Count == 0)
             {
                 ChiTietCaThiDto newChiTietCaThi = new ChiTietCaThiDto();
-                newChiTietCaThi.MaSinhVienNavigation = getThongTinSV(ma_sinh_vien);
+                newChiTietCaThi.MaSinhVienNavigation = await getThongTinSV(ma_sinh_vien);
                 result.Add(newChiTietCaThi);
             }
             return result;
         }
-        private SinhVienDto? getThongTinSV(long ma_sinh_vien)
+        private async Task<SinhVienDto?> getThongTinSV(long ma_sinh_vien)
         {
-            return _sinhVienService.SelectOne(ma_sinh_vien);
+            return await _sinhVienService.SelectOne(ma_sinh_vien);
         }
-        private CaThiDto getThongTinCaThi(int ma_ca_thi)
+        private async Task<CaThiDto> getThongTinCaThi(int ma_ca_thi)
         {
-            CaThiDto caThi = _caThiService.SelectOne(ma_ca_thi);
-            caThi.MaChiTietDotThiNavigation = getThongTinChiTietDotThi(caThi.MaChiTietDotThi);
+            CaThiDto caThi = await _caThiService.SelectOne(ma_ca_thi);
+            caThi.MaChiTietDotThiNavigation = await getThongTinChiTietDotThi(caThi.MaChiTietDotThi);
             return caThi;
         }
-        private ChiTietDotThiDto getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
+        private async Task<ChiTietDotThiDto> getThongTinChiTietDotThi(int ma_chi_tiet_dot_thi)
         {
-            ChiTietDotThiDto chiTietDotThi = _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
-            chiTietDotThi.MaDotThiNavigation = getThongTinDotThi(chiTietDotThi.MaDotThi);
-            chiTietDotThi.MaLopAoNavigation = getThongTinLopAo(chiTietDotThi.MaLopAo);
+            ChiTietDotThiDto chiTietDotThi = await _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
+            chiTietDotThi.MaDotThiNavigation = await getThongTinDotThi(chiTietDotThi.MaDotThi);
+            chiTietDotThi.MaLopAoNavigation = await getThongTinLopAo(chiTietDotThi.MaLopAo);
             return chiTietDotThi;
         }
-        private DotThiDto getThongTinDotThi(int ma_dot_thi)
+        private async Task<DotThiDto> getThongTinDotThi(int ma_dot_thi)
         {
-            return _dotThiService.SelectOne(ma_dot_thi);
+            return await _dotThiService.SelectOne(ma_dot_thi);
         }
-        private LopAoDto getThongTinLopAo(int ma_lop_ao)
+        private async Task<LopAoDto> getThongTinLopAo(int ma_lop_ao)
         {
-            LopAoDto lopAo = _lopAoService.SelectOne(ma_lop_ao);
-            lopAo.MaMonHocNavigation = getThongTinMonHoc(ma_lop_ao);
+            LopAoDto lopAo = await _lopAoService.SelectOne(ma_lop_ao);
+            lopAo.MaMonHocNavigation = await getThongTinMonHoc(ma_lop_ao);
             return lopAo;
         }
-        private MonHocDto getThongTinMonHoc(int ma_mon_hoc)
+        private async Task<MonHocDto> getThongTinMonHoc(int ma_mon_hoc)
         {
-            return _monHocService.SelectOne(ma_mon_hoc);
+            return await _monHocService.SelectOne(ma_mon_hoc);
         }
         [HttpPost("UpdateBatDauThi")]
-        public ActionResult UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
+        public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
-            _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
+            await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
             return Ok();
         }
     }

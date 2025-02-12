@@ -26,10 +26,10 @@ namespace Hutech.Exam.Server.BUS
             cauHoi.HoanVi = dataReader.IsDBNull(5) ? null : dataReader.GetBoolean(5);
             return _mapper.Map<CauHoiDto>(cauHoi);
         }
-        public CauHoiDto SelectOne(int ma_cau_hoi)
+        public async Task<CauHoiDto> SelectOne(int ma_cau_hoi)
         {
             CauHoiDto cauHoi = new();
-            using(IDataReader dataReader = _cauHoiRepository.SelectOne(ma_cau_hoi))
+            using(IDataReader dataReader = await _cauHoiRepository.SelectOne(ma_cau_hoi))
             {
                 if (dataReader.Read())
                 {
@@ -38,11 +38,11 @@ namespace Hutech.Exam.Server.BUS
             }
             return cauHoi;
         }
-        public int SelectDapAn(int ma_cau_hoi)
+        public async Task<int> SelectDapAn(int ma_cau_hoi)
         {
             // chỉ trả về duy nhất 1 cột là MaTraLoi
             int dapAn = -1;
-            using (IDataReader dataReader = _cauHoiRepository.SelectDapAn(ma_cau_hoi))
+            using (IDataReader dataReader = await _cauHoiRepository.SelectDapAn(ma_cau_hoi))
             {
                 if (dataReader.Read())
                 {

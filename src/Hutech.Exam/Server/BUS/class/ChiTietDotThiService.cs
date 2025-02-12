@@ -28,10 +28,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<ChiTietDotThiDto>(chiTietDotThi);
         }
-        public List<ChiTietDotThiDto> SelectBy_MaDotThi(int ma_dot_thi)
+        public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi(int ma_dot_thi)
         {
             List<ChiTietDotThiDto> list = new();
-            using(IDataReader dataReader = _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi))
+            using(IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi))
             {
                 while(dataReader.Read())
                 {
@@ -41,10 +41,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
-        public ChiTietDotThiDto SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
+        public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
         {
             ChiTietDotThiDto chiTietDotThi = new();
-            using (IDataReader dataReader = _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao))
+            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao))
             {
 
                 if (dataReader.Read())
@@ -54,10 +54,10 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietDotThi;
         }
-        public ChiTietDotThiDto SelectOne(int ma_chi_tiet_dot_thi)
+        public async Task<ChiTietDotThiDto> SelectOne(int ma_chi_tiet_dot_thi)
         {
             ChiTietDotThiDto chiTietDotThi = new();
-            using (IDataReader dataReader = _chiTietDotThiResposity.SelectOne(ma_chi_tiet_dot_thi))
+            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectOne(ma_chi_tiet_dot_thi))
             {
 
                 if (dataReader.Read())

@@ -27,10 +27,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<AudioListenedDto>(audioListened);
         }
-        public int SelectOne(int ma_chi_tiet_ca_thi, string fileName)
+        public async Task<int> SelectOne(int ma_chi_tiet_ca_thi, string fileName)
         {
             int listenedCount = 0;
-            using (IDataReader dataReader = _audioListenedRepository.SelectOne(ma_chi_tiet_ca_thi, fileName))
+            using (IDataReader dataReader = await _audioListenedRepository.SelectOne(ma_chi_tiet_ca_thi, fileName))
             {
                 if (dataReader.Read())
                 {
@@ -39,11 +39,11 @@ namespace Hutech.Exam.Server.BUS
             }
             return listenedCount;
         }
-        public void Save(int ma_chi_tiet_ca_thi, string fileName)
+        public async Task Save(int ma_chi_tiet_ca_thi, string fileName)
         {
             try
             {
-                _audioListenedRepository.Save(ma_chi_tiet_ca_thi, fileName);
+                await _audioListenedRepository.Save(ma_chi_tiet_ca_thi, fileName);
             }
             catch (Exception ex)
             {

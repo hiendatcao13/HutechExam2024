@@ -26,10 +26,10 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<MonHocDto>(monHoc);
         }
-        public MonHocDto SelectOne(int ma_mon_hoc)
+        public async Task<MonHocDto> SelectOne(int ma_mon_hoc)
         {
             MonHocDto monHoc = new();
-            using (IDataReader dataReader = _monHocRepository.SelectOne(ma_mon_hoc))
+            using (IDataReader dataReader = await _monHocRepository.SelectOne(ma_mon_hoc))
             {
                 if (dataReader.Read())
                 {

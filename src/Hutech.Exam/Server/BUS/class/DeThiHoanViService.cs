@@ -42,10 +42,10 @@ namespace Hutech.Exam.Server.BUS
         //    }
         //    return deThiHoanVi;
         //}
-        public List<DeThiHoanViDto> SelectBy_MaDeThi(int ma_de_thi)
+        public async Task<List<DeThiHoanViDto>> SelectBy_MaDeThi(int ma_de_thi)
         {
             List<DeThiHoanViDto> deThiHoanVis = new();
-            using (IDataReader dataReader = _deThiHoanViRepository.SelectBy_MaDeThi(ma_de_thi))
+            using (IDataReader dataReader = await _deThiHoanViRepository.SelectBy_MaDeThi(ma_de_thi))
             {
                 while (dataReader.Read())
                 {
