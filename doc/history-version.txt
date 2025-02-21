@@ -16,3 +16,6 @@
 - Sửa lại nghiệp vụ cho DatabaseReader
 - Các nghiệp vụ lấy dữ liệu từ database, API, repo, BUS đều async/await
 - Phân chia lại các folder cho dự án
+---------------------------------------
+21/02/2025 10:00AM
+- Thêm file decuong, nội dung được 60%, chưa format
