@@ -22,3 +22,7 @@
 --------------------------------------
 24/02/2025 11:00AM
 - Thêm file đề cương decuongTN lấy cấu trúc tham khảo từ các trường khác, chưa format
+--------------------------------------
+24/02/2025 11:00PM
+- Thêm file final đề cương, đã qua mục lục nhưng chưa canh lề
+- Thêm các tài liệu tham khảo cho dự án trong folder tham khảo
