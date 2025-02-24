@@ -19,3 +19,6 @@
 ---------------------------------------
 21/02/2025 10:00AM
 - Thêm file decuong, nội dung được 60%, chưa format
+--------------------------------------
+24/02/2025 11:00AM
+- Thêm file đề cương decuongTN lấy cấu trúc tham khảo từ các trường khác, chưa format
