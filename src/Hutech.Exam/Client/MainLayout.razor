@@ -1,20 +1,21 @@
 ﻿@inherits LayoutComponentBase
 
-
 <!--Hoạt động của ErrorBoundary như try catch-->
-<ErrorBoundary @ref=_errorBoundary Context="errorContent">
-    <ChildContent>
-        <MainLayoutConent>
-            @Body
-        </MainLayoutConent>
-    </ChildContent>
-    <ErrorContent>
-        <MainLayoutConent>
-            @Body
-        </MainLayoutConent>
-        <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
-    </ErrorContent>
-</ErrorBoundary>
+<MudLayout>
+    <ErrorBoundary @ref=_errorBoundary Context="errorContent">
+        <ChildContent>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </ChildContent>
+        <ErrorContent>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+            <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
+        </ErrorContent>
+    </ErrorBoundary>
+</MudLayout>
 
 @code{
     private ErrorBoundary? _errorBoundary;

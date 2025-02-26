@@ -29,3 +29,6 @@
 -------------------------------------
 26/02/2025 10:00AM
 - Cơ bản hoàn thành xong các document phiếu đăng kí, phiếu tiến độ, đề cương, chữ kí lần 1
+-------------------------------------
+26/02/2025 11:00AM
+- Plugin MudBlazor

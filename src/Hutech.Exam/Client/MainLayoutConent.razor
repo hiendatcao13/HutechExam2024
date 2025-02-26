@@ -4,6 +4,16 @@
     var currentPath = new Uri(navManager.Uri).AbsolutePath;
     var isLoginPage = currentPath == "/" || currentPath == "/admin";
 }
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
 
 <AuthorizeView>
     <Authorized>

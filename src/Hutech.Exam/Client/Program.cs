@@ -7,6 +7,7 @@ using Hutech.Exam.Client.Pages.Admin.DAL;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,6 +24,8 @@ builder.Services.AddAuthorizationCore();
 // bien toan cuc
 builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
+// them MudBlazor
+builder.Services.AddMudServices();
 
 builder.Services.AddScoped<ApiService>();
 await builder.Build().RunAsync();
