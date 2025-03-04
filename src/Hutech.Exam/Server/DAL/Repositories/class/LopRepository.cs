@@ -10,7 +10,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             DatabaseReader sql = new DatabaseReader("lop_SelectBy_ten_lop");
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
 
         }
         public async Task<object?> Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
@@ -19,7 +19,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop ?? (object)DBNull.Value);
             sql.SqlParams("@ngay_bat_dau", SqlDbType.DateTime, ngay_bat_dau ?? (object)DBNull.Value);
             sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa ?? (object)DBNull.Value);
-            return await sql.ExecuteScalar();
+            return await sql.ExecuteScalarAsync();
         }
     }
 }

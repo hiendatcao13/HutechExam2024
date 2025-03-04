@@ -9,19 +9,19 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             DatabaseReader sql = new DatabaseReader("User_SelectOne");
             sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> SelectByLoginName(string loginName)
         {
             DatabaseReader sql = new DatabaseReader("User_SelectByLoginName");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> Login(string loginName)
         {
             DatabaseReader sql = new DatabaseReader("User_Login");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
         public async Task<bool> Update(Guid userId,string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut, 
             DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount, 
@@ -40,7 +40,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@FailedPwdAttemptCount", SqlDbType.Int, (failedPwdAttemptCount == null) ? DBNull.Value : failedPwdAttemptCount);
             sql.SqlParams("@FailedPwdAttemptWindowStart", SqlDbType.DateTime, (failedPwdAttemptWindowStart == null) ? DBNull.Value : failedPwdAttemptWindowStart);
             sql.SqlParams("Comment", SqlDbType.NText, (comment == null) ? DBNull.Value : comment);
-            return await sql.ExcuteNonQuery() != 0;
+            return await sql.ExecuteNonQueryAsync() != 0;
         }
     }
 }

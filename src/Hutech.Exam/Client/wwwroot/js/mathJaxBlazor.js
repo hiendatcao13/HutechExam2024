@@ -1,4 +1,4 @@
-var MathJax = window.MathJax;
+﻿var MathJax = window.MathJax;
 var promise = new Promise(function (resolved, rej) { resolved(); });
 export function applySettings(texSettings) {
     MathJax.config.tex.inlineMath = texSettings.inlineMath;
@@ -36,31 +36,39 @@ export function undoTypeset() {
     }
 }
 export function processLatex(input, isDisplay) {
-    return MathJax.tex2chtmlPromise(input, { display: isDisplay }).then(function (node) {
-        //
-        //  The promise returns the typeset node, which we add to the output
-        //  Then update the document to include the adjusted CSS for the
-        //    content of the new equation.
-        //
-        MathJax.startup.document.clear();
-        MathJax.startup.document.updateDocument();
-        return node.outerHTML;
-    }).catch(function (err) {
-        return err.message;
-    });
+    if (typeof MathJax === 'undefined' || !MathJax.tex2chtmlPromise) {
+        console.error("MathJax chưa được khởi tạo hoặc tex2chtmlPromise không tồn tại!");
+        return Promise.resolve(""); // Trả về chuỗi rỗng thay vì lỗi
+    }
+
+    return MathJax.tex2chtmlPromise(input, { display: isDisplay })
+        .then(function (node) {
+            MathJax.startup.document.clear();
+            MathJax.startup.document.updateDocument();
+            return node.outerHTML;
+        })
+        .catch(function (err) {
+            console.error("Lỗi khi xử lý LaTeX:", err);
+            return "";
+        });
 }
+
 export function processMathML(input) {
-    return MathJax.mathml2chtmlPromise(input).then(function (node) {
-        //
-        //  The promise returns the typeset node, which we add to the output
-        //  Then update the document to include the adjusted CSS for the
-        //    content of the new equation.
-        //
-        MathJax.startup.document.clear();
-        MathJax.startup.document.updateDocument();
-        return node.outerHTML;
-    }).catch(function (err) {
-        return err.message;
-    });
+    if (typeof MathJax === 'undefined' || !MathJax.mathml2chtmlPromise) {
+        console.error("MathJax chưa được khởi tạo hoặc mathml2chtmlPromise không tồn tại!");
+        return Promise.resolve("");
+    }
+
+    return MathJax.mathml2chtmlPromise(input)
+        .then(function (node) {
+            MathJax.startup.document.clear();
+            MathJax.startup.document.updateDocument();
+            return node.outerHTML;
+        })
+        .catch(function (err) {
+            console.error("Lỗi khi xử lý MathML:", err);
+            return "";
+        });
 }
+
 //# sourceMappingURL=mathJaxBlazor.js.map

@@ -130,30 +130,30 @@
     @if (isShowMessageBox && displayChiTietCaThi != null && MB_thoi_gian_cong != null && MB_ly_do_cong != null && myData != null)
     {
         string ho_ten = displayChiTietCaThi?.MaSinhVienNavigation?.HoVaTenLot + " " + displayChiTietCaThi?.MaSinhVienNavigation?.TenSinhVien;
-        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBCongGio
+        <Hutech.Exam.Client.Components.MessageBox.MBCongGio
             tenSinhVien="@ho_ten" tenCaThi="@myData.caThi?.TenCaThi" tenMonThi="@myData.caThi?.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
             ngayThi="@myData.caThi?.ThoiGianBatDau" thoiLuongThi="@myData.caThi?.ThoiGianThi" @ref="@MBCongGio"
             onClickLuu="onClickMBLuu" onClickThoat="onClickMBThoat" MSSV="@displayChiTietCaThi?.MaSinhVienNavigation?.MaSoSinhVien">
-        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBCongGio>
+        </Hutech.Exam.Client.Components.MessageBox.MBCongGio>
     }
     @if (isShowMBThemSV && myData != null)
     {
-        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSV 
+        <Hutech.Exam.Client.Components.MessageBox.MBThemSV
             tenCaThi="@myData.caThi?.TenCaThi" tenMonThi="@myData.caThi?.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
             ngayThi="@myData.caThi?.ThoiGianBatDau" thoiLuongThi="@myData.caThi?.ThoiGianThi" onClickThoat="onClickThoatMBThemSV" onClickCheck="onClickCheckSV" 
             onClickLuu="onClickLuuMBThemSV" onClickTaoMoi="onClickTaoMoiSV" @ref="@MBThemSV">
-        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSV>
+        </Hutech.Exam.Client.Components.MessageBox.MBThemSV>
     }
     @if(isShowMBExcel){
-        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSVExcel
+        <Hutech.Exam.Client.Components.MessageBox.MBThemSVExcel
             listKhoa="@listKhoa" onClickLuu="onClickLuuMBThemSVExcel" onClickThoat="onClickThoatMBThemSVExcel" @ref="@MBThemSVExcel">
-        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBThemSVExcel>
+        </Hutech.Exam.Client.Components.MessageBox.MBThemSVExcel>
     }
     @if(isShowMBSuaSV){
-        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBSuaSV
+        <Hutech.Exam.Client.Components.MessageBox.MBSuaSV
             mssv="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.MaSoSinhVien" hoVaTenLot="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.HoVaTenLot" tenSV="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.TenSinhVien"
             selected_ma_de="@displayCTCTMBSuaSV?.MaDeThi" onClickThoat="onClickThoatMBSuaSV" onClickLuu="onCLickLuuMBSuaSV" listMaDes="@listMaDes" @ref="@MBSuaSV">
-        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBSuaSV>
+        </Hutech.Exam.Client.Components.MessageBox.MBSuaSV>
     }
     <script>
     function downloadFile(fileName, base64Data) {

@@ -33,53 +33,43 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<ChiTietBaiThiDto>(chiTietBaiThi);
         }
-        public async Task Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, DateTime NgayTao, int ThuTu)
+        public async Task<long> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, DateTime NgayTao, int ThuTu)
         {
-            try
-            {
-                await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, NgayTao, ThuTu);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return (long)(await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, NgayTao, ThuTu) ?? -1);
         }
-        public async Task Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
+        public async Task<int> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
         {
-            if(await _chiTietBaiThiRepository.Update(MaChiTietBaiThi, CauTraLoi, NgayCapNhat, KetQua) == false)
-            {
-                throw new Exception("Can not update ChiTietBaiThi");
-            }
+            return await _chiTietBaiThiRepository.Update(MaChiTietBaiThi, CauTraLoi, NgayCapNhat, KetQua);
         }
         public async Task<List<ChiTietBaiThiDto>> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
             List<ChiTietBaiThiDto> result = new();
-            using(IDataReader dataReader = await _chiTietBaiThiRepository.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi))
+            using (IDataReader dataReader = await _chiTietBaiThiRepository.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi))
             {
-                while(dataReader.Read())
+                while (dataReader.Read())
                 {
                     ChiTietBaiThiDto chiTietBaiThi = getProperty(dataReader);
                     result.Add(chiTietBaiThi);
                 }
             }
             return result;
-            
+
         }
         public async Task insertChiTietBaiThis_SelectByChiTietDeThiHV(List<CustomDeThi>? customDeThis, int ma_chi_tiet_ca_thi, long ma_de_hoan_vi)
         {
             int stt = 0;
             if (customDeThis == null)
                 return;
-            foreach(var item in customDeThis)
+            foreach (var item in customDeThis)
             {
                 await this.Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, DateTime.Now, ++stt);
             }
         }
         public async Task updateChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
-            foreach(var item in chiTietBaiThis)
+            foreach (var item in chiTietBaiThis)
             {
-                if(item.CauTraLoi != null && item.KetQua != null)
+                if (item.CauTraLoi != null && item.KetQua != null)
                 {
                     var chiTiet = await this.SelectOne_v2(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi);
                     long ma_chi_tiet_bai_thi = chiTiet.MaChiTietBaiThi;
@@ -89,21 +79,14 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task insertChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
-            foreach(var item in chiTietBaiThis)
+            foreach (var item in chiTietBaiThis)
             {
                 await this.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
             }
         }
-        public async Task Delete(long ma_chi_tiet_bai_thi)
+        public async Task<int> Delete(long ma_chi_tiet_bai_thi)
         {
-            try
-            {
-                await _chiTietBaiThiRepository.Delete(ma_chi_tiet_bai_thi);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await _chiTietBaiThiRepository.Delete(ma_chi_tiet_bai_thi);
         }
         public async Task<ChiTietBaiThiDto> SelectOne_v2(int ma_chi_tiet_ca_thi, long ma_de_hv, int ma_nhom, int ma_cau_hoi)
         {

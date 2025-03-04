@@ -67,5 +67,30 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietDotThi;
         }
+        public async Task<List<ChiTietDotThiDto>> GetAll()
+        {
+            List<ChiTietDotThiDto> result = new();
+            using (IDataReader dataReader = await _chiTietDotThiResposity.GetAll())
+            {
+                while (dataReader.Read())
+                {
+                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
+                    result.Add(chiTietDotThi);
+                }
+            }
+            return result;
+        }
+        public async Task<object?> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        {
+            return (int)(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
+        }
+        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        {
+            return await _chiTietDotThiResposity.Update(ma_chi_tiet_dot_thi, ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi);
+        }
+        public async Task<int> Remove(int ma_chi_tiet_dot_thi)
+        {
+            return await _chiTietDotThiResposity.Remove(ma_chi_tiet_dot_thi);
+        }
     }
 }

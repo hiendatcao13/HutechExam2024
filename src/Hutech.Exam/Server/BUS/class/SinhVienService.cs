@@ -64,19 +64,14 @@ namespace Hutech.Exam.Server.BUS
             }
             return sv;
         }
-        public async Task Login(long ma_sinh_vien, DateTime last_log_in)
+        public async Task<int> Login(long ma_sinh_vien, DateTime last_log_in)
         {
-            if(!await _sinhVienRepository.Login(ma_sinh_vien, last_log_in))
-            {
-                throw new Exception("Can't update SinhVien Login");
-            }
+            return await _sinhVienRepository.Login(ma_sinh_vien, last_log_in);
         }
-        public async Task Logout(long ma_sinh_vien, DateTime last_log_out)
+        public async Task<int> Logout(long ma_sinh_vien, DateTime last_log_out)
         {
-            if(!await _sinhVienRepository.Logout(ma_sinh_vien, last_log_out))
-            {
-                throw new Exception("Can't update SinhVien Logout");
-            }
+            return await _sinhVienRepository.Logout(ma_sinh_vien, last_log_out);
+            
         }
         //lấy thông tin của 1 sinh viên từ mã số sinh viên
         public async Task<SinhVienDto> SelectOne(long ma_sinh_vien)
@@ -93,22 +88,14 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<long> Insert(SinhVienDto sinhVien)
         {
-            object? ma_sinh_vien = await _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
-                sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId);
-            try
-            {
-                return Convert.ToInt64(ma_sinh_vien);
-            }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            return (long)(await _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
+                sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId) ?? -1);
         }
-        public async Task Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
+        public async Task<int> Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
             DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
         {
-            if (!await _sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
-            ngay_sinh, ma_lop, dia_chi, email, dien_thoai, ma_so_sinh_vien))
-            {
-                throw new Exception("Can not update sinh vien");
-            }
+            return await _sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
+            ngay_sinh, ma_lop, dia_chi, email, dien_thoai, ma_so_sinh_vien);
         }
     }
 }

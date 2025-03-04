@@ -29,6 +29,8 @@ namespace Hutech.Exam.Client.Pages.Admin
         UserSession? userSession { get; set; }
         private string? username = "";
         private string? password = "";
+        private string FAILED_MESSSAGE = "Không thể xác thực người dùng";
+        private const string SUCCESS_MESSAGE = "Đăng nhập thành công!";
         protected override async Task OnInitializedAsync()
         {
             user = new();
@@ -55,7 +57,7 @@ namespace Hutech.Exam.Client.Pages.Admin
         }
         private async Task onClickDangNhap()
         {
-            if (httpClient != null)
+            if (httpClient != null && username != "" && password != "")
             {
 
                 // Gửi yêu cầu HTTP POST đến API và nhận phản hồi
@@ -75,11 +77,12 @@ namespace Hutech.Exam.Client.Pages.Admin
                     // lưu vào cache
                     if(sessionStorage != null && userSession!= null && userSession.NavigateUser != null)
                         await sessionStorage.SetItemAsync<UserDto>("user", userSession.NavigateUser);
+                    Snackbar.Add(SUCCESS_MESSAGE, MudBlazor.Severity.Success);
                     navManager.NavigateTo("/control", true);
                 }
                 else if ((loginResponse.StatusCode == HttpStatusCode.Unauthorized || !loginResponse.IsSuccessStatusCode) && js != null)
                 {
-                    await js.InvokeVoidAsync("alert", "Không thể xác thực người dùng");
+                    Snackbar.Add(FAILED_MESSSAGE, MudBlazor.Severity.Error);
                     return;
                 }
             }

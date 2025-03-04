@@ -8,7 +8,7 @@ using OfficeOpenXml;
 using System.Globalization;
 using System.Text;
 
-namespace Hutech.Exam.Client.Pages.Admin.MessageBox
+namespace Hutech.Exam.Client.Components.MessageBox
 {
     public partial class MBThemSVExcel
     {

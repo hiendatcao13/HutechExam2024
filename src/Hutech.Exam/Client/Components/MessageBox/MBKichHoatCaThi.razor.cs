@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Runtime.CompilerServices;
 
-namespace Hutech.Exam.Client.Pages.Admin.MessageBox
+namespace Hutech.Exam.Client.Components.MessageBox
 {
     public partial class MBKichHoatCaThi
     {

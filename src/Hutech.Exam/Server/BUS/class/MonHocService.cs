@@ -51,5 +51,29 @@ namespace Hutech.Exam.Server.BUS
         //    }
         //    return result;
         //}
+        public async Task<List<MonHocDto>> GetAll()
+        {
+            List<MonHocDto> result = new();
+            using (IDataReader dataReader = await _monHocRepository.GetAll())
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(getProperty(dataReader));
+                }
+            }
+            return result;
+        }
+        public async Task<int> Insert(string ma_so_mon_hoc, string ten_mon_hoc)
+        {
+            return (int)(await _monHocRepository.Insert(ma_so_mon_hoc, ten_mon_hoc) ?? -1);
+        }
+        public async Task<int> Update(int ma_mon_hoc, string ma_so_mon_hoc, string ten_mon_hoc)
+        {
+            return await _monHocRepository.Update(ma_mon_hoc, ma_so_mon_hoc, ten_mon_hoc);
+        }
+        public async Task<int> Remove(int ma_mon_hoc)
+        {
+            return await _monHocRepository.Remove(ma_mon_hoc);
+        }
     }
 }

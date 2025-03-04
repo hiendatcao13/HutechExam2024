@@ -1,15 +1,14 @@
 ﻿@page "/info"
 @implements IDisposable
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
 @attribute [Authorize]
 
-<link href="./css/info/info.css" rel="stylesheet"/>
+<link href="./css/info/info.css" rel="stylesheet" />
 <title>Information</title>
-<script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
 <!------ Include the above in your HEAD tag ---------->
 
-<div class="wrapper fadeInDown">
+@* <div class="wrapper fadeInDown">
     <div id="formContent">
         <header>
             <div class="header">
@@ -65,4 +64,53 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
+    <MudCard Class="pa-6" Elevation="21" Style="margin: auto; text-align: center; background-color: #eaeaea; width: 100%">
+        <!-- Logo -->
+        <MudCardContent Class="d-flex justify-center">
+            <MudImage Src="images/exam/Logo.svg" Width="200" />
+        </MudCardContent>
+        <MudGrid>
+            <MudItem xs="4">
+                <MudCardHeader>
+                    <MudImage Src="images/exam/ava.jpg" Width="120" Class="avatar" />
+                </MudCardHeader>
+            </MudItem>
+            <MudItem xs="8">
+                <MudCardContent Style="padding-bottom:0">
+                    @if (sinhVien != null)
+                    {
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Mã số sinh viên: @sinhVien.MaSoSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Họ và tên: @sinhVien.HoVaTenLot @sinhVien.TenSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Email: @sinhVien.Email</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Thời gian hiện tại: @displayTime</MudText>
+                    }
+                </MudCardContent>
+            </MudItem>
+        </MudGrid>
+        <MudCardActions Style="display: flex; justify-content: center;">
+            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="onClickDangXuat">Đăng xuất</MudButton>
+        </MudCardActions>
+
+        @if (chiTietCaThis != null && chiTietCaThis.Count > 0 && chiTietCaThis[0]?.MaCaThiNavigation != null)
+        {
+            <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
+            <MudCardContent Style="padding: 0">
+                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @chiTietCaThis.Count ca thi. Vui lòng chọn ca thi</MudText>
+                <MudRadioGroup @bind-Value="selectedCTCaThi">
+                    @foreach (var item in chiTietCaThis)
+                    {
+                        monHoc = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
+                        caThi = item.MaCaThiNavigation;
+                        <MudRadio Size="Size.Small" Value="@item">@monHoc?.TenMonHoc - @caThi?.TenCaThi</MudRadio>
+                    }
+                </MudRadioGroup>
+            </MudCardContent>
+            <MudCardActions Style="display: flex; justify-content: center;">
+                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Filled.Article" Variant="Variant.Filled" Color="Color.Success" OnClick="OnClickBatDauThi">Bắt đầu thi</MudButton>
+            </MudCardActions>
+        }
+    </MudCard>
+</MudContainer>

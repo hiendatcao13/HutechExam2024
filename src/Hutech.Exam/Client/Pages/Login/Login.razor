@@ -1,8 +1,9 @@
-﻿@page "/admin"
+﻿@page "/"
+@using Hutech.Exam.Client.DAL
 @inject ISnackbar Snackbar
 
-<link href="./css/login/login.css" rel="stylesheet" />
-<title>Login Admin</title>
+<link href="./css/login/login.css" rel="stylesheet"/>
+<title>Login</title>
 <!------ Include the above in your HEAD tag ---------->
 @* <div class="wrapper fadeInDown">
     <div id="formContent">
@@ -22,7 +23,7 @@
                     <div class="area-signin">
                         <div class="input-student-id">
                             <img class="icon-id" src="./images/login/username.png">
-                            <input class="input-id" type="text" name="signin" placeholder="Nhập username" @bind="username">
+                            <input class="input-id" type="text" name="signin" placeholder="Nhập mã số sinh viên" @bind="ma_so_sinh_vien">
                         </div>
                         <div class=" input-student-pass">
                             <img class="icon-pass" src="./images/login/password.svg">
@@ -30,7 +31,7 @@
                         </div>
                     </div>
                     <img class="logo" src="images/exam/Logo.svg">
-                    <button type="button" class="button-sign-in" @onclick="onClickDangNhap">Đăng nhập</button>
+                    <button id="inputField" type="button" class="button-sign-in" @onclick="onClickDangNhap" >Đăng nhập</button>
                 </div>
             </div>
         </div>
@@ -43,19 +44,20 @@
         <MudCardContent Class="d-flex justify-center">
             <MudImage Src="images/exam/Logo.svg" Width="200" />
         </MudCardContent>
+
         <!-- Form đăng nhập -->
         <MudCardContent>
             <MudGrid Spacing="2">
                 <MudItem xs="12">
-                    <MudTextField T="string" Label="Nhập username" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AccountCircle" Style="background-color: #eaeaea" InputType="InputType.Text"
-                                  @bind-Value="username" Required="true" RequiredError="Vui lòng nhập tên tài khoản!" />
+                    <MudTextField T="string" Label="Nhập mã số sinh viên" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AccountCircle" Style="background-color: #eaeaea" InputType="InputType.Text"
+                                  @bind-Value="ma_so_sinh_vien" Required="true" RequiredError="Vui lòng nhập tên tài khoản!" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField T="string" Label="Nhập password" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.VpnKey" Style="background-color: #eaeaea" InputType="InputType.Password"
                                   @bind-Value="password" @onkeyup="enter" Required="true" RequiredError="Vui lòng nhập mật khẩu!" />
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
-                    <MudButton Variant="Variant.Filled" Style="background-color: rgb(0,107,179); color: white" OnClick="onClickDangNhap">Đăng nhập</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Login" Style="background-color: rgb(0,107,179); color: white" OnClick="onClickDangNhap">Đăng nhập</MudButton>
                 </MudItem>
             </MudGrid>
         </MudCardContent>

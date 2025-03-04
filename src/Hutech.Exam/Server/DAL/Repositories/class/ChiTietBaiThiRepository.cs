@@ -5,7 +5,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class ChiTietBaiThiRepository : IChiTietBaiThiRepository
     {
-        public async Task<bool> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, DateTime NgayTao, int ThuTu)
+        public async Task<object?> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, DateTime NgayTao, int ThuTu)
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_bai_thi_Insert");
             sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
@@ -14,28 +14,28 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaCauHoi", SqlDbType.Int, MaCauHoi);
             sql.SqlParams("@NgayTao", SqlDbType.DateTime, NgayTao);
             sql.SqlParams("@ThuTu", SqlDbType.Int, ThuTu);
-            return await sql.ExcuteNonQuery() != -1;
+            return await sql.ExecuteScalarAsync();
         }
-        public async Task<bool> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
+        public async Task<int> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_bai_thi_Update");
             sql.SqlParams("@MaChiTietBaiThi", SqlDbType.BigInt, MaChiTietBaiThi);
             sql.SqlParams("@CauTraLoi", SqlDbType.Int, CauTraLoi);
             sql.SqlParams("@NgayCapNhat", SqlDbType.DateTime, NgayCapNhat);
             sql.SqlParams("@KetQua", SqlDbType.Bit, KetQua);
-            return await sql.ExcuteNonQuery() != 0;
+            return await sql.ExecuteNonQueryAsync();
         }
         public async Task<IDataReader> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_bai_thi_SelectBy_ma_chi_tiet_ca_thi");
             sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
-        public async Task<bool> Delete(long ma_chi_tiet_bai_thi)
+        public async Task<int> Delete(long ma_chi_tiet_bai_thi)
         {
             DatabaseReader sql = new DatabaseReader("chi_tiet_bai_thi_Delete");
             sql.SqlParams("@MaChiTietBaiThi", SqlDbType.BigInt, ma_chi_tiet_bai_thi);
-            return await sql.ExcuteNonQuery() != 0;
+            return await sql.ExecuteNonQueryAsync();
         }
         public async Task<IDataReader> SelectOne_v2(int ma_chi_tiet_ca_thi, long ma_de_hv, int ma_nhom, int ma_cau_hoi)
         {
@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hv);
             sql.SqlParams("@MaNhom", SqlDbType.Int, ma_nhom);
             sql.SqlParams("@MaCauHoi", SqlDbType.Int, ma_cau_hoi);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
     }
 }

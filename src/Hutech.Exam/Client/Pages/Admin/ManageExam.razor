@@ -1,4 +1,5 @@
 ﻿@page "/control"
+@using Hutech.Exam.Shared.DTO
 @attribute [Authorize(Roles = "Admin")]
 <!DOCTYPE html>
 <html lang="en">
@@ -6,14 +7,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Exam</title>
-    @* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" *@
-    @*       integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" *@
-    @*       crossorigin="anonymous" referrerpolicy="no-referrer" /> *@
-    <link rel="stylesheet" href="./css/admin/ManageExam.css"/>
+    <link rel="stylesheet" href="./css/admin/ManageExam.css" />
 </head>
 
 <body>
-    <header class="header">
+    <MudContainer>
+        <MudAppBar Color="Color.Primary">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" />
+            <MudText Typo="Typo.h5">QUẢN LÝ CA THI</MudText>
+            <MudSpacer />
+            <MudText>Xin chào, @user?.Name</MudText>
+            <MudButton Color="Color.Error" OnClick="onClickDangXuat">Đăng xuất</MudButton>
+        </MudAppBar>
+
+        <MudPaper Class="pa-4">
+            <MudGrid>
+                <MudItem xs="12" md="3">
+                    <MudTextField Label="Ngày thi" Type="date" @bind-Value="input_Date" Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudTextField Label="Mã ca thi" @bind-Value="input_maCaThi" Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudButton OnClick="onClickReset">Reset</MudButton>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudButton OnClick="onClickCaThiChuaKichHoat">Chưa kích hoạt</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        @if (displayCaThis != null && caThis != null)
+        {
+            <MudTable Items="@caThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<CaThiDto,bool>(filter)" SortLabel="Sort By">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Thông tin các ca thi</MudText>
+                    <MudSpacer />
+                    <MudTextField @bind-Value="searchString" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>STT</MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.MaCaThi)">Mã Ca Thi</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.TenCaThi ?? string.Empty)">Tên Ca Thi</MudTableSortLabel></MudTh>
+                    <MudTh>Tên Đợt Thi</MudTh>
+                    <MudTh>Thời Gian Bắt Đầu</MudTh>
+                    <MudTh>Thời lượng thi</MudTh>
+                    <MudTh>Kích hoạt</MudTh>
+                    <MudTh>Chức năng</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd DataLabel="STT">@(displayCaThis.IndexOf(item) + 1)</MudTd>
+                    <MudTd DataLabel="Mã Ca Thi">@item.MaCaThi</MudTd>
+                    <MudTd DataLabel="Tên Ca Thi">@item.TenCaThi</MudTd>
+                    <MudTd DataLabel="Tên Đợt Thi">@item.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi</MudTd>
+                    <MudTd DataLabel="Thời Lượng Thi">@item.ThoiGianThi</MudTd>
+                    <MudTd DataLabel="Thời Gian Bắt Đầu">@item.ThoiGianBatDau</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)" OnClick="() => onClickShowMessageBox(item)" />
+                    </MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Info" OnClick="() => OnClickChiTietCaThi(item)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => onClickXoaCaThi(item.MaCaThi)" />
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        }
+
+    </MudContainer>
+
+
+
+
+
+    @* <header class="header">
         <img class="logohead" src="./images/exam/Logo.svg">
         <h1 class="pagename">QUẢN LÝ ĐỢT THI</h1>
         <h4 class="monitor_name"></h4>
@@ -98,14 +168,14 @@
             checkTrangThai = 0;
         else
             checkTrangThai = 1;
-        <Hutech.Exam.Client.Pages.Admin.MessageBox.MBKichHoatCaThi
+        <Hutech.Exam.Client.Components.MessageBox.MBKichHoatCaThi
             tenCaThi="@showCaThiMessageBox.TenCaThi" ngayThi="@showCaThiMessageBox.ThoiGianBatDau.ToString()"
             thoiLuongThi="@showCaThiMessageBox.ThoiGianThi" tenMonThi="@showCaThiMessageBox.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
             tenDotThi="@showCaThiMessageBox.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi" thoiGianBatDauThi="@showCaThiMessageBox.ThoiGianBatDau.ToString()"
                     trangThai="@checkTrangThai" onClickKichHoat="onClickKichHoatCaThi" thoidiemKetThuc="@showCaThiMessageBox.ThoiDiemKetThuc"
             onClickHuyKichHoat="onClickHuyKichHoatCaThi" onClickKetThucCaThi="onClickKetThucCaThi" onClickDungCaThi="onClickDungCaThi"
             onClickThoat= "onClickThoatMessageBox" thoidiemKichHoat="@showCaThiMessageBox.ActivatedDate">
-        </Hutech.Exam.Client.Pages.Admin.MessageBox.MBKichHoatCaThi>
-    }
+        </Hutech.Exam.Client.Components.MessageBox.MBKichHoatCaThi>
+    } *@
 </body>
 </html>

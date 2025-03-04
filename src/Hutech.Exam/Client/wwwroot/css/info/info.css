@@ -55,9 +55,7 @@
 
 .avatar {
     position: absolute;
-    margin-top: calc(var(--fraction-rem-height) * 3.0);
-    margin-left: calc(var(--fraction-rem-height) * 1.0);
-    width: 20%;
+    margin-top: calc(var(--fraction-rem-height) * 4.5);
     border-style: solid;
     border-color: #000000;
     border-width: 10px;

@@ -8,6 +8,11 @@ using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
+using MudBlazor;
+using static MudBlazor.CategoryTypes;
+using System.Globalization;
+using System.Text;
 
 namespace Hutech.Exam.Client.Pages.Admin
 {
@@ -35,6 +40,9 @@ namespace Hutech.Exam.Client.Pages.Admin
         private CaThiDto? showCaThiMessageBox { get; set; }
         private UserDto? user { get; set; }
         private HubConnection? hubConnection { get; set; }
+        private string GetActivationIcon(CaThiDto item) => item.KetThuc ? Icons.Material.Filled.PlayCircleFilled : item.IsActivated ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel;
+        private Color GetActivationColor(CaThiDto item) => item.KetThuc ? Color.Default : item.IsActivated ? Color.Success : Color.Error;
+        private string searchString = "";
         protected override async Task OnInitializedAsync()
         {
             //xác thực người dùng
@@ -104,6 +112,33 @@ namespace Hutech.Exam.Client.Pages.Admin
                 }
             }
             StateHasChanged();
+        }
+        private bool filter(CaThiDto element)
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.TenCaThi != null && removeDiacritics(element.TenCaThi).Contains(removeDiacritics(searchString), StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.MaCaThi.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
+        // loại bỏ dấu
+        public static string removeDiacritics(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
         private void UpdateDisplayCaThi(DateTime dateTime)
         {

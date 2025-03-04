@@ -1,6 +1,6 @@
 ﻿using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Client.Pages.Admin.DAL;
-using Hutech.Exam.Client.Pages.Admin.MessageBox;
+using Hutech.Exam.Client.Components.MessageBox;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;

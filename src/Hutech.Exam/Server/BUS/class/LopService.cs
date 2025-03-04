@@ -41,12 +41,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<int> Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
         {
-            object? ma_lop = await _lopRepository.Insert(ten_lop, ngay_bat_dau, ma_khoa);
-            try
-            {
-                return Convert.ToInt32(ma_lop);
-            }
-            catch (Exception ex) { throw new Exception("Can not insert Lop " + ex.Message); }
+            return (int)(await _lopRepository.Insert(ten_lop, ngay_bat_dau, ma_khoa) ?? -1);
         }
     }
 }

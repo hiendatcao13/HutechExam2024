@@ -8,6 +8,8 @@ using Microsoft.JSInterop;
 using System.Text;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO;
+using MudBlazor;
+using Hutech.Exam.Client.Components.Dialogs;
 
 namespace Hutech.Exam.Client.Pages
 {
@@ -31,16 +33,22 @@ namespace Hutech.Exam.Client.Pages
         private CaThiDto? caThi { get; set; }
         private MonHocDto? monHoc { get; set; }
         private List<ChiTietCaThiDto>? chiTietCaThis { get; set; }
-        string selectoption_cathi = "";
         private System.Timers.Timer? timer { get; set; }
         private string? displayTime { get; set; }
         private ChiTietCaThiDto? selectedCTCaThi { get; set; }
         private HubConnection? hubConnection { get; set; }
+
+        private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
+        private const string NOT_CHOOSE_CA_THI = "Vui lòng chọn ca thi!";
+        private const string NOT_ACTIVATED_CA_THI = "Ca thi này hiện chưa được kích hoạt hoặc dừng tạm thời. Vui lòng liên hệ quản trị để kích hoạt ca thi";
+        private const string NOT_ARRIVED_TIME = "Ca thi này hiện chưa đến thời gian làm bài. Vui lòng thí sinh chờ đợi đến giờ thi";
+        private const string EXPIRED_TIME = "Ca thi này hiện quá giờ làm bài. Vui lòng thí sinh liên hệ với quản trị viên";
+        private const string ENTER_EXAM = "Bắt đầu thi.Chúc bạn sớm hoàn thành kết quả tốt nhất";
         protected override async Task OnInitializedAsync()
         {
             //xác thực người dùng
-            var customAuthStateProvider = (authenticationStateProvider!= null) ? (CustomAuthenticationStateProvider)authenticationStateProvider: null;
-            var token = (customAuthStateProvider!= null) ? await customAuthStateProvider.GetToken() : null;
+            var customAuthStateProvider = (authenticationStateProvider != null) ? (CustomAuthenticationStateProvider)authenticationStateProvider : null;
+            var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;
             if (!string.IsNullOrWhiteSpace(token) && httpClient != null)
             {
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
@@ -59,28 +67,34 @@ namespace Hutech.Exam.Client.Pages
             if (ma_sinh_vien == -1)
                 return;
             HttpResponseMessage? response = null;
-                if(httpClient != null)
-                    response = await httpClient.GetAsync($"api/Info/GetThongTinChiTietCaThi?ma_sinh_vien={ma_sinh_vien}");
+            if (httpClient != null)
+                response = await httpClient.GetAsync($"api/Info/GetThongTinChiTietCaThi?ma_sinh_vien={ma_sinh_vien}");
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
                 chiTietCaThis = JsonSerializer.Deserialize<List<ChiTietCaThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-                if(chiTietCaThis != null && myData != null)
+                if (chiTietCaThis != null && myData != null)
                     sinhVien = myData.sinhVien = chiTietCaThis[0]?.MaSinhVienNavigation;
             }
         }
-        private void onClickCaThi(ChiTietCaThiDto chiTietCaThi)
-        {
-            if(myData != null)
-            {
-                myData.chiTietCaThi = selectedCTCaThi = chiTietCaThi;
-            }
-            caThi = chiTietCaThi.MaCaThiNavigation;
-        }
+
         private async Task onClickDangXuat()
         {
-            bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn đăng xuất?");
-            if (result && authenticationStateProvider != null)
+            var parameters = new DialogParameters<Simple_Dialog>
+            {
+                { x => x.ContentText, LOGOUT_MESSAGE },
+                { x => x.ButtonText, "Logout" },
+                { x => x.Color, Color.Error },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, handleDangXuat)   }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+        }
+        private async Task handleDangXuat()
+        {
+            if (authenticationStateProvider != null)
             {
                 await UpdateLogout();
                 // Cập nhật cho quản trị viên biết sinh viên đã đăng xuất
@@ -95,19 +109,19 @@ namespace Hutech.Exam.Client.Pages
         }
         private async Task UpdateLogout()
         {
-            if(httpClient != null && myData != null && myData.sinhVien != null)
+            if (httpClient != null && myData != null && myData.sinhVien != null)
                 await httpClient.GetAsync($"api/User/UpdateLogout?ma_sinh_vien={myData.sinhVien.MaSinhVien}");
         }
         private async Task OnClickBatDauThi()
         {
-            if (!CheckRadioButton() && js!= null)
+            if (selectedCTCaThi == null)
             {
-                await js.InvokeVoidAsync("alert", "Vui lòng chọn ca thi!");
+                Snackbar.Add(NOT_CHOOSE_CA_THI, Severity.Info);
                 return;
             }
-            if (caThi != null && (caThi.IsActivated == false || caThi.KetThuc == true) && js!= null)
+            if (caThi != null && (caThi.IsActivated == false || caThi.KetThuc == true))
             {
-                await js.InvokeVoidAsync("alert", "Ca thi này hiện chưa được kích hoạt hoặc dừng tạm thời. Vui lòng liên hệ quản trị để kích hoạt ca thi");
+                Snackbar.Add(NOT_ACTIVATED_CA_THI, Severity.Error);
                 return;
             }
             string formatTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại
@@ -119,27 +133,29 @@ namespace Hutech.Exam.Client.Pages
             DateTime.TryParse(formatThoiGianThi, out thoiGianThi);
             DateTime.TryParse(formatTime, out currentTime);
 
-            if (caThi != null && js != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
+            if (caThi != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
-                await js.InvokeVoidAsync("alert", "Ca thi này hiện chưa đến thời gian làm bài. Vui lòng thí sinh chờ đợi đến giờ thi");
+                Snackbar.Add(NOT_ARRIVED_TIME, Severity.Error);
                 return;
             }
-            if (caThi != null && js != null && DateTime.Compare(thoiGianThi.AddMinutes(THOI_GIAN_SAU_THI),currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
+            if (caThi != null && DateTime.Compare(thoiGianThi.AddMinutes(THOI_GIAN_SAU_THI), currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
-                await js.InvokeVoidAsync("alert", "Ca thi này hiện quá giờ làm bài. Vui lòng thí sinh liên hệ với quản trị viên");
+                Snackbar.Add(EXPIRED_TIME, Severity.Error);
                 return;
             }
             await HandleUpdateBatDau();
-            if (js != null)
-                await js.InvokeVoidAsync("alert", "Bắt đầu thi.Chúc bạn sớm hoàn thành kết quả tốt nhất");
-                navManager?.NavigateTo("/exam");
+            Snackbar.Add(ENTER_EXAM, Severity.Success);
+            if (myData != null)
+                myData.chiTietCaThi = selectedCTCaThi;
+            await Task.Delay(1000);
+            navManager?.NavigateTo("/exam");
         }
         private async Task HandleUpdateBatDau()
         {
-            if(selectedCTCaThi != null)
+            if (selectedCTCaThi != null)
                 selectedCTCaThi.ThoiGianBatDau = DateTime.Now;
             var jsonString = JsonSerializer.Serialize(selectedCTCaThi);
-            if(httpClient != null)
+            if (httpClient != null)
                 await httpClient.PostAsync("api/Info/UpdateBatDauThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
         }
         private async Task Start()
@@ -149,14 +165,13 @@ namespace Hutech.Exam.Client.Pages
             caThi = new();
             displayTime = DateTime.Now.ToString("hh:mm:ss tt");
             chiTietCaThis = new();
-            selectedCTCaThi = new();
-            if(myData != null)
+            if (myData != null)
                 myData.bonusTime = THOI_GIAN_TRUOC_THI;
-            var authState = (authenticationState!= null) ? await authenticationState : null;
+            var authState = (authenticationState != null) ? await authenticationState : null;
             // lấy thông tin mã sinh viên từ claim
             long ma_sinh_vien = -1;
             // chuyển đổi string thành long
-            if(authState!= null && authState.User.Identity != null)
+            if (authState != null && authState.User.Identity != null)
                 long.TryParse(authState.User.Identity.Name, out ma_sinh_vien);
             await getThongTinChiTietCaThi(ma_sinh_vien);
         }
@@ -177,17 +192,9 @@ namespace Hutech.Exam.Client.Pages
         }
         public void Dispose()
         {
-            if(timer != null)
+            if (timer != null)
                 timer.Dispose();
             hubConnection?.DisposeAsync();
-        }
-        private bool CheckRadioButton()
-        {
-            return !string.IsNullOrEmpty(selectoption_cathi);
-        }
-        private void RadioChanged(ChangeEventArgs e)
-        {
-            selectoption_cathi = "true";
         }
         private async Task initialHubConnection()
         {
@@ -213,7 +220,7 @@ namespace Hutech.Exam.Client.Pages
         {
             Task.Run(async () =>
             {
-                if(sinhVien != null)
+                if (sinhVien != null)
                     await getThongTinChiTietCaThi(sinhVien.MaSinhVien);
                 StateHasChanged();
             });
@@ -222,7 +229,7 @@ namespace Hutech.Exam.Client.Pages
         {
             Task.Run(async () =>
             {
-                if(authenticationStateProvider != null)
+                if (authenticationStateProvider != null)
                 {
                     var customAuthStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
                     await customAuthStateProvider.UpdateAuthenticationState(null);

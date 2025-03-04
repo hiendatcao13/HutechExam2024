@@ -2,30 +2,61 @@
 @attribute [Authorize]
 @using Blazor.Extensions.Canvas
 @using Blazor.Extensions.Canvas.Canvas2D
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- reset css -->
-    <!-- embed fonts -->
-    @* <link rel="preconnect" href="https://fonts.googleapis.com" /> *@
-    @* <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> *@
-    @* <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sen:wght@700&display=swap" *@
-    @*       rel="stylesheet" /> *@
-
-    @* <link rel="stylesheet" *@
-    @*       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" *@
-    @*       integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" *@
-    @*       crossorigin="anonymous" /> *@
     <!-- styles -->
-    <link href="./css/Result/style.css" rel="stylesheet"/>
+    <link href="./css/Result/style.css" rel="stylesheet" />
     <title>Result</title>
-    
+
 </head>
 
 <body>
-    <!-- Header của trang web -->
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex justify-center align-center">
+        <!-- Main Result -->
+        <MudPaper Class="pa-4 mt-4" Elevation="4">
+            <MudImage Src="./images/exam/Logo.svg" Size="Size.Large" />
+            <MudGrid Style="margin-top: 3%; margin-left: 1%">
+                <!-- Image Section -->
+                <MudItem Xs="4" Sm="4" Class="show-result" Style="padding: 0">
+                    <BECanvas Width="55" Height="40" @ref="_canvasReference"></BECanvas>
+                </MudItem>
+
+                <!-- Student Information -->
+                <MudItem Xs="8" Sm="8">
+                    @if (caThi != null && myData != null && myData.sinhVien != null && myData.chiTietCaThi != null && myData.chiTietCaThi.MaCaThiNavigation != null)
+                    {
+                        string? ten_mon_hoc = myData.chiTietCaThi.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Ca thi: @caThi.TenCaThi</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Môn thi: @ten_mon_hoc</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Mã đề: @myData.chiTietCaThi.MaDeThi</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">MSSV: @myData.sinhVien.MaSoSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Họ tên: @(sinhVien?.HoVaTenLot) @(sinhVien?.TenSinhVien)</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Ngày thi: @caThi?.ThoiGianBatDau</MudText>
+                        <MudButton OnClick="onClickDangXuatAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>
+                    }
+                </MudItem>
+            </MudGrid>
+
+            <!-- Exam Result -->
+            @if (ketQuaDapAn != null)
+            {
+                <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
+                <MudText Typo="Typo.h6" Class="mt-4">Chi tiết kết quả thi: @so_cau_dung/@ketQuaDapAn.Count</MudText>
+                @for (int index = 1; index <= ketQuaDapAn.Count; index++)
+                {
+                    string thu_tu = index.ToString();
+                    MudBlazor.Color color = ketQuaDapAn[index - 1] == true ? Color.Success : (ketQuaDapAn[index - 1] == false ? Color.Error : Color.Default);
+                    <MudChip T="int" Color="@color">@thu_tu.ToString()</MudChip>
+                }
+            }
+        </MudPaper>
+    </MudContainer>
+    @*  <!-- Header của trang web -->
     <header class="header fiexd">
         <div class="main-content">
             <div class="body">
@@ -115,7 +146,7 @@
                 }
             </div>
         </div>
-    </div>
+    </div> *@
     <script>
         // Ngăn người dùng back trang web
         window.history.pushState(null, document.title, location.href);

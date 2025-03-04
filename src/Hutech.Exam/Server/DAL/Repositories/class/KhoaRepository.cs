@@ -9,7 +9,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public async Task<IDataReader> GetAll()
         {
             DatabaseReader sql = new DatabaseReader("khoa_GetAll");
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
     }
 }

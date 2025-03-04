@@ -66,5 +66,30 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
+        public async Task<List<LopAoDto>> GetAll()
+        {
+            List<LopAoDto> result = new();
+            using (IDataReader dataReader = await _lopAoRepository.GetAll())
+            {
+                while (dataReader.Read())
+                {
+                    LopAoDto lopAo = getProperty(dataReader);
+                    result.Add(lopAo);
+                }
+            }
+            return result;
+        }
+        public async Task<int> Insert(string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
+        {
+            return (int)(await _lopAoRepository.Insert(ten_lop_ao, ngay_bat_dau, ma_mon_hoc) ?? -1);
+        }
+        public async Task<int> Update(int ma_lop_ao, string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
+        {
+            return await _lopAoRepository.Update(ma_lop_ao, ten_lop_ao, ngay_bat_dau, ma_mon_hoc);
+        }
+        public async Task<int> Remove(int ma_lop_ao)
+        {
+            return await _lopAoRepository.Remove(ma_lop_ao);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Hutech.Exam.Client.Pages.Admin.MessageBox;
+﻿using Hutech.Exam.Client.Components.MessageBox;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;

@@ -7,6 +7,8 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Client.Components.Dialogs;
+using MudBlazor;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
@@ -38,6 +40,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         private HubConnection? hubConnection { get; set; } // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
         private bool is_pause { get; set; } // cập nhật trạng thái dừng ca thi của thí sinh
         private List<bool>? isDisableAudio { get; set; }
+
+        private const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
         private async Task checkPage()
         {
             if ((myData == null || myData.chiTietCaThi == null || myData.sinhVien == null) && js != null)
@@ -80,24 +84,19 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private async Task onClickNopBai()
         {
-            if(js != null)
+            var parameters = new DialogParameters<Simple_Dialog>
             {
-                var result = await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn nộp bài?");
-                if (result)
-                {
-                    await UpdateChiTietBaiThi();
-                    // Cập nhật cho quản trị viên biết sinh đã hoàn thành bài thi
-                    //if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
-                    //    await sendMessage((int)chiTietCaThi.MaCaThi);
-                    if (myData != null)
-                    {
-                        myData.chiTietBaiThis = chiTietBaiThis;
-                        myData.listDapAnKhoanh = listDapAn;
-                    }
-                    navManager?.NavigateTo("/result");
-                }
-            }
+                { x => x.ContentText, SUBMIT_MESSAGE },
+                { x => x.ButtonText, "Nộp bài" },
+                { x => x.Color, Color.Warning },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, ketThucThoiGianLamBai)   }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            await Dialog.ShowAsync<Simple_Dialog>("Kết thúc bài làm", parameters, options);
         }
+        
         [JSInvokable]
         public async Task ketThucThoiGianLamBai()
         {
@@ -246,10 +245,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             timer?.Dispose();
             hubConnection?.DisposeAsync();
         }
-        private void dungThoiGian() => timer?.Stop();
-        private void tiepTucThoiGian() => timer?.Start();
-
-
 
     }
 }

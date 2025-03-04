@@ -11,6 +11,9 @@ using Blazor.Extensions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Client.Components.Dialogs;
+using MudBlazor;
+using static MudBlazor.CategoryTypes;
 namespace Hutech.Exam.Client.Pages;
 
 public partial class Result
@@ -36,6 +39,8 @@ public partial class Result
     private double diem { get; set; }
     private int so_cau_dung { get; set; }
     private HubConnection? hubConnection { get; set; }
+
+    private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
     private async Task checkPage()
     {
         if ((myData == null || myData.chiTietCaThi == null || myData.sinhVien == null) && js != null)
@@ -134,10 +139,23 @@ public partial class Result
     }
     private async Task onClickDangXuatAsync()
     {
-        bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn đăng xuất?");
-        if (result && authenticationStateProvider != null)
+        var parameters = new DialogParameters<Simple_Dialog>
         {
-            await UpdateLogout();
+            { x => x.ContentText, LOGOUT_MESSAGE },
+            { x => x.ButtonText, "Logout" },
+            { x => x.Color, Color.Error },
+            { x => x.onHandleSubmit, EventCallback.Factory.Create(this, UpdateLogout)   }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+    }
+    private async Task UpdateLogout()
+    {
+        if(httpClient != null && sinhVien != null && authenticationStateProvider != null)
+        {
+            await httpClient.GetAsync($"api/User/UpdateLogout?ma_sinh_vien={sinhVien.MaSinhVien}");
             // Cập nhật cho quản trị viên biết sinh viên đã đăng xuất
             if (isConnectHub() && sinhVien != null)
             {
@@ -147,11 +165,7 @@ public partial class Result
             await customAuthStateProvider.UpdateAuthenticationState(null);
             navManager?.NavigateTo("/", true);
         }
-    }
-    private async Task UpdateLogout()
-    {
-        if(httpClient != null && sinhVien != null)
-            await httpClient.GetAsync($"api/User/UpdateLogout?ma_sinh_vien={sinhVien.MaSinhVien}");
+
     }
     private void khoiTaoBanDau()
     {

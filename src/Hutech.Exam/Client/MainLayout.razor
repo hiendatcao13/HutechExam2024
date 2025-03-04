@@ -4,14 +4,14 @@
 <MudLayout>
     <ErrorBoundary @ref=_errorBoundary Context="errorContent">
         <ChildContent>
-            <MudMainContent>
+            <MainLayoutConent>
                 @Body
-            </MudMainContent>
+            </MainLayoutConent>
         </ChildContent>
         <ErrorContent>
-            <MudMainContent>
+            <MainLayoutConent>
                 @Body
-            </MudMainContent>
+            </MainLayoutConent>
             <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
         </ErrorContent>
     </ErrorBoundary>

@@ -142,18 +142,16 @@ body {
 
 
 .show-result {
-    width: 79%;
-    top: 50%;
-    bottom: 50%;
-    height: 32%;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3vw;
     font-weight: bolder;
-    border: 1px solid #ccc;
-    border-radius: 50%;
+    /*border: 1px solid #ccc;
+    border-radius: 50%;*/
+    padding: 0;
+    margin: 11% 0;
 }
 
 .information-student {

@@ -96,16 +96,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task UpdateBatDau(ChiTietCaThiDto chiTietCaThi)
+        public async Task<int> UpdateBatDau(ChiTietCaThiDto chiTietCaThi)
         {
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
             DateTime? thoi_gian_bat_dau = chiTietCaThi.ThoiGianBatDau;
-            if(await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau) == false)
-            {
-                throw new Exception("Can't UpdateBatDau table chi_tiet_ca_thi");
-            }
+            return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau);
         }
-        public async Task UpdateKetThuc(ChiTietCaThiDto chiTietCaThi)
+        public async Task<int> UpdateKetThuc(ChiTietCaThiDto chiTietCaThi)
         {
             //float diem, int so_cau_dung, int tong_so_cau
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
@@ -113,42 +110,27 @@ namespace Hutech.Exam.Server.BUS
             double diem = chiTietCaThi.Diem;
             int? so_cau_dung = chiTietCaThi.SoCauDung;
             int? tong_so_cau = chiTietCaThi.TongSoCau;
-            if (await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau) == false)
-            {
-                throw new Exception("Can't UpdateKetThuc table chi_tiet_ca_thi");
-            }
+            return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau);
         }
-        public async Task CongGio(ChiTietCaThiDto chiTietCaThi)
+        public async Task<int> CongGio(ChiTietCaThiDto chiTietCaThi)
         {
             int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
             int gio_cong_them = chiTietCaThi.GioCongThem;
             DateTime? thoi_diem_cong = chiTietCaThi.ThoiDiemCong;
             string? ly_do_cong = chiTietCaThi.LyDoCong;
-            if(await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong) == false)
-            {
-                throw new Exception("Can't CongGio");
-            }
+            return await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong);
         }
-        public async Task Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
+        public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
         {
-            if(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) == false)
-            {
-                throw new Exception("Can not insert chi tiet ca thi");
-            }
+            return (int)(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
         }
-        public async Task Remove(int ma_chi_tiet_ca_thi)
+        public async Task<int> Remove(int ma_chi_tiet_ca_thi)
         {
-            if (await _chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi) == false)
-            {
-                throw new Exception("Can not delete chi tiet ca thi");
-            }
+            return await _chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi);
         }
-        public async Task Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
+        public async Task<int> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
         {
-            if (await _chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) == false)
-            {
-                throw new Exception("Can not update chi tiet ca thi");
-            }
+            return await _chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau);
         }
     }
 }

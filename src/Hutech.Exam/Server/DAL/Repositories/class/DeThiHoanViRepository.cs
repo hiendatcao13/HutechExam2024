@@ -10,13 +10,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             DatabaseReader sql = new DatabaseReader("tbl_DeThiHoanVi_SelectOne");
             sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hoan_vi);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> SelectBy_MaDeThi(int ma_de_thi)
         {
             DatabaseReader sql = new DatabaseReader("tbl_DeThiHoanVi_SelectBy_MaDeThi");
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
-            return await sql.ExecuteReader();
+            return await sql.ExecuteReaderAsync();
         }
     }
 }

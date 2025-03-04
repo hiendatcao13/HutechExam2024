@@ -9,7 +9,8 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Hutech.Exam.Shared.DTO;
-namespace Hutech.Exam.Client.Pages
+using MudBlazor;
+namespace Hutech.Exam.Client.Pages.Login
 {
 
     public partial class Login
@@ -20,15 +21,18 @@ namespace Hutech.Exam.Client.Pages
         NavigationManager? navManager { get; set; }
         [Inject]
         AuthenticationStateProvider? authenticationStateProvider { get; set; }
-        [Inject]
-        IJSRuntime? js { get; set; }
         [CascadingParameter]
         private Task<AuthenticationState>? authenticationState { get; set; }
-        SinhVienDto? sv { get; set; }
-        UserSession? userSession { get; set; }
+        private SinhVienDto? sv { get; set; }
+        private UserSession? userSession { get; set; }
         private string? ma_so_sinh_vien = "";
         private string? password = "";
         private HubConnection? hubConnection { get; set; }
+
+
+        private const string FAILED_MESSSAGE = "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết";
+        private const string SUCCESS_MESSAGE = "Đăng nhập thành công!";
+        private const string ERROR_MESSAGE = "Username và password không trùng khớp";
 
         protected override async Task OnInitializedAsync()
         {
@@ -55,7 +59,7 @@ namespace Hutech.Exam.Client.Pages
         }
         private async Task onClickDangNhap()
         {
-            if (ma_so_sinh_vien == password && httpClient != null)
+            if (ma_so_sinh_vien == password && ma_so_sinh_vien != "" && httpClient != null)
             {
 
                 // Gửi yêu cầu HTTP POST đến API và nhận phản hồi
@@ -77,24 +81,23 @@ namespace Hutech.Exam.Client.Pages
                     // Cập nhật cho quản trị viên biết sinh viên đã đăng nhập
                     if (isConnectHub() && sv != null)
                         await sendMessage(sv.MaSinhVien);
+                    Snackbar.Add(SUCCESS_MESSAGE, Severity.Success);
+                    await Task.Delay(1000);
                     navManager.NavigateTo("/info", true);
                 }
-                else if((loginResponse.StatusCode == HttpStatusCode.Unauthorized || !loginResponse.IsSuccessStatusCode) && js != null)
+                else if (loginResponse.StatusCode == HttpStatusCode.Unauthorized || !loginResponse.IsSuccessStatusCode)
                 {
-                    await js.InvokeVoidAsync("alert", "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết");
+                    Snackbar.Add(FAILED_MESSSAGE, Severity.Error);
                     return;
                 }
             }
             else
             {
-                if(js != null)
-                {
-                    await js.InvokeVoidAsync("alert", "Username và password không trùng khớp");
-                }
+                Snackbar.Add(ERROR_MESSAGE, Severity.Error);
                 return;
             }
         }
-        
+
         private async void Start()
         {
             if (navManager != null)
@@ -110,7 +113,7 @@ namespace Hutech.Exam.Client.Pages
 
         private async Task sendMessage(long ma_sinh_vien)
         {
-            if(hubConnection != null)
+            if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
         }
 

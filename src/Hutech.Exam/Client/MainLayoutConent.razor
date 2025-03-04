@@ -4,37 +4,45 @@
     var currentPath = new Uri(navManager.Uri).AbsolutePath;
     var isLoginPage = currentPath == "/" || currentPath == "/admin";
 }
-@* Required *@
-<MudThemeProvider />
-<MudPopoverProvider />
-
-@* Needed for dialogs *@
-<MudDialogProvider />
-
-@* Needed for snackbars *@
-<MudSnackbarProvider />
 
 
-<AuthorizeView>
-    <Authorized>
-        <main>
-            @ChildContent
-        </main>
-    </Authorized>
+<MudMainContent>
+    @* Required *@
+    <MudThemeProvider />
+    <MudPopoverProvider />
 
-    <NotAuthorized>
-        <main>
-            @if (isLoginPage)
-            {
+    @* Needed for dialogs *@
+    <MudDialogProvider />
+
+    @* Needed for snackbars *@
+    <MudSnackbarProvider />
+    <AuthorizeView>
+        <Authorized>
+            <main>
                 @ChildContent
-            }
-            else
-            {
-                <Forbidden403></Forbidden403>
-            }
-        </main>
-    </NotAuthorized>
-</AuthorizeView>
+            </main>
+        </Authorized>
+
+        <NotAuthorized>
+            <main>
+                @if (isLoginPage)
+                {
+                    @ChildContent
+                }
+                else
+                {
+                    <Forbidden403></Forbidden403>
+                }
+            </main>
+        </NotAuthorized>
+    </AuthorizeView>
+    <style>
+        .mud-main-content {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+    </style>
+</MudMainContent>
 
 @code {
     [Parameter, EditorRequired]

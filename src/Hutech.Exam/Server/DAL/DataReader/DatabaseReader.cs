@@ -60,7 +60,7 @@ namespace Hutech.Exam.Server.DAL.DataReader
             _params.Add(parameter);
         }
         // return lines
-        public async Task<int> ExcuteNonQuery()
+        public async Task<int> ExecuteNonQueryAsync()
         {
             if (connection == null)
                 throw new InvalidOperationException("Connection is not initialized.");
@@ -102,7 +102,7 @@ namespace Hutech.Exam.Server.DAL.DataReader
             }
         }
         // return the first value in the first line (id)
-        public async Task<object?> ExecuteScalar()
+        public async Task<object?> ExecuteScalarAsync()
         {
             if (connection == null)
                 throw new InvalidOperationException("Connection is not initialized.");
@@ -132,7 +132,7 @@ namespace Hutech.Exam.Server.DAL.DataReader
             }
         }
 
-        public async Task<SqlDataReader> ExecuteReader()
+        public async Task<SqlDataReader> ExecuteReaderAsync()
         {
             if (connection == null)
                 throw new InvalidOperationException("Connection is not initialized.");

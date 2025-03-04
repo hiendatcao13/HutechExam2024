@@ -1,0 +1,42 @@
+﻿<MudDialog style="transform: scale(0.7)">
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string? ContentText { get; set; }
+
+    [Parameter]
+    public string? ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+    [Parameter]
+    public EventCallback? onHandleSubmit { get; set; }
+    [Parameter]
+    public EventCallback? onHandleCancel { get; set; }
+
+    private async Task Submit(){
+        if (onHandleSubmit.HasValue)
+        {
+            await onHandleSubmit.Value.InvokeAsync();
+        }
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private async Task Cancel(){
+        if (onHandleCancel.HasValue)
+        {
+            await onHandleCancel.Value.InvokeAsync();
+        }
+        MudDialog?.Close(DialogResult.Cancel());
+    }
+}
