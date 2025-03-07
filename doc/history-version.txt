@@ -36,3 +36,6 @@
 04/03/2025 10:00PM
 - Sử dụng MudBlazor cho trang Login, Info, Result
 - Tối ưu lại toàn bộ Repo, Service chuẩn bị cho trang 'Quản lý kì thi'
+------------------------------------
+07/03/2025 10:00AM
+- Hoàn thành file thuyết trình bảo vệ đề cương
