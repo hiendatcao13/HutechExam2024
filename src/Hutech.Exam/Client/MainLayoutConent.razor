@@ -1,4 +1,7 @@
-﻿@inject NavigationManager navManager
+﻿@using Hutech.Exam.Client.Authentication
+@using Hutech.Exam.Client.Components.Dialogs
+@inject NavigationManager navManager
+@inject IDialogService Dialog
 
 @{
     var currentPath = new Uri(navManager.Uri).AbsolutePath;
@@ -6,7 +9,6 @@
 }
 
 
-<MudMainContent>
     @* Required *@
     <MudThemeProvider />
     <MudPopoverProvider />
@@ -36,13 +38,6 @@
             </main>
         </NotAuthorized>
     </AuthorizeView>
-    <style>
-        .mud-main-content {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-    </style>
-</MudMainContent>
 
 @code {
     [Parameter, EditorRequired]

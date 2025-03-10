@@ -43,18 +43,18 @@ public partial class Result
     private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
     private async Task checkPage()
     {
-        if ((myData == null || myData.chiTietCaThi == null || myData.sinhVien == null) && js != null)
+        if ((myData == null || myData.ChiTietCaThi == null || myData.SinhVien == null) && js != null)
         {
             await js.InvokeVoidAsync("alert", "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại");
             navManager?.NavigateTo("/info");
             return;
         }
-        if (myData != null && myData.chiTietCaThi != null)
+        if (myData != null && myData.ChiTietCaThi != null)
         {
             khoiTaoBanDau();
-            chiTietCaThi = myData.chiTietCaThi;
-            caThi = myData.chiTietCaThi.MaCaThiNavigation;
-            sinhVien = myData.sinhVien;
+            chiTietCaThi = myData.ChiTietCaThi;
+            caThi = myData.ChiTietCaThi.MaCaThiNavigation;
+            sinhVien = myData.SinhVien;
             await Start();
         }
     }
@@ -147,7 +147,7 @@ public partial class Result
             { x => x.onHandleSubmit, EventCallback.Factory.Create(this, UpdateLogout)   }
         };
 
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
         await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
     }
@@ -174,7 +174,7 @@ public partial class Result
         chiTietCaThi = new();
         if(myData != null)
         {
-            customDeThis = myData.customDeThis;
+            customDeThis = myData.CustomDeThis;
         }
         ketQuaDapAn = new List<bool?>();
     }

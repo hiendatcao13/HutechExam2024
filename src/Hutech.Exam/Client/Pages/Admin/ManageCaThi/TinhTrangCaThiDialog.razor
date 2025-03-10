@@ -1,0 +1,125 @@
+﻿@implements IDisposable
+<MudDialog Style="min-width: 700px">
+    <DialogContent>
+        <MudGrid Style="font-size: 14px">
+            <MudItem xs="3">
+                <MudText>Thời gian hiện tại:</MudText>
+                <MudText>Ngày thi:</MudText>
+                <MudText>Môn thi:</MudText>
+                <MudText>Trạng thái:</MudText>
+            </MudItem>
+            <MudItem xs="3" Style="color: blue">
+                <MudText>@displayTime</MudText>
+                <MudText>@ContentText?[0]</MudText>
+                <MudText>@ContentText?[1]</MudText>
+                <MudText>@(trangThai == 0 ? "Đã kích hoạt" : trangThai == 1 ? "Dừng/chưa kích hoạt" : "Đã kết thúc")</MudText>
+            </MudItem>
+            <MudItem xs="2">
+                <MudText >Ca thi:</MudText>
+                <MudText >Thời lượng thi:</MudText>
+                <MudText >Tên đợt thi:</MudText>
+                <MudText >Giờ kích hoạt:</MudText>
+            </MudItem>
+            <MudItem xs="4" Style="color: blue">
+                <MudText >@ContentText?[2]</MudText>
+                <MudText >@ContentText?[3]</MudText>
+                <MudText >@ContentText?[4]</MudText>
+                <MudText >@ContentText?[5]</MudText>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <!--3 trạng thái: 0: đã kích hoạt - tiếp tục ca thi, 1: chưa kích hoạt / dừng ca thi, 2: kết thúc ca thi-->
+        <MudButton Color="Color.Success" Disabled="@((trangThai != 1))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 1) await onClickKichHoat(); }">Kích hoạt</MudButton>
+        <MudButton Color="Color.Error" Disabled="@((trangThai != 0))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 0) await onClickHuyKichHoat(); }">Hủy kích hoạt</MudButton>
+        <MudButton Color="Color.Secondary" Disabled="@((trangThai != 0))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 0) await onClickDungCaThi(); }">Dừng ca thi</MudButton>
+        <MudButton Color="Color.Warning" Disabled="@((trangThai == 2))" Variant="Variant.Filled" OnClick="async () => { if (trangThai != 2) await onClickKetThucCaThi(); }">Kết thúc ca thi</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .mud-dialog-actions {
+        align-self: center
+    }
+</style>
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string[]? ContentText { get; set; }
+    [Parameter]
+    public int trangThai { get; set; }
+
+    [Parameter]
+    public EventCallback? onHandleKichHoat { get; set; }
+    [Parameter]
+    public EventCallback? onHandleHuyKichHoat { get; set; }
+    [Parameter]
+    public EventCallback? onHandleDungCaThi { get; set; }
+    [Parameter]
+    public EventCallback? onHandleKetThucCaThi { get; set; }
+    private System.Timers.Timer? timer { get; set; }
+    private string? displayTime { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Time();
+    }
+    private async Task onClickKichHoat()
+    {
+        if (onHandleKichHoat.HasValue)
+        {
+            await onHandleKichHoat.Value.InvokeAsync();
+        }
+        closeDialog();
+    }
+    private async Task onClickHuyKichHoat()
+    {
+        if (onHandleHuyKichHoat.HasValue)
+        {
+            await onHandleHuyKichHoat.Value.InvokeAsync();
+        }
+        closeDialog();
+    }
+    private async Task onClickDungCaThi()
+    {
+        if (onHandleDungCaThi.HasValue)
+        {
+            await onHandleDungCaThi.Value.InvokeAsync();
+        }
+        closeDialog();
+    }
+    private async Task onClickKetThucCaThi()
+    {
+        if (onHandleKetThucCaThi.HasValue)
+        {
+            await onHandleKetThucCaThi.Value.InvokeAsync();
+        }
+        closeDialog();
+    }
+    private void closeDialog() => MudDialog?.Close(DialogResult.Cancel());
+    private void Time()
+    {
+        timer = new System.Timers.Timer();
+        timer.Interval = 1000; // 1000 = 1ms
+        timer.AutoReset = true;
+        timer.Enabled = true;
+        timer.Elapsed += (sender, e) =>
+        {
+            displayTime = DateTime.Now.ToString("hh:mm:ss tt");
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        };
+    }
+    public void Dispose()
+    {
+        if (timer != null)
+            timer.Dispose();
+    }
+}

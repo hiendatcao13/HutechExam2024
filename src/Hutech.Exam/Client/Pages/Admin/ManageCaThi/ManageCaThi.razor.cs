@@ -13,10 +13,11 @@ using MudBlazor;
 using static MudBlazor.CategoryTypes;
 using System.Globalization;
 using System.Text;
+using Hutech.Exam.Client.Components.Dialogs;
 
-namespace Hutech.Exam.Client.Pages.Admin
+namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {
-    public partial class ManageExam
+    public partial class ManageCaThi
     {
         [CascadingParameter]
         private Task<AuthenticationState>? authenticationState { get; set; }
@@ -88,31 +89,6 @@ namespace Hutech.Exam.Client.Pages.Admin
             }
         }
 
-        private void onChangeDate(ChangeEventArgs e)
-        {
-            DateTime dateTime = new DateTime();
-            if(e.Value != null)
-            {
-                DateTime.TryParse(e.Value.ToString(), out dateTime);
-                UpdateDisplayCaThi(dateTime);
-            }
-            StateHasChanged();
-        }
-        private void onChangeMaCaThi(ChangeEventArgs e)
-        {
-            int ma_ca_thi = -1;
-            if (e.Value != null)
-            {
-                if (e.Value.ToString() == "" && caThis != null)
-                    displayCaThis = caThis.ToList();
-                else
-                {
-                    int.TryParse(e.Value.ToString(), out ma_ca_thi);
-                    UpdateDisplayCaThi(ma_ca_thi);
-                }
-            }
-            StateHasChanged();
-        }
         private bool filter(CaThiDto element)
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -140,52 +116,6 @@ namespace Hutech.Exam.Client.Pages.Admin
             }
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
-        private void UpdateDisplayCaThi(DateTime dateTime)
-        {
-            if(displayCaThis != null && caThis != null)
-            {
-                displayCaThis.Clear();
-                var item = caThis.Where(p => p.ThoiGianBatDau.Date == dateTime.Date).ToList();
-                displayCaThis.AddRange(item);
-            }
-        }
-        //Overloading
-        private void UpdateDisplayCaThi(int ma_ca_thi)
-        {
-            if (displayCaThis != null && caThis != null)
-            {
-                displayCaThis.Clear();
-                var item = caThis.Where(p => p.MaCaThi == ma_ca_thi).ToList();
-                displayCaThis.AddRange(item);
-            }
-        }
-        private void onClickReset()
-        {
-            input_Date = null;
-            input_maCaThi = "";
-            if(caThis != null)
-                displayCaThis = caThis.ToList();
-            StateHasChanged();
-        }
-        private void onClickCaThiChuaKichHoat()
-        {
-            if(caThis != null && displayCaThis != null)
-            {
-                displayCaThis = displayCaThis.Where(p => p.IsActivated == false).ToList();
-            }
-            StateHasChanged();
-        }
-        private async Task onClickDangXuat()
-        {
-            bool result = (js != null) && await js.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn đăng xuất?");
-            if (result && authenticationStateProvider != null)
-            {
-                var customAuthStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
-                await customAuthStateProvider.UpdateAuthenticationState(null);
-                navManager?.NavigateTo("/admin", true);
-            }
-        }
-
         private async Task Start()
         {
             caThis = new();
@@ -197,10 +127,26 @@ namespace Hutech.Exam.Client.Pages.Admin
             await createHubConnection();
             await checkAdmin();
         }
-        private void onClickShowMessageBox(CaThiDto caThi)
+        private async Task onClickShowMessageBox(CaThiDto caThi)
         {
-            showMessageBox = true;
+            //showMessageBox = true;
             showCaThiMessageBox = caThi;
+            //StateHasChanged();
+            string[] content_texts = [caThi.ThoiGianBatDau.ToString(), caThi.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc ?? "", caThi.TenCaThi ?? "", caThi.ThoiGianThi.ToString(), 
+                caThi.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi ?? "", caThi.ActivatedDate.ToString() ?? ""];
+            var parameters = new DialogParameters<TinhTrangCaThiDialog>
+            {
+                { x => x.ContentText, content_texts },
+                { x => x.trangThai, caThi.KetThuc ? 2 : caThi.IsActivated ? 0 : 1 },
+                { x => x.onHandleKichHoat, EventCallback.Factory.Create(this, onClickKichHoatCaThi) },
+                { x => x.onHandleHuyKichHoat, EventCallback.Factory.Create(this, onClickHuyKichHoatCaThi) },
+                { x => x.onHandleDungCaThi, EventCallback.Factory.Create(this, onClickDungCaThi) },
+                { x => x.onHandleKetThucCaThi, EventCallback.Factory.Create(this, onClickKetThucCaThi) }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraExtraLarge, BackgroundClass = "my-custom-class", Position = DialogPosition.TopCenter };
+
+            await Dialog.ShowAsync<TinhTrangCaThiDialog>("THÔNG TIN CA THI", parameters, options);
             StateHasChanged();
         }
 
@@ -208,9 +154,9 @@ namespace Hutech.Exam.Client.Pages.Admin
         {
             if(myData != null && sessionStorage != null)
             {
-                myData.caThi = caThi;
+                myData.CaThi = caThi;
                 await sessionStorage.SetItemAsync("ca_thi", caThi);
-                navManager?.NavigateTo("/monitor");
+                navManager?.NavigateTo("admin/monitor");
             }
         }
         private async Task UpdateTinhTrangCaThi(bool isActived)

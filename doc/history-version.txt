@@ -39,3 +39,6 @@
 ------------------------------------
 07/03/2025 10:00AM
 - Hoàn thành file thuyết trình bảo vệ đề cương
+-----------------------------------
+10/03/2025 10:30PM
+- Tối ưu lại code, API, Controller cho Login, Info

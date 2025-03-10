@@ -28,13 +28,13 @@
 
                 <!-- Student Information -->
                 <MudItem Xs="8" Sm="8">
-                    @if (caThi != null && myData != null && myData.sinhVien != null && myData.chiTietCaThi != null && myData.chiTietCaThi.MaCaThiNavigation != null)
+                    @if (caThi != null && myData != null && myData.SinhVien != null && myData.ChiTietCaThi != null && myData.ChiTietCaThi.MaCaThiNavigation != null)
                     {
-                        string? ten_mon_hoc = myData.chiTietCaThi.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
+                        string? ten_mon_hoc = myData.ChiTietCaThi.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
                         <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Ca thi: @caThi.TenCaThi</MudText>
                         <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Môn thi: @ten_mon_hoc</MudText>
-                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Mã đề: @myData.chiTietCaThi.MaDeThi</MudText>
-                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">MSSV: @myData.sinhVien.MaSoSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Mã đề: @myData.ChiTietCaThi.MaDeThi</MudText>
+                        <MudText Style="margin-bottom: 2%" Typo="Typo.h6">MSSV: @myData.SinhVien.MaSoSinhVien</MudText>
                         <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Họ tên: @(sinhVien?.HoVaTenLot) @(sinhVien?.TenSinhVien)</MudText>
                         <MudText Style="margin-bottom: 2%" Typo="Typo.h6">Ngày thi: @caThi?.ThoiGianBatDau</MudText>
                         <MudButton OnClick="onClickDangXuatAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>

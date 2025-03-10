@@ -59,16 +59,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (!string.IsNullOrWhiteSpace(token) && httpClient != null)
             {
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-                if (myData != null && myData.caThi == null && js != null && sessionStorage != null)
+                if (myData != null && myData.CaThi == null && js != null && sessionStorage != null)
                 {
-                    myData.caThi = await sessionStorage.GetItemAsync<CaThiDto>("ca_thi");
-                    if(myData.caThi == null)
+                    myData.CaThi = await sessionStorage.GetItemAsync<CaThiDto>("ca_thi");
+                    if(myData.CaThi == null)
                     {
                         await js.InvokeVoidAsync("alert", "Cách hoạt động trang web không bình thường. Vui lòng quay lại");
                         navManager?.NavigateTo("/control");
                         return;
                     }
-                    ma_ca_thi = myData.caThi.MaCaThi;
+                    ma_ca_thi = myData.CaThi.MaCaThi;
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (response != null && response.IsSuccessStatusCode && myData != null)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                myData.caThi = JsonSerializer.Deserialize<CaThiDto>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                myData.CaThi = JsonSerializer.Deserialize<CaThiDto>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             StateHasChanged();
         }
@@ -220,8 +220,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             MB_ly_do_cong = "";
             MB_thoi_gian_cong = 0;
             displayChiTietCaThi = new();
-            if (myData != null && myData.caThi != null)
-                ma_ca_thi = myData.caThi.MaCaThi;
+            if (myData != null && myData.CaThi != null)
+                ma_ca_thi = myData.CaThi.MaCaThi;
             else
                 await getThongTinCaThi(ma_ca_thi);
             await createHubConnection();

@@ -5,7 +5,7 @@ namespace Hutech.Exam.Client.Pages.Admin.DAL
 {
     public class AdminDataService
     {
-        public CaThiDto? caThi { get; set; }
-        public UserDto? user { get; set; }
+        public CaThiDto CaThi { get; set; } = new();
+        public UserDto User { get; set; } = new();
     }
 }

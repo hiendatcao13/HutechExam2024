@@ -15,6 +15,10 @@ namespace Hutech.Exam.Server.Controllers
         {
             _dotThiService = dotThiService;
         }
-
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _dotThiService.GetAll());
+        }
     }
 }

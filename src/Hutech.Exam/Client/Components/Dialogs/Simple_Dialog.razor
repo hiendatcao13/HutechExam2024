@@ -7,6 +7,11 @@
         <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
     </DialogActions>
 </MudDialog>
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
 @code {
     [CascadingParameter]
     private IMudDialogInstance? MudDialog { get; set; }
@@ -24,7 +29,8 @@
     [Parameter]
     public EventCallback? onHandleCancel { get; set; }
 
-    private async Task Submit(){
+    private async Task Submit()
+    {
         if (onHandleSubmit.HasValue)
         {
             await onHandleSubmit.Value.InvokeAsync();
@@ -32,7 +38,8 @@
         MudDialog?.Close(DialogResult.Ok(true));
     }
 
-    private async Task Cancel(){
+    private async Task Cancel()
+    {
         if (onHandleCancel.HasValue)
         {
             await onHandleCancel.Value.InvokeAsync();

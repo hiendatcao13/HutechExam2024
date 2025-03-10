@@ -44,18 +44,18 @@ namespace Hutech.Exam.Client.Pages.Exam
         private const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
         private async Task checkPage()
         {
-            if ((myData == null || myData.chiTietCaThi == null || myData.sinhVien == null) && js != null)
+            if ((myData == null || myData.ChiTietCaThi == null || myData.SinhVien == null) && js != null)
             {
                 await js.InvokeVoidAsync("alert", "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại");
                 navManager?.NavigateTo("/info");
                 return;
             }
-            if(myData != null && myData.chiTietCaThi != null)
+            if(myData != null && myData.ChiTietCaThi != null)
             {
                 khoiTaoBanDau();
-                chiTietCaThi = myData.chiTietCaThi;
-                caThi = myData.chiTietCaThi.MaCaThiNavigation;
-                sinhVien = myData.sinhVien;
+                chiTietCaThi = myData.ChiTietCaThi;
+                caThi = myData.ChiTietCaThi.MaCaThiNavigation;
+                sinhVien = myData.SinhVien;
                 await Start();
                 Time(); // xử lí countdown
             }
@@ -106,8 +106,8 @@ namespace Hutech.Exam.Client.Pages.Exam
                 await sendMessage((int)chiTietCaThi.MaCaThi);
             if (myData != null)
             {
-                myData.chiTietBaiThis = chiTietBaiThis;
-                myData.listDapAnKhoanh = listDapAn;
+                myData.ChiTietBaiThis = chiTietBaiThis;
+                myData.ListDapAnKhoanh = listDapAn;
             }
 
             navManager?.NavigateTo("/result");
@@ -117,7 +117,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             chiTietBaiThis = new();
             sinhVien = new();
             if (myData != null)
-                sinhVien = myData.sinhVien;
+                sinhVien = myData.SinhVien;
             caThi = new();
             chiTietCaThi = new();
             listDapAn = new List<int>();
@@ -130,9 +130,9 @@ namespace Hutech.Exam.Client.Pages.Exam
         {
             is_pause = false;
             await InitialConnectionHub();
-            if (myData != null && myData.chiTietCaThi != null)
+            if (myData != null && myData.ChiTietCaThi != null)
             {
-                chiTietCaThi = myData.chiTietCaThi;
+                chiTietCaThi = myData.ChiTietCaThi;
                 await getDeThi(chiTietCaThi.MaDeThi);
                 await modifyNhomCauHoi();
             }
@@ -142,7 +142,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (isConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
                 await sendMessage((int)chiTietCaThi.MaCaThi);
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
-            if (myData != null && myData.chiTietCaThi != null && myData.chiTietCaThi.DaThi)
+            if (myData != null && myData.ChiTietCaThi != null && myData.ChiTietCaThi.DaThi)
             {
                 await InsertChiTietBaiThi_DaVaoThiTruocDo();
                 ProcessTiepTucThi();
@@ -160,7 +160,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             int? thoi_gian_con_lai = (int?)thoiGianConLai();
             if (caThi != null && chiTietCaThi != null && myData != null && thoi_gian_con_lai != null)
             {
-                tong_so_giay += (caThi.ThoiGianThi + chiTietCaThi.GioCongThem + myData.bonusTime - (int)thoi_gian_con_lai) * 60;
+                tong_so_giay += (caThi.ThoiGianThi + chiTietCaThi.GioCongThem + myData.BonusTime - (int)thoi_gian_con_lai) * 60;
                 //js?.InvokeVoidAsync("alert", "thoi gian con lai: " + thoi_gian_con_lai + ", tong_so_giay: " + tong_so_giay);
                 tong_so_giay = (tong_so_giay > (caThi.ThoiGianThi * 60)) ? (caThi.ThoiGianThi * 60) : tong_so_giay;
             }

@@ -17,15 +17,15 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (response != null && response.IsSuccessStatusCode && myData != null)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
-                customDeThis = myData.customDeThis = JsonSerializer.Deserialize<List<CustomDeThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                customDeThis = myData.CustomDeThis = JsonSerializer.Deserialize<List<CustomDeThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
         }
         // insert các các dòng dữ liệu chiTietBaiThi, và lấy dữ liệu của chiTietbaiThi
         private async Task InsertChiTietBaiThi()
         {
             HttpResponseMessage? response = null;
-            if (httpClient != null && chiTietCaThi != null && myData != null && myData.chiTietCaThi != null)
-                response = await httpClient.PostAsync($"api/Exam/InsertChiTietBaiThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.chiTietCaThi.MaDeThi}", null);
+            if (httpClient != null && chiTietCaThi != null && myData != null && myData.ChiTietCaThi != null)
+                response = await httpClient.PostAsync($"api/Exam/InsertChiTietBaiThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.ChiTietCaThi.MaDeThi}", null);
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
@@ -40,8 +40,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         private async Task InsertChiTietBaiThi_DaVaoThiTruocDo()
         {
             HttpResponseMessage? response = null;
-            if (httpClient != null && chiTietCaThi != null && myData != null && myData.chiTietCaThi != null)
-                response = await httpClient.GetAsync($"api/Exam/InsertCTBT_DaVaoThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.chiTietCaThi.MaDeThi}");
+            if (httpClient != null && chiTietCaThi != null && myData != null && myData.ChiTietCaThi != null)
+                response = await httpClient.GetAsync($"api/Exam/InsertCTBT_DaVaoThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.ChiTietCaThi.MaDeThi}");
             if (response != null && response.IsSuccessStatusCode)
             {
                 var resultString = await response.Content.ReadAsStringAsync();
