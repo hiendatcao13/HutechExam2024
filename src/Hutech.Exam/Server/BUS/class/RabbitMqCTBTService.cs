@@ -91,7 +91,7 @@ namespace Hutech.Exam.Server.BUS
             }
             
         }
-        private void processMessage(List<ChiTietBaiThiDto> chiTietBaiThis)
+        private async Task processMessage(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
             // Lưu message vào database hoặc thực hiện một hành động cụ thể
             if (chiTietBaiThis.Count != 0)
@@ -100,9 +100,9 @@ namespace Hutech.Exam.Server.BUS
                 foreach (var item in chiTietBaiThis)
                 {
                     if (item.ThuTu != 0)
-                        _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
+                        await _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
+                    await _chiTietBaiThiService.Update(item.MaChiTietBaiThi, item.CauTraLoi ?? -1, DateTime.Now, item.KetQua ?? false);
                 }
-                _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
             }
             
 

@@ -18,8 +18,8 @@ namespace Hutech.Exam.Server.Controllers
         private readonly MonHocService _monHocService;
         private readonly DotThiService _dotThiService;
 
-        public ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, CaThiService caThiService, 
-            SinhVienService sinhVienService, ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService, 
+        public ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, CaThiService caThiService,
+            SinhVienService sinhVienService, ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService,
             MonHocService monHocService, DotThiService dotThiService)
         {
             _chiTietCaThiService = chiTietCaThiService;
@@ -45,7 +45,7 @@ namespace Hutech.Exam.Server.Controllers
             //TH thí sinh không có ca thi
             if (chi_tiet_ca_thi_gan_nhat == null)
             {
-                return new ChiTietCaThiDto();
+                return new ChiTietCaThiDto { MaSinhVienNavigation = await getSinhVien(ma_sinh_vien)};
             }
             return chi_tiet_ca_thi_gan_nhat;
         }
@@ -55,7 +55,12 @@ namespace Hutech.Exam.Server.Controllers
             await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
             return Ok();
         }
-
+        [HttpPut("UpdateKetThuc")]
+        public async Task<ActionResult> UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
+        {
+            await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
+            return Ok();
+        }
 
 
 

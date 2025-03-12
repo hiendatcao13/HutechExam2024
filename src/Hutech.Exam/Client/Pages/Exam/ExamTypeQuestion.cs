@@ -1,17 +1,13 @@
 ﻿using Hutech.Exam.Shared.DTO.Custom;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class Exam
     {
         // xử lí các dạng kiểu dữ liệu
-        private async Task modifyNhomCauHoi()
+        private async Task ModifyNhomCauHoi()
         {
             int thu_tu_ma_nhom = 0;
             if (customDeThis != null)
@@ -25,15 +21,15 @@ namespace Hutech.Exam.Client.Pages.Exam
                         // xử lí audio
                         if (item.NoiDungCauHoiNhom.Contains("<audio") && chiTietCaThi != null)
                         {
-                            string fileName = handleAudioSource(item.NoiDungCauHoiNhom);
-                            int so_lan_nghe = (chiTietCaThi.DaThi) ? await getSoLanNghe(chiTietCaThi.MaChiTietCaThi, fileName) : 0;
+                            string fileName = HandleAudioSource(item.NoiDungCauHoiNhom);
+                            int so_lan_nghe = (chiTietCaThi.DaThi) ? await GetSoLanNgheAPI(chiTietCaThi.MaChiTietCaThi, fileName) : 0;
                             item.GhiChu = so_lan_nghe.ToString();
                         }
                     }
                 }
             }
         }
-        private List<string> handleLatex(string text)
+        private List<string> HandleLatex(string text)
         {
             List<string> result = new List<string>();
             if (!text.Contains("latex"))
@@ -56,13 +52,13 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             return result;
         }
-        private string handleDienKhuyet(string text, int STT)
+        private string HandleDienKhuyet(string text, int STT)
         {
             if(!text.Contains("(*)"))
                 return text;
             return Regex.Replace(text, @"\(\*\)", m => "(" + (STT++).ToString() + ")");
         }
-        private string handleAudioSource(string text)
+        private string HandleAudioSource(string text)
         {
             text = text.Trim();
             int index_source = text.IndexOf("src=\"");
@@ -73,7 +69,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             int index_audio = text.IndexOf("<audio");
             return source;
         }
-        private string handleBeforeAudio(CustomDeThi customDeThi, string text, int ma_audio)
+        private string HandleBeforeAudio(CustomDeThi customDeThi, string text, int ma_audio)
         {
             int index_audio = text.IndexOf("<audio");
             if (int.TryParse(customDeThi.GhiChu, out int temp) && chiTietCaThi != null)
@@ -85,16 +81,16 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             return text.Substring(0, index_audio);
         }
-        private async Task onPlayAudio(CustomDeThi customDeThi, int ma_audio, string fileName, string elementId)
+        private async Task OnPlayAudio(CustomDeThi customDeThi, int ma_audio, string fileName, string elementId)
         {
             // tăng số lần nghe lên
-            if (int.TryParse(customDeThi.GhiChu, out int so_lan_nghe) && chiTietCaThi != null && js != null)
+            if (int.TryParse(customDeThi.GhiChu, out int so_lan_nghe) && chiTietCaThi != null && Js != null)
             {
-                await js.InvokeVoidAsync("playAudio", elementId, so_lan_nghe);
+                await Js.InvokeVoidAsync("playAudio", elementId, so_lan_nghe);
                 if (so_lan_nghe < 3 && isDisableAudio != null)
                 {
                     customDeThi.GhiChu = (++so_lan_nghe).ToString();
-                    await addOrUpdateListen(chiTietCaThi.MaChiTietCaThi, fileName);
+                    await AddOrUpdateListenAPI(chiTietCaThi.MaChiTietCaThi, fileName);
                 }
             }
             StateHasChanged();

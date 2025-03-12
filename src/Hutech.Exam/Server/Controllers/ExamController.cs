@@ -79,7 +79,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             var ketQua = await this.GetDeThi(ma_de_thi_hoan_vi);
             List<CustomDeThi>? customDeThis = ketQua.Value;
-            await _chiTietBaiThiService.insertChiTietBaiThis_SelectByChiTietDeThiHV(customDeThis, ma_chi_tiet_ca_thi, ma_de_thi_hoan_vi);
+            await _chiTietBaiThiService.InsertChiTietBaiThis_SelectByChiTietDeThiHV(customDeThis, ma_chi_tiet_ca_thi, ma_de_thi_hoan_vi);
 
             // tránh trường hợp lấy đề của những môn khác
             List<ChiTietBaiThiDto> result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
@@ -126,8 +126,8 @@ namespace Hutech.Exam.Server.Controllers
                     await _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
                 if (listDapAn != null && item.CauTraLoi != null)
                     item.KetQua = (listDapAn.Contains((int)item.CauTraLoi)) ? true : false;
+                await _chiTietBaiThiService.Update(item.MaChiTietBaiThi, item.CauTraLoi ?? -1, DateTime.Now, item.KetQua ?? false); 
             }
-            await _chiTietBaiThiService.updateChiTietBaiThis(chiTietBaiThis);
             return Ok();
         }
 
@@ -137,7 +137,7 @@ namespace Hutech.Exam.Server.Controllers
             return await _audioListenedService.SelectOne(ma_chi_tiet_ca_thi, filename);
         }
         [HttpGet("AddOrUpdateAudio")]
-        public async Task<ActionResult> AddOrUpdateAudio([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
+        public async Task<ActionResult> AddOrUpdate([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
         {
             await _audioListenedService.Save(ma_chi_tiet_ca_thi, filename);
             return Ok();

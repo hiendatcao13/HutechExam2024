@@ -8,18 +8,18 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task InitialConnectionHub()
         {
-            if (navManager != null && myData != null)
+            if (Nav != null && MyData != null)
             {
                 // mở để cập nhật trạng thái thi của sinh viên
                 hubConnection = new HubConnectionBuilder()
-                    .WithUrl(navManager.ToAbsoluteUri("/ChiTietCaThiHub"))
+                    .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
                 .Build();
                 // trường hợp dừng ca thi
                 hubConnection.On<int>("ReceiveMessageStatusCaThi", (ma_ca_thi) =>
                 {
                     if(chiTietCaThi != null && ma_ca_thi == chiTietCaThi.MaCaThi)
                     {
-                        callLoadData();
+                        CallLoadData();
                         StateHasChanged();
                     }
                 });
@@ -31,29 +31,29 @@ namespace Hutech.Exam.Client.Pages.Exam
                 await hubConnection.StartAsync();
             }
         }
-        private bool isConnectHub() => hubConnection?.State == HubConnectionState.Connected;
+        private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
 
-        private async Task sendMessage(int ma_ca_thi)
+        private async Task SendMessage(int ma_ca_thi)
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
         }
-        private async Task sendMessage(long ma_sinh_vien)
+        private async Task SendMessage(long ma_sinh_vien)
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
         }
-        private void callLoadData()
+        private void CallLoadData()
         {
             Task.Run(async () =>
             {
-                await UpdateChiTietBaiThi();
-                bool result = await isActiveCaThi();
+                await UpdateChiTietBaiThiAPI();
+                bool result = await IsActiveCaThiAPI(chiTietCaThi?.MaCaThi ?? -1);
                 if (!result)
                 {
-                    js?.InvokeVoidAsync("alert", "Quản trị viên đang tạm thời dừng ca thi này. Thí sinh vui lòng chờ trong giây lát");
-                    navManager?.NavigateTo("/info");
+                    Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
+                    Nav?.NavigateTo("/info");
                 }
             });
         }
@@ -61,11 +61,11 @@ namespace Hutech.Exam.Client.Pages.Exam
         {
             Task.Run(async () =>
             {
-                if (authenticationStateProvider != null)
+                if (AuthenticationStateProvider != null)
                 {
-                    var customAuthStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
+                    var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
                     await customAuthStateProvider.UpdateAuthenticationState(null);
-                    navManager?.NavigateTo("/", true);
+                    Nav?.NavigateTo("/", true);
                 }
             });
         }

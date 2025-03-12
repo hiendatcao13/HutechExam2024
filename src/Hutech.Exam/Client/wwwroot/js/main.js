@@ -1,8 +1,8 @@
-﻿// Ngăn người dùng back trang web
-window.history.pushState(null, document.title, location.href);
-window.addEventListener('popstate', function (event) {
-    history.pushState(null, document.title, location.href);
-});
+﻿//// Ngăn người dùng back trang web
+//window.history.pushState(null, document.title, location.href);
+//window.addEventListener('popstate', function (event) {
+//    history.pushState(null, document.title, location.href);
+//});
 
 // Toast function
 function toast({ title = "", message = "", type = "info", duration = 500, callback }) {

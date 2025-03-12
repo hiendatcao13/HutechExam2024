@@ -131,6 +131,8 @@ p {
         width: 80%;
         margin-bottom: calc(var(--fraction-rem-height) * 1); /* Khoảng cách từ phía dưới cùng của body */
         background-color: rgba(255, 255, 255, 0.3); /* Màu nền mơ mơ */
+        border: 1px solid;
+        border-radius: 5px;
     }
 
 
@@ -221,6 +223,9 @@ p {
     .layout .layout-right {
         width: 20%;
         padding: 2rem;
+        border: 1px solid;
+        border-left: none;
+        border-radius: 5px;
     }
 
     .layout .information {
@@ -233,6 +238,8 @@ p {
         .layout .information .avata {
             display: flex;
             justify-content: center;
+            border: 1px solid;
+            border-bottom: none;
         }
 
         .layout .information img {
@@ -250,6 +257,8 @@ p {
             /* min-height: 120px; Đặt chiều cao tối thiểu */
             flex-direction: column;
             justify-content: center;
+            border: 1px solid;
+            border-top: none;
         }
 
             .layout .information .information-student span {
@@ -283,6 +292,7 @@ p {
     grid-gap: 10px;
     border-radius: 5px;
     padding: calc(var(--fraction-rem-height) * 0.2);
+    border: 1px solid;
 }
 
     .layout .choose-question .choose a {

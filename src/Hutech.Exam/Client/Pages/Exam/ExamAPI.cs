@@ -2,6 +2,8 @@
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
+using MudBlazor;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -9,88 +11,72 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class Exam
     {
-        private async Task getDeThi(long? ma_de_hoan_vi)
+        private async Task<List<CustomDeThi>?> GetDeThiAPI(long? ma_de_hoan_vi)
         {
-            HttpResponseMessage? response = null;
-            if (httpClient != null)
-                response = await httpClient.GetAsync($"api/Exam/GetDeThi?ma_de_thi_hoan_vi={ma_de_hoan_vi}");
-            if (response != null && response.IsSuccessStatusCode && myData != null)
+            var response = await Http.GetAsync($"api/CustomDeThi/GetDeThi?ma_de_thi_hoan_vi={ma_de_hoan_vi}");
+            if (response.IsSuccessStatusCode)
             {
-                var resultString = await response.Content.ReadAsStringAsync();
-                customDeThis = myData.CustomDeThis = JsonSerializer.Deserialize<List<CustomDeThi>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                return await response.Content.ReadFromJsonAsync<List<CustomDeThi>>();
+            }
+            else
+            {
+                Snackbar.Add(ERROR_FETCH_DETHI, Severity.Error);
+                return null;
             }
         }
-        // insert các các dòng dữ liệu chiTietBaiThi, và lấy dữ liệu của chiTietbaiThi
-        private async Task InsertChiTietBaiThi()
+        private async Task<List<CustomChiTietBaiThi>?> GetBaiThi_DaThiAPI(int ma_chi_tiet_ca_thi)
         {
-            HttpResponseMessage? response = null;
-            if (httpClient != null && chiTietCaThi != null && myData != null && myData.ChiTietCaThi != null)
-                response = await httpClient.PostAsync($"api/Exam/InsertChiTietBaiThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.ChiTietCaThi.MaDeThi}", null);
-            if (response != null && response.IsSuccessStatusCode)
+            var response = await Http.GetAsync($"api/CustomChiTietBaiThi/GetBaiThi_DaThi?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}");
+            if (response.IsSuccessStatusCode)
             {
-                var resultString = await response.Content.ReadAsStringAsync();
-                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                return await response.Content.ReadFromJsonAsync<List<CustomChiTietBaiThi>>();
             }
-            if (chiTietBaiThis != null && chiTietCaThi != null)
+            else
             {
-                foreach (var item in chiTietBaiThis)
-                    item.MaChiTietCaThiNavigation = chiTietCaThi;
+                Snackbar.Add(ERROR_FETCH_BAILAM, Severity.Error);
+                return null;
             }
         }
-        private async Task InsertChiTietBaiThi_DaVaoThiTruocDo()
-        {
-            HttpResponseMessage? response = null;
-            if (httpClient != null && chiTietCaThi != null && myData != null && myData.ChiTietCaThi != null)
-                response = await httpClient.GetAsync($"api/Exam/InsertCTBT_DaVaoThi?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}&ma_de_thi_hoan_vi={myData.ChiTietCaThi.MaDeThi}");
-            if (response != null && response.IsSuccessStatusCode)
-            {
-                var resultString = await response.Content.ReadAsStringAsync();
-                chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiDto>>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            }
-            if (chiTietBaiThis != null && chiTietCaThi != null)
-            {
-                foreach (var item in chiTietBaiThis)
-                    item.MaChiTietCaThiNavigation = chiTietCaThi;
-            }
-        }
-        private async Task UpdateChiTietBaiThi()
+        private async Task UpdateChiTietBaiThiAPI()
         {
             if(dsBaiThi_Update != null && dsBaiThi_Update.Count != 0)
             {
                 var jsonString = JsonSerializer.Serialize(dsBaiThi_Update);
                 dsBaiThi_Update?.Clear(); // xóa toàn bộ các phần tử khi đã được update, tiếp tục lưu những phần tử sv làm
-                if (httpClient != null)
-                    await httpClient.PostAsync("api/Exam/UpdateChiTietBaiThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+                var result = await Http.PutAsync("api/CustomChiTietBaiThi/Update", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+                if(!result.IsSuccessStatusCode)
+                {
+                    Snackbar.Add(ERROR_UPDATE_BAILAM, Severity.Error);
+                }
             }
         }
-        private async Task<bool> isActiveCaThi()
+        private async Task<bool> IsActiveCaThiAPI(int ma_ca_thi)
         {
-            HttpResponseMessage? response = null;
-            if (httpClient != null)
-                response = await httpClient.GetAsync($"api/Exam/IsActiveCaThi?ma_ca_thi={chiTietCaThi?.MaCaThi}");
-            if (response != null && response.IsSuccessStatusCode)
+            var response = await Http.GetAsync($"api/CaThi/IsActiveCaThi?ma_ca_thi={ma_ca_thi}");
+            if (response.IsSuccessStatusCode)
             {
-                var resultString = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<bool>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                return await response.Content.ReadFromJsonAsync<bool>();
             }
-            return true;
+            return false;
         }
-        private async Task<int> getSoLanNghe(int ma_chi_tiet_ca_thi, string filename)
+        private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, string filename)
         {
-            HttpResponseMessage? response = null;
-            if (httpClient != null)
-                response = await httpClient.GetAsync($"api/Exam/AudioListendCount?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}&filename={filename}");
-            if (response != null && response.IsSuccessStatusCode)
+            var response = await Http.GetAsync($"api/AudioListened/GetSoLanNghe?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}&filename={filename}");
+            if (response.IsSuccessStatusCode)
             {
-                var resultString = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<int>(resultString, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                return await response.Content.ReadFromJsonAsync<int>();
             }
             return 0;
         }
-        private async Task addOrUpdateListen(int ma_chi_tiet_ca_thi, string filename)
+        private async Task AddOrUpdateListenAPI(int ma_chi_tiet_ca_thi, string filename)
         {
-            if (httpClient != null)
-                await httpClient.GetAsync($"api/Exam/AddOrUpdateAudio?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}&filename={filename}");
+            AudioListenedDto audio = new AudioListenedDto
+            {
+                MaChiTietCaThi = ma_chi_tiet_ca_thi,
+                FileName = filename
+            };
+            var jsonString = JsonSerializer.Serialize(audio);
+            await Http.PutAsync($"api/AudioListened/AddOrUpdate", new StringContent(jsonString, Encoding.UTF8, "application/json"));
         }
     }
 }

@@ -42,3 +42,6 @@
 -----------------------------------
 10/03/2025 10:30PM
 - Tối ưu lại code, API, Controller cho Login, Info
+-----------------------------------
+12/03/2025 9:30PM
+- Tối ưu lại code API, Controller cho Exam, Result

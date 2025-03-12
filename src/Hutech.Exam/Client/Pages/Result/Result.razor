@@ -1,0 +1,74 @@
+﻿@page "/result"
+@attribute [Authorize]
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<PageTitle>Result</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center">
+    <!-- Main Result -->
+    <MudPaper Class="pa-4 mt-4" Elevation="4">
+        <MudCardContent Class="d-flex justify-center">
+            <MudImage Src="images/exam/Logo.svg" Width="200" />
+        </MudCardContent>
+        <MudGrid Style="margin-top: 3%; margin-left: 1%">
+            <!-- Image Section -->
+            <MudItem Xs="4" Sm="4" Class="show-result">
+                <MudText Style="margin: 1rem;"><BECanvas Width="55" Height="40" @ref="CanvasReference"></BECanvas></MudText>
+            </MudItem>
+
+            <!-- Student Information -->
+            <MudItem Xs="8" Sm="8">
+                @if (caThi != null && MyData != null && MyData.SinhVien != null && MyData.ChiTietCaThi != null && MyData.ChiTietCaThi.MaCaThiNavigation != null)
+                {
+                    string? ten_mon_hoc = MyData.ChiTietCaThi.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ca thi: @caThi.TenCaThi</MudText>
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Môn thi: @ten_mon_hoc</MudText>
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Mã đề: @MyData.ChiTietCaThi.MaDeThi</MudText>
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">MSSV: @MyData.SinhVien.MaSoSinhVien</MudText>
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Họ tên: @(sinhVien?.HoVaTenLot) @(sinhVien?.TenSinhVien)</MudText>
+                    <MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ngày thi: @caThi?.ThoiGianBatDau</MudText>
+                    <MudButton OnClick="OnClickDangXuatAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>
+                }
+            </MudItem>
+        </MudGrid>
+
+        <!-- Exam Result -->
+        @if (ketQuaDapAn != null)
+        {
+            <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
+            <MudText Typo="Typo.subtitle1" Class="mt-4">Chi tiết kết quả thi: @so_cau_dung/@ketQuaDapAn.Count</MudText>
+            @for (int index = 1; index <= ketQuaDapAn.Count; index++)
+            {
+                string thu_tu = index.ToString();
+                MudBlazor.Color color = ketQuaDapAn[index - 1] == true ? Color.Success : (ketQuaDapAn[index - 1] == false ? Color.Error : Color.Default);
+                <MudChip Size="Size.Small" T="int" Color="@color">@thu_tu.ToString()</MudChip>
+            }
+        }
+    </MudPaper>
+</MudContainer>
+
+<style>
+    .show-result{
+        border: 1px solid;
+        border-radius: 100%;
+        align-self: center;
+        padding: 1.5rem;
+        text-align: center;
+    }
+</style>
+<script>
+    // Ngăn người dùng back trang web
+    window.history.pushState(null, document.title, location.href);
+    window.addEventListener('popstate', function (event) {
+        history.pushState(null, document.title, location.href);
+    });
+</script>
+
+
+
+
+
+

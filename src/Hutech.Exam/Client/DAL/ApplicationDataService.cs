@@ -1,7 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
-using Hutech.Exam.Shared.Models;
-using System.Numerics;
 
 namespace Hutech.Exam.Client.DAL
 {
@@ -11,7 +9,7 @@ namespace Hutech.Exam.Client.DAL
         public SinhVienDto SinhVien { get; set; } = new();
         //sv thi ca nào
         public ChiTietCaThiDto ChiTietCaThi { get; set; } = new();
-        public List<ChiTietBaiThiDto> ChiTietBaiThis { get; set; } = [];
+        public List<CustomChiTietBaiThi> ChiTietBaiThis { get; set; } = [];
         public List<CustomDeThi> CustomDeThis { get; set; } = [];
         public List<int> ListDapAnKhoanh { get; set; } = [];
         public int BonusTime { get; set; }
