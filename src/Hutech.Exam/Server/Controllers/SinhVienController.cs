@@ -19,9 +19,9 @@ namespace Hutech.Exam.Server.Controllers
         {
             _sinhVienService = sinhVienService;
         }
-        [HttpGet("Login")]
+        [HttpPut("Login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserSession>> Verify([FromQuery] string ma_so_sinh_vien)
+        public async Task<ActionResult<UserSession>> Verify([FromBody] string ma_so_sinh_vien)
         {
             var JwtAuthencationManager = new JwtAuthenticationManager(_sinhVienService);
             var userSession = await JwtAuthencationManager.GenerateJwtToken(ma_so_sinh_vien);
@@ -40,6 +40,12 @@ namespace Hutech.Exam.Server.Controllers
         {
             await _sinhVienService.Logout(sinhVien.MaSinhVien, DateTime.Now);
             return Ok();
+        }
+        [HttpGet("SelectBy_MSSV")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string ma_so_sinh_vien)
+        {
+            return await _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
         }
 
 

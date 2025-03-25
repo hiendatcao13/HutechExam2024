@@ -30,6 +30,17 @@ namespace Hutech.Exam.Server.Controllers
             _monHocService = monHocService;
             _dotThiService = dotThiService;
         }
+        [HttpPost("Insert")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)
+        {
+            if (chiTietCaThi.MaCaThi == null || chiTietCaThi.MaSinhVien == null || chiTietCaThi.MaDeThi == null)
+                return BadRequest("Thông tin bị thiếu xót. Vui lòng kiểm tra");
+            if(_sinhVienService.SelectOne((long)chiTietCaThi.MaSinhVien) == null)
+                return BadRequest("Sinh viên hiện không tồn tại trong hệ thống. Vui lòng thêm sinh viên trước!");
+            await _chiTietCaThiService.Insert((int)chiTietCaThi.MaCaThi, (long)chiTietCaThi.MaSinhVien, (long)chiTietCaThi.MaDeThi, 0);
+            return Ok();
+        }
 
         [HttpGet("SelectBy_MSSVThi")]
         public async Task<ActionResult<ChiTietCaThiDto>> SelectBy_MSSVThi([FromQuery] long ma_sinh_vien)
@@ -37,15 +48,15 @@ namespace Hutech.Exam.Server.Controllers
             List<ChiTietCaThiDto> result = await _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien, DateTime.Now);
             foreach (var item in result)
             {
-                item.MaCaThiNavigation = (item.MaCaThi != null) ? await getCaThi((int)item.MaCaThi) : null;
-                item.MaSinhVienNavigation = await getSinhVien(ma_sinh_vien);
+                item.MaCaThiNavigation = (item.MaCaThi != null) ? await GetCaThi((int)item.MaCaThi) : null;
+                item.MaSinhVienNavigation = await GetSinhVien(ma_sinh_vien);
             }
             // Chỉ lấy ca thi gần sát với thời gian hiện tại - tránh lấy nhiều ca thi về
             ChiTietCaThiDto? chi_tiet_ca_thi_gan_nhat = result.OrderBy(p => Math.Abs((p.MaCaThiNavigation.ThoiGianBatDau - DateTime.Now).TotalMinutes)).FirstOrDefault();
             //TH thí sinh không có ca thi
             if (chi_tiet_ca_thi_gan_nhat == null)
             {
-                return new ChiTietCaThiDto { MaSinhVienNavigation = await getSinhVien(ma_sinh_vien)};
+                return new ChiTietCaThiDto { MaSinhVienNavigation = await GetSinhVien(ma_sinh_vien)};
             }
             return chi_tiet_ca_thi_gan_nhat;
         }
@@ -61,39 +72,57 @@ namespace Hutech.Exam.Server.Controllers
             await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
             return Ok();
         }
+        [HttpGet("SelectBy_MaCaThi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<ChiTietCaThiDto>>> GetThongTinCTCaThiTheoMaCaThi([FromQuery] int ma_ca_thi)
+        {
+            List<ChiTietCaThiDto> result = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+            foreach (var item in result)
+                if(item.MaSinhVien != null)
+                    item.MaSinhVienNavigation = await GetThongTinSinhVien((long)item.MaSinhVien);
+            return result;
+        }
+        [HttpPut("CongGioSinhVien")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> CongGioSinhVien([FromBody] ChiTietCaThiDto chiTietCaThi)
+        {
+            await _chiTietCaThiService.CongGio(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong ?? DateTime.Now, chiTietCaThi.LyDoCong ?? "");
+            return Ok(true);
+        }
 
 
-
-
-
-        private async Task<SinhVienDto?> getSinhVien(long ma_sinh_vien)
+        private async Task<SinhVienDto> GetThongTinSinhVien(long ma_sinh_vien)
         {
             return await _sinhVienService.SelectOne(ma_sinh_vien);
         }
-        private async Task<CaThiDto> getCaThi(int ma_ca_thi)
+        private async Task<SinhVienDto?> GetSinhVien(long ma_sinh_vien)
+        {
+            return await _sinhVienService.SelectOne(ma_sinh_vien);
+        }
+        private async Task<CaThiDto> GetCaThi(int ma_ca_thi)
         {
             CaThiDto caThi = await _caThiService.SelectOne(ma_ca_thi);
-            caThi.MaChiTietDotThiNavigation = await getChiTietDotThi(caThi.MaChiTietDotThi);
+            caThi.MaChiTietDotThiNavigation = await GetChiTietDotThi(caThi.MaChiTietDotThi);
             return caThi;
         }
-        private async Task<ChiTietDotThiDto> getChiTietDotThi(int ma_chi_tiet_dot_thi)
+        private async Task<ChiTietDotThiDto> GetChiTietDotThi(int ma_chi_tiet_dot_thi)
         {
             ChiTietDotThiDto chiTietDotThi = await _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
-            chiTietDotThi.MaDotThiNavigation = await getDotThi(chiTietDotThi.MaDotThi);
-            chiTietDotThi.MaLopAoNavigation = await getLopAo(chiTietDotThi.MaLopAo);
+            chiTietDotThi.MaDotThiNavigation = await GetDotThi(chiTietDotThi.MaDotThi);
+            chiTietDotThi.MaLopAoNavigation = await GetLopAo(chiTietDotThi.MaLopAo);
             return chiTietDotThi;
         }
-        private async Task<DotThiDto> getDotThi(int ma_dot_thi)
+        private async Task<DotThiDto> GetDotThi(int ma_dot_thi)
         {
             return await _dotThiService.SelectOne(ma_dot_thi);
         }
-        private async Task<LopAoDto> getLopAo(int ma_lop_ao)
+        private async Task<LopAoDto> GetLopAo(int ma_lop_ao)
         {
             LopAoDto lopAo = await _lopAoService.SelectOne(ma_lop_ao);
-            lopAo.MaMonHocNavigation = await getMonHoc(ma_lop_ao);
+            lopAo.MaMonHocNavigation = await GetMonHoc(ma_lop_ao);
             return lopAo;
         }
-        private async Task<MonHocDto> getMonHoc(int ma_mon_hoc)
+        private async Task<MonHocDto> GetMonHoc(int ma_mon_hoc)
         {
             return await _monHocService.SelectOne(ma_mon_hoc);
         }

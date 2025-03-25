@@ -1,38 +1,43 @@
-﻿@implements IDisposable
-<MudDialog Style="min-width: 700px">
+﻿@using System.Text.Json
+@using System.Text
+@using Hutech.Exam.Client.Components.Dialogs
+@using Hutech.Exam.Shared.DTO
+@implements IDisposable
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+<MudDialog Style="min-width: 900px">
     <DialogContent>
         <MudGrid Style="font-size: 14px">
-            <MudItem xs="3">
-                <MudText>Thời gian hiện tại:</MudText>
-                <MudText>Ngày thi:</MudText>
-                <MudText>Môn thi:</MudText>
-                <MudText>Trạng thái:</MudText>
-            </MudItem>
-            <MudItem xs="3" Style="color: blue">
-                <MudText>@displayTime</MudText>
-                <MudText>@ContentText?[0]</MudText>
-                <MudText>@ContentText?[1]</MudText>
-                <MudText>@(trangThai == 0 ? "Đã kích hoạt" : trangThai == 1 ? "Dừng/chưa kích hoạt" : "Đã kết thúc")</MudText>
-            </MudItem>
-            <MudItem xs="2">
-                <MudText >Ca thi:</MudText>
-                <MudText >Thời lượng thi:</MudText>
-                <MudText >Tên đợt thi:</MudText>
-                <MudText >Giờ kích hoạt:</MudText>
-            </MudItem>
-            <MudItem xs="4" Style="color: blue">
-                <MudText >@ContentText?[2]</MudText>
-                <MudText >@ContentText?[3]</MudText>
-                <MudText >@ContentText?[4]</MudText>
-                <MudText >@ContentText?[5]</MudText>
-            </MudItem>
+            @if(caThi != null)
+            {
+                <MudItem xs="3">
+                    <MudText>Thời gian hiện tại:</MudText>
+                    <MudText>Ngày thi:</MudText>
+                    <MudText>Trạng thái:</MudText>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudText Class="content">@displayTime</MudText>
+                    <MudText Class="content">@caThi?.ThoiGianBatDau</MudText>
+                    <MudText Class="content">@(trangThai == 0 ? "Đã kích hoạt" : trangThai == 1 ? "Dừng/chưa kích hoạt" : "Đã kết thúc")</MudText>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudText>Ca thi:</MudText>
+                    <MudText>Thời lượng:</MudText>
+                    <MudText>@(caThi.KetThuc ? "Giờ kết thúc" : caThi.IsActivated ? "Giờ kích hoạt" : "Giờ hủy/dừng kích hoạt")</MudText>
+                </MudItem>
+                <MudItem xs="4" Style="font-weight: bold">
+                    <MudText Class="content">@caThi?.TenCaThi</MudText>
+                    <MudText Class="content">@caThi?.ThoiGianThi phút</MudText>
+                    <MudText Class="content">@(caThi.KetThuc ? caThi.ThoiDiemKetThuc : caThi.ActivatedDate)</MudText>
+                </MudItem>
+            }
         </MudGrid>
     </DialogContent>
     <DialogActions>
         <!--3 trạng thái: 0: đã kích hoạt - tiếp tục ca thi, 1: chưa kích hoạt / dừng ca thi, 2: kết thúc ca thi-->
         <MudButton Color="Color.Success" Disabled="@((trangThai != 1))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 1) await onClickKichHoat(); }">Kích hoạt</MudButton>
         <MudButton Color="Color.Error" Disabled="@((trangThai != 0))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 0) await onClickHuyKichHoat(); }">Hủy kích hoạt</MudButton>
-        <MudButton Color="Color.Secondary" Disabled="@((trangThai != 0))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 0) await onClickDungCaThi(); }">Dừng ca thi</MudButton>
+        <MudButton Color="Color.Info" Disabled="@((trangThai != 0))" Variant="Variant.Filled" OnClick="async () => { if (trangThai == 0) await onClickDungCaThi(); }">Dừng ca thi</MudButton>
         <MudButton Color="Color.Warning" Disabled="@((trangThai == 2))" Variant="Variant.Filled" OnClick="async () => { if (trangThai != 2) await onClickKetThucCaThi(); }">Kết thúc ca thi</MudButton>
     </DialogActions>
 </MudDialog>
@@ -42,64 +47,57 @@
     }
 
     .mud-dialog-actions {
-        align-self: center
+    align-self: center
+    }
+
+    .mud-dialog .mud-dialog-title{
+    border-bottom: 1.5px solid black;
+    text-align: center;
+    }
+
+    .content {
+    font-weight: bold;
+    color: royalblue;
     }
 </style>
 @code {
-    [CascadingParameter]
-    private IMudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public CaThiDto? caThi { get; set; }
+    [Inject] private HttpClient Http { get; set; } = default!;
 
-    [Parameter]
-    public string[]? ContentText { get; set; }
-    [Parameter]
-    public int trangThai { get; set; }
-
-    [Parameter]
-    public EventCallback? onHandleKichHoat { get; set; }
-    [Parameter]
-    public EventCallback? onHandleHuyKichHoat { get; set; }
-    [Parameter]
-    public EventCallback? onHandleDungCaThi { get; set; }
-    [Parameter]
-    public EventCallback? onHandleKetThucCaThi { get; set; }
     private System.Timers.Timer? timer { get; set; }
     private string? displayTime { get; set; }
+    private int trangThai { get; set; }
+
+    private const string UPDATE_SUCCESS_TINHTRANGCATHI = "Cập nhật tình trạng ca thi thành công";
+    private const string UPDATE_FAILED_TINHTRANGCATHI = "Cập nhật tình trạng ca thi không thành công. Vui lòng kiểm tra lại";
+    private const string ALERT_HUYKICHHOATCATHI = "Hệ thống sẽ mất ít thời gian để xóa toàn bộ dữ liệu";
+    private const string ALERT_KETTHUCCATHI = "Ca thi không thể kết thúc khi có thí sinh chưa hoàn thành bài thi. Vui lòng hủy kích hoạt ca thi trước hoặc lỗi hệ thống";
+    private const string CONFIRM_KICHHOATCATHI = "Bạn có muốn kích hoạt ca thi?";
+    private const string CONFRIM_HUYKICHHOATCATHI = "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận đáp án mà tất cả sinh viên đã làm trong ca thi này. Nếu bạn chỉ muốn dừng tạm thời ca thi, hãy chọn \"Dừng ca thi\"";
+    private const string CONFRIM_KETTHUCCATHI = "Bạn có chắc chắn muốn kết thúc ca thi. Việc này sẽ không thể kích hoạt lại ca thi này nữa";
+    private const string CONFRIM_DUNGCATHI = "Bạn có chắc chắn muốn dừng ca thi. Việc này sẽ sẽ khiến toàn bộ sinh viên đang làm bài bị out ra tạm thời cho đến khi được kích hoạt trở lại";
 
     protected override void OnInitialized()
     {
+        UpdateTrangThai();
         Time();
     }
     private async Task onClickKichHoat()
     {
-        if (onHandleKichHoat.HasValue)
-        {
-            await onHandleKichHoat.Value.InvokeAsync();
-        }
-        closeDialog();
+        await OnShowDialogConfirm(CONFIRM_KICHHOATCATHI, "Kích hoạt", Color.Success, async () => await ShowSnackBarTTCaThi(await KichHoatCaThiAPI(caThi?.MaCaThi ?? -1)));
     }
     private async Task onClickHuyKichHoat()
     {
-        if (onHandleHuyKichHoat.HasValue)
-        {
-            await onHandleHuyKichHoat.Value.InvokeAsync();
-        }
-        closeDialog();
+        await OnShowDialogConfirm(CONFRIM_HUYKICHHOATCATHI, "Hủy kích hoạt", Color.Error, async () => await ShowSnackBarTTCaThi(await HuyKichHoatCaThiAPI(caThi?.MaCaThi ?? -1)));
     }
     private async Task onClickDungCaThi()
     {
-        if (onHandleDungCaThi.HasValue)
-        {
-            await onHandleDungCaThi.Value.InvokeAsync();
-        }
-        closeDialog();
+        await OnShowDialogConfirm(CONFRIM_DUNGCATHI, "Dừng", Color.Info, async () => await ShowSnackBarTTCaThi(await DungCaThiAPI(caThi?.MaCaThi ?? -1)));
     }
     private async Task onClickKetThucCaThi()
     {
-        if (onHandleKetThucCaThi.HasValue)
-        {
-            await onHandleKetThucCaThi.Value.InvokeAsync();
-        }
-        closeDialog();
+        await OnShowDialogConfirm(CONFRIM_KETTHUCCATHI, "Kết thúc", Color.Dark, async () => await ShowSnackBarTTCaThi(await KetThucCaThiAPI(caThi?.MaCaThi ?? -1)));
     }
     private void closeDialog() => MudDialog?.Close(DialogResult.Cancel());
     private void Time()
@@ -121,5 +119,67 @@
     {
         if (timer != null)
             timer.Dispose();
+    }
+
+    private async Task OnShowDialogConfirm(string message, string button_message, MudBlazor.Color color, Func<Task> callback)
+    {
+        var parameters = new DialogParameters<Simple_Dialog>
+            {
+                { x => x.ContentText, message },
+                { x => x.ButtonText, button_message },
+                { x => x.Color, color },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, callback) }
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        await Dialog.ShowAsync<Simple_Dialog>("Thay đổi tình trạng ca thi", parameters, options);
+    }
+
+
+    private void UpdateTrangThai()
+    {
+        if(caThi != null)
+            trangThai = caThi.KetThuc ? 2 : caThi.IsActivated ? 0 : 1;
+    }
+    private async Task<CaThiDto?> GetCaThiAPI(int ma_ca_thi)
+    {
+        var response = await Http.GetAsync($"api/CaThi/SelectOne?ma_ca_thi={ma_ca_thi}");
+        return await response.Content.ReadFromJsonAsync<CaThiDto?>();
+    }
+    private async Task<bool> KichHoatCaThiAPI(int ma_ca_thi)
+    {
+        var json = JsonSerializer.Serialize(ma_ca_thi);
+        var response = await Http.PutAsync($"api/CaThi/KichHoatCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
+    }
+    private async Task<bool> HuyKichHoatCaThiAPI(int ma_ca_thi)
+    {
+        var json = JsonSerializer.Serialize(ma_ca_thi);
+        var response = await Http.PutAsync($"api/CaThi/HuyKichHoatCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        Snackbar.Add(ALERT_HUYKICHHOATCATHI, MudBlazor.Severity.Info);
+        return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
+    }
+    private async Task<bool> DungCaThiAPI(int ma_ca_thi)
+    {
+        var json = JsonSerializer.Serialize(ma_ca_thi);
+        var response = await Http.PutAsync($"api/CaThi/DungCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
+    }
+    private async Task<bool> KetThucCaThiAPI(int ma_ca_thi)
+    {
+        var json = JsonSerializer.Serialize(ma_ca_thi);
+        var response = await Http.PutAsync($"api/CaThi/KetThucCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
+    }
+    private async Task<bool> ShowSnackBarTTCaThi(bool result)
+    {
+        if (result)
+        {
+            Snackbar.Add(UPDATE_SUCCESS_TINHTRANGCATHI, MudBlazor.Severity.Success);
+            caThi = await GetCaThiAPI(caThi?.MaCaThi ?? -1);
+            UpdateTrangThai();
+        }
+        else
+            Snackbar.Add(ALERT_KETTHUCCATHI, MudBlazor.Severity.Error);
+        return result;
     }
 }

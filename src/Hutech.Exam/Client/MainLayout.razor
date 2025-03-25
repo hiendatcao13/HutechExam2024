@@ -1,5 +1,8 @@
 ﻿@using Hutech.Exam.Client.Authentication
 @using Hutech.Exam.Client.Components.Dialogs
+@using System.Security.Claims
+@using System.Net.Http.Headers
+@using Hutech.Exam.Client.DAL
 @inherits LayoutComponentBase
 @inject NavigationManager navManager
 @inject IDialogService Dialog
@@ -15,6 +18,7 @@
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
             <MudText Typo="Typo.h6">@tittle</MudText>
             <MudSpacer />
+            <MudText Typo="Typo.body1" Style="margin-right: 2%">Xin chào, @name</MudText>
             <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="onClickDangXuat">Đăng xuất</MudButton>
             @* <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" /> *@
         </MudAppBar>
@@ -49,16 +53,23 @@
     private ErrorBoundary? _errorBoundary;
     // Hiển thị alert báo lỗi -> click ok -> refresh lại page
     private void ResetErrorBoundary() => _errorBoundary?.Recover();
-    [Inject]
-    AuthenticationStateProvider? authenticationStateProvider { get; set; }
+    [Inject] AdminDataService MyData { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+    [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
 
     private string tittle = "Trang chủ";
+    private string name = "";
     private bool _open = false;
     private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
     private readonly string[] name_of_pages = { "Trang chủ", "Quản lý kì thi", "Quản lý phòng thi", "Giám sát" };
     private void ToggleDrawer()
     {
         _open = !_open;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        name = await SessionStorage.GetItemAsStringAsync("Name");
+        await base.OnInitializedAsync();
     }
     private async Task onClickDangXuat()
     {
@@ -76,12 +87,10 @@
     }
     private async Task handleDangXuat()
     {
-        if (authenticationStateProvider != null)
-        {
-            var customAuthStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
-            await customAuthStateProvider.UpdateAuthenticationState(null);
-            navManager?.NavigateTo("/admin", true);
-        }
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(null);
+        navManager?.NavigateTo("/admin", true);
+
     }
     private void SetTitle(int index)
     {

@@ -7,14 +7,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public async Task<IDataReader> SelectOne (long ma_de_hoan_vi, int ma_nhom)
         {
-            DatabaseReader sql = new DatabaseReader("tbl_NhomCauHoiHoanVi_SelectOne");
+            DatabaseReader sql = new("tbl_NhomCauHoiHoanVi_SelectOne");
             sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hoan_vi);
             sql.SqlParams("@MaNhom", SqlDbType.Int, ma_nhom);
             return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> SelectBy_MaDeHV(long ma_de_hoan_vi)
         {
-            DatabaseReader sql = new DatabaseReader("tbl_NhomCauHoiHoanVi_SelectBy_MaDeHV");
+            DatabaseReader sql = new("tbl_NhomCauHoiHoanVi_SelectBy_MaDeHV");
             sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hoan_vi);
             return await sql.ExecuteReaderAsync();
         }

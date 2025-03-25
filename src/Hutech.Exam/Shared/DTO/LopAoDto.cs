@@ -20,5 +20,10 @@ namespace Hutech.Exam.Shared.DTO
         public virtual ICollection<ChiTietDotThiDto> ChiTietDotThis { get; set; } = new List<ChiTietDotThiDto>();
 
         public virtual MonHocDto? MaMonHocNavigation { get; set; }
+
+        public override string ToString()
+        {
+            return TenLopAo ?? "Không tồn tại tên lớp ảo";
+        }
     }
 }

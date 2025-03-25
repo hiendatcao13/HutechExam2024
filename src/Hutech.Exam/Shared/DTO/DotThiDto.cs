@@ -20,5 +20,10 @@ namespace Hutech.Exam.Shared.DTO
         public int? NamHoc { get; set; }
 
         public virtual ICollection<ChiTietDotThiDto> ChiTietDotThis { get; set; } = new List<ChiTietDotThiDto>();
+
+        override public string ToString()
+        {
+            return TenDotThi ?? "Không tồn tại tên đợt thi";
+        }
     }
 }

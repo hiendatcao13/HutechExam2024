@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.DAL.DataReader;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -7,27 +8,46 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public async Task<IDataReader> SelectOne(Guid userId)
         {
-            DatabaseReader sql = new DatabaseReader("User_SelectOne");
+            DatabaseReader sql = new("User_SelectOne");
             sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
             return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> SelectByLoginName(string loginName)
         {
-            DatabaseReader sql = new DatabaseReader("User_SelectByLoginName");
+            DatabaseReader sql = new("User_SelectByLoginName");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
             return await sql.ExecuteReaderAsync();
         }
         public async Task<IDataReader> Login(string loginName)
         {
-            DatabaseReader sql = new DatabaseReader("User_Login");
+            DatabaseReader sql = new("User_Login");
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
             return await sql.ExecuteReaderAsync();
+        }
+        public async Task<int> LoginSuccess(Guid userId)
+        {
+            DatabaseReader sql = new("User_LoginSuccess");
+            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            return await sql.ExecuteNonQueryAsync();
+        }
+        public async Task<int> LoginFail(Guid userId)
+        {
+            DatabaseReader sql = new("User_LoginFail");
+            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            return await sql.ExecuteNonQueryAsync();
+        }
+        public async Task<int> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
+        {
+            DatabaseReader sql = new("User_UpdateLastActivity");
+            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            sql.SqlParams("@LastActivityDate", SqlDbType.DateTime, lastActivityDate);
+            return await sql.ExecuteNonQueryAsync();
         }
         public async Task<bool> Update(Guid userId,string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut, 
             DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount, 
             DateTime? failedPwdAttemptWindowStart, string? comment)
         {
-            DatabaseReader sql = new DatabaseReader("User_Update");
+            DatabaseReader sql = new("User_Update");
             sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, (loginName == null) ? DBNull.Value : loginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, (username == null) ? DBNull.Value : username);

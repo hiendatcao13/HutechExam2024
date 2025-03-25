@@ -6,19 +6,22 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net;
 using Hutech.Exam.Shared.DTO;
+using Microsoft.AspNetCore.Components;
 
 namespace Hutech.Exam.Server.Authentication
 {
     public class JwtAuthenticationManager
     {
+
         public const string JWT_SECURITY_KEY = "yPkCqn4kSWLtaJwXvN4jGzQRyTZ3gdXkt7FeBJPLLD";
         public const int JWT_TOKEN_VALIDITY_MINS_SV = 150; // thời gian cho sinh viên giữ token là 2 tiếng rưỡi
         public const int JWT_TOKEN_VALIDITY_MINS_ADMIN = 1440; // thời gian cho admin giữ token là 1 ngày
 
         private readonly SinhVienService _sinhVienService;
         private readonly UserService _userService;
+
+        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
 
         public JwtAuthenticationManager(SinhVienService sinhVienService)
         {
@@ -70,6 +73,7 @@ namespace Hutech.Exam.Server.Authentication
             /*Trả dữ liệu về UserSession*/
             var userSession = new UserSession
             {
+                Name = sinhVien.HoVaTenLot + sinhVien.TenSinhVien + "",
                 Username = sinhVien.MaSinhVien.ToString(),
                 Token = token,
                 ExpireIn = (int)tokenExpiryTimeStamp.Subtract(DateTime.Now).TotalSeconds,
@@ -92,24 +96,25 @@ namespace Hutech.Exam.Server.Authentication
                 return null;
             }
             // Kiểm tra mật khẩu có đúng không ?
-            if(!verifyPassword(password, user[1]))
+            if(!VerifyPassword(password, user[2]))
             {
+                await UpdateLoginFail(Guid.Parse(user[0]));
                 return null;
             }
             UserDto navigateUser = await _userService.SelectByLoginName(username);
-            // kiểm tra xem tài khoản có bị khóa hoặc bị xóa không ?
-            if(navigateUser.IsLockedOut || navigateUser.IsDeleted)
-            {
-                return null;
-            }
+            //// kiểm tra xem tài khoản có bị khóa hoặc bị xóa không ?
+            //if(navigateUser.IsLockedOut || navigateUser.IsDeleted)
+            //{
+            //    return null;
+            //}
             /*Tạo JWT token*/
             var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(JWT_TOKEN_VALIDITY_MINS_ADMIN);
             var tokenKey = Encoding.ASCII.GetBytes(JWT_SECURITY_KEY);
             var claimsIdentity = new ClaimsIdentity(new List<Claim>
             {
-                // claim lưu loginName
-                new Claim(ClaimTypes.Name, user[0]),
-                new Claim(ClaimTypes.Role, "Admin") // nhận biết là admin hay sinh viên
+                new(ClaimTypes.NameIdentifier, user[0]), // lưu id
+                new(ClaimTypes.Name, user[1]), // lưu tên
+                new(ClaimTypes.Role, "Admin") // nhận biết là admin hay sinh viên
             });
             var sigingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
@@ -128,6 +133,7 @@ namespace Hutech.Exam.Server.Authentication
             /*Trả dữ liệu về UserSession*/
             var userSession = new UserSession
             {
+                Name = user[1],
                 Username = user[0],
                 Token = token,
                 ExpireIn = (int)tokenExpiryTimeStamp.Subtract(DateTime.Now).TotalSeconds,
@@ -136,9 +142,13 @@ namespace Hutech.Exam.Server.Authentication
             };
             return userSession;
         }
-        private bool verifyPassword(string password, string hashedPassword)
+        private bool VerifyPassword(string password, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+        private async Task UpdateLoginFail(Guid userId)
+        {
+            await _userService.LoginFail(userId);
         }
     }
 }

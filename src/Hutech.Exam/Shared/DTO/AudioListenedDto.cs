@@ -15,5 +15,9 @@ namespace Hutech.Exam.Shared.DTO
         public string FileName { get; set; } = null!;
 
         public int ListenedCount { get; set; }
+        public override string ToString()
+        {
+            return FileName;
+        }
     }
 }

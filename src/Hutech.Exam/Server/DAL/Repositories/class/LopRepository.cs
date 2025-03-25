@@ -8,14 +8,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public async Task<IDataReader> SelectBy_ten_lop(string ten_lop)
         {
-            DatabaseReader sql = new DatabaseReader("lop_SelectBy_ten_lop");
+            DatabaseReader sql = new("lop_SelectBy_ten_lop");
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop);
             return await sql.ExecuteReaderAsync();
 
         }
         public async Task<object?> Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
         {
-            DatabaseReader sql = new DatabaseReader("lop_Insert");
+            DatabaseReader sql = new("lop_Insert");
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop ?? (object)DBNull.Value);
             sql.SqlParams("@ngay_bat_dau", SqlDbType.DateTime, ngay_bat_dau ?? (object)DBNull.Value);
             sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa ?? (object)DBNull.Value);

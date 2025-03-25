@@ -112,17 +112,13 @@ namespace Hutech.Exam.Server.BUS
             int? tong_so_cau = chiTietCaThi.TongSoCau;
             return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau);
         }
-        public async Task<int> CongGio(ChiTietCaThiDto chiTietCaThi)
+        public async Task<int> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime thoi_diem_cong, string ly_do_cong)
         {
-            int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
-            int gio_cong_them = chiTietCaThi.GioCongThem;
-            DateTime? thoi_diem_cong = chiTietCaThi.ThoiDiemCong;
-            string? ly_do_cong = chiTietCaThi.LyDoCong;
             return await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong);
         }
         public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
         {
-            return (int)(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
+            return Convert.ToInt32(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
         }
         public async Task<int> Remove(int ma_chi_tiet_ca_thi)
         {

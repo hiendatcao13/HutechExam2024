@@ -30,7 +30,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi(int ma_dot_thi)
         {
-            List<ChiTietDotThiDto> list = new();
+            List<ChiTietDotThiDto> list = [];
             using(IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi))
             {
                 while(dataReader.Read())
@@ -41,10 +41,24 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
-        public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
+        public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
+        {
+            List<ChiTietDotThiDto> list = [];
+            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao))
+            {
+
+                while (dataReader.Read())
+                {
+                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
+                    list.Add(chiTietDotThi);
+                }
+            }
+            return list;
+        }
+        public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, string lan_thi)
         {
             ChiTietDotThiDto chiTietDotThi = new();
-            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao))
+            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo_LanThi(ma_dot_thi, ma_lop_ao, lan_thi))
             {
 
                 if (dataReader.Read())

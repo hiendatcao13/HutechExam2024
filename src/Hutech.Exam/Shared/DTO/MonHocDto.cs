@@ -16,5 +16,10 @@ namespace Hutech.Exam.Shared.DTO
         public string? TenMonHoc { get; set; }
 
         public virtual ICollection<LopAoDto> LopAos { get; set; } = new List<LopAoDto>();
+
+        public override string ToString()
+        {
+            return TenMonHoc ?? "Không tồn tại tên môn học";
+        }
     }
 }

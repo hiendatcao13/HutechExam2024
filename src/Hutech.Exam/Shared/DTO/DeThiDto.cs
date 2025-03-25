@@ -32,5 +32,10 @@ namespace Hutech.Exam.Shared.DTO
         public virtual ICollection<DeThiHoanViDto> TblDeThiHoanVis { get; set; } = new List<DeThiHoanViDto>();
 
         public virtual ICollection<NhomCauHoiDto> TblNhomCauHois { get; set; } = new List<NhomCauHoiDto>();
+
+        public override string ToString()
+        {
+            return TenDeThi;
+        }
     }
 }

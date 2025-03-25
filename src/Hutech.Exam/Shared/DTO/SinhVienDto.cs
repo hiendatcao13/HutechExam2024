@@ -40,5 +40,10 @@ namespace Hutech.Exam.Shared.DTO
         public byte[]? Photo { get; set; }
 
         public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
+
+        public override string ToString()
+        {
+            return $"{MaSinhVien} - {HoVaTenLot} {TenSinhVien}";
+        }
     }
 }

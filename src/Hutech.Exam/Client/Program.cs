@@ -3,7 +3,6 @@ using Hutech.Exam.Client;
 using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Client.BUS;
 using Hutech.Exam.Client.DAL;
-using Hutech.Exam.Client.Pages.Admin.DAL;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

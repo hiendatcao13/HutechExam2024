@@ -3,78 +3,172 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 @attribute [Authorize(Roles = "Admin")]
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Exam</title>
-    <link rel="stylesheet" href="./css/admin/ManageExam.css" />
-</head>
 
-<body>
-    <MudContainer Class="d-flex justify-center align-center">
-        @if (displayCaThis != null && caThis != null)
+<PageTitle>Mange Ca Thi</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+    <MudGrid Style="margin-top: 70px">
+        <MudItem xs="3">
+            <MudSelect Label="Đợt thi" T="DotThiDto" Value=@selectedDotThi Clearable="true" ValueChanged="@(async (value) => await OnValueChangeDotThi(value))">
+                @if (dotThis != null)
+                {
+                    foreach (var item in dotThis)
+                    {
+                        <MudSelectItem Value="item">@item.TenDotThi</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="MonHocDto" Label="Môn thi" Value=@selectedMonHoc Clearable="true" ValueChanged="@(async (value) => await OnValueChangeMonHoc(value))">
+                @if (monHocs != null)
+                {
+                    foreach (var item in monHocs)
+                    {
+                        <MudSelectItem Value="item">@item.TenMonHoc</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="LopAoDto" Label="Lớp" Value=@selectedLopAo Clearable="true" ValueChanged="@(async (value) => await OnValueChangeLopAo(value))">
+                @if (lopAos != null)
+                {
+                    foreach (var item in lopAos)
+                    {
+                        <MudSelectItem Value="item">@item.TenLopAo</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="string" Label="Lần thi" Value=@selectedLanThi Clearable="true" ValueChanged="@(async (value) => await OnValueChangeLanThi(value))">
+                @if (lanThis != null)
+                {
+                    foreach (var item in lanThis)
+                    {
+                        <MudSelectItem Value="item">@item</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        @if (caThis != null)
         {
-            <MudTable Items="@caThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<CaThiDto,bool>(filter)" SortLabel="Sort By" Style="margin-top: 70px">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Thông tin các ca thi</MudText>
-                    <MudSpacer />
-                    <MudTextField @bind-Value="searchString" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>STT</MudTh>
-                    <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<CaThiDto, object>(x=>x.MaCaThi)">Mã Ca Thi</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.TenCaThi ?? string.Empty)">Tên Ca Thi</MudTableSortLabel></MudTh>
-                    <MudTh>Tên Đợt Thi</MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianBatDau)">Thời Gian Bắt Đầu</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianThi)">Thời lượng thi</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.IsActivated)">Kích hoạt</MudTableSortLabel></MudTh>
-                    <MudTh>Chức năng</MudTh>
-                </HeaderContent>
-                <RowTemplate Context="item">
-                    <MudTd DataLabel="STT">@(displayCaThis.IndexOf(item) + 1)</MudTd>
-                    <MudTd DataLabel="Mã Ca Thi">@item.MaCaThi</MudTd>
-                    <MudTd DataLabel="Tên Ca Thi">@item.TenCaThi</MudTd>
-                    <MudTd DataLabel="Tên Đợt Thi">@item.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi</MudTd>
-                    <MudTd DataLabel="Thời Lượng Thi">@item.ThoiGianBatDau</MudTd>
-                    <MudTd DataLabel="Thời Gian Bắt Đầu">@item.ThoiGianThi</MudTd>
-                    <MudTd>
-                        <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)" OnClick="async () => await onClickShowMessageBox(item)" />
-                    </MudTd>
-                    <MudTd>
-                        <MudButtonGroup>
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => OnClickChiTietCaThi(item)" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="() => onClickXoaCaThi(item.MaCaThi)" />
-                        </MudButtonGroup>
-                    </MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager />
-                </PagerContent>
-            </MudTable>
+            <MudItem xs="12">
+                <MudTable Items="@caThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<CaThiDto,bool>(Filter)" SortLabel="Sort By">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Thông tin các ca thi</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>STT</MudTh>
+                        <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<CaThiDto, object>(x=>x.MaCaThi)">Mã Ca Thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.TenCaThi ?? string.Empty)">Tên Ca Thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianBatDau)">Thời Gian Bắt Đầu</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianThi)">Thời lượng thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.IsActivated)">Kích hoạt</MudTableSortLabel></MudTh>
+                        <MudTh>Chức năng</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="item">
+                        <MudTd DataLabel="STT">@(caThis.IndexOf(item) + 1)</MudTd>
+                        <MudTd DataLabel="Mã Ca Thi">@item.MaCaThi</MudTd>
+                        <MudTd DataLabel="Tên Ca Thi">@item.TenCaThi</MudTd>
+                        <MudTd DataLabel="Thời Lượng Thi">@item.ThoiGianBatDau</MudTd>
+                        <MudTd DataLabel="Thời Gian Bắt Đầu">@item.ThoiGianThi</MudTd>
+                        <MudTd>
+                            <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)" OnClick="async () => await OnClickShowDialog(item)" />
+                        </MudTd>
+                        <MudTd>
+                            <MudButtonGroup Style="zoom: 0.7">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="() => OnClickChiTietCaThi(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            </MudItem>
         }
+    </MudGrid>
+</MudContainer>
 
-    </MudContainer>
-@*     @if (showMessageBox && showCaThiMessageBox != null)
+@code {
+    private string GetActivationIcon(CaThiDto item) => item.KetThuc ? Icons.Material.Filled.PlayCircleFilled : item.IsActivated ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel;
+    private Color GetActivationColor(CaThiDto item) => item.KetThuc ? Color.Default : item.IsActivated ? Color.Success : Color.Error;
+
+    private string searchString = "";
+
+    private DotThiDto? selectedDotThi;
+    private MonHocDto? selectedMonHoc;
+    private LopAoDto? selectedLopAo;
+    private List<string>? lanThis = [];
+    private string? selectedLanThi;
+    private CaThiDto? selectedCaThi;
+
+    private async Task OnValueChangeDotThi(DotThiDto dotThi)
     {
-        // trạng thái 0: đã kích hoạt, 1: chưa kích hoạt, 2: đã kết thúc ca thi
-        int checkTrangThai;
-        if (showCaThiMessageBox.KetThuc)
-            checkTrangThai = 2;
-        else if (showCaThiMessageBox.IsActivated)
-            checkTrangThai = 0;
+        selectedDotThi = dotThi;
+        selectedMonHoc = null;
+        selectedLopAo = null;
+        selectedLanThi = null;
+        await FetchAllCaThi();
+    }
+    private async Task OnValueChangeMonHoc(MonHocDto monHoc)
+    {
+        selectedLopAo = null;
+        selectedLanThi = null;
+        selectedMonHoc = monHoc;
+        if (monHoc != null)
+            lopAos = await LopAo_SelectedByMonHocAPI(monHoc.MaMonHoc);
         else
-            checkTrangThai = 1;
-        <Hutech.Exam.Client.Components.MessageBox.MBKichHoatCaThi
-            tenCaThi="@showCaThiMessageBox.TenCaThi" ngayThi="@showCaThiMessageBox.ThoiGianBatDau.ToString()"
-            thoiLuongThi="@showCaThiMessageBox.ThoiGianThi" tenMonThi="@showCaThiMessageBox.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
-            tenDotThi="@showCaThiMessageBox.MaChiTietDotThiNavigation.MaDotThiNavigation.TenDotThi" thoiGianBatDauThi="@showCaThiMessageBox.ThoiGianBatDau.ToString()"
-                    trangThai="@checkTrangThai" onClickKichHoat="onClickKichHoatCaThi" thoidiemKetThuc="@showCaThiMessageBox.ThoiDiemKetThuc"
-            onClickHuyKichHoat="onClickHuyKichHoatCaThi" onClickKetThucCaThi="onClickKetThucCaThi" onClickDungCaThi="onClickDungCaThi"
-            onClickThoat= "onClickThoatMessageBox" thoidiemKichHoat="@showCaThiMessageBox.ActivatedDate">
-        </Hutech.Exam.Client.Components.MessageBox.MBKichHoatCaThi>
-    } *@
-</body>
-</html>
+        {
+            lopAos?.Clear();
+        }
+        await FetchAllCaThi();
+    }
+    private async Task OnValueChangeLopAo(LopAoDto lopAo)
+    {
+        selectedLanThi = null;
+        selectedLopAo = lopAo;
+        if (selectedDotThi != null && selectedMonHoc != null && selectedLopAo != null)
+        {
+            lanThis = await LanThis_SelectBy_MaDotThi_MaLopAoAPI(selectedMonHoc.MaMonHoc, selectedLopAo.MaLopAo);
+        }
+        else
+        {
+            lanThis?.Clear();
+        }
+        await FetchAllCaThi();
+    }
+    private async Task OnValueChangeLanThi(string lanThi)
+    {
+        selectedLanThi = lanThi;
+        await FetchAllCaThi();
+    }
+    private async Task FetchAllCaThi()
+    {
+        if (selectedDotThi != null && selectedLopAo != null && selectedLanThi != null && selectedMonHoc != null)
+        {
+            caThis = await GetAllCaThi_SelectBy_MaDotThi_MaLopAo_LanThiAPI(selectedDotThi.MaDotThi, selectedLopAo.MaLopAo, selectedLanThi);
+            await SetItemsInSessionStorage();
+        }
+        else
+            caThis = [];
+    }
+    private async Task SetItemsInSessionStorage()
+    {
+        var selectedData = new StoredData
+        {
+            DotThi = selectedDotThi,
+            MonHoc = selectedMonHoc,
+            LopAo = selectedLopAo,
+            LanThi = selectedLanThi
+        };
+        await SessionStorage.SetItemAsync("storedData", selectedData);
+    }
+
+}

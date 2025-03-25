@@ -7,6 +7,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public Task<IDataReader> SelectBy_MaDotThi(int ma_dot_thi);
         public Task<IDataReader> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao);
+        public Task<IDataReader> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, string lan_thi);
         public Task<IDataReader> SelectOne(int ma_chi_tiet_dot_thi);
         public Task<IDataReader> GetAll();
         public Task<object?> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi);

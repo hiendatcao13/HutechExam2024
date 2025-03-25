@@ -24,5 +24,10 @@ namespace Hutech.Exam.Shared.DTO
         public virtual DotThiDto MaDotThiNavigation { get; set; } = null!;
 
         public virtual LopAoDto MaLopAoNavigation { get; set; } = null!;
+
+        public override string ToString()
+        {
+            return TenChiTietDotThi;
+        }
     }
 }

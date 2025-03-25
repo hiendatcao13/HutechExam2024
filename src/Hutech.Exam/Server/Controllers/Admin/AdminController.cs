@@ -122,12 +122,7 @@ namespace Hutech.Exam.Server.Controllers.Admin
             await _sinhVienService.Logout(ma_sinh_vien, DateTime.Now);
             return Ok();
         }
-        [HttpPost("CongGioSinhVien")]
-        public async Task<ActionResult> CongGioSinhVien([FromBody]ChiTietCaThiDto chiTietCaThi)
-        {
-            await _chiTietCaThiService.CongGio(chiTietCaThi);
-            return Ok();
-        }
+
         [HttpGet("GetThongTinSinhVien")]
         public async Task<ActionResult<SinhVienDto>> GetThongTinSinhVien([FromQuery] string ma_so_sinh_vien)
         {

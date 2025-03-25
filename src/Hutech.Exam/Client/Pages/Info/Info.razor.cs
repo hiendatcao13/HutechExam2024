@@ -35,6 +35,7 @@ namespace Hutech.Exam.Client.Pages.Info
         private const string NOT_ARRIVED_TIME = "Ca thi này hiện chưa đến thời gian làm bài. Vui lòng thí sinh chờ đợi đến giờ thi";
         private const string EXPIRED_TIME = "Ca thi này hiện quá giờ làm bài. Vui lòng thí sinh liên hệ với quản trị viên";
         private const string ENTER_EXAM = "Bắt đầu thi.Chúc bạn sớm hoàn thành kết quả tốt nhất";
+        private const string HAS_NO_MADETHI = "Thí sinh tạm thời chưa có đề thi được phân công. Vui lòng liên hệ với quản trị viên";
         protected override async Task OnInitializedAsync()
         {
             //xác thực người dùng
@@ -43,7 +44,7 @@ namespace Hutech.Exam.Client.Pages.Info
             if (!string.IsNullOrWhiteSpace(token))
                 Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
             else
-                Nav?.NavigateTo("/");
+                Nav.NavigateTo("/");
             await Start();
             Time();
             await base.OnInitializedAsync();
@@ -64,7 +65,7 @@ namespace Hutech.Exam.Client.Pages.Info
                 { x => x.ContentText, LOGOUT_MESSAGE },
                 { x => x.ButtonText, "Logout" },
                 { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, HandleDangXuat)   }
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDangXuat())   }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
@@ -95,6 +96,11 @@ namespace Hutech.Exam.Client.Pages.Info
             if (caThi != null && (caThi.IsActivated == false || caThi.KetThuc == true))
             {
                 Snackbar.Add(NOT_ACTIVATED_CA_THI, Severity.Error);
+                return;
+            }
+            if(selectedCTCaThi.MaDeThi == null)
+            {
+                Snackbar.Add(HAS_NO_MADETHI, Severity.Error);
                 return;
             }
             string formatTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại

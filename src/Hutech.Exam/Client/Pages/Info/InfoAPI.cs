@@ -13,11 +13,7 @@ namespace Hutech.Exam.Client.Pages.Info
             if (ma_sinh_vien == -1)
                 return null;
             var response = await Http.GetAsync($"api/ChiTietCaThi/SelectBy_MSSVThi?ma_sinh_vien={ma_sinh_vien}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>();
-            }
-            return null;
+            return await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>();
         }
         private async Task<bool> UpdateLogoutAPI(SinhVienDto sinhVien)
         {

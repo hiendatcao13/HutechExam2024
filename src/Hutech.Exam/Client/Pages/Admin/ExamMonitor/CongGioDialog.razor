@@ -1,0 +1,78 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px">
+    <DialogContent>
+        @if(chiTietCaThi != null && caThi != null)
+        {
+            string ten = chiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + chiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
+            <MudText>Sinh viên: <strong>@ten</strong></MudText>
+            <MudText>MSSV: <strong>@chiTietCaThi.MaSinhVienNavigation?.MaSoSinhVien</strong></MudText>
+            <MudText>Ca Thi: <strong>@caThi?.TenCaThi</strong></MudText>
+            <MudText>Ngày thi: <strong>@caThi?.ThoiGianBatDau phút</strong></MudText>
+            <MudText>Thời lượng thi: <strong> @caThi?.ThoiGianThi</strong></MudText>
+            <MudTextField Label="Thời gian cộng (phút)" InputType="InputType.Number" Required @bind-Value="thoiGianCongThem" Variant="Variant.Outlined" />
+            <MudTextField Label="Lý do cộng" Required InputType="InputType.Text" Placeholder="treo máy" @bind-Value="lyDoCong" Variant="Variant.Outlined" />
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickLuu()" Color="Color.Success">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code{
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Inject] public HttpClient Http { get; set; } = default!;
+    [Parameter] public ChiTietCaThiDto? chiTietCaThi { get; set; }
+    [Parameter] public CaThiDto? caThi { get; set; }
+
+    public int? thoiGianCongThem { get; set; }
+    public string? lyDoCong { get; set; }
+
+    private const string ALERT_CONGGIO = "Cộng giờ thêm được dùng trong trường hợp thí sinh bị treo máy hoặc nguyên nhân thích đáng khác";
+    private const string SUCCESS_CONGGIO = "Cộng giờ cho thí sinh thành công";
+    private const string ERROR_CONGGIO = "Cộng giờ cho thí sinh thất bại";
+
+    public void OnClickThoat() {
+        MudDialog?.Close();
+    }
+    public async Task OnClickLuu()
+    {
+        Snackbar.Add(ALERT_CONGGIO, Severity.Info);
+        if (chiTietCaThi != null && thoiGianCongThem != null)
+        {
+            chiTietCaThi.GioCongThem = (int)thoiGianCongThem;
+            chiTietCaThi.LyDoCong = lyDoCong;
+            chiTietCaThi.ThoiDiemCong = DateTime.Now;
+            if (await CongGioSinhVienAPI(chiTietCaThi))
+                MudDialog?.Close();
+        }
+    }
+
+
+
+
+    private async Task<bool> CongGioSinhVienAPI(ChiTietCaThiDto chiTietCaThi)
+    {
+        // var jsonString = JsonSerializer.Serialize(new { MaChiTietCaThi = chiTietCaThi.MaChiTietCaThi, GioCongThem = thoiGianCongThem , ThoiDiemCong = DateTime.Now, lyDoCong = lyDoCong});
+        var jsonString = JsonSerializer.Serialize(chiTietCaThi);
+        var response = await Http.PutAsync("api/ChiTietCaThi/CongGioSinhVien", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add(SUCCESS_CONGGIO, MudBlazor.Severity.Success);
+            return true;
+        }
+        Snackbar.Add(ERROR_CONGGIO, MudBlazor.Severity.Error);
+        return false;
+    }
+}

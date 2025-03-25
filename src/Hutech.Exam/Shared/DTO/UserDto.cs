@@ -32,5 +32,10 @@ namespace Hutech.Exam.Shared.DTO
 
         public DateTime? LastLockoutDate { get; set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
     }
 }

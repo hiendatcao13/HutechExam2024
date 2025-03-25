@@ -37,5 +37,10 @@ namespace Hutech.Exam.Shared.DTO
         public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
 
         public virtual ChiTietDotThiDto MaChiTietDotThiNavigation { get; set; } = null!;
+
+        public override string ToString()
+        {
+            return TenCaThi ?? "Không tồn tại tên ca thi";
+        }
     }
 }

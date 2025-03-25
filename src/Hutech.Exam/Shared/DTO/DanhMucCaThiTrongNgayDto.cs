@@ -21,5 +21,10 @@ namespace Hutech.Exam.Shared.DTO
         public int PhutKetThuc { get; set; }
 
         public int CaThiCode { get; set; }
+
+        public override string ToString()
+        {
+            return TenCaTrongNgay;
+        }
     }
 }

@@ -18,5 +18,10 @@ namespace Hutech.Exam.Shared.DTO
         public int? MaKhoa { get; set; }
 
         public virtual KhoaDto? MaKhoaNavigation { get; set; }
+
+        public override string ToString()
+        {
+            return TenLop ?? "Không tồn tại tên lớp";
+        }
     }
 }

@@ -16,5 +16,10 @@ namespace Hutech.Exam.Shared.DTO
         public DateTime? NgayThanhLap { get; set; }
 
         public virtual ICollection<LopDto> Lops { get; set; } = new List<LopDto>();
+
+        public override string ToString()
+        {
+            return TenKhoa ?? "Không tồn tại tên khoa";
+        }
     }
 }

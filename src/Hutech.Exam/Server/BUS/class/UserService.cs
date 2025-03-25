@@ -68,16 +68,29 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<string>> Login(string loginName)
         {
-            List<string> user = new();
+            List<string> user = [];
             using(IDataReader dataReader = await _userRepository.Login(loginName))
             {
                 if (dataReader.Read())
                 {
-                    user.Add(dataReader.GetString(0));
+                    user.Add(dataReader.GetGuid(0).ToString());
                     user.Add(dataReader.GetString(1));
+                    user.Add(dataReader.GetString(2));
                 }
             }
             return user;
+        }
+        public async Task<int> LoginSuccess(Guid userId)
+        {
+            return await _userRepository.LoginSuccess(userId);
+        }
+        public async Task<int> LoginFail(Guid userId)
+        {
+            return await _userRepository.LoginFail(userId);
+        }
+        public async Task<int> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
+        {
+            return await _userRepository.UpdateLastActivity(userId, lastActivityDate);
         }
         public async Task<bool> Update(Guid userId, string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut,
             DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount,

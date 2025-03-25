@@ -1,169 +1,117 @@
 ﻿@page "/admin/monitor"
+@using Hutech.Exam.Shared.DTO
 @attribute [Authorize(Roles = "Admin")]
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="./css/admin/monitor/global.css" />
-    <link rel="stylesheet" href="./css/admin/monitor/styleguide.css" />
-    <link rel="stylesheet" href="./css/admin/monitor/style.css" />
-    <title>Exam Monitor</title>
-</head>
-<body>
-    <!-- nav -->
-    <nav>
-        <img src="./images/admin/monitor/header.svg" alt="logo" />
-        <button class="btn_exit" @onclick="onClickDangXuat">Đăng Xuất</button>
-    </nav>
-    <div class="monitor">
-        <div class="container">
-            <button class="btn infor_exam">Thông tin ca thi</button>
-            <button class="btn list_student">Danh sách sinh viên</button>
-            <input type="text"
-                   class="btn enter"
-                   placeholder="Nhập mã số sinh viên cần tìm kiếm" @oninput="onChangeInputMSSV" @bind="input_MSSV"/>
-            <button class="btn search">Tìm</button>
-        </div>
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
 
-        <div class="content">
-            <!-- function left -->
-            <div class="function_left">
-                <div class="grid-container">
-                    <img class="frame" src="./images/admin/monitor/frame.svg" alt="" />
-                    <button class="btn add-student" @onclick="onClickThemSV">Thêm SV</button>
-                    <img class="frame" src="./images/admin/monitor/frame-1.svg" alt="" />
-                    <button class="btn refresh" @onclick="refresh">Refresh</button>
-                    <img src="./images/admin/monitor/print.svg" alt="" />
-                    <button class="btn print">Print</button>
-                    <img class="frame" src="./images/admin/monitor/pdf.svg" alt="" />
-                    <button class="btn export-pdf">Export PDF</button>
-                    <img class="frame" src="./images/admin/monitor/excel.svg" alt="" />
-                    <button class="btn export-excel" @onclick="onClickDownloadExcel">Export EXCEL</button>
-                </div>
-            </div>
-            <!-- function right -->
-            <div class="function_right">
-                <div class="row">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Mã số sinh viên</th>
-                                <th>Họ và tên</th>
-                                <th>Mã đề</th>
-                                <th>Trạng thái</th>
-                                <th>Đăng nhập</th>
-                                <th>Phút cộng thêm</th>
-                                <th>Điểm</th>
-                                <th>Chức năng</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if(displayChiTietCaThis != null)
-                            {
-                                int STT = 1;
-                                foreach(var item in displayChiTietCaThis)
-                                {
-                                    sinhVien = item.MaSinhVienNavigation;
-                                    <tr>
-                                        <td>@STT</td>
-                                        <td>@sinhVien?.MaSoSinhVien</td>
-                                        <td>@sinhVien?.HoVaTenLot @sinhVien?.TenSinhVien</td>
-                                        <td>@item.MaDeThi</td>
-                                        @if(item.DaHoanThanh)
-                                        {
-                                            <td>Đã thi</td>
-                                        }
-                                        else if(item.DaThi)
-                                        {
-                                            <td style="color: green">Đang thi</td>
-                                        }
-                                        else
-                                        {
-                                            <td style="color: red">Chưa thi</td>
-                                        }
-                                        @if(sinhVien != null && item.MaSinhVienNavigation != null && sinhVien.IsLoggedIn == true)
-                                        {
-                                            <td style="color: blue">
-                                                <div class="function">
-                                                    Đã đăng nhập
-                                                    <button @onclick="() => onClickResetLogin(item.MaSinhVienNavigation)">Reset</button>
-                                                </div>
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td>Chưa đăng nhập</td>
-                                        }
-                                        @if(item.GioCongThem == 0 || item.GioCongThem == -1)
-                                        {
-                                            <td>0</td>
-                                        }
-                                        else
-                                        {
-                                            <td>@item.GioCongThem (@item.LyDoCong)</td>
-                                        }
-                                        @if(item.Diem == -1)
-                                        {
-                                            <td><big>&infin;</big></td>
-                                        }
-                                        else
-                                        {
-                                            <td>@item.Diem</td>
-                                        }
-                                        <td>
-                                            <button class="btnPlus" @onclick="() => onClickCongGioThem(item)">+</button>
-                                            <button class="btnModify" @onclick="() => onClickSuaSV(item)">o</button>
-                                            <button class="btnDelete" @onclick="() => onClickRemoveCTCT(item)">x</button>
-                                        </td>
-                                    </tr>
-                                    STT++;
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
+<PageTitle>Exam Monitor</PageTitle>
 
-            </div>
-        </div>
-    </div>
-    @if (isShowMessageBox && displayChiTietCaThi != null && MB_thoi_gian_cong != null && MB_ly_do_cong != null && myData != null)
-    {
-        string ho_ten = displayChiTietCaThi?.MaSinhVienNavigation?.HoVaTenLot + " " + displayChiTietCaThi?.MaSinhVienNavigation?.TenSinhVien;
-        <Hutech.Exam.Client.Components.MessageBox.MBCongGio
-            tenSinhVien="@ho_ten" tenCaThi="@myData.CaThi?.TenCaThi" tenMonThi="@myData.CaThi?.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
-            ngayThi="@myData.CaThi?.ThoiGianBatDau" thoiLuongThi="@myData.CaThi?.ThoiGianThi" @ref="@MBCongGio"
-            onClickLuu="onClickMBLuu" onClickThoat="onClickMBThoat" MSSV="@displayChiTietCaThi?.MaSinhVienNavigation?.MaSoSinhVien">
-        </Hutech.Exam.Client.Components.MessageBox.MBCongGio>
+<MudContainer Class="d-flex justify-center align-center">
+    <MudGrid Style="margin-top: 70px">
+        <MudItem xs="2">
+            <MudPaper Elevation="2" Class="pa-4">
+                <MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickThemSV()">Thêm SV</MudButton>
+                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await Refresh()">Refresh</MudButton>
+                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Print" Color="Color.Default">Check Điểm</MudButton>
+                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf"  Color="Color.Default">Export PDF</MudButton>
+                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcel">Export EXCEL</MudButton>
+            </MudPaper>
+            <MudPaper Elevation="2" Class="pa-4" Style="margin-top: 5%; position: sticky; top: 8%">
+                <MudText Typo="Typo.subtitle2">THỜI GIAN BIỂU SV</MudText>
+                <MudText Typo="Typo.caption">ĐNhap: @currentlyHover_dangNhap</MudText><br />
+                <MudText Typo="Typo.caption">ĐXuat: @currentlyHover_dangXuat</MudText><br />
+                <MudText Typo="Typo.caption">BĐ thi: @currentlyHover_thoiGianBD</MudText><br />
+                <MudText Typo="Typo.caption">KT thi: @currentlyHover_thoiGianKT</MudText><br />
+                <MudText Typo="Typo.caption">Cộng: @currentlyHover_thoiGianCong</MudText>
+            </MudPaper>
+        </MudItem>
+        @if(chiTietCaThis != null)
+        {
+            <MudItem xs="10">
+                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By" OnRowMouseEnter="RowMouseEnterEvent" OnRowMouseLeave="RowMouseLeaveEvent">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString" Placeholder="Nhập mã số sinh viên" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>STT</MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.MaSoSinhVien ?? string.Empty)">MSSV</MudTableSortLabel></MudTh>
+                        <MudTh>Họ và Tên</MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaDeThi ?? -1)">Mã Đề</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.DaHoanThanh)">Trạng Thái</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.IsLoggedIn ?? false)">Đăng Nhập</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.GioCongThem)">Phút Cộng</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.Diem)">Điểm</MudTableSortLabel></MudTh>
+                        <MudTh>Chức năng</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="item">
+                        <MudTd>@(chiTietCaThis.IndexOf(item) + 1)</MudTd>
+                        <MudTd>@item.MaSinhVienNavigation?.MaSoSinhVien</MudTd>
+                        <MudTd>@item.MaSinhVienNavigation?.HoVaTenLot @item.MaSinhVienNavigation?.TenSinhVien</MudTd>
+                        <MudTd>@item.MaDeThi</MudTd>
+                        <MudTd Style="@($"color: {GetTrangThai(item)}")">@(item.DaHoanThanh ? "Đã thi" : item.DaThi ? "Đang thi" : "Chưa thi")</MudTd>
+                        <MudTd Style="@($"color: {GetDangNhap(item)}")">@(item.MaSinhVienNavigation?.IsLoggedIn == true ? "Đã đăng nhập" : "Chưa đăng nhập")</MudTd>
+                        <MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "0" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
+                        <MudTd>@(item.Diem == -1 ? "∞" : item.Diem.ToString())</MudTd>
+                        <MudTd>
+                            <MudButtonGroup Style="zoom: 0.7">
+                                <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Success" OnClick="() => OnClickResetLogin(item?.MaSinhVienNavigation)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickCongGioThem(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+<style>
+    .button-side{
+    margin-top: 5%;
     }
-    @if (isShowMBThemSV && myData != null)
-    {
-        <Hutech.Exam.Client.Components.MessageBox.MBThemSV
-            tenCaThi="@myData.CaThi?.TenCaThi" tenMonThi="@myData.CaThi?.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc"
-            ngayThi="@myData.CaThi?.ThoiGianBatDau" thoiLuongThi="@myData.CaThi?.ThoiGianThi" onClickThoat="onClickThoatMBThemSV" onClickCheck="onClickCheckSV" 
-            onClickLuu="onClickLuuMBThemSV" onClickTaoMoi="onClickTaoMoiSV" @ref="@MBThemSV">
-        </Hutech.Exam.Client.Components.MessageBox.MBThemSV>
-    }
-    @if(isShowMBExcel){
-        <Hutech.Exam.Client.Components.MessageBox.MBThemSVExcel
-            listKhoa="@listKhoa" onClickLuu="onClickLuuMBThemSVExcel" onClickThoat="onClickThoatMBThemSVExcel" @ref="@MBThemSVExcel">
-        </Hutech.Exam.Client.Components.MessageBox.MBThemSVExcel>
-    }
-    @if(isShowMBSuaSV){
-        <Hutech.Exam.Client.Components.MessageBox.MBSuaSV
-            mssv="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.MaSoSinhVien" hoVaTenLot="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.HoVaTenLot" tenSV="@displayCTCTMBSuaSV?.MaSinhVienNavigation?.TenSinhVien"
-            selected_ma_de="@displayCTCTMBSuaSV?.MaDeThi" onClickThoat="onClickThoatMBSuaSV" onClickLuu="onCLickLuuMBSuaSV" listMaDes="@listMaDes" @ref="@MBSuaSV">
-        </Hutech.Exam.Client.Components.MessageBox.MBSuaSV>
-    }
-    <script>
+</style>
+<script>
     function downloadFile(fileName, base64Data) {
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = 'data:application/octet-stream;base64,' + base64Data;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = 'data:application/octet-stream;base64,' + base64Data;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     }
-    </script>
-</body>
-</html>
+</script>
+@code{
+    private string GetTrangThai (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";
+    private string GetDangNhap (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
+
+    private string searchString = "";
+    private string currentlyHover_dangNhap = "";
+    private string currentlyHover_dangXuat = "";
+    private string currentlyHover_thoiGianBD = "";
+    private string currentlyHover_thoiGianKT = "";
+    private string currentlyHover_thoiGianCong = "";
+
+    private bool Filter(ChiTietCaThiDto element)
+    {
+        // Nếu searchString rỗng hoặc null, không cần lọc, trả về true
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+        // Kiểm tra null an toàn trước khi truy cập thuộc tính con
+        return element.MaSinhVienNavigation?.MaSoSinhVien?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
+    }
+    private void RowMouseEnterEvent(TableRowHoverEventArgs<ChiTietCaThiDto> eventArgs)
+    {
+        currentlyHover_dangNhap = eventArgs.Item?.MaSinhVienNavigation?.LastLoggedIn.HasValue ?? false ? eventArgs.Item.MaSinhVienNavigation.LastLoggedIn.Value.ToString("dd/MM HH:mm") : "Chưa có";
+        currentlyHover_dangXuat = eventArgs.Item?.MaSinhVienNavigation?.LastLoggedOut.HasValue ?? false ? eventArgs.Item.MaSinhVienNavigation.LastLoggedOut.Value.ToString("dd/MM HH:mm") : "Chưa có";
+        currentlyHover_thoiGianBD = eventArgs.Item?.ThoiGianBatDau.HasValue ?? false ? eventArgs.Item.ThoiGianBatDau.Value.ToString("dd/MM HH:mm") : "Chưa có";
+        currentlyHover_thoiGianKT = eventArgs.Item?.ThoiGianKetThuc.HasValue ?? false ? eventArgs.Item.ThoiGianKetThuc.Value.ToString("dd/MM HH:mm") : "Chưa có";
+        currentlyHover_thoiGianCong = eventArgs.Item?.ThoiDiemCong.HasValue ?? false ? eventArgs.Item.ThoiDiemCong.Value.ToString("dd/MM HH:mm") : "Chưa có";
+    }
+    private void RowMouseLeaveEvent(TableRowHoverEventArgs<ChiTietCaThiDto> eventArgs)
+    {
+        currentlyHover_dangNhap = currentlyHover_dangXuat = currentlyHover_thoiGianBD = currentlyHover_thoiGianKT = currentlyHover_thoiGianCong = "";
+    }
+}

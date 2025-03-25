@@ -1,6 +1,8 @@
 ﻿using Hutech.Exam.Shared;
 using MudBlazor;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace Hutech.Exam.Client.Pages.Login
 {
@@ -9,12 +11,9 @@ namespace Hutech.Exam.Client.Pages.Login
         private async Task<UserSession?> LoginAPI(string username)
         {
             Snackbar.Add(LOADING_MESSAGE, Severity.Info);
-            var response = await Http.GetAsync($"api/SinhVien/Login?ma_so_sinh_vien={username}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<UserSession?>();
-            }
-            return null;
+            var json = JsonSerializer.Serialize(username);
+            var response = await Http.PutAsync("api/SinhVien/Login", new StringContent(json, Encoding.UTF8, "application/json"));
+            return await response.Content.ReadFromJsonAsync<UserSession?>();
         }
     }
 }

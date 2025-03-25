@@ -45,3 +45,8 @@
 -----------------------------------
 12/03/2025 9:30PM
 - Tối ưu lại code API, Controller cho Exam, Result
+-----------------------------------
+25/03/2025 11PM
+- Sửa lại toàn bộ giao diện thành MudBlazor(bao gồm cả MessageBox -> Dialog)
+- Sửa lại quy trình nghiệp vụ cho giám sát ca thi
+- Tối ưu lại toàn bộ API, tránh viết code dài dòng cho MessageBox

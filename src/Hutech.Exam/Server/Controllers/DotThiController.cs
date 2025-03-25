@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class DotThiController : Controller
     {
         private readonly DotThiService _dotThiService;
@@ -16,7 +17,7 @@ namespace Hutech.Exam.Server.Controllers
             _dotThiService = dotThiService;
         }
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<DotThiDto>>> GetAll()
         {
             return Ok(await _dotThiService.GetAll());
         }

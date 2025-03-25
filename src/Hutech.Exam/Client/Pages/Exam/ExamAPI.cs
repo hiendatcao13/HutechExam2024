@@ -53,20 +53,12 @@ namespace Hutech.Exam.Client.Pages.Exam
         private async Task<bool> IsActiveCaThiAPI(int ma_ca_thi)
         {
             var response = await Http.GetAsync($"api/CaThi/IsActiveCaThi?ma_ca_thi={ma_ca_thi}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<bool>();
-            }
-            return false;
+            return await response.Content.ReadFromJsonAsync<bool>();
         }
         private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, string filename)
         {
             var response = await Http.GetAsync($"api/AudioListened/GetSoLanNghe?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}&filename={filename}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<int>();
-            }
-            return 0;
+            return await response.Content.ReadFromJsonAsync<int>();
         }
         private async Task AddOrUpdateListenAPI(int ma_chi_tiet_ca_thi, string filename)
         {

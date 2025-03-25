@@ -30,5 +30,10 @@ namespace Hutech.Exam.Shared.DTO
         public bool? LaCauHoiNhom { get; set; }
 
         public virtual DeThiDto MaDeThiNavigation { get; set; } = null!;
+
+        public override string ToString()
+        {
+            return TenNhom;
+        }
     }
 }
