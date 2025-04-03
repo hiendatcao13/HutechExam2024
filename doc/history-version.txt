@@ -51,6 +51,9 @@
 - Sửa lại quy trình nghiệp vụ cho giám sát ca thi
 - Tối ưu lại toàn bộ API, tránh viết code dài dòng cho MessageBox
 -----------------------------------
-03/04/2025 11:00AM
+03/04/2025 11AM
 - Sửa lại các Hub của SignalR, phân loại sinh viên theo mã lớp
 - Thêm các img của các chức năng
+----------------------------------
+03/04/2025 11:30AM
+- Sửa lại file ReadMe với giao diện các tính năng
