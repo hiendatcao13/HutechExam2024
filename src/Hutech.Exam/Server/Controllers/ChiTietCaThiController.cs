@@ -1,7 +1,9 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -17,10 +19,11 @@ namespace Hutech.Exam.Server.Controllers
         private readonly LopAoService _lopAoService;
         private readonly MonHocService _monHocService;
         private readonly DotThiService _dotThiService;
+        private readonly IHubContext<MainHub> _mainHub;
 
         public ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, CaThiService caThiService,
             SinhVienService sinhVienService, ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService,
-            MonHocService monHocService, DotThiService dotThiService)
+            MonHocService monHocService, DotThiService dotThiService, IHubContext<MainHub> mainHub)
         {
             _chiTietCaThiService = chiTietCaThiService;
             _caThiService = caThiService;
@@ -29,6 +32,7 @@ namespace Hutech.Exam.Server.Controllers
             _lopAoService = lopAoService;
             _monHocService = monHocService;
             _dotThiService = dotThiService;
+            _mainHub = mainHub;
         }
         [HttpPost("Insert")]
         [Authorize(Roles = "Admin")]
@@ -64,12 +68,14 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
+            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok();
         }
         [HttpPut("UpdateKetThuc")]
         public async Task<ActionResult> UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
+            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok();
         }
         [HttpGet("SelectBy_MaCaThi")]
@@ -87,6 +93,8 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> CongGioSinhVien([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             await _chiTietCaThiService.CongGio(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong ?? DateTime.Now, chiTietCaThi.LyDoCong ?? "");
+            // báo cho tất cả admin
+            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok(true);
         }
 
@@ -125,6 +133,10 @@ namespace Hutech.Exam.Server.Controllers
         private async Task<MonHocDto> GetMonHoc(int ma_mon_hoc)
         {
             return await _monHocService.SelectOne(ma_mon_hoc);
+        }
+        private async Task NotifStatusThiToAdmin(int ma_chi_tiet_ca_thi)
+        {
+            await _mainHub.Clients.Group("admin").SendAsync("SV_Status", ma_chi_tiet_ca_thi);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task<bool> ResetLoginAPI(SinhVienDto sinhVien)
         {
             var jsonString = JsonSerializer.Serialize(sinhVien);
-            var response = await Http.PutAsync($"api/SinhVien/UpdateLogout", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            var response = await Http.PutAsync($"api/SinhVien/ResetLogin", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             if (response.IsSuccessStatusCode)
             {
                 Snackbar.Add(SUCCESS_RESETLOGIN, MudBlazor.Severity.Success);

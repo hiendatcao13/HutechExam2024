@@ -50,3 +50,7 @@
 - Sửa lại toàn bộ giao diện thành MudBlazor(bao gồm cả MessageBox -> Dialog)
 - Sửa lại quy trình nghiệp vụ cho giám sát ca thi
 - Tối ưu lại toàn bộ API, tránh viết code dài dòng cho MessageBox
+-----------------------------------
+03/04/2025 11:00AM
+- Sửa lại các Hub của SignalR, phân loại sinh viên theo mã lớp
+- Thêm các img của các chức năng

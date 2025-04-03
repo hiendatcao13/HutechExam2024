@@ -55,6 +55,10 @@ static void Configure(WebApplication app)
     app.MapControllers();
     app.MapFallbackToFile("index.html");
     app.MapHub<ChiTietCaThiHub>("/ChiTietCaThiHub");
+    app.MapHub<CaThiHub>("/CaThiHub");
+    app.MapHub<SinhVienHub>("/SinhVienHub");
+    app.MapHub<AdminHub>("/AdminHub");
+    app.MapHub<MainHub>("/MainHub");
 
     app.Run();
 }

@@ -8,6 +8,7 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using System.Globalization;
 using System.Text;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {
@@ -18,15 +19,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        [Inject] private AdminDataService MyData { get; set; } = default!;  
+        [Inject] private AdminDataService MyData { get; set; } = default!;
 
         private List<CaThiDto>? caThis;
         private List<DotThiDto>? dotThis; // combobox
         private List<MonHocDto>? monHocs; // combobox
         private List<LopAoDto>? lopAos; // combobox
         private HubConnection? hubConnection;
-        private IDialogReference? dialogReferenceCaThi; // Lưu tham chiếu đến bảng thay đổi tt ca thi
-        private IDialogReference? dialogReferenceKichHoat; // Lưu tham chiếu đến dialog kích hoạt
 
 
         protected override async Task OnInitializedAsync()
@@ -105,7 +104,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraExtraLarge, BackgroundClass = "my-custom-class" };
 
-            dialogReferenceCaThi = await Dialog.ShowAsync<TinhTrangCaThiDialog>("THÔNG TIN CA THI", parameters, options);
+            await Dialog.ShowAsync<TinhTrangCaThiDialog>("THÔNG TIN CA THI", parameters, options);
         }
 
         private async Task OnClickChiTietCaThi(CaThiDto caThi)
@@ -125,35 +124,33 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         private async Task CreateHubConnection()
         {
             hubConnection = new HubConnectionBuilder()
-                .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
-                .Build();
+                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
+                    {
+                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
+                    })
+                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
+                    .Build();
 
-            hubConnection.On("ReceiveMessage", () =>
+            hubConnection.Closed += async (error) =>
             {
-                CallLoadData();
-                StateHasChanged();
+                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
+                await CreateHubConnection(); // Thử kết nối lại
+            };
+
+            hubConnection.On("ChangeStatusCaThi", async () =>
+            {
+                await CallLoadData();
             });
+
             await hubConnection.StartAsync();
+
+            // tham gia vào group admin
+            await hubConnection.InvokeAsync("JoinGroupAdmin");
+        }
+
+        private async Task CallLoadData()
+        {
             await FetchAllCaThi();
-
-        }
-
-        private void CallLoadData()
-        {
-            Task.Run(async () =>
-            {
-                await FetchAllCaThi();
-                StateHasChanged();
-            });
-        }
-        private async Task ReLoadingComponent(int ma_ca_thi)
-        {
-            if (IsConnectHub())
-            {
-                await SendMessage();
-                await SendMessageStatusCaThi(ma_ca_thi);
-            }
-            StateHasChanged();
         }
         private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
@@ -161,11 +158,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessage");
-        }
-        private async Task SendMessageStatusCaThi(int ma_ca_thi)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageStatusCaThi", ma_ca_thi);
         }
     }
 }

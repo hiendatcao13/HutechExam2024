@@ -110,7 +110,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private async Task Start()
         {
-            await InitialConnectionHub();
+            await CreateHubConnection();
             chiTietCaThi = MyData.ChiTietCaThi;
             customDeThis = MyData.CustomDeThis = await GetDeThiAPI(chiTietCaThi.MaDeThi) ?? [];
             await ModifyNhomCauHoi();

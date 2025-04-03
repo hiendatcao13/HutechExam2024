@@ -70,5 +70,11 @@ namespace Hutech.Exam.Client.Pages.Exam
             var jsonString = JsonSerializer.Serialize(audio);
             await Http.PutAsync($"api/AudioListened/AddOrUpdate", new StringContent(jsonString, Encoding.UTF8, "application/json"));
         }
+        private async Task<bool> UpdateLogoutAPI(SinhVienDto sinhVien)
+        {
+            var jsonString = JsonSerializer.Serialize(sinhVien);
+            var response = await Http.PutAsync($"api/SinhVien/UpdateLogout", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            return response.IsSuccessStatusCode;
+        }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -13,11 +16,15 @@ namespace Hutech.Exam.Server.Controllers
     public class SinhVienController : Controller
     {
         private readonly SinhVienService _sinhVienService;
+        private readonly IHubContext<MainHub> _mainHub;
+
+
         private static int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
 
-        public SinhVienController(SinhVienService sinhVienService)
+        public SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub)
         {
             _sinhVienService = sinhVienService;
+            _mainHub = mainHub;
         }
         [HttpPut("Login")]
         [AllowAnonymous]
@@ -39,13 +46,22 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> UpdateLogout([FromBody] SinhVienDto sinhVien)
         {
             await _sinhVienService.Logout(sinhVien.MaSinhVien, DateTime.Now);
+            await NotifyAuthenticationToAdmin(sinhVien.MaSinhVien);
             return Ok();
         }
         [HttpGet("SelectBy_MSSV")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string ma_so_sinh_vien)
         {
-            return await _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
+            await _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
+            return Ok();
+        }
+        [HttpPut("ResetLogin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> ResetLogin([FromBody] SinhVienDto sinhVien)
+        {
+            await NotifyLogOutToSV(sinhVien.MaLop ?? -1, sinhVien.MaSinhVien);
+            return Ok();
         }
 
 
@@ -59,6 +75,7 @@ namespace Hutech.Exam.Server.Controllers
         private async Task UpdateLogin(long ma_sinh_vien)
         {
             await _sinhVienService.Login(ma_sinh_vien, DateTime.Now);
+            await NotifyAuthenticationToAdmin(ma_sinh_vien);
         }
         private bool checkLogin(SinhVienDto sinhVien)
         {
@@ -72,6 +89,14 @@ namespace Hutech.Exam.Server.Controllers
                     return false;
             }
             return true;
+        }
+        private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien)
+        {
+            await _mainHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien);
+        }
+        private async Task NotifyLogOutToSV(int ma_lop, long ma_sinh_vien)
+        {
+            await _mainHub.Clients.Group(ma_lop + "").SendAsync("ResetLogin", ma_sinh_vien);
         }
     }
 }

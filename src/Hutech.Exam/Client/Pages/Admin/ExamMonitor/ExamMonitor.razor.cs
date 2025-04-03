@@ -8,6 +8,7 @@ using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
 using OfficeOpenXml;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
@@ -29,6 +30,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private const string SUCCESS_RESETLOGIN = "Reset đăng nhập cho thí sinh thành công";
         private const string ERROR_RESETLOGIN = "Reset đăng nhập cho thí sinh thất bại";
         private const string ALERT_ADDSV = "Thêm thí sinh được dùng cho việc khẩn cấp. Hãy đảm bảo MSSV thí sinh đã tồn tại trong hệ thống";
+        private const string MISSINGINFO_RESETLOGIN = "Tính năng reset login không thể hoạt động khi thiếu thông tin mã lớp";
 
         protected override async Task OnInitializedAsync()
         {
@@ -57,7 +59,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async void OnClickResetLogin(SinhVienDto? sinhVien)
         {
-            if(sinhVien != null && sinhVien.IsLoggedIn == true)
+            if (sinhVien != null && sinhVien.IsLoggedIn == true)
             {
                 var parameters = new DialogParameters<Simple_Dialog>
                 {
@@ -75,12 +77,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task HandleResetLogin(SinhVienDto sinhVien)
         {
-            bool resultAPI = await ResetLoginAPI(sinhVien);
-            if (resultAPI && IsConnectHub() && caThi != null)
+            if(sinhVien.MaLop == null)
             {
-                await SendMessage(caThi.MaCaThi);
-                await sendMessageResetLogin(sinhVien.MaSinhVien);
+                Snackbar.Add(MISSINGINFO_RESETLOGIN, Severity.Error);
+                return;
             }
+            await ResetLoginAPI(sinhVien);
         }
 
         private async Task Refresh()
@@ -149,35 +151,43 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             if (chiTietCaThis != null)
             {
                 hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
+                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
+                    {
+                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
+                    })
+                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
                     .Build();
 
-                hubConnection.On<int>("ReceiveMessageMCT", (ma_ca_thi_message) =>
+                hubConnection.Closed += async (error) =>
                 {
-                    if (caThi != null && ma_ca_thi_message == caThi.MaCaThi)
-                    {
-                        CallLoadData();
-                        StateHasChanged();
-                    }
-                });
-                hubConnection.On<long>("ReceiveMessageMSV", (ma_sinh_vien) =>
+                    await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
+                    await CreateHubConnection(); // Thử kết nối lại
+                };
+
+                hubConnection.On<long>("SV_Authentication", async (ma_sinh_vien) =>
                 {
                     if (chiTietCaThis.Exists(p => p.MaSinhVien == ma_sinh_vien))
                     {
-                        CallLoadData();
-                        StateHasChanged();
+                        await CallLoadData();
                     }
                 });
+                hubConnection.On<int>("SV_Status", async (ma_chi_tiet_ca_thi) =>
+                {
+                    if (chiTietCaThis.Exists(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi))
+                    {
+                        await CallLoadData();
+                    }
+                });
+
                 await hubConnection.StartAsync();
+
+                await hubConnection.InvokeAsync("JoinGroupAdmin");
             }
         }
 
-        private void CallLoadData()
+        private async Task CallLoadData()
         {
-            Task.Run(async () =>
-            {
-                chiTietCaThis = await GetThongTinChiTietCaThiAPI(caThi?.MaCaThi ?? -1);
-            });
+            chiTietCaThis = await GetThongTinChiTietCaThiAPI(caThi?.MaCaThi ?? -1);
         }
         private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
@@ -185,11 +195,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
-        }
-        private async Task sendMessageResetLogin(long ma_sinh_vien)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageResetLogin", ma_sinh_vien);
         }
         public void Dispose()
         {

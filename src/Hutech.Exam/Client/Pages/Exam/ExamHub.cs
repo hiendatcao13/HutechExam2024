@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Client.Authentication;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
@@ -6,68 +7,65 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class Exam
     {
-        private async Task InitialConnectionHub()
+        private async Task CreateHubConnection()
         {
-            if (Nav != null && MyData != null)
-            {
-                // mở để cập nhật trạng thái thi của sinh viên
-                hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
-                .Build();
-                // trường hợp dừng ca thi
-                hubConnection.On<int>("ReceiveMessageStatusCaThi", (ma_ca_thi) =>
-                {
-                    if(chiTietCaThi != null && ma_ca_thi == chiTietCaThi.MaCaThi)
+            hubConnection = new HubConnectionBuilder()
+                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
                     {
-                        CallLoadData();
-                        StateHasChanged();
-                    }
-                });
-                hubConnection.On<long>("ReceiveMessageResetLogin", (ma_so_sv) =>
+                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
+                    })
+                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
+                    .Build();
+
+            hubConnection.Closed += async (error) =>
+            {
+                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
+                await CreateHubConnection(); // Thử kết nối lại
+            };
+
+            // trường hợp thay đổi tình trạng ca thi
+            hubConnection.On<int>("ChangeStatusCaThi", async (ma_ca_thi) =>
+            {
+                if (chiTietCaThi != null && ma_ca_thi == chiTietCaThi.MaCaThi)
                 {
-                    if (sinhVien != null && ma_so_sv == sinhVien.MaSinhVien)
-                        resetLogin();
-                });
-                await hubConnection.StartAsync();
-            }
+                    await CallLoadData();
+                }
+            });
+            hubConnection.On<long>("ResetLogin", async (ma_sinh_vien) =>
+            {
+                if(sinhVien != null && sinhVien.MaSinhVien == ma_sinh_vien)
+                await HandleDangXuat();
+            });
+            await hubConnection.StartAsync();
+
+            //tham gia vào group lớp
+            await hubConnection.InvokeAsync("JoinGroupLop", sinhVien?.MaLop ?? -1);
         }
         private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
-
+        private async Task HandleDangXuat()
+        {
+            if (await UpdateLogoutAPI(MyData.SinhVien))
+            {
+                var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+                await customAuthStateProvider.UpdateAuthenticationState(null);
+                Nav?.NavigateTo("/", true);
+            }
+        }
         private async Task SendMessage(int ma_ca_thi)
         {
             if (hubConnection != null)
                 await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
         }
-        private async Task SendMessage(long ma_sinh_vien)
+        private async Task CallLoadData()
         {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
-        }
-        private void CallLoadData()
-        {
-            Task.Run(async () =>
+            await UpdateChiTietBaiThiAPI();
+            bool result = await IsActiveCaThiAPI(chiTietCaThi?.MaCaThi ?? -1);
+            if (!result)
             {
-                await UpdateChiTietBaiThiAPI();
-                bool result = await IsActiveCaThiAPI(chiTietCaThi?.MaCaThi ?? -1);
-                if (!result)
-                {
-                    Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
-                    Nav?.NavigateTo("/info");
-                }
-            });
-        }
-        private void resetLogin()
-        {
-            Task.Run(async () =>
-            {
-                if (AuthenticationStateProvider != null)
-                {
-                    var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-                    await customAuthStateProvider.UpdateAuthenticationState(null);
-                    Nav?.NavigateTo("/", true);
-                }
-            });
+                Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
+                Nav?.NavigateTo("/info");
+            }
         }
     }
 }

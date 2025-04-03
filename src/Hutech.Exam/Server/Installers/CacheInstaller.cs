@@ -2,6 +2,8 @@
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Configurations;
 using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Installers
@@ -21,6 +23,8 @@ namespace Hutech.Exam.Server.Installers
             services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConfiguarion.ConnectionString));
             services.AddStackExchangeRedisCache(option => option.Configuration = redisConfiguarion.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+
+            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
         }
     }
 }

@@ -14,6 +14,7 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace Hutech.Exam.Client.Pages.Result
 {
@@ -97,8 +98,6 @@ namespace Hutech.Exam.Client.Pages.Result
                 chiTietCaThi.SoCauDung = so_cau_dung;
                 chiTietCaThi.TongSoCau = MyData.ListDapAnKhoanh.Count;
                 await UpdateKetThucAPI(chiTietCaThi);
-                if (IsConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
-                    await SendMessage((int)chiTietCaThi.MaCaThi);
             }
         }
         private void TinhDiemSo()
@@ -140,22 +139,17 @@ namespace Hutech.Exam.Client.Pages.Result
             { x => x.ContentText, LOGOUT_MESSAGE },
             { x => x.ButtonText, "Logout" },
             { x => x.Color, Color.Error },
-            { x => x.onHandleSubmit, EventCallback.Factory.Create(this, UpdateLogout)   }
+            { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDangXuat())   }
         };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
             await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
         }
-        private async Task UpdateLogout()
+        private async Task HandleDangXuat()
         {
             if (await UpdateLogoutAPI(MyData.SinhVien))
             {
-                // Cập nhật cho quản trị viên biết sinh viên đã đăng xuất
-                if (IsConnectHub() && sinhVien != null)
-                {
-                    await SendMessage(sinhVien.MaSinhVien);
-                }
                 var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
                 await customAuthStateProvider.UpdateAuthenticationState(null);
                 Nav?.NavigateTo("/", true);
@@ -180,46 +174,36 @@ namespace Hutech.Exam.Client.Pages.Result
         }
         private async Task Start()
         {
-            await InitialHubConnection();
+            await CreateHubConnection();
             await GetListDungSai();
             TinhDiemSo();
             await HandleUpdateKetThuc();
         }
-        private async Task InitialHubConnection()
+        private async Task CreateHubConnection()
         {
             hubConnection = new HubConnectionBuilder()
-                .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
-                .Build();
-            hubConnection.On<long>("ReceiveMessageResetLogin", (ma_so_sv) =>
+                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
+                    {
+                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
+                    })
+                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
+                    .Build();
+
+            hubConnection.Closed += async (error) =>
             {
-                if (sinhVien != null && ma_so_sv == sinhVien.MaSinhVien)
-                    ResetLogin();
+                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
+                await CreateHubConnection(); // Thử kết nối lại
+            };
+
+            hubConnection.On<long>("ResetLogin", async (ma_sinh_vien) =>
+            {
+                if (sinhVien != null && sinhVien.MaSinhVien == ma_sinh_vien)
+                    await HandleDangXuat();
             });
             await hubConnection.StartAsync();
-        }
 
-        private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
-        private async Task SendMessage(long ma_sinh_vien)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
-        }
-        private async Task SendMessage(int ma_ca_thi)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
-        }
-        private void ResetLogin()
-        {
-            Task.Run(async () =>
-            {
-                if (AuthenticationStateProvider != null)
-                {
-                    var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-                    await customAuthStateProvider.UpdateAuthenticationState(null);
-                    Nav.NavigateTo("/", true);
-                }
-            });
+            //tham gia vào group lớp
+            await hubConnection.InvokeAsync("JoinGroupLop", sinhVien?.MaLop ?? -1);
         }
     }
 }

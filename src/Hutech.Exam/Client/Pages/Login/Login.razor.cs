@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Hutech.Exam.Shared.DTO;
 using MudBlazor;
+using Hutech.Exam.Client.DAL;
+using Microsoft.AspNetCore.Http.Connections;
 namespace Hutech.Exam.Client.Pages.Login
 {
 
@@ -16,10 +18,9 @@ namespace Hutech.Exam.Client.Pages.Login
         [Inject] private NavigationManager Nav { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+        [Inject] private ApplicationDataService MyData { get; set; } = default!;
 
-        private SinhVienDto? student;
         private UserSession? userSession;
-        private HubConnection? hubConnection;
         private string? username = "";
         private string? password = "";
 
@@ -29,8 +30,6 @@ namespace Hutech.Exam.Client.Pages.Login
 
         protected override async Task OnInitializedAsync()
         {
-            await Start();
-            student = new();
             //nếu đã tồn tại người dùng đăng nhập trước đó, chuyển trang
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
             var token = await customAuthStateProvider.GetToken();
@@ -76,39 +75,7 @@ namespace Hutech.Exam.Client.Pages.Login
             // Cập nhật trạng thái xác thực
             await customAuthenticationStateProvider.UpdateAuthenticationState(userSession);
 
-            student = userSession.NavigateSinhVien;
-
-            // Thông báo cho quản trị viên nếu có kết nối
-            if (IsConnectHub() && student != null)
-            {
-                await SendMessage(student.MaSinhVien);
-            }
-
             Nav.NavigateTo("/info", true);
-        }
-
-        private async Task Start()
-        {
-            if (Nav != null)
-            {
-                hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/ChiTietCaThiHub"))
-                    .Build();
-
-                await hubConnection.StartAsync();
-            }
-        }
-        private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
-
-        private async Task SendMessage(long ma_sinh_vien)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageMSV", ma_sinh_vien);
-        }
-
-        public void Dispose()
-        {
-            hubConnection?.DisposeAsync();
         }
     }
 }

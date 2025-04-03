@@ -2,7 +2,6 @@
 using Hutech.Exam.Client.Extensions;
 using Hutech.Exam.Shared;
 using Microsoft.AspNetCore.Components.Authorization;
-using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace Hutech.Exam.Client.Authentication
@@ -21,7 +20,7 @@ namespace Hutech.Exam.Client.Authentication
             try
             {
                 var userSession = await _sessionStorageService.ReadEncryptedItemAsync<UserSession>("UserSession");
-                if(userSession == null)
+                if (userSession == null)
                 {
                     // không tìm thấy người dùng thì trả về vô danh
                     return await Task.FromResult(new AuthenticationState(_anonymous));
@@ -29,8 +28,9 @@ namespace Hutech.Exam.Client.Authentication
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, userSession.Username),
-                    new Claim(ClaimTypes.Role, userSession.Role)
-                    
+                    new Claim(ClaimTypes.Role, userSession.Role),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username)
+
                 }, "JwtAuth"));
                 // trả về giấy xác thực người dùng
                 return await Task.FromResult(new AuthenticationState(claimsPrincipal));
@@ -47,11 +47,13 @@ namespace Hutech.Exam.Client.Authentication
             // và thông báo tình trạng việc xác thực đã có sự thay đổi
             // khi log out thì tham số userSession sẽ là null
             ClaimsPrincipal claimsPrincipal;
-            if(userSession != null) // khi nguời dùng log in
+            if (userSession != null) // khi nguời dùng log in
             {
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userSession.Username)
+                    new Claim(ClaimTypes.Name, userSession.Username),
+                    new Claim(ClaimTypes.Role, userSession.Role),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username)
                 }));
                 userSession.ExpiryTimeStamp = DateTime.Now.AddSeconds(userSession.ExpireIn);
                 await _sessionStorageService.SaveItemEncryptedAsync("UserSession", userSession);

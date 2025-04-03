@@ -13,7 +13,9 @@ namespace Hutech.Exam.Client.Pages.Login
             Snackbar.Add(LOADING_MESSAGE, Severity.Info);
             var json = JsonSerializer.Serialize(username);
             var response = await Http.PutAsync("api/SinhVien/Login", new StringContent(json, Encoding.UTF8, "application/json"));
-            return await response.Content.ReadFromJsonAsync<UserSession?>();
+            if(response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<UserSession?>();
+            return null;
         }
     }
 }

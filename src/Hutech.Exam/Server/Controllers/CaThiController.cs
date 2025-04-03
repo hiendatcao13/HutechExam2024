@@ -1,7 +1,10 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using System.Transactions;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -14,12 +17,15 @@ namespace Hutech.Exam.Server.Controllers
         private readonly ChiTietDotThiService _chiTietDotThiService;
         private readonly ChiTietCaThiService _chiTietCaThiService;
         private readonly ChiTietBaiThiService _chiTietBaiThiService;
-        public CaThiController(CaThiService caThiService, ChiTietDotThiService chiTietDotThiService, ChiTietCaThiService chiTietCaThiService, ChiTietBaiThiService chiTietBaiThiService)
+        private readonly IHubContext<MainHub> _mainHub;
+        public CaThiController(CaThiService caThiService, ChiTietDotThiService chiTietDotThiService, ChiTietCaThiService chiTietCaThiService, 
+            ChiTietBaiThiService chiTietBaiThiService, IHubContext<MainHub> mainHub)
         {
             _caThiService = caThiService;
             _chiTietDotThiService = chiTietDotThiService;
             _chiTietCaThiService = chiTietCaThiService;
             _chiTietBaiThiService = chiTietBaiThiService;
+            _mainHub = mainHub;
         }
         [HttpGet("IsActiveCaThi")]
         [Authorize]
@@ -44,44 +50,84 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> KichHoatCaThi([FromBody] int ma_ca_thi)
         {
             await _caThiService.ca_thi_Activate(ma_ca_thi, true);
+            await NotifyChangeStatusCaThiToSV(ma_ca_thi);
+            await NotifyChangeStatusCaThiToAdmin();
             return Ok();
         }
         [HttpPut("HuyKichHoatCaThi")]
         public async Task<ActionResult> HuyKichHoatCaThi([FromBody] int ma_ca_thi)
         {
-            List<ChiTietCaThiDto> chiTietCaThis = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
-            foreach (var item in chiTietCaThis)
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                if (!item.DaHoanThanh) // cập nhật những thí sinh đang thi, chưa thi thành đã hoàn thành
+                try
                 {
-                    item.DaHoanThanh = true;
-                    item.ThoiGianKetThuc = DateTime.Now;
-                    await _chiTietCaThiService.UpdateKetThuc(item);
+                    List<ChiTietCaThiDto> chiTietCaThis = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+                    foreach (var item in chiTietCaThis)
+                    {
+                        if (!item.DaHoanThanh)
+                        {
+                            item.DaHoanThanh = true;
+                            item.ThoiGianKetThuc = DateTime.Now;
+                            await _chiTietCaThiService.UpdateKetThuc(item);
+                        }
+
+                        List<ChiTietBaiThiDto> chiTietBaiThis = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(item.MaChiTietCaThi);
+                        await RemoveListCTBT(chiTietBaiThis);
+                    }
+                    await DungCaThi(ma_ca_thi);
+                    await NotifyChangeStatusCaThiToSV(ma_ca_thi);
+                    await NotifyChangeStatusCaThiToAdmin();
+
+                    // Commit tất cả thay đổi nếu không có lỗi
+                    transaction.Complete();
+                    return Ok();
                 }
-                List<ChiTietBaiThiDto> chiTietBaiThis = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(item.MaChiTietCaThi);
-                await removeListCTBT(chiTietBaiThis);
+                catch (Exception ex)
+                {
+                    // Nếu có lỗi, transaction sẽ rollback tự động khi Dispose()
+                    return BadRequest("Có lỗi xảy ra khi hủy kích hoạt ca thi." + ex.Message );
+                }
             }
-            await DungCaThi(ma_ca_thi);
-            return Ok();
         }
         [HttpPut("DungCaThi")]
         public async Task<ActionResult> DungCaThi([FromBody] int ma_ca_thi)
         {
             await _caThiService.ca_thi_Activate(ma_ca_thi, false);
+            await NotifyChangeStatusCaThiToSV(ma_ca_thi);
+            await NotifyChangeStatusCaThiToAdmin();
             return Ok();
         }
         [HttpPut("KetThucCaThi")]
         public async Task<ActionResult<bool>> KetThucCaThi([FromBody] int ma_ca_thi)
         {
-            List<ChiTietCaThiDto> chiTietCaThis = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
-            foreach (var item in chiTietCaThis)
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                if (!item.DaHoanThanh) // Yêu cầu kết thúc ca thi chỉ thực hiện khi các thí sinh đã hoàn thành bài thi
-                    return Ok(false);
+                try
+                {
+                    List<ChiTietCaThiDto> chiTietCaThis = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
+                    foreach (var item in chiTietCaThis)
+                    {
+                        if (!item.DaHoanThanh)
+                        {
+                            // Nếu có thí sinh chưa hoàn thành bài, rollback và return false
+                            return Ok(false);
+                        }
+                    }
+
+                    await _caThiService.ca_thi_Ketthuc(ma_ca_thi);
+                    await NotifyChangeStatusCaThiToSV(ma_ca_thi);
+                    await NotifyChangeStatusCaThiToAdmin();
+
+                    // Xác nhận tất cả thao tác hợp lệ
+                    transaction.Complete();
+                    return Ok(true);
+                }
+                catch (Exception ex)
+                {
+                    // Nếu có lỗi, transaction sẽ rollback tự động
+                    return BadRequest("Lỗi khi hủy kích hoạt ca thi." + ex.Message );
+                }
             }
-            await _caThiService.ca_thi_Ketthuc(ma_ca_thi);
-            await DungCaThi(ma_ca_thi);
-            return Ok(true);
         }
 
 
@@ -91,10 +137,19 @@ namespace Hutech.Exam.Server.Controllers
         {
             return await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo_LanThi(ma_dot_thi, ma_lop_ao, lan_thi);
         }
-        private async Task removeListCTBT(List<ChiTietBaiThiDto> chiTietBaiThis)
+        private async Task RemoveListCTBT(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
             foreach (var item in chiTietBaiThis)
                 await _chiTietBaiThiService.Delete(item.MaChiTietBaiThi);
+        }
+        private async Task NotifyChangeStatusCaThiToSV(int ma_lop)
+        {
+            await _mainHub.Clients.Group(ma_lop + "").SendAsync("ChangeStatusCaThi", ma_lop);
+        }
+        // các admin khác cũng nhận được sự thay đổi của TT ca thi
+        private async Task NotifyChangeStatusCaThiToAdmin()
+        {
+            await _mainHub.Clients.Group("admin").SendAsync("ChangeStatusCaThi");
         }
     }
 }

@@ -54,8 +54,10 @@ namespace Hutech.Exam.Server.Authentication
             {
                 // claim lưu là mã sinh viên
                 new Claim(ClaimTypes.Name, sinhVien.MaSinhVien.ToString()),
-                new Claim(ClaimTypes.Role, "User") // nhận biết là admin hay sinh viên
+                new Claim(ClaimTypes.Role, "User"), // nhận biết là admin hay sinh viên
+                new Claim(ClaimTypes.NameIdentifier, sinhVien.MaSinhVien.ToString())
             });
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             var sigingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
                 SecurityAlgorithms.HmacSha256Signature);
