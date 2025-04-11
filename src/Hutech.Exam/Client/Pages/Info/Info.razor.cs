@@ -65,14 +65,14 @@ namespace Hutech.Exam.Client.Pages.Info
             var parameters = new DialogParameters<Simple_Dialog>
             {
                 { x => x.ContentText, LOGOUT_MESSAGE },
-                { x => x.ButtonText, "Logout" },
+                { x => x.ButtonText, "Đăng xuất" },
                 { x => x.Color, Color.Error },
                 { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDangXuat())   }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+            await Dialog.ShowAsync<Simple_Dialog>("Thoát tài khoản", parameters, options);
         }
         private async Task HandleDangXuat()
         {

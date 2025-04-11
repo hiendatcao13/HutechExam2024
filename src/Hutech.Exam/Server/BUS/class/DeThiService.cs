@@ -56,5 +56,17 @@ namespace Hutech.Exam.Server.BUS
             }
             return deThi;
         }
+        public async Task<List<DeThiDto>> GetAll()
+        {
+            List<DeThiDto> result = new();
+            using (IDataReader dataReader = await _deThiRepository.GetAll())
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(getProperty(dataReader));
+                }
+            }
+            return result;
+        }
     }
 }

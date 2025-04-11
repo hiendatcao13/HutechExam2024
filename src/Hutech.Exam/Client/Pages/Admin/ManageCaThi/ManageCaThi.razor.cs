@@ -74,7 +74,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         }
         private async Task GetItemsInSessionStorage()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredData>("storedData");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataMC>("storedDataMC");
             if (storedData != null)
             {
                 selectedDotThi = storedData.DotThi;

@@ -1,9 +1,12 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using OfficeOpenXml;
 using System.Transactions;
 
 namespace Hutech.Exam.Server.Controllers
@@ -45,6 +48,11 @@ namespace Hutech.Exam.Server.Controllers
             ChiTietDotThiDto chiTietDotThiDto = await GetCTDT_SelectBy_MaDotThi_MaLopAo_LanThi(ma_dot_thi, ma_lop_ao, lan_thi);
             return Ok(await _caThiService.SelectBy_ma_chi_tiet_dot_thi(chiTietDotThiDto.MaChiTietDotThi));
 
+        }
+        [HttpGet("SelectBy_ma_chi_tiet_dot_thi")]
+        public async Task<ActionResult<List<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi([FromQuery] int ma_chi_tiet_dot_thi)
+        {
+            return Ok(await _caThiService.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi));
         }
         [HttpPut("KichHoatCaThi")]
         public async Task<ActionResult> KichHoatCaThi([FromBody] int ma_ca_thi)
@@ -129,6 +137,71 @@ namespace Hutech.Exam.Server.Controllers
                 }
             }
         }
+        [HttpPost("Insert")]
+        public async Task<ActionResult<int>> Insert([FromBody] CustomCaThi caThi)
+        {
+            var id = await _caThiService.Insert(caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+            await NotifyChangeCaThiToAdmin();
+            return Ok(id);
+        }
+        [HttpPut("Update")]
+        public async Task<ActionResult> Update([FromBody] CustomCaThi caThi)
+        {
+            if (caThi.TenCaThi != null)
+                await _caThiService.Update(caThi.MaCaThi, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+            await NotifyChangeCaThiToAdmin();
+            return Ok();
+        }
+        [HttpDelete("Remove")]
+        public async Task<ActionResult> Remove([FromQuery] int ma_ca_thi)
+        {
+            await _caThiService.Remove(ma_ca_thi);
+            await NotifyChangeCaThiToAdmin();
+            return Ok();
+        }
+        [HttpPost("GenerateExcelFile")]
+        public async Task<ActionResult<byte[]>> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
+        {
+            // Cấp phép cho EPPlus
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var package = new ExcelPackage())
+            {
+                // Tạo worksheet
+                var worksheet = package.Workbook.Worksheets.Add("Data");
+
+                // Thêm dữ liệu
+                worksheet.Cells[1, 1].Value = "ISTT";
+                worksheet.Cells[1, 2].Value = "MSSV";
+                worksheet.Cells[1, 3].Value = "HoVaTenLot";
+                worksheet.Cells[1, 4].Value = "TenSinhVien";
+                worksheet.Cells[1, 5].Value = "Diem";
+
+                if (chiTietCaThis != null)
+                {
+                    int rowIndex = 2; // Bắt đầu từ hàng thứ 2 (dòng dữ liệu)
+                    foreach (var item in chiTietCaThis)
+                    {
+                        SinhVienDto? sv = item.MaSinhVienNavigation;
+                        if (sv != null)
+                        {
+                            worksheet.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
+                            worksheet.Cells[rowIndex, 2].Value = sv.MaSoSinhVien;
+                            worksheet.Cells[rowIndex, 3].Value = sv.HoVaTenLot;
+                            worksheet.Cells[rowIndex, 4].Value = sv.TenSinhVien;
+                            worksheet.Cells[rowIndex, 5].Value = item.Diem;
+                            rowIndex++;
+                        }
+                    }
+                }
+
+                // Tự động điều chỉnh cột
+                worksheet.Cells.AutoFitColumns();
+
+                // Trả về dữ liệu Excel dưới dạng mảng byte
+                return await Task.FromResult(package.GetAsByteArray());
+            }
+        }
 
 
 
@@ -150,6 +223,10 @@ namespace Hutech.Exam.Server.Controllers
         private async Task NotifyChangeStatusCaThiToAdmin()
         {
             await _mainHub.Clients.Group("admin").SendAsync("ChangeStatusCaThi");
+        }
+        private async Task NotifyChangeCaThiToAdmin()
+        {
+            await _mainHub.Clients.Group("admin").SendAsync("ChangeCaThi");
         }
     }
 }

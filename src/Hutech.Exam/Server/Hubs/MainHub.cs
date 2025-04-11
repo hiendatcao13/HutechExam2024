@@ -5,16 +5,10 @@ namespace Hutech.Exam.Server.Hubs
 {
     public class MainHub : Hub
     {
+        //Note: DotThi, CTDotThi ngoài có NotifyChange thì có NotifyDelete
+
+
         // hub cho thí sinh tham gia và rời tham gia nhóm "student"
-        //public async Task JoinGroupStudent(long ma_sinh_vien)
-        //{
-        //    await Groups.AddToGroupAsync(ma_sinh_vien + "", "student");
-        //}
-        //public async Task LeaveGroupStudent(long ma_sinh_vien)
-        //{
-        //    await Groups.RemoveFromGroupAsync(ma_sinh_vien + "", "student");
-        //}
-        // hub cho thí sinh join đúng lớp của mình (tránh dùng all)
         public async Task JoinGroupLop(int ma_lop)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, ma_lop + "");
@@ -31,7 +25,7 @@ namespace Hutech.Exam.Server.Hubs
         }
         public async Task LeaveGroupAdmin()
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId + "", "admin");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "admin");
         }
 
         // các thông điệp được minh họa tại đây vì nó được gọi trực tiếp

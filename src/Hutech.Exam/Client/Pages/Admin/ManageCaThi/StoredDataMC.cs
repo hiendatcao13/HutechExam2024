@@ -1,9 +1,9 @@
 ﻿using Hutech.Exam.Shared.DTO;
 
-namespace Hutech.Exam.Client.Pages.Admin
+namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {
     // class sử dụng để lưu trong SessionStorage
-    internal class StoredData
+    internal class StoredDataMC
     {
         public DotThiDto? DotThi { get; set; }
         public MonHocDto? MonHoc { get; set; }

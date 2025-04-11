@@ -17,9 +17,6 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
             {
                 return await response.Content.ReadFromJsonAsync<UserSession>();
             }
-            var errorMessage = await response.Content.ReadAsStringAsync();
-            // thông báo account bị xóa hoặc khóa
-            Snackbar.Add(errorMessage, Severity.Error);
             return null;
         }
     }

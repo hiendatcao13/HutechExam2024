@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Client.Components.MessageBox;
+using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
 using MudBlazor;
 
 
@@ -53,7 +54,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task<string?> GetLop()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredData>("storedData");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataMC>("storedDataMC");
             return storedData.LopAo?.TenLopAo;
         }
     }

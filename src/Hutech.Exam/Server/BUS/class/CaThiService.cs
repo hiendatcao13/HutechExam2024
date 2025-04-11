@@ -38,7 +38,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
         {
-            List<CaThiDto> result = new();
+            List<CaThiDto> result = [];
             using (IDataReader dataReader = await _caThiRepository.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi))
             {
                 while (dataReader.Read())
@@ -63,7 +63,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<CaThiDto>> ca_thi_GetAll()
         {
-            List<CaThiDto> result = new();
+            List<CaThiDto> result = [];
             using (IDataReader dataReader = await _caThiRepository.ca_thi_GetAll())
             {
                 while (dataReader.Read())
@@ -84,7 +84,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
         {
-            return (int)(await _caThiRepository.Insert(ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) ?? -1);
+            return Convert.ToInt32(await _caThiRepository.Insert(ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) ?? -1);
         }
         public async Task<int> Remove(int ma_ca_thi)
         {

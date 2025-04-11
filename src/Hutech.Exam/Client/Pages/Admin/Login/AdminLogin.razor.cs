@@ -20,7 +20,7 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
         private string username = "";
         private string password = "";
 
-        private const string FAILED_MESSSAGE = "Không thể xác thực người dùng!";
+        private const string FAILED_MESSSAGE = "Không thể xác thực người dùng hoặc tài khoản bị tạm khóa!";
         private const string LOADING_MESSAGE = "Đang xác thực thông tin...";
         private const string EMPTY_MESSAGE = "Vui lòng điền đầy đủ tên đăng nhập và mật khẩu!";
 

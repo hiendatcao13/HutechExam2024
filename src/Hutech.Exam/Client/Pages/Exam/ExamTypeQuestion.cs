@@ -29,15 +29,18 @@ namespace Hutech.Exam.Client.Pages.Exam
                 }
             }
         }
-        private List<string> HandleLatex(string text)
+        private static List<string> HandleLatex(string text)
         {
-            List<string> result = new List<string>();
-            if (!text.Contains("latex"))
-                return new List<string> { text };
+            List<string> result = new();
+            if (!text.Contains("<latex>"))
+                return [text];
+
             string[] parts = text.Split("<latex>");
+
             // xử lí phần đầu chắc chắn không có latex hoặc là thuần latex
-            if(parts.Length > 1)
+            if (!string.IsNullOrEmpty(parts[0]))
                 result.Add(parts[0]);
+
             for (int i = 1; i < parts.Length; i++)
             {
                 // phần cắt này chỉ có 2 phần duy nhất
@@ -46,19 +49,20 @@ namespace Hutech.Exam.Client.Pages.Exam
                 // xử lí phần đầu chắc chắn là latex
                 result.Add("$$" + parts2[0]);
 
-                // phần còn lại là chữ hoặc không có nếu là thuần latex
-                if(parts2.Length > 1)
+                // / phần còn lại là chữ hoặc không có nếu là thuần latex
+                if (parts2.Length > 1 && !string.IsNullOrEmpty(parts2[1]))
                     result.Add(parts2[1]);
             }
+
             return result;
         }
-        private string HandleDienKhuyet(string text, int STT)
+        private static string HandleDienKhuyet(string text, int STT)
         {
             if(!text.Contains("(*)"))
                 return text;
             return Regex.Replace(text, @"\(\*\)", m => "(" + (STT++).ToString() + ")");
         }
-        private string HandleAudioSource(string text)
+        private static string HandleAudioSource(string text)
         {
             text = text.Trim();
             int index_source = text.IndexOf("src=\"");

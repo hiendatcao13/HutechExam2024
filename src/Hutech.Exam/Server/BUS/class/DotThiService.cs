@@ -54,7 +54,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<int> Insert(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {
-            return (int)(await _dotThiRepository.Insert(ten_dot_thi, thoi_gian_bat_dau, thoi_gian_ket_thuc, nam_hoc) ?? -1);
+            return Convert.ToInt32(await _dotThiRepository.Insert(ten_dot_thi, thoi_gian_bat_dau, thoi_gian_ket_thuc, nam_hoc) ?? -1);
         }
         public async Task<int> Update(int ma_dot_thi, string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {

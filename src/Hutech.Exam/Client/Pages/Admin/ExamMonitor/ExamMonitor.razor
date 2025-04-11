@@ -16,19 +16,19 @@
                 <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf"  Color="Color.Default">Export PDF</MudButton>
                 <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcel">Export EXCEL</MudButton>
             </MudPaper>
-            <MudPaper Elevation="2" Class="pa-4" Style="margin-top: 5%; position: sticky; top: 8%">
+            @* <MudPaper Elevation="2" Class="pa-4" Style="margin-top: 5%; position: sticky; top: 8%">
                 <MudText Typo="Typo.subtitle2">THỜI GIAN BIỂU SV</MudText>
                 <MudText Typo="Typo.caption">ĐNhap: @currentlyHover_dangNhap</MudText><br />
                 <MudText Typo="Typo.caption">ĐXuat: @currentlyHover_dangXuat</MudText><br />
                 <MudText Typo="Typo.caption">BĐ thi: @currentlyHover_thoiGianBD</MudText><br />
                 <MudText Typo="Typo.caption">KT thi: @currentlyHover_thoiGianKT</MudText><br />
                 <MudText Typo="Typo.caption">Cộng: @currentlyHover_thoiGianCong</MudText>
-            </MudPaper>
+            </MudPaper> *@
         </MudItem>
         @if(chiTietCaThis != null)
         {
             <MudItem xs="10">
-                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By" OnRowMouseEnter="RowMouseEnterEvent" OnRowMouseLeave="RowMouseLeaveEvent">
+                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                         <MudSpacer />
@@ -87,11 +87,6 @@
     private string GetDangNhap (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
 
     private string searchString = "";
-    private string currentlyHover_dangNhap = "";
-    private string currentlyHover_dangXuat = "";
-    private string currentlyHover_thoiGianBD = "";
-    private string currentlyHover_thoiGianKT = "";
-    private string currentlyHover_thoiGianCong = "";
 
     private bool Filter(ChiTietCaThiDto element)
     {
@@ -101,17 +96,5 @@
 
         // Kiểm tra null an toàn trước khi truy cập thuộc tính con
         return element.MaSinhVienNavigation?.MaSoSinhVien?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
-    }
-    private void RowMouseEnterEvent(TableRowHoverEventArgs<ChiTietCaThiDto> eventArgs)
-    {
-        currentlyHover_dangNhap = eventArgs.Item?.MaSinhVienNavigation?.LastLoggedIn.HasValue ?? false ? eventArgs.Item.MaSinhVienNavigation.LastLoggedIn.Value.ToString("dd/MM HH:mm") : "Chưa có";
-        currentlyHover_dangXuat = eventArgs.Item?.MaSinhVienNavigation?.LastLoggedOut.HasValue ?? false ? eventArgs.Item.MaSinhVienNavigation.LastLoggedOut.Value.ToString("dd/MM HH:mm") : "Chưa có";
-        currentlyHover_thoiGianBD = eventArgs.Item?.ThoiGianBatDau.HasValue ?? false ? eventArgs.Item.ThoiGianBatDau.Value.ToString("dd/MM HH:mm") : "Chưa có";
-        currentlyHover_thoiGianKT = eventArgs.Item?.ThoiGianKetThuc.HasValue ?? false ? eventArgs.Item.ThoiGianKetThuc.Value.ToString("dd/MM HH:mm") : "Chưa có";
-        currentlyHover_thoiGianCong = eventArgs.Item?.ThoiDiemCong.HasValue ?? false ? eventArgs.Item.ThoiDiemCong.Value.ToString("dd/MM HH:mm") : "Chưa có";
-    }
-    private void RowMouseLeaveEvent(TableRowHoverEventArgs<ChiTietCaThiDto> eventArgs)
-    {
-        currentlyHover_dangNhap = currentlyHover_dangXuat = currentlyHover_thoiGianBD = currentlyHover_thoiGianKT = currentlyHover_thoiGianCong = "";
     }
 }

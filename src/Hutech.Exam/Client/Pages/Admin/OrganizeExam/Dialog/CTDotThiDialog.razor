@@ -1,0 +1,313 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 350px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudText>Tên đợt thi: <span class="title-text">@TenDotThi</span></MudText>
+        <MudGrid>
+            <MudItem xs="9">
+                <MudSelect T="MonHocDto" Label="Môn thi" Value="selectedMonHoc" Clearable="true" ValueChanged="async (value) => await OnValueChangeMonHoc(value)">
+                    @if (monHocs != null)
+                    {
+                        foreach (var item in monHocs)
+                        {
+                            <MudSelectItem Value="item">@item.TenMonHoc</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="3" Style="align-content: end;">
+                <MudButtonGroup Style="zoom: 0.7">
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickThemMonThi()" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaMonThi()"/>
+                </MudButtonGroup>
+            </MudItem>
+        </MudGrid>
+        
+        <MudGrid>
+            <MudItem xs="9">
+                <MudSelect T="LopAoDto" Label="Phòng thi (theo môn thi)" @bind-Value="selectedLopAo" Clearable="true">
+                    @if (lopAos != null)
+                    {
+                        foreach (var item in lopAos)
+                        {
+                            <MudSelectItem Value="item">@item.TenLopAo</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="2" Style="align-content:end;">
+                <MudButtonGroup Style="zoom: 0.7;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickThemLopAo()" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaLopAo()"/>
+                </MudButtonGroup>
+            </MudItem>
+        </MudGrid>
+        
+        <MudSelect T="string" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
+            @foreach (var item in lanThis)
+            {
+                <MudSelectItem Value="item">Lần @item</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickSuaCTDT()">Sửa</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickThemCTDT()">Thêm</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+    .tools{
+        align-content: end;
+    }
+
+    .title-text {
+        font-weight: bold;
+        color: darkslateblue;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Inject] public HttpClient Http { get; set; } = default!;
+    [Parameter] public string? TenDotThi { get; set; }
+    [Parameter] public int? MaDotThi { get; set; }
+    [Parameter] public ChiTietDotThiDto? ChiTietDotThi { get; set; }
+    // hoặc là thêm mới hoặc là chỉnh sửa
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private MonHocDto? selectedMonHoc;
+    private LopAoDto? selectedLopAo;
+    private string? selectedLanThi;
+
+    private List<MonHocDto>? monHocs;
+    private List<LopAoDto>? lopAos;
+    private static readonly string[] lanThis = ["1", "2", "3", "4", "5"];
+
+    //trả về id vừa mới được tạo
+    int? result_id;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private const string SUCCESS_ADDCTDOTTHI = "Thêm chi tiết đợt thi thành công";
+    private const string FAIL_ADDCTDOTTHI = "Thêm chi tiết đợt thi thất bại";
+    private const string SUCCESS_EDITCTDOTTHI = "Sửa chi tiết đợt thi thành công";
+    private const string FAIL_EDITCTDOTTHI = "Sửa chi tiết đợt thi thất bại";
+
+    public void OnClickThoat()
+    {
+        MudDialog?.Close();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await HandleInput();
+        await base.OnInitializedAsync();
+    }
+    private async Task OnValueChangeMonHoc(MonHocDto monHoc){
+        if(selectedMonHoc == monHoc)
+            return;
+        selectedMonHoc = monHoc;
+        selectedLopAo = null;
+        lopAos = await LopAo_SelectedByMonHocAPI(selectedMonHoc?.MaMonHoc ?? -1);
+    }
+    private async Task HandleInput()
+    {
+        monHocs = await GetAllMonHocAPI();
+        if (IsEdit)
+        {
+            selectedMonHoc = ChiTietDotThi?.MaLopAoNavigation.MaMonHocNavigation;
+            lopAos = await LopAo_SelectedByMonHocAPI(selectedMonHoc?.MaMonHoc ?? -1);
+            selectedLopAo = ChiTietDotThi?.MaLopAoNavigation;
+            selectedLanThi = ChiTietDotThi?.LanThi;
+        }
+    }
+    private async Task OnClickThemCTDT(){
+        if (selectedMonHoc == null || selectedLopAo == null || string.IsNullOrEmpty(selectedLanThi))
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        bool result = await InsertCTDTAPI(CreateChiTietDotThi(MaDotThi ?? -1, TenDotThi ?? "", selectedLopAo.MaLopAo, selectedLanThi));
+        if (result)
+        {
+            Snackbar.Add(SUCCESS_ADDCTDOTTHI, Severity.Success);
+            MudDialog?.Close(DialogResult.Ok(result_id));
+        }
+        else
+        {
+            Snackbar.Add(FAIL_ADDCTDOTTHI, Severity.Error);
+        }
+    }
+    private async Task OnClickSuaCTDT()
+    {
+        if (selectedMonHoc == null || selectedLopAo == null || string.IsNullOrEmpty(selectedLanThi))
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        bool result = await UpdateCTDTAPI(CreateChiTietDotThi(MaDotThi ?? -1, TenDotThi ?? "", selectedLopAo.MaLopAo, selectedLanThi));
+        if (result)
+        {
+            Snackbar.Add(SUCCESS_EDITCTDOTTHI, Severity.Success);
+            MudDialog?.Close(DialogResult.Ok(result_id));
+        }
+        else
+        {
+            Snackbar.Add(FAIL_EDITCTDOTTHI, Severity.Error);
+        }
+    }
+    private async Task OnClickThemMonThi()
+    {
+        var result = await OpenMonHocDialog(false);
+        if(result != null && !result.Canceled && monHocs != null && result.Data != null)
+        {
+            var monHoc = await GetMonHocAPI(Convert.ToInt32(result.Data));
+            if(monHoc != null){
+                monHocs.Add(monHoc);
+                selectedMonHoc = monHoc;
+            }
+        }
+    }
+    private async Task OnClickSuaMonThi()
+    {
+        var result = await OpenMonHocDialog(true);
+        if (result != null && !result.Canceled && monHocs != null && result.Data != null)
+        {
+            var monHoc = await GetMonHocAPI(Convert.ToInt32(result.Data));
+            if (monHoc != null && selectedMonHoc != null)
+            {
+                monHocs.Remove(selectedMonHoc);
+                monHocs.Add(monHoc);
+                selectedMonHoc = monHoc;
+            }
+        }
+    }
+    private async Task OnClickThemLopAo()
+    {
+        if (selectedMonHoc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await OpenLopAoDialog(false);
+        if(result != null && result.Data != null && lopAos != null && !result.Canceled){
+            var lopAo = await GetLopAoAPI(Convert.ToInt32(result.Data));
+            if (lopAo != null)
+            {
+                lopAos.Add(lopAo);
+                selectedLopAo = lopAo;
+            }
+        }
+    }
+    private async Task OnClickSuaLopAo()
+    {
+        if (selectedMonHoc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await OpenLopAoDialog(true);
+        if (result != null && result.Data != null && lopAos != null && !result.Canceled)
+        {
+            var lopAo = await GetLopAoAPI(Convert.ToInt32(result.Data));
+            if (lopAo != null && selectedLopAo != null)
+            {
+                lopAos.Remove(selectedLopAo);
+                lopAos.Add(lopAo);
+                selectedLopAo = lopAo;
+            }
+        }
+    }
+    private async Task<DialogResult?> OpenMonHocDialog(bool isEdit){
+        var parameters = new DialogParameters<MonHocDialog> 
+        { 
+            { x => x.IsEdit, isEdit},
+            { x => x.MonHoc, selectedMonHoc }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        var dialog = await Dialog.ShowAsync<MonHocDialog>("THÊM MÔN HỌC", parameters, options);
+        return await dialog.Result;
+    }
+    private async Task<DialogResult?> OpenLopAoDialog(bool isEdit)
+    {
+        var parameters = new DialogParameters<LopAoDialog>
+        {
+            { x => x.IsEdit, isEdit},
+            { x => x.LopAo, selectedLopAo },
+            { x => x.MaMonHoc, selectedMonHoc?.MaMonHoc ?? -1 }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        var dialog = await Dialog.ShowAsync<LopAoDialog>("THÊM PHÒNG THI", parameters, options);
+        return await dialog.Result;
+    }
+
+
+
+    private async Task<List<MonHocDto>?> GetAllMonHocAPI()
+    {
+        var response = await Http.GetAsync("api/MonHoc/GetAll");
+        return await response.Content.ReadFromJsonAsync<List<MonHocDto>?>();
+    }
+    private async Task<List<LopAoDto>?> LopAo_SelectedByMonHocAPI(int ma_mon_hoc)
+    {
+        var response = await Http.GetAsync($"api/LopAo/SelectBy_MaMonHoc?ma_mon_hoc={ma_mon_hoc}");
+        return await response.Content.ReadFromJsonAsync<List<LopAoDto>?>();
+    }
+    private async Task<MonHocDto?> GetMonHocAPI(int ma_mon_hoc)
+    {
+        var response = await Http.GetAsync($"api/MonHoc/SelectOne?ma_mon_hoc={ma_mon_hoc}");
+        return await response.Content.ReadFromJsonAsync<MonHocDto?>();
+    }
+    private async Task<LopAoDto?> GetLopAoAPI(int ma_lop_ao)
+    {
+        var response = await Http.GetAsync($"api/LopAo/SelectOne?ma_lop_ao={ma_lop_ao}");
+        return await response.Content.ReadFromJsonAsync<LopAoDto?>();
+    }
+    private async Task<bool> InsertCTDTAPI(ChiTietDotThiDto chiTietDotThi){
+        var json = JsonSerializer.Serialize(chiTietDotThi);
+        var response = await Http.PostAsync("api/ChiTietDotThi/Insert", new StringContent(json, Encoding.UTF8, "application/json"));
+        if (response.IsSuccessStatusCode)
+        {
+            result_id = await response.Content.ReadFromJsonAsync<int?>();
+            return true;
+        }
+        return false;
+    }
+    private async Task<bool> UpdateCTDTAPI(ChiTietDotThiDto chiTietDotThi){
+        var json = JsonSerializer.Serialize(chiTietDotThi);
+        var response = await Http.PutAsync("api/ChiTietDotThi/Update", new StringContent(json, Encoding.UTF8, "application/json"));
+        if (response.IsSuccessStatusCode)
+        {
+            result_id = chiTietDotThi.MaChiTietDotThi;
+            return true;
+        }
+        return false;
+    }
+
+    private ChiTietDotThiDto CreateChiTietDotThi(int ma_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, string lan_thi){
+        return new ChiTietDotThiDto
+            {
+                MaChiTietDotThi = ChiTietDotThi?.MaChiTietDotThi ?? -1,
+                MaDotThi = ma_dot_thi,
+                TenChiTietDotThi = ten_chi_tiet_dot_thi,
+                MaLopAo = ma_lop_ao,
+                LanThi = lan_thi,
+                MaLopAoNavigation = new(),
+                MaDotThiNavigation = new(),
+            };
+    }
+}

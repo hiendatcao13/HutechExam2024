@@ -37,5 +37,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             return null;
         }
+        private async Task<byte[]?> GetExcelFileAPI(List<ChiTietCaThiDto> chiTietCaThis)
+        {
+            var jsonString = JsonSerializer.Serialize(chiTietCaThis);
+            var response = await Http.PostAsync("api/CaThi/GenerateExcelFile", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<byte[]>();
+            }
+            return Array.Empty<byte>();
+        }
     }
 }

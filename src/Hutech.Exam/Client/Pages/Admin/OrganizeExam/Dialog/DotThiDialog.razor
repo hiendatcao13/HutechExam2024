@@ -1,0 +1,142 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudTextField Label="Tên đợt thi" Required InputType="InputType.Text" @bind-Value="ten_dot_thi" />
+        <MudSelect T="int" Label="Năm học" @bind-Value="selected_nam_hoc" Clearable="true">
+            @if (nam_hoc != null)
+            {
+                foreach (var item in nam_hoc)
+                {
+                    <MudSelectItem Value="item.Key">@item.Key - @item.Value</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        <MudDatePicker Editable="true" Label="Thời gian bắt đầu" @bind-Date="thoi_gian_bat_dau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog"/>
+        <MudDatePicker Editable="true" Label="Thời gian kết thúc" @bind-Date="thoi_gian_ket_thuc" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if(IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Inject] public HttpClient Http { get; set; } = default!;
+    [Parameter] public DotThiDto? DotThi { get; set; }
+    // hoặc là thêm mới hoặc là chỉnh sửa
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    public Dictionary<int, int>? nam_hoc = [];
+    private string? ten_dot_thi;
+    private int selected_nam_hoc;
+    private DateTime? thoi_gian_bat_dau = DateTime.Now;
+    private DateTime? thoi_gian_ket_thuc = DateTime.Now;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private const string SUCCESS_ADDDOTTHI = "Thêm đợt thi thành công";
+    private const string FAIL_ADDDOTTHI = "Thêm đợt thi thất bại";
+    private const string SUCCESS_EDITDOTTHI = "Sửa đợt thi thành công";
+    private const string FAIL_EDITDOTTHI = "Sửa đợt thi thất bại";
+
+    public void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+    private void HandleInput()
+    {
+        int nam_hien_tai = DateTime.Now.Year;
+        for (int i = 0; i < 5; i++)
+        {
+            nam_hoc?.Add(nam_hien_tai + i, nam_hien_tai + i + 1);
+        }
+        if(IsEdit && DotThi != null)
+        {
+            ten_dot_thi = DotThi.TenDotThi;
+            selected_nam_hoc = DotThi.NamHoc ?? 0;
+            thoi_gian_bat_dau = DotThi.ThoiGianBatDau;
+            thoi_gian_ket_thuc = DotThi.ThoiGianKetThuc;
+        }
+    }
+    private async Task OnClickThem()
+    {
+        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        bool result = await AddDotThiAPI(CreateChiTietDotThi((string)ten_dot_thi, (DateTime)thoi_gian_bat_dau, (DateTime)thoi_gian_ket_thuc, selected_nam_hoc));
+        if (result)
+        {
+            Snackbar.Add(SUCCESS_ADDDOTTHI, Severity.Success);
+            MudDialog?.Close();
+        }
+        else
+            Snackbar.Add(FAIL_ADDDOTTHI, Severity.Error);
+    }
+    private async Task OnClickSua()
+    {
+        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        bool result = await EditDotThiAPI(CreateChiTietDotThi((string)ten_dot_thi, (DateTime)thoi_gian_bat_dau, (DateTime)thoi_gian_ket_thuc, selected_nam_hoc));
+        if (result)
+        {
+            Snackbar.Add(SUCCESS_EDITDOTTHI, Severity.Success);
+            MudDialog?.Close();
+        }
+        else
+            Snackbar.Add(FAIL_EDITDOTTHI, Severity.Error);
+    }
+
+
+    private async Task<bool> AddDotThiAPI(DotThiDto dotThi)
+    {
+        var jsonString = JsonSerializer.Serialize(dotThi);
+        var response = await Http.PostAsync($"api/DotThi/Insert", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+        return response.IsSuccessStatusCode;
+    }
+    private async Task<bool> EditDotThiAPI(DotThiDto dotThi)
+    {
+        var jsonString = JsonSerializer.Serialize(dotThi);
+        var response = await Http.PutAsync($"api/DotThi/Update", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+        return response.IsSuccessStatusCode;
+    }
+    private DotThiDto CreateChiTietDotThi(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
+    {
+        return new DotThiDto
+            {
+                TenDotThi = ten_dot_thi,
+                ThoiGianBatDau = thoi_gian_bat_dau,
+                ThoiGianKetThuc = thoi_gian_ket_thuc,
+                MaDotThi = DotThi?.MaDotThi ?? 0,
+                NamHoc = nam_hoc
+            };
+    }
+}

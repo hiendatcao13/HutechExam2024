@@ -81,7 +81,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<int> Insert(string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
         {
-            return (int)(await _lopAoRepository.Insert(ten_lop_ao, ngay_bat_dau, ma_mon_hoc) ?? -1);
+            return Convert.ToInt32(await _lopAoRepository.Insert(ten_lop_ao, ngay_bat_dau, ma_mon_hoc) ?? -1);
         }
         public async Task<int> Update(int ma_lop_ao, string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
         {

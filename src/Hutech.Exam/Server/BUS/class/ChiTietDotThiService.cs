@@ -96,7 +96,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<object?> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
         {
-            return (int)(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
+            return Convert.ToInt32(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
         }
         public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
         {

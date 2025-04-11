@@ -1,4 +1,5 @@
 ﻿@page "/admin/control"
+@using Hutech.Exam.Client.Pages.Admin.ExamMonitor
 @using Hutech.Exam.Shared.DTO
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
@@ -81,7 +82,7 @@
                         </MudTd>
                         <MudTd>
                             <MudButtonGroup Style="zoom: 0.7">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="() => OnClickChiTietCaThi(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Pageview" Color="Color.Primary" OnClick="() => OnClickChiTietCaThi(item)" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" />
                             </MudButtonGroup>
@@ -161,14 +162,14 @@
     }
     private async Task SetItemsInSessionStorage()
     {
-        var selectedData = new StoredData
+        var selectedData = new StoredDataMC
         {
             DotThi = selectedDotThi,
             MonHoc = selectedMonHoc,
             LopAo = selectedLopAo,
             LanThi = selectedLanThi
         };
-        await SessionStorage.SetItemAsync("storedData", selectedData);
+        await SessionStorage.SetItemAsync("storedDataEM", selectedData);
     }
 
 }

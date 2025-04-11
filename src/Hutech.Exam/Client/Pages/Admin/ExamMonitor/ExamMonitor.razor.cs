@@ -31,6 +31,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private const string ERROR_RESETLOGIN = "Reset đăng nhập cho thí sinh thất bại";
         private const string ALERT_ADDSV = "Thêm thí sinh được dùng cho việc khẩn cấp. Hãy đảm bảo MSSV thí sinh đã tồn tại trong hệ thống";
         private const string MISSINGINFO_RESETLOGIN = "Tính năng reset login không thể hoạt động khi thiếu thông tin mã lớp";
+        private const string WAITING_DOWNLOADEXCEL = "Đang tải xuống file excel. Hãy chờ trong giây lát";
 
         protected override async Task OnInitializedAsync()
         {
@@ -77,7 +78,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task HandleResetLogin(SinhVienDto sinhVien)
         {
-            if(sinhVien.MaLop == null)
+            if (sinhVien.MaLop == null)
             {
                 Snackbar.Add(MISSINGINFO_RESETLOGIN, Severity.Error);
                 return;
@@ -133,12 +134,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task OnClickDownloadExcel()
         {
-            var excelData = await GenerateExcelAsync();
-            var base64 = Convert.ToBase64String(excelData);
-            var fileName = $"Bảng điểm ca thi {caThi?.MaCaThi}.xlsx";
+            if(chiTietCaThis != null)
+            {
+                Snackbar.Add(WAITING_DOWNLOADEXCEL, Severity.Info);
+                var excelData = await GetExcelFileAPI(chiTietCaThis);
+                var base64 = Convert.ToBase64String(excelData);
+                var fileName = $"Bảng điểm ca thi {caThi?.MaCaThi}.xlsx";
 
-            // Tạo link tải xuống
-            Js?.InvokeVoidAsync("downloadFile", fileName, base64);
+                // Tạo link tải xuống
+                await Js.InvokeVoidAsync("downloadFile", fileName, base64);
+            }
         }
 
         private async Task Start()

@@ -17,5 +17,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hv);
             return await sql.ExecuteReaderAsync();
         }
+        public async Task<IDataReader> GetAll()
+        {
+            DatabaseReader sql = new("tbl_DeThi_SelectAll");
+            return await sql.ExecuteReaderAsync();
+        }
     }
 }

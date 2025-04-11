@@ -68,14 +68,14 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
-            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok();
         }
         [HttpPut("UpdateKetThuc")]
         public async Task<ActionResult> UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
-            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok();
         }
         [HttpGet("SelectBy_MaCaThi")]
@@ -94,7 +94,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             await _chiTietCaThiService.CongGio(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong ?? DateTime.Now, chiTietCaThi.LyDoCong ?? "");
             // báo cho tất cả admin
-            await NotifStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok(true);
         }
 
@@ -134,7 +134,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             return await _monHocService.SelectOne(ma_mon_hoc);
         }
-        private async Task NotifStatusThiToAdmin(int ma_chi_tiet_ca_thi)
+        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi)
         {
             await _mainHub.Clients.Group("admin").SendAsync("SV_Status", ma_chi_tiet_ca_thi);
         }

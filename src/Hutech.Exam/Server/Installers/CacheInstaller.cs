@@ -24,7 +24,6 @@ namespace Hutech.Exam.Server.Installers
             services.AddStackExchangeRedisCache(option => option.Configuration = redisConfiguarion.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
 
-            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
         }
     }
 }

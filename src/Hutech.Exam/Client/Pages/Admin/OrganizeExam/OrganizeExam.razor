@@ -1,0 +1,168 @@
+﻿@page "/admin/organize"
+@using Hutech.Exam.Shared.DTO
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+
+<PageTitle>Organize Exam</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+    <MudGrid Style="margin-top: 70px">
+        <MudGrid>
+            <MudItem xs="6">
+
+                @if(dotThis != null)
+                {
+                    <MudTable T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
+                            <MudSpacer />
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDotThi()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDotThi()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDotThi()">Xóa</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>ID</MudTh>
+                            <MudTh>Đợt Thi</MudTh>
+                            <MudTh>Năm Học</MudTh>
+                            <MudTh>Ngày Kết Thúc</MudTh>
+                            <MudTh>Ngày Kết Thúc</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="item">
+                            <MudTd DataLabel="ID">@item?.MaDotThi</MudTd>
+                            <MudTd DataLabel="Đợt Thi">@item?.TenDotThi</MudTd>
+                            <MudTd DataLabel="Năm Học">@item?.NamHoc</MudTd>
+                            <MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianBatDau.HasValue == true ? @item.ThoiGianBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+                            <MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianKetThuc.HasValue == true ? @item.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                @if (chiTietDotThis != null)
+                {
+                    <MudTable T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
+                            <MudSpacer />
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCTDotThi()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>ID</MudTh>
+                            <MudTh>Môn Thi</MudTh>
+                            <MudTh>Phòng Thi</MudTh>
+                            <MudTh>Lần Thi</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="item">
+                            <MudTd DataLabel="ID">@item?.MaChiTietDotThi</MudTd>
+                            <MudTd DataLabel="Môn Thi">@item?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudTd>
+                            <MudTd DataLabel="Phòng Thi">@item?.MaLopAoNavigation.TenLopAo</MudTd>
+                            <MudTd DataLabel="Lần Thi">@item?.LanThi</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudItem>
+        </MudGrid>
+        @if (caThis != null)
+        {
+            <MudTable T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
+                    <MudSpacer />
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>Tên Ca Thi</MudTh>
+                    <MudTh>Ngày Thi</MudTh>
+                    <MudTh>Thời Lượng</MudTh>
+                    <MudTh>Có Đề?</MudTh>
+                    <MudTh>Kích Hoạt?</MudTh>
+                    <MudTh>TG Kích Hoạt</MudTh>
+                    <MudTh>Kết Thúc?</MudTh>
+                    <MudTh>TG Kết Thúc</MudTh>
+                    <MudTh>Chức năng</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd DataLabel="ID">@item?.MaCaThi</MudTd>
+                    <MudTd DataLabel="Tên Ca Thi">@item?.TenCaThi</MudTd>
+                    <MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
+                    <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
+                    <MudTd DataLabel="Có Đề?"><MudCheckBox ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Kích Hoạt?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.IsActivated"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>
+                    <MudTd DataLabel="Kết Thúc?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.KetThuc"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
+                    <MudTd>
+                        <MudButtonGroup Style="zoom: 0.7">
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)"/>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)"/>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)"/>
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudGrid>
+</MudContainer>
+<style>
+    .add-button{
+    transform: scale(0.85);
+    margin-bottom: 2%;
+    }
+    .checkbox{
+    transform: scale(0.85);
+    }
+    .selected-row{
+    background-color: lightgray !important;
+    }
+</style>
+
+@code{
+    private DotThiDto? selectedDotThi;
+    private ChiTietDotThiDto? selectedChiTietDotThi;
+    private CaThiDto? selectedCaThi;
+
+
+    private async Task OnRowClickedDotThi(TableRowClickEventArgs<DotThiDto> args)
+    {
+        if (args.Item == selectedDotThi)
+            return;
+        selectedDotThi = args.Item;
+        await SaveData();
+        chiTietDotThis = [];
+        caThis = [];
+        if(selectedDotThi != null){
+            chiTietDotThis = await GetCTDotThi_MaDotThiAPI(selectedDotThi.MaDotThi);
+        }
+    }
+    private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
+    {
+        return item == selectedDotThi ? "selected-row" : string.Empty;
+    }
+    private async Task OnRowClickedCTDotThi(TableRowClickEventArgs<ChiTietDotThiDto> args)
+    {
+        if (args.Item == selectedChiTietDotThi)
+            return;
+        selectedChiTietDotThi = args.Item;
+        await SaveData();
+        caThis = [];
+        if(selectedChiTietDotThi != null){
+            caThis = await GetCaThi_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
+        }
+    }
+    private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)
+    {
+        return item == selectedChiTietDotThi ? "selected-row" : string.Empty;
+    }
+    private async void OnRowClickedCaThi(TableRowClickEventArgs<CaThiDto> args)
+    {
+        if (args.Item == selectedCaThi)
+            return;
+        selectedCaThi = args.Item;
+        await SaveData();
+    }
+}

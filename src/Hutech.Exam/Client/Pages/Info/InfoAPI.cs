@@ -26,7 +26,7 @@ namespace Hutech.Exam.Client.Pages.Info
             if (chiTietCaThi != null)
                 chiTietCaThi.ThoiGianBatDau = DateTime.Now;
             var jsonString = JsonSerializer.Serialize(chiTietCaThi);
-            var response = await Http.PostAsync("api/Info/UpdateBatDauThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            var response = await Http.PutAsync("api/ChiTietCaThi/UpdateBatDauThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             return response.IsSuccessStatusCode;
         }
     }
