@@ -65,10 +65,11 @@ namespace Hutech.Exam.Server.BUS
             chiTietDeThi.NoiDungCauHoiNhom = nhomCauHoi.NoiDung;
             chiTietDeThi.NoiDungCauHoi = cauHoi.NoiDung;
             chiTietDeThi.KieuNoiDungCauHoi = cauHoi.KieuNoiDung;
+            chiTietDeThi.MaClo = cauHoi.MaClo;
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();
             // Xem coi đề thi có bỏ chương phần không
             var deThi = await _deThiService.SelectBy_ma_de_hv(chiTietDeThiHoanVi.MaDeHv);
-            chiTietDeThi.boChuongPhan = deThi.BoChuongPhan;
+            chiTietDeThi.BoChuongPhan = deThi.BoChuongPhan;
 
             // lấy nội dung câu hỏi bằng dictionary
             chiTietDeThi.CauTraLois = new Dictionary<int, string?>();

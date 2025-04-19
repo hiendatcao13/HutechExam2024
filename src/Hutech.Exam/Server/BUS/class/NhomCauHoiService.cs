@@ -17,7 +17,7 @@ namespace Hutech.Exam.Server.BUS
         }
         private NhomCauHoiDto getProperty(IDataReader dataReader)
         {
-            TblNhomCauHoi nhomCauHoi = new()
+            NhomCauHoi nhomCauHoi = new()
             {
                 MaNhom = dataReader.GetInt32(0),
                 MaDeThi = dataReader.GetInt32(1),

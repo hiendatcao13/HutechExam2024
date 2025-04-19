@@ -15,6 +15,8 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
+    public int MaRole { get; set; }
+
     public DateTime DateCreated { get; set; }
 
     public bool IsDeleted { get; set; }
@@ -42,4 +44,6 @@ public partial class User
     public string? Comment { get; set; }
 
     public bool IsBuildInUser { get; set; }
+
+    public virtual Role MaRoleNavigation { get; set; } = null!;
 }

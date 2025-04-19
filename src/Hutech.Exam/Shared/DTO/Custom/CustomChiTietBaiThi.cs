@@ -16,6 +16,8 @@ namespace Hutech.Exam.Shared.DTO.Custom
 
         public int MaNhom { get; set; }
 
+        public int MaClo { get; set; }
+
         public int MaCauHoi { get; set; }
 
         public int? CauTraLoi { get; set; }

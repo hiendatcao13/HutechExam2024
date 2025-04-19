@@ -79,7 +79,7 @@ namespace Hutech.Exam.Server.Controllers
                 foreach (var item in chiTietBaiThis)
                 {
                     item.KetQua = listDapAn?.Contains(item.CauTraLoi ?? -1) ?? false;
-                    await _chiTietBaiThiService.Save(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, item.CauTraLoi ?? -1, DateTime.Now, DateTime.Now, item.KetQua ?? false, item.ThuTu);
+                    await _chiTietBaiThiService.Save(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, item.MaClo, item.CauTraLoi ?? -1, DateTime.Now, DateTime.Now, item.KetQua ?? false, item.ThuTu);
                 }
                 return Ok();
             }

@@ -10,6 +10,7 @@ namespace Hutech.Exam.Shared.DTO.Custom
     {
         public int MaNhom { get; set; }
         public int MaCauHoi { get; set; }
+        public int MaClo { get; set; }
         public string? NoiDungCauHoiNhomCha { get; set; }
         public string? NoiDungCauHoiNhom { get; set; }
         public string? NoiDungCauHoi { get; set; }
@@ -17,7 +18,7 @@ namespace Hutech.Exam.Shared.DTO.Custom
         public Dictionary<int, string?>? CauTraLois { get; set; }
         public string? GhiChu { get; set; }
         // xem đề thi có bỏ hiển thị chương phần hay không
-        public bool boChuongPhan { get; set; }
+        public bool BoChuongPhan { get; set; }
 
     }
 }

@@ -17,7 +17,7 @@ namespace Hutech.Exam.Server.BUS
         }
         private CauTraLoiDto getProperty(IDataReader dataReader)
         {
-            TblCauTraLoi cauTraLoi = new()
+            CauTraLoi cauTraLoi = new()
             {
                 MaCauTraLoi = dataReader.GetInt32(0),
                 MaCauHoi = dataReader.GetInt32(1),

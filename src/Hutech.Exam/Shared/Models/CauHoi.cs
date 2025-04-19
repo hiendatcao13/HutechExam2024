@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace Hutech.Exam.Shared.Models;
 
-public partial class TblCauHoi
+public partial class CauHoi
 {
     public int MaCauHoi { get; set; }
+
+    public int MaClo { get; set; }
 
     public string? TieuDe { get; set; }
 
@@ -17,5 +19,7 @@ public partial class TblCauHoi
 
     public bool? HoanVi { get; set; }
 
-    public virtual ICollection<TblCauTraLoi> TblCauTraLois { get; set; } = new List<TblCauTraLoi>();
+    public virtual ICollection<CauTraLoi> CauTraLois { get; set; } = new List<CauTraLoi>();
+
+    public virtual Clo MaCloNavigation { get; set; } = null!;
 }

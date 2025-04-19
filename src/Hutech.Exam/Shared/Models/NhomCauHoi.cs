@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Hutech.Exam.Shared.Models;
 
-public partial class TblNhomCauHoi
+public partial class NhomCauHoi
 {
     public int MaNhom { get; set; }
 
@@ -25,5 +25,5 @@ public partial class TblNhomCauHoi
 
     public bool? LaCauHoiNhom { get; set; }
 
-    public virtual TblDeThi MaDeThiNavigation { get; set; } = null!;
+    public virtual DeThi MaDeThiNavigation { get; set; } = null!;
 }

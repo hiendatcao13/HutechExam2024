@@ -17,7 +17,7 @@ namespace Hutech.Exam.Server.BUS
         }
         private ChiTietDeThiHoanViDto getProperty(IDataReader dataReader)
         {
-            TblChiTietDeThiHoanVi chiTietDeThiHoanVi = new()
+            ChiTietDeThiHoanVi chiTietDeThiHoanVi = new()
             {
                 MaDeHv = dataReader.GetInt64(0),
                 MaNhom = dataReader.GetInt32(1),

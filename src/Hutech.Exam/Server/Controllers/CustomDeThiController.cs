@@ -27,7 +27,8 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                return BadRequest(ex.Message + "\n" + ex.StackTrace);
             }
         }
     }

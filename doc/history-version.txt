@@ -60,3 +60,8 @@
 ----------------------------------
 11/04/2025 11:00PM
 - Đã hoàn thiện trang tạo đợt thi
+---------------------------------
+19/04/2025 10:00PM
+- Hoàn thành database có CLO, đã fix code database
+- Xóa các tên dư thừa tbl_, xóa các bảng dư thừa
+- Thêm bảng CLO, SinhVienDuPhong, LoaiCauHoi, LoiDeThi (Lỗi DeThi), ThongBao, Role cho User

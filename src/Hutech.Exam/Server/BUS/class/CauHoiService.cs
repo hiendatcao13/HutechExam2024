@@ -17,13 +17,14 @@ namespace Hutech.Exam.Server.BUS
         }
         private CauHoiDto getProperty(IDataReader dataReader)
         {
-            TblCauHoi cauHoi = new();
+            CauHoi cauHoi = new();
             cauHoi.MaCauHoi = dataReader.GetInt32(0);
-            cauHoi.TieuDe = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-            cauHoi.KieuNoiDung = dataReader.GetInt32(2);
-            cauHoi.NoiDung = dataReader.IsDBNull(3) ? null : dataReader.GetString(3);
-            cauHoi.GhiChu = dataReader.IsDBNull(4) ? null : dataReader.GetString(4);
-            cauHoi.HoanVi = dataReader.IsDBNull(5) ? null : dataReader.GetBoolean(5);
+            cauHoi.MaClo = dataReader.GetInt32(1);
+            cauHoi.TieuDe = dataReader.IsDBNull(2) ? null : dataReader.GetString(2);
+            cauHoi.KieuNoiDung = dataReader.GetInt32(3);
+            cauHoi.NoiDung = dataReader.IsDBNull(4) ? null : dataReader.GetString(4);
+            cauHoi.GhiChu = dataReader.IsDBNull(5) ? null : dataReader.GetString(5);
+            cauHoi.HoanVi = dataReader.IsDBNull(6) ? null : dataReader.GetBoolean(6);
             return _mapper.Map<CauHoiDto>(cauHoi);
         }
         public async Task<CauHoiDto> SelectOne(int ma_cau_hoi)

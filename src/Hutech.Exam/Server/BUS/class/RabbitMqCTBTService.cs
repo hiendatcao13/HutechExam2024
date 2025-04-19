@@ -100,7 +100,7 @@ namespace Hutech.Exam.Server.BUS
                 foreach (var item in chiTietBaiThis)
                 {
                     if (item.ThuTu != 0)
-                        await _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, DateTime.Now, item.ThuTu);
+                        await _chiTietBaiThiService.Insert(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi, item.MaClo, DateTime.Now, item.ThuTu);
                     await _chiTietBaiThiService.Update(item.MaChiTietBaiThi, item.CauTraLoi ?? -1, DateTime.Now, item.KetQua ?? false);
                 }
             }

@@ -9,20 +9,32 @@ namespace Hutech.Exam.Shared.Profiles
     {
         public AllProfiles()
         {
-            CreateMap<TblAudioListened, AudioListenedDto>();
-            CreateMap<AudioListenedDto, TblAudioListened>();
+            CreateMap<AudioListened, AudioListenedDto>();
+            CreateMap<AudioListenedDto, AudioListened>();
 
             CreateMap<CaThi, CaThiDto>();
             CreateMap<CaThiDto, CaThi>();
 
-            CreateMap<TblCauHoi, CauHoiDto>();
-            CreateMap<CauHoiDto, TblCauHoi>();
+            CreateMap<CauHoi, CauHoiDto>();
+            CreateMap<CauHoiDto, CauHoi>();
 
-            CreateMap<TblCauHoiMa, CauHoiMaDto>();
-            CreateMap<CauHoiMaDto, TblCauHoiMa>();
+            CreateMap<Role, RoleDto>();
+            CreateMap<RoleDto, Role>();
 
-            CreateMap<TblCauTraLoi, CauTraLoiDto>();
-            CreateMap<CauTraLoiDto, TblCauTraLoi>();
+            CreateMap<LoaiCauHoi,  LoaiCauHoiDto>();
+            CreateMap<LoaiCauHoiDto, LoaiCauHoi>();
+
+            CreateMap<LoiDeThi, LoiDeThiDto>();
+            CreateMap<LoiDeThiDto, LoiDeThi>();
+
+            CreateMap<SinhVienDuPhong, SinhVienDuPhongDto>();
+            CreateMap<SinhVienDuPhongDto, SinhVienDuPhong>();
+
+            CreateMap<ThongBao, ThongBaoDto>();
+            CreateMap<ThongBaoDto, ThongBao>();
+
+            CreateMap<CauTraLoi, CauTraLoiDto>();
+            CreateMap<CauTraLoiDto, CauTraLoi>();
 
             CreateMap<ChiTietBaiThi, ChiTietBaiThiDto>();
             CreateMap<ChiTietBaiThiDto, ChiTietBaiThi>();
@@ -30,26 +42,20 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<ChiTietCaThi, ChiTietCaThiDto>();
             CreateMap<ChiTietCaThiDto, ChiTietCaThi>();
 
-            CreateMap<TblChiTietCauHoiMa, ChiTietCauHoiMaDto>();
-            CreateMap<ChiTietCauHoiMaDto, TblChiTietCauHoiMa>();
+            CreateMap<ChiTietDeThi,  ChiTietDeThiDto>();
+            CreateMap<ChiTietDeThiDto, ChiTietDeThi>();
 
-            CreateMap<TblChiTietDeThi,  ChiTietDeThiDto>();
-            CreateMap<ChiTietDeThiDto, TblChiTietDeThi>();
-
-            CreateMap<TblChiTietDeThiHoanVi, ChiTietDeThiHoanViDto>();
-            CreateMap<ChiTietDeThiHoanViDto, TblChiTietDeThiHoanVi>();
+            CreateMap<ChiTietDeThiHoanVi, ChiTietDeThiHoanViDto>();
+            CreateMap<ChiTietDeThiHoanViDto, ChiTietDeThiHoanVi>();
 
             CreateMap<ChiTietDotThi, ChiTietDotThiDto>();
             CreateMap<ChiTietDotThiDto, ChiTietDotThi>();
 
-            CreateMap<TblDanhmucCaThiTrongNgay, DanhMucCaThiTrongNgayDto>();
-            CreateMap<DanhMucCaThiTrongNgayDto, TblDanhmucCaThiTrongNgay>();
+            CreateMap<DeThi, DeThiDto>();
+            CreateMap<DeThiDto, DeThi>();
 
-            CreateMap<TblDeThi, DeThiDto>();
-            CreateMap<DeThiDto, TblDeThi>();
-
-            CreateMap<TblDeThiHoanVi, DeThiHoanViDto>();
-            CreateMap<DeThiHoanViDto, TblDeThiHoanVi>();
+            CreateMap<DeThiHoanVi, DeThiHoanViDto>();
+            CreateMap<DeThiHoanViDto, DeThiHoanVi>();
 
             CreateMap<DotThi, DotThiDto>();
             CreateMap<DotThiDto, DotThi>();
@@ -63,23 +69,17 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<Lop, LopDto>();
             CreateMap<LopDto, Lop>();
 
-            CreateMap<Menu, MenuDto>();
-            CreateMap<MenuDto, Menu>();
-
             CreateMap<MonHoc, MonHocDto>();
             CreateMap<MonHocDto, MonHoc>();
 
-            CreateMap<TblNhomCauHoi, NhomCauHoiDto>();
-            CreateMap<NhomCauHoiHoanViDto, TblNhomCauHoi>();
+            CreateMap<NhomCauHoi, NhomCauHoiDto>();
+            CreateMap<NhomCauHoiHoanViDto, NhomCauHoi>();
 
-            CreateMap<TblNhomCauHoiHoanVi, NhomCauHoiHoanViDto>();
-            CreateMap<NhomCauHoiHoanViDto, TblNhomCauHoiHoanVi>();
+            CreateMap<NhomCauHoiHoanVi, NhomCauHoiHoanViDto>();
+            CreateMap<NhomCauHoiHoanViDto, NhomCauHoiHoanVi>();
 
             CreateMap<SinhVien, SinhVienDto>();
             CreateMap<SinhVienDto, SinhVien>();
-
-            CreateMap<SinhVienLopAo, SinhVienLopAoDto>();
-            CreateMap<SinhVienLopAoDto, SinhVienLopAo>();
 
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();

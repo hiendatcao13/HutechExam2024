@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Hutech.Exam.Shared.Models;
 
-public partial class TblChiTietDeThiHoanVi
+public partial class ChiTietDeThiHoanVi
 {
     public long MaDeHv { get; set; }
 
@@ -17,5 +17,5 @@ public partial class TblChiTietDeThiHoanVi
 
     public int? DapAn { get; set; }
 
-    public virtual TblNhomCauHoiHoanVi Ma { get; set; } = null!;
+    public virtual NhomCauHoiHoanVi Ma { get; set; } = null!;
 }

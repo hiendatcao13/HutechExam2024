@@ -18,53 +18,55 @@ public partial class ApplicationDbContext : DbContext
         _configuration = configuration;
     }
 
+    public virtual DbSet<AudioListened> AudioListeneds { get; set; }
+
     public virtual DbSet<CaThi> CaThis { get; set; }
+
+    public virtual DbSet<CauHoi> CauHois { get; set; }
+
+    public virtual DbSet<CauTraLoi> CauTraLois { get; set; }
 
     public virtual DbSet<ChiTietBaiThi> ChiTietBaiThis { get; set; }
 
     public virtual DbSet<ChiTietCaThi> ChiTietCaThis { get; set; }
 
+    public virtual DbSet<ChiTietDeThi> ChiTietDeThis { get; set; }
+
+    public virtual DbSet<ChiTietDeThiHoanVi> ChiTietDeThiHoanVis { get; set; }
+
     public virtual DbSet<ChiTietDotThi> ChiTietDotThis { get; set; }
+
+    public virtual DbSet<Clo> Clos { get; set; }
+
+    public virtual DbSet<DeThi> DeThis { get; set; }
+
+    public virtual DbSet<DeThiHoanVi> DeThiHoanVis { get; set; }
 
     public virtual DbSet<DotThi> DotThis { get; set; }
 
     public virtual DbSet<Khoa> Khoas { get; set; }
 
+    public virtual DbSet<LoaiCauHoi> LoaiCauHois { get; set; }
+
+    public virtual DbSet<LoiDeThi> LoiDeThis { get; set; }
+
     public virtual DbSet<Lop> Lops { get; set; }
 
     public virtual DbSet<LopAo> LopAos { get; set; }
 
-    public virtual DbSet<Menu> Menus { get; set; }
-
     public virtual DbSet<MonHoc> MonHocs { get; set; }
+
+    public virtual DbSet<NhomCauHoi> NhomCauHois { get; set; }
+
+    public virtual DbSet<NhomCauHoiHoanVi> NhomCauHoiHoanVis { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<SinhVien> SinhViens { get; set; }
 
-    public virtual DbSet<SinhVienLopAo> SinhVienLopAos { get; set; }
+    public virtual DbSet<SinhVienDuPhong> SinhVienDuPhongs { get; set; }
 
-    public virtual DbSet<TblAudioListened> AudioListeneds { get; set; }
-
-    public virtual DbSet<TblCauHoi> CauHois { get; set; }
-
-    public virtual DbSet<TblCauHoiMa> CauHoiMas { get; set; }
-
-    public virtual DbSet<TblCauTraLoi> CauTraLois { get; set; }
-
-    public virtual DbSet<TblChiTietCauHoiMa> ChiTietCauHoiMas { get; set; }
-
-    public virtual DbSet<TblChiTietDeThi> ChiTietDeThis { get; set; }
-
-    public virtual DbSet<TblChiTietDeThiHoanVi> ChiTietDeThiHoanVis { get; set; }
-
-    public virtual DbSet<TblDanhmucCaThiTrongNgay> DanhmucCaThiTrongNgays { get; set; }
-
-    public virtual DbSet<TblDeThi> DeThis { get; set; }
-
-    public virtual DbSet<TblDeThiHoanVi> DeThiHoanVis { get; set; }
-
-    public virtual DbSet<TblNhomCauHoi> NhomCauHois { get; set; }
-
-    public virtual DbSet<TblNhomCauHoiHoanVi> TblNhomCauHoiHoanVis { get; set; }
+    public virtual DbSet<ThongBao> ThongBaos { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -79,9 +81,18 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AudioListened>(entity =>
+        {
+            entity.HasKey(e => e.ListenId);
+
+            entity.ToTable("AudioListened");
+
+            entity.Property(e => e.ListenId).HasColumnName("ListenID");
+        });
+
         modelBuilder.Entity<CaThi>(entity =>
         {
-            entity.HasKey(e => e.MaCaThi).HasName("PK_shift");
+            entity.HasKey(e => e.MaCaThi);
 
             entity.ToTable("ca_thi");
 
@@ -105,13 +116,51 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_ca_thi_chi_tiet_dot_thi");
         });
 
+        modelBuilder.Entity<CauHoi>(entity =>
+        {
+            entity.HasKey(e => e.MaCauHoi);
+
+            entity.ToTable("CauHoi");
+
+            entity.Property(e => e.GhiChu).HasMaxLength(100);
+            entity.Property(e => e.HoanVi)
+                .IsRequired()
+                .HasDefaultValueSql("((1))");
+            entity.Property(e => e.KieuNoiDung).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.MaClo).HasColumnName("MaCLO");
+            entity.Property(e => e.NoiDung).HasColumnType("ntext");
+            entity.Property(e => e.TieuDe).HasMaxLength(250);
+
+            entity.HasOne(d => d.MaCloNavigation).WithMany(p => p.CauHois)
+                .HasForeignKey(d => d.MaClo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CauHoi_CLO");
+        });
+
+        modelBuilder.Entity<CauTraLoi>(entity =>
+        {
+            entity.HasKey(e => e.MaCauTraLoi);
+
+            entity.ToTable("CauTraLoi");
+
+            entity.Property(e => e.MaCauHoi).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.NoiDung).HasColumnType("ntext");
+            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.MaCauHoiNavigation).WithMany(p => p.CauTraLois)
+                .HasForeignKey(d => d.MaCauHoi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CauTraLoi_CauHoi");
+        });
+
         modelBuilder.Entity<ChiTietBaiThi>(entity =>
         {
-            entity.HasKey(e => e.MaChiTietBaiThi).HasName("PK_task_detail");
+            entity.HasKey(e => e.MaChiTietBaiThi);
 
             entity.ToTable("chi_tiet_bai_thi");
 
             entity.Property(e => e.MaChiTietCaThi).HasColumnName("ma_chi_tiet_ca_thi");
+            entity.Property(e => e.MaClo).HasColumnName("MaCLO");
             entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
             entity.Property(e => e.NgayCapNhat).HasColumnType("datetime");
             entity.Property(e => e.NgayTao)
@@ -126,7 +175,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ChiTietCaThi>(entity =>
         {
-            entity.HasKey(e => e.MaChiTietCaThi).HasName("PK_shift_detail");
+            entity.HasKey(e => e.MaChiTietCaThi);
 
             entity.ToTable("chi_tiet_ca_thi");
 
@@ -166,9 +215,32 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_chi_tiet_ca_thi_sinh_vien");
         });
 
+        modelBuilder.Entity<ChiTietDeThi>(entity =>
+        {
+            entity.HasKey(e => new { e.MaNhom, e.MaCauHoi }).HasName("PK_tbl_ChiTietDeThi");
+
+            entity.ToTable("ChiTietDeThi");
+        });
+
+        modelBuilder.Entity<ChiTietDeThiHoanVi>(entity =>
+        {
+            entity.HasKey(e => new { e.MaDeHv, e.MaNhom, e.MaCauHoi });
+
+            entity.ToTable("ChiTietDeThiHoanVi");
+
+            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
+            entity.Property(e => e.HoanViTraLoi).HasMaxLength(4);
+            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.Ma).WithMany(p => p.ChiTietDeThiHoanVis)
+                .HasForeignKey(d => new { d.MaDeHv, d.MaNhom })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ChiTietDeThiHoanVi_NhomCauHoiHoanVi");
+        });
+
         modelBuilder.Entity<ChiTietDotThi>(entity =>
         {
-            entity.HasKey(e => e.MaChiTietDotThi).HasName("PK_phase_detail");
+            entity.HasKey(e => e.MaChiTietDotThi);
 
             entity.ToTable("chi_tiet_dot_thi");
 
@@ -193,6 +265,56 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_chi_tiet_dot_thi_lop_ao");
         });
 
+        modelBuilder.Entity<Clo>(entity =>
+        {
+            entity.HasKey(e => e.MaClo);
+
+            entity.ToTable("CLO");
+
+            entity.Property(e => e.MaClo).HasColumnName("MaCLO");
+            entity.Property(e => e.MaSoClo)
+                .HasMaxLength(50)
+                .HasColumnName("MaSoCLO");
+            entity.Property(e => e.TieuChi).HasColumnName("TieuChi(%)");
+        });
+
+        modelBuilder.Entity<DeThi>(entity =>
+        {
+            entity.HasKey(e => e.MaDeThi);
+
+            entity.ToTable("DeThi");
+
+            entity.Property(e => e.GhiChu).HasColumnType("ntext");
+            entity.Property(e => e.LuuTam)
+                .IsRequired()
+                .HasDefaultValueSql("((1))");
+            entity.Property(e => e.MaMonHoc).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.NgayTao)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.NguoiTao).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.TenDeThi).HasMaxLength(250);
+        });
+
+        modelBuilder.Entity<DeThiHoanVi>(entity =>
+        {
+            entity.HasKey(e => e.MaDeHv);
+
+            entity.ToTable("DeThiHoanVi");
+
+            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
+            entity.Property(e => e.KyHieuDe).HasMaxLength(50);
+            entity.Property(e => e.MaDeThi).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.NgayTao)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.MaDeThiNavigation).WithMany(p => p.DeThiHoanVis)
+                .HasForeignKey(d => d.MaDeThi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DeThiHoanVi_DeThi1");
+        });
+
         modelBuilder.Entity<DotThi>(entity =>
         {
             entity.HasKey(e => e.MaDotThi);
@@ -213,7 +335,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Khoa>(entity =>
         {
-            entity.HasKey(e => e.MaKhoa).HasName("PK_department");
+            entity.HasKey(e => e.MaKhoa);
 
             entity.ToTable("khoa");
 
@@ -226,9 +348,26 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("ten_khoa");
         });
 
+        modelBuilder.Entity<LoaiCauHoi>(entity =>
+        {
+            entity.HasKey(e => e.MaLoaiCauHoi);
+
+            entity.ToTable("LoaiCauHoi");
+
+            entity.Property(e => e.GhiChu).HasMaxLength(100);
+            entity.Property(e => e.NoiDung).HasColumnType("ntext");
+        });
+
+        modelBuilder.Entity<LoiDeThi>(entity =>
+        {
+            entity.HasKey(e => e.MaLoi);
+
+            entity.ToTable("LoiDeThi");
+        });
+
         modelBuilder.Entity<Lop>(entity =>
         {
-            entity.HasKey(e => e.MaLop).HasName("PK_class");
+            entity.HasKey(e => e.MaLop);
 
             entity.ToTable("lop");
 
@@ -248,7 +387,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LopAo>(entity =>
         {
-            entity.HasKey(e => e.MaLopAo).HasName("PK_class_virtual");
+            entity.HasKey(e => e.MaLopAo);
 
             entity.ToTable("lop_ao");
 
@@ -266,30 +405,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_lop_ao_mon_hoc");
         });
 
-        modelBuilder.Entity<Menu>(entity =>
-        {
-            entity.ToTable("menu");
-
-            entity.Property(e => e.MenuId).HasColumnName("menu_id");
-            entity.Property(e => e.MenuDescription)
-                .HasMaxLength(200)
-                .HasColumnName("menu_description");
-            entity.Property(e => e.MenuOrder).HasColumnName("menu_order");
-            entity.Property(e => e.MenuParentId).HasColumnName("menu_parent_id");
-            entity.Property(e => e.MenuTitle)
-                .HasMaxLength(100)
-                .HasColumnName("menu_title");
-            entity.Property(e => e.MenuUrl)
-                .HasMaxLength(100)
-                .HasColumnName("menu_url");
-            entity.Property(e => e.MenuValuepath)
-                .HasMaxLength(100)
-                .HasColumnName("menu_valuepath");
-        });
-
         modelBuilder.Entity<MonHoc>(entity =>
         {
-            entity.HasKey(e => e.MaMonHoc).HasName("PK_subject");
+            entity.HasKey(e => e.MaMonHoc);
 
             entity.ToTable("mon_hoc");
 
@@ -302,9 +420,52 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("ten_mon_hoc");
         });
 
+        modelBuilder.Entity<NhomCauHoi>(entity =>
+        {
+            entity.HasKey(e => e.MaNhom);
+
+            entity.ToTable("NhomCauHoi");
+
+            entity.Property(e => e.LaCauHoiNhom).HasDefaultValueSql("((0))");
+            entity.Property(e => e.MaDeThi).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.MaNhomCha).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.NoiDung).HasColumnType("ntext");
+            entity.Property(e => e.SoCauLay).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.TenNhom).HasMaxLength(250);
+
+            entity.HasOne(d => d.MaDeThiNavigation).WithMany(p => p.NhomCauHois)
+                .HasForeignKey(d => d.MaDeThi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NhomCauHoi_DeThi");
+        });
+
+        modelBuilder.Entity<NhomCauHoiHoanVi>(entity =>
+        {
+            entity.HasKey(e => new { e.MaDeHv, e.MaNhom }).HasName("PK_NhomHoanVi");
+
+            entity.ToTable("NhomCauHoiHoanVi");
+
+            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
+            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
+
+            entity.HasOne(d => d.MaDeHvNavigation).WithMany(p => p.NhomCauHoiHoanVis)
+                .HasForeignKey(d => d.MaDeHv)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NhomCauHoiHoanVi_DeThiHoanVi");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.MaRole);
+
+            entity.ToTable("Role");
+
+            entity.Property(e => e.TenRole).HasMaxLength(250);
+        });
+
         modelBuilder.Entity<SinhVien>(entity =>
         {
-            entity.HasKey(e => e.MaSinhVien).HasName("PK_student");
+            entity.HasKey(e => e.MaSinhVien);
 
             entity.ToTable("sinh_vien");
 
@@ -343,181 +504,29 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnName("ten_sinh_vien");
         });
 
-        modelBuilder.Entity<SinhVienLopAo>(entity =>
+        modelBuilder.Entity<SinhVienDuPhong>(entity =>
         {
-            entity.HasKey(e => e.MaSinhVienLopAo);
+            entity.HasKey(e => e.MaSinhVienDuPhong);
 
-            entity.ToTable("sinh_vien_lop_ao");
+            entity.ToTable("SinhVien_DuPhong");
 
-            entity.Property(e => e.MaSinhVienLopAo).HasColumnName("ma_sinh_vien_lop_ao");
+            entity.Property(e => e.MaSinhVienDuPhong).HasColumnName("ma_sinh_vien_du_phong");
             entity.Property(e => e.MaLopAo).HasColumnName("ma_lop_ao");
             entity.Property(e => e.MaSinhVien).HasColumnName("ma_sinh_vien");
         });
 
-        modelBuilder.Entity<TblAudioListened>(entity =>
+        modelBuilder.Entity<ThongBao>(entity =>
         {
-            entity.HasKey(e => e.ListenId);
+            entity.HasKey(e => e.MaThongBao);
 
-            entity.ToTable("tbl_AudioListened");
+            entity.ToTable("ThongBao");
 
-            entity.Property(e => e.ListenId).HasColumnName("ListenID");
-        });
-
-        modelBuilder.Entity<TblCauHoi>(entity =>
-        {
-            entity.HasKey(e => e.MaCauHoi);
-
-            entity.ToTable("tbl_CauHoi");
-
-            entity.Property(e => e.GhiChu).HasMaxLength(100);
-            entity.Property(e => e.HoanVi)
-                .IsRequired()
-                .HasDefaultValueSql("((1))");
-            entity.Property(e => e.KieuNoiDung).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.NoiDung).HasColumnType("ntext");
-            entity.Property(e => e.TieuDe).HasMaxLength(250);
-        });
-
-        modelBuilder.Entity<TblCauHoiMa>(entity =>
-        {
-            entity.HasKey(e => e.MaCauHoiMa);
-
-            entity.ToTable("tbl_CauHoiMa");
-        });
-
-        modelBuilder.Entity<TblCauTraLoi>(entity =>
-        {
-            entity.HasKey(e => e.MaCauTraLoi);
-
-            entity.ToTable("tbl_CauTraLoi");
-
-            entity.Property(e => e.MaCauHoi).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.NoiDung).HasColumnType("ntext");
-            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
-
-            entity.HasOne(d => d.MaCauHoiNavigation).WithMany(p => p.TblCauTraLois)
-                .HasForeignKey(d => d.MaCauHoi)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_CauTraLoi_tbl_CauHoi");
-        });
-
-        modelBuilder.Entity<TblChiTietCauHoiMa>(entity =>
-        {
-            entity.HasKey(e => new { e.MaCauHoiMa, e.MaChiTietBaiThi });
-
-            entity.ToTable("tbl_ChiTietCauHoiMa");
-        });
-
-        modelBuilder.Entity<TblChiTietDeThi>(entity =>
-        {
-            entity.HasKey(e => new { e.MaNhom, e.MaCauHoi });
-
-            entity.ToTable("tbl_ChiTietDeThi");
-
-            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
-        });
-
-        modelBuilder.Entity<TblChiTietDeThiHoanVi>(entity =>
-        {
-            entity.HasKey(e => new { e.MaDeHv, e.MaNhom, e.MaCauHoi });
-
-            entity.ToTable("tbl_ChiTietDeThiHoanVi");
-
-            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
-            entity.Property(e => e.HoanViTraLoi).HasMaxLength(4);
-            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
-
-            entity.HasOne(d => d.Ma).WithMany(p => p.TblChiTietDeThiHoanVis)
-                .HasForeignKey(d => new { d.MaDeHv, d.MaNhom })
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_ChiTietDeThiHoanVi_tbl_NhomCauHoiHoanVi");
-        });
-
-        modelBuilder.Entity<TblDanhmucCaThiTrongNgay>(entity =>
-        {
-            entity.HasKey(e => e.MaCaTrongNgay).HasName("PK_tbl_CaThiTrongNgay");
-
-            entity.ToTable("tbl_danhmuc_CaThiTrongNgay");
-
-            entity.Property(e => e.CaThiCode).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.TenCaTrongNgay).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<TblDeThi>(entity =>
-        {
-            entity.HasKey(e => e.MaDeThi);
-
-            entity.ToTable("tbl_DeThi");
-
-            entity.Property(e => e.GhiChu).HasColumnType("ntext");
-            entity.Property(e => e.LuuTam)
-                .IsRequired()
-                .HasDefaultValueSql("((1))");
-            entity.Property(e => e.MaMonHoc).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.NgayTao)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.NguoiTao).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.TenDeThi).HasMaxLength(250);
-        });
-
-        modelBuilder.Entity<TblDeThiHoanVi>(entity =>
-        {
-            entity.HasKey(e => e.MaDeHv);
-
-            entity.ToTable("tbl_DeThiHoanVi");
-
-            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
-            entity.Property(e => e.KyHieuDe).HasMaxLength(50);
-            entity.Property(e => e.MaDeThi).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.NgayTao)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-
-            entity.HasOne(d => d.MaDeThiNavigation).WithMany(p => p.TblDeThiHoanVis)
-                .HasForeignKey(d => d.MaDeThi)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_DeThiHoanVi_tbl_DeThi1");
-        });
-
-        modelBuilder.Entity<TblNhomCauHoi>(entity =>
-        {
-            entity.HasKey(e => e.MaNhom);
-
-            entity.ToTable("tbl_NhomCauHoi");
-
-            entity.Property(e => e.LaCauHoiNhom).HasDefaultValueSql("((0))");
-            entity.Property(e => e.MaDeThi).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.MaNhomCha).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.NoiDung).HasColumnType("ntext");
-            entity.Property(e => e.SoCauLay).HasDefaultValueSql("((-1))");
-            entity.Property(e => e.TenNhom).HasMaxLength(250);
-
-            entity.HasOne(d => d.MaDeThiNavigation).WithMany(p => p.TblNhomCauHois)
-                .HasForeignKey(d => d.MaDeThi)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_NhomCauHoi_tbl_DeThi");
-        });
-
-        modelBuilder.Entity<TblNhomCauHoiHoanVi>(entity =>
-        {
-            entity.HasKey(e => new { e.MaDeHv, e.MaNhom }).HasName("PK_tbl_NhomHoanVi");
-
-            entity.ToTable("tbl_NhomCauHoiHoanVi");
-
-            entity.Property(e => e.MaDeHv).HasColumnName("MaDeHV");
-            entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
-
-            entity.HasOne(d => d.MaDeHvNavigation).WithMany(p => p.TblNhomCauHoiHoanVis)
-                .HasForeignKey(d => d.MaDeHv)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tbl_NhomCauHoiHoanVi_tbl_DeThiHoanVi");
+            entity.Property(e => e.MaThongBao).ValueGeneratedNever();
+            entity.Property(e => e.NgayTao).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK_Users");
-
             entity.ToTable("User");
 
             entity.Property(e => e.UserId).ValueGeneratedNever();
@@ -534,6 +543,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.Password).HasMaxLength(128);
             entity.Property(e => e.PasswordSalt).HasMaxLength(255);
+
+            entity.HasOne(d => d.MaRoleNavigation).WithMany(p => p.Users)
+                .HasForeignKey(d => d.MaRole)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_User_Role");
         });
 
         OnModelCreatingPartial(modelBuilder);

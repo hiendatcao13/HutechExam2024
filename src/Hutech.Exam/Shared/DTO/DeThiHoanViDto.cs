@@ -21,6 +21,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public virtual DeThiDto MaDeThiNavigation { get; set; } = null!;
 
-        public virtual ICollection<NhomCauHoiHoanViDto> TblNhomCauHoiHoanVis { get; set; } = new List<NhomCauHoiHoanViDto>();
+        public virtual ICollection<NhomCauHoiHoanViDto> NhomCauHoiHoanVis { get; set; } = new List<NhomCauHoiHoanViDto>();
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Hutech.Exam.Shared.Models;
 
-public partial class TblAudioListened
+public partial class AudioListened
 {
     public long ListenId { get; set; }
 

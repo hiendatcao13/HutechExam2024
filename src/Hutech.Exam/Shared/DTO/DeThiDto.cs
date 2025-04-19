@@ -29,9 +29,9 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool BoChuongPhan { get; set; }
 
-        public virtual ICollection<DeThiHoanViDto> TblDeThiHoanVis { get; set; } = new List<DeThiHoanViDto>();
+        public virtual ICollection<DeThiHoanViDto> DeThiHoanVis { get; set; } = new List<DeThiHoanViDto>();
 
-        public virtual ICollection<NhomCauHoiDto> TblNhomCauHois { get; set; } = new List<NhomCauHoiDto>();
+        public virtual ICollection<NhomCauHoiDto> NhomCauHois { get; set; } = new List<NhomCauHoiDto>();
 
         public override string ToString()
         {

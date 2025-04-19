@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +10,8 @@ namespace Hutech.Exam.Shared.DTO
     {
         public int MaCauHoi { get; set; }
 
+        public int MaClo { get; set; }
+
         public string? TieuDe { get; set; }
 
         public int KieuNoiDung { get; set; }
@@ -21,7 +22,9 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool? HoanVi { get; set; }
 
-        public virtual ICollection<CauTraLoiDto> TblCauTraLois { get; set; } = new List<CauTraLoiDto>();
+        public virtual ICollection<CauTraLoiDto> CauTraLois { get; set; } = new List<CauTraLoiDto>();
+
+        public virtual CloDto MaCloNavigation { get; set; } = null!;
 
     }
 }

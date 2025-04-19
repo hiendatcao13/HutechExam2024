@@ -24,30 +24,31 @@ namespace Hutech.Exam.Server.BUS
                 MaChiTietCaThi = dataReader.GetInt32(1),
                 MaDeHv = dataReader.GetInt64(2),
                 MaNhom = dataReader.GetInt32(3),
-                MaCauHoi = dataReader.GetInt32(4),
-                CauTraLoi = dataReader.IsDBNull(5) ? null : dataReader.GetInt32(5),
-                NgayTao = dataReader.GetDateTime(6),
-                NgayCapNhat = dataReader.IsDBNull(7) ? null : dataReader.GetDateTime(7),
-                KetQua = dataReader.IsDBNull(8) ? null : dataReader.GetBoolean(8),
-                ThuTu = dataReader.GetInt32(9)
+                MaClo = dataReader.GetInt32(4),
+                MaCauHoi = dataReader.GetInt32(5),
+                CauTraLoi = dataReader.IsDBNull(6) ? null : dataReader.GetInt32(6),
+                NgayTao = dataReader.GetDateTime(7),
+                NgayCapNhat = dataReader.IsDBNull(8) ? null : dataReader.GetDateTime(8),
+                KetQua = dataReader.IsDBNull(9) ? null : dataReader.GetBoolean(9),
+                ThuTu = dataReader.GetInt32(10)
             };
             return _mapper.Map<ChiTietBaiThiDto>(chiTietBaiThi);
         }
-        public async Task<long> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, DateTime NgayTao, int ThuTu)
+        public async Task<long> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, DateTime NgayTao, int ThuTu)
         {
-            return (long)(await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, NgayTao, ThuTu) ?? -1);
+            return (long)(await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, MaClo, NgayTao, ThuTu) ?? -1);
         }
         public async Task Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
         {
             await _chiTietBaiThiRepository.Update(MaChiTietBaiThi, CauTraLoi, NgayCapNhat, KetQua);
         }
-        public async Task Update_v2(int MaChiTietCaThi, int MaCauHoi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
+        public async Task Update_v2(int MaChiTietCaThi, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
         {
-            await _chiTietBaiThiRepository.Update_v2(MaChiTietCaThi, MaCauHoi, CauTraLoi, NgayCapNhat, KetQua);
+            await _chiTietBaiThiRepository.Update_v2(MaChiTietCaThi, MaCauHoi, MaClo, CauTraLoi, NgayCapNhat, KetQua);
         }
-        public async Task Save(int MaChiTietCaThi, long MaDeHV, int MaNhom, int MaCauHoi, int CauTraLoi, DateTime NgayTao, DateTime NgayCapNhat, bool KetQua, int ThuTu)
+        public async Task Save(int MaChiTietCaThi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayTao, DateTime NgayCapNhat, bool KetQua, int ThuTu)
         {
-            await _chiTietBaiThiRepository.Save(MaChiTietCaThi, MaDeHV, MaNhom, MaCauHoi, CauTraLoi, NgayTao, NgayCapNhat, KetQua, ThuTu);
+            await _chiTietBaiThiRepository.Save(MaChiTietCaThi, MaDeHV, MaNhom, MaCauHoi, MaClo, CauTraLoi, NgayTao, NgayCapNhat, KetQua, ThuTu);
         }
         public async Task<List<ChiTietBaiThiDto>> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
@@ -70,7 +71,7 @@ namespace Hutech.Exam.Server.BUS
                 return;
             foreach (var item in customDeThis)
             {
-                await Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, DateTime.Now, ++stt);
+                await Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, item.MaClo, DateTime.Now, ++stt);
             }
         }
         public async Task UpdateChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)

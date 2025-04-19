@@ -20,6 +20,8 @@ namespace Hutech.Exam.Shared.DTO
 
         //public string Password { get; set; } = null!;
 
+        public int MaRole { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public bool IsLockedOut { get; set; }
@@ -31,6 +33,7 @@ namespace Hutech.Exam.Shared.DTO
         public DateTime? LastPasswordChangedDate { get; set; }
 
         public DateTime? LastLockoutDate { get; set; }
+        public virtual RoleDto MaRoleNavigation { get; set; } = null!;
 
         public override string ToString()
         {

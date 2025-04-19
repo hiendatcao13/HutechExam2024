@@ -18,7 +18,7 @@ namespace Hutech.Exam.Server.BUS
         }
         private AudioListenedDto getProperty(IDataReader dataReader)
         {
-            TblAudioListened audioListened = new()
+            AudioListened audioListened = new()
             {
                 ListenId = dataReader.GetInt64(0),
                 MaChiTietCaThi = dataReader.GetInt32(1),
