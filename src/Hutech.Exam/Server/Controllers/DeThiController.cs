@@ -26,5 +26,10 @@ namespace Hutech.Exam.Server.Controllers
         {
             return Ok(await _deThiService.GetAll());
         }
+        [HttpGet("SelectByMonHoc")]
+        public async Task<ActionResult<List<DeThiDto>>> SelectByMonHoc([FromQuery] int ma_mon_hoc)
+        {
+            return Ok(await _deThiService.SelectByMonHoc(ma_mon_hoc));
+        }
     }
 }

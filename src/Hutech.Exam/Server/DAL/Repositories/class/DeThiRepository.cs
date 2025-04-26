@@ -22,5 +22,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             DatabaseReader sql = new("DeThi_SelectAll");
             return await sql.ExecuteReaderAsync();
         }
+        public async Task<IDataReader> SelectByMonHoc(int ma_mon_hoc)
+        {
+            DatabaseReader sql = new("DeThi_SelectByMonHoc");
+            sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
+            return await sql.ExecuteReaderAsync();
+        }
     }
 }

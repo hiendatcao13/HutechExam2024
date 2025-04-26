@@ -65,3 +65,7 @@
 - Hoàn thành database có CLO, đã fix code database
 - Xóa các tên dư thừa tbl_, xóa các bảng dư thừa
 - Thêm bảng CLO, SinhVienDuPhong, LoaiCauHoi, LoiDeThi (Lỗi DeThi), ThongBao, Role cho User
+---------------------------------
+26/04/2025 11:00PM
+- Hơi bận chuyện phỏng vấn CMC, TMA
+- Tối ưu lại SignalR, các ConnectionId được lưu vào Redis Cache, SingleTon cho tạo kết nối HubConnection

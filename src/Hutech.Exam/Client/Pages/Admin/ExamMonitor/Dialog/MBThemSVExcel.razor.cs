@@ -8,7 +8,7 @@ using OfficeOpenXml;
 using System.Globalization;
 using System.Text;
 
-namespace Hutech.Exam.Client.Components.MessageBox
+namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 {
     public partial class MBThemSVExcel
     {

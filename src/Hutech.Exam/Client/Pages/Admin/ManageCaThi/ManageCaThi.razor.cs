@@ -19,7 +19,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        [Inject] private AdminDataService MyData { get; set; } = default!;
+        [Inject] private AdminHubService AdminHub { get; set; } = default!;
 
         private List<CaThiDto>? caThis;
         private List<DotThiDto>? dotThis; // combobox
@@ -86,8 +86,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         }
         private async Task Start()
         {
-            dotThis = await GetAllDotThiAPI();
-            monHocs = await GetAllMonHocAPI();
+            dotThis = await DotThis_GetAllAPI();
+            monHocs = await MonHocs_GetAllAPI();
 
             await GetItemsInSessionStorage();
 
@@ -109,7 +109,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
         private async Task OnClickChiTietCaThi(CaThiDto caThi)
         {
-            //MyData.CaThi = caThi;
             await SessionStorage.SetItemAsync("CaThi", caThi);
 
             Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
@@ -118,46 +117,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         private async Task OnClickXoaCaThi(int ma_ca_thi)
         {
             await Http.DeleteAsync($"api/Admin/DeleteCaThi?ma_ca_thi={ma_ca_thi}");
-            if (IsConnectHub())
-                await SendMessage();
-        }
-        private async Task CreateHubConnection()
-        {
-            hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
-                    {
-                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
-                    })
-                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
-                    .Build();
-
-            hubConnection.Closed += async (error) =>
-            {
-                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                await CreateHubConnection(); // Thử kết nối lại
-            };
-
-            hubConnection.On("ChangeStatusCaThi", async () =>
-            {
-                await CallLoadData();
-            });
-
-            await hubConnection.StartAsync();
-
-            // tham gia vào group admin
-            await hubConnection.InvokeAsync("JoinGroupAdmin");
-        }
-
-        private async Task CallLoadData()
-        {
-            await FetchAllCaThi();
-        }
-        private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
-
-        private async Task SendMessage()
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessage");
         }
     }
 }

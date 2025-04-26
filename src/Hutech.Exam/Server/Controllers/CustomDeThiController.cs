@@ -18,7 +18,7 @@ namespace Hutech.Exam.Server.Controllers
             _customDeThiService = customDeThiService;
         }
         [HttpGet("GetDeThi")]
-        [Cache(20)]
+        [Cache(120)]
         public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromQuery] long ma_de_thi_hoan_vi)
         {
             try
@@ -27,8 +27,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
-                return BadRequest(ex.Message + "\n" + ex.StackTrace);
+                return BadRequest(ex.Message);
             }
         }
     }

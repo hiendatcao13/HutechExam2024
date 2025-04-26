@@ -12,7 +12,7 @@ namespace Hutech.Exam.Client.Pages.Result
         private async Task<bool> UpdateKetThucAPI(ChiTietCaThiDto chiTietCaThi)
         {
             var jsonString = JsonSerializer.Serialize(chiTietCaThi);
-            var response = await Http.PutAsync("api/ChiTietCaThi/UpdateKetThuc", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            var response = await Http.PutAsync("api/ChiTietCaThi/UpdateKetThucThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             return response.IsSuccessStatusCode;
         }
         private async Task<bool> UpdateLogoutAPI(SinhVienDto sinhVien)

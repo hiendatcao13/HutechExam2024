@@ -1,5 +1,4 @@
 ﻿using Hutech.Exam.Client.Authentication;
-using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 
@@ -9,37 +8,25 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task CreateHubConnection()
         {
-            hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
-                    {
-                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
-                    })
-                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
-                    .Build();
-
-            hubConnection.Closed += async (error) =>
-            {
-                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                await CreateHubConnection(); // Thử kết nối lại
-            };
+            hubConnection = await StudentHub.GetConnectionAsync(MyData.SinhVien.MaSinhVien);
 
             // trường hợp thay đổi tình trạng ca thi
-            hubConnection.On<int>("ChangeStatusCaThi", async (ma_ca_thi) =>
+            hubConnection.On("ChangeStatusCaThi", async () =>
             {
-                if (chiTietCaThi != null && ma_ca_thi == chiTietCaThi.MaCaThi)
-                {
-                    await CallLoadData();
-                }
+                await CallLoadThayDoiTinhTrangCaThi();
             });
-            hubConnection.On<long>("ResetLogin", async (ma_sinh_vien) =>
+            hubConnection.On("ResetLogin", async () =>
             {
-                if(sinhVien != null && sinhVien.MaSinhVien == ma_sinh_vien)
-                await HandleDangXuat();
+                await CallLoadDangXuat();
             });
-            await hubConnection.StartAsync();
+            hubConnection.On("SubmitExam", async () =>
+            {
+                Snackbar.Add(ADMIN_NOP_BAI, MudBlazor.Severity.Info);
+                await KetThucThoiGianLamBai();
+            });
 
-            //tham gia vào group lớp
-            await hubConnection.InvokeAsync("JoinGroupLop", sinhVien?.MaLop ?? -1);
+            //tham gia vào group mã ca thi
+            await hubConnection.InvokeAsync("JoinGroupMaCaThi", caThi?.MaCaThi ?? -1);
         }
         private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
@@ -52,20 +39,17 @@ namespace Hutech.Exam.Client.Pages.Exam
                 Nav?.NavigateTo("/", true);
             }
         }
-        private async Task SendMessage(int ma_ca_thi)
-        {
-            if (hubConnection != null)
-                await hubConnection.SendAsync("SendMessageMCT", ma_ca_thi);
-        }
-        private async Task CallLoadData()
+        private async Task CallLoadThayDoiTinhTrangCaThi()
         {
             await UpdateChiTietBaiThiAPI();
-            bool result = await IsActiveCaThiAPI(chiTietCaThi?.MaCaThi ?? -1);
-            if (!result)
-            {
-                Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
-                Nav?.NavigateTo("/info");
-            }
+            Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
+            Nav?.NavigateTo("/info");
+        }
+        private async Task CallLoadDangXuat()
+        {
+            await UpdateChiTietBaiThiAPI();
+            Snackbar.Add(RESET_LOGIN, MudBlazor.Severity.Warning);
+            await HandleDangXuat();
         }
     }
 }

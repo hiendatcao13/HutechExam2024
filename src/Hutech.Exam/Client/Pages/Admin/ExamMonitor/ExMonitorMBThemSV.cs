@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Client.Components.MessageBox;
-using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
+﻿using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
 using MudBlazor;
 
 
@@ -23,8 +22,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
             await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
-            if (IsConnectHub())
-                await SendMessage(caThi?.MaCaThi ?? -1);
         }
         private List<long> GetMaDeThis()
         {

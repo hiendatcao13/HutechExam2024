@@ -73,6 +73,7 @@
                     <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                     <MudSpacer />
                     <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Cập nhật đề thi</MudButton>
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>ID</MudTh>
@@ -100,6 +101,7 @@
                         <MudButtonGroup Style="zoom: 0.7">
                             <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)"/>
                             <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)"/>
+                            <MudIconButton Icon="@Icons.Material.Filled.Announcement" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)"/>
                         </MudButtonGroup>
                     </MudTd>
@@ -136,7 +138,7 @@
         chiTietDotThis = [];
         caThis = [];
         if(selectedDotThi != null){
-            chiTietDotThis = await GetCTDotThi_MaDotThiAPI(selectedDotThi.MaDotThi);
+            chiTietDotThis = await ChiTietDotThis_SelectBy_MaDotThiAPI(selectedDotThi.MaDotThi);
         }
     }
     private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
@@ -151,7 +153,7 @@
         await SaveData();
         caThis = [];
         if(selectedChiTietDotThi != null){
-            caThis = await GetCaThi_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
+            caThis = await CaThis_SelectBy_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
         }
     }
     private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)

@@ -8,5 +8,6 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public Task<IDataReader> SelectBy_ma_de_hv(long ma_de_hv);
         public Task<IDataReader> GetAll();
+        public Task<IDataReader> SelectByMonHoc(int ma_mon_hoc);
     }
 }

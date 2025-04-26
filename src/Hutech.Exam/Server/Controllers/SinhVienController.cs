@@ -7,6 +7,8 @@ using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using StackExchange.Redis;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -17,14 +19,16 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly SinhVienService _sinhVienService;
         private readonly IHubContext<MainHub> _mainHub;
+        private readonly IDatabase _redisDb;
 
 
         private static int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
 
-        public SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub)
+        public SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub, IConnectionMultiplexer redis)
         {
             _sinhVienService = sinhVienService;
             _mainHub = mainHub;
+            _redisDb = redis.GetDatabase();
         }
         [HttpPut("Login")]
         [AllowAnonymous]
@@ -45,8 +49,9 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("UpdateLogout")]
         public async Task<ActionResult> UpdateLogout([FromBody] SinhVienDto sinhVien)
         {
-            await _sinhVienService.Logout(sinhVien.MaSinhVien, DateTime.Now);
-            await NotifyAuthenticationToAdmin(sinhVien.MaSinhVien);
+            DateTime current_time = DateTime.Now;
+            await _sinhVienService.Logout(sinhVien.MaSinhVien, current_time);
+            await NotifyAuthenticationToAdmin(sinhVien.MaSinhVien, false, current_time);
             return Ok();
         }
         [HttpGet("SelectBy_MSSV")]
@@ -60,7 +65,14 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> ResetLogin([FromBody] SinhVienDto sinhVien)
         {
-            await NotifyLogOutToSV(sinhVien.MaLop ?? -1, sinhVien.MaSinhVien);
+            await NotifyLogOutToSV(sinhVien.MaSinhVien);
+            return Ok();
+        }
+        [HttpPut("SubmitExam")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> SubmitExam([FromBody] SinhVienDto sinhVien)
+        {
+            await NotifyNopBaiToSV(sinhVien.MaSinhVien);
             return Ok();
         }
 
@@ -71,11 +83,11 @@ namespace Hutech.Exam.Server.Controllers
 
 
 
-
         private async Task UpdateLogin(long ma_sinh_vien)
         {
-            await _sinhVienService.Login(ma_sinh_vien, DateTime.Now);
-            await NotifyAuthenticationToAdmin(ma_sinh_vien);
+            DateTime current_time = DateTime.Now;
+            await _sinhVienService.Login(ma_sinh_vien, current_time);
+            await NotifyAuthenticationToAdmin(ma_sinh_vien, true, current_time);
         }
         private bool checkLogin(SinhVienDto sinhVien)
         {
@@ -90,13 +102,44 @@ namespace Hutech.Exam.Server.Controllers
             }
             return true;
         }
-        private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien)
+
+
+
+
+        private async Task<string?> GetConnectionIdAsync(long ma_sinh_vien)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien);
+            try
+            {
+                var key = $"connection:{ma_sinh_vien}";
+                var connectionId = await _redisDb.StringGetAsync(key);
+
+                return connectionId;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
-        private async Task NotifyLogOutToSV(int ma_lop, long ma_sinh_vien)
+        private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien, bool isLogin, DateTime thoi_gian)
         {
-            await _mainHub.Clients.Group(ma_lop + "").SendAsync("ResetLogin", ma_sinh_vien);
+            await _mainHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien, isLogin, thoi_gian);
+        }
+        private async Task NotifyLogOutToSV(long ma_sinh_vien)
+        {
+            string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
+            if(connectionId != null)
+            {
+                await _mainHub.Clients.Client(connectionId).SendAsync("ResetLogin");
+            }    
+        }
+        private async Task NotifyNopBaiToSV(long ma_sinh_vien)
+        {
+            string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
+            if (connectionId != null)
+            {
+                await _mainHub.Clients.Client(connectionId).SendAsync("SubmitExam");
+            }
         }
     }
 }

@@ -39,10 +39,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
             foreach(var endPoint in _connectionMultiplexer.GetEndPoints())
             {
                 var server = _connectionMultiplexer.GetServer(endPoint);
-                foreach(var key in server.Keys(pattern: pattern))
+                if (!server.IsConnected) continue;
+                foreach (var key in server.Keys(pattern: pattern))
                 {
                     // yield - continue foreach loop
                     yield return key.ToString();
+                    await Task.Yield();
                 }
             }
         }

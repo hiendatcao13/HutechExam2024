@@ -1,0 +1,116 @@
+﻿@page "/admin/examquestion"
+@using Hutech.Exam.Shared.DTO
+@attribute [Authorize(Roles = "Admin")]
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<PageTitle>Exam Question</PageTitle>
+
+
+<MudContainer Class="d-flex justify-center align-center">
+    <MudGrid Style="margin-top: 70px">
+        <MudItem xs="4">
+            <MudSelect T="MonHocDto" Label="Môn thi" Value=@selectedMonHoc Clearable="true" ValueChanged="@(async (value) => await OnValueChangeMonHoc(value))">
+                @if (monHocs != null)
+                {
+                    foreach (var item in monHocs)
+                    {
+                        <MudSelectItem Value="item">@item.TenMonHoc</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="2"></MudItem>
+        <MudItem xs="4">
+            <MudSelect Label="Đề thi" T="DeThiDto" Value=@selectedDeThi Clearable="true" ValueChanged="@(async (value) => await OnValueChangeDeThi(value))">
+                @if (deThis != null)
+                {
+                    foreach (var item in deThis)
+                    {
+                        <MudSelectItem Value="item">@item.TenDeThi</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="4">
+            <MudTable Items="@nhomCauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Chương/Phần</MudText>
+                    <MudSpacer />
+                    @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">Sửa</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Ẩn</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Xem ẩn</MudButton>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Thứ tự</MudTh>
+                    <MudTh>Tên</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd DataLabel="Thứ tự">@item.ThuTu</MudTd>
+                    <MudTd DataLabel="Tên">@item.TenNhom (@item.SoCauHoi)</MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudItem xs="8">
+                <MudTable Items="@cauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Câu hỏi</MudText>
+                        <MudSpacer />
+                        @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">Sửa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Ẩn</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Xem ẩn</MudButton>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Nội dung</MudTh>
+                        <MudTh>CLO</MudTh>
+                        <MudTh>Hoán vị</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="item">
+                        <MudTd DataLabel="Nội dung">@item</MudTd>
+                        <MudTd DataLabel="CLO">@item.MaCloNavigation.MaSoClo</MudTd>
+                        <MudTd DataLabel="Hoán vị"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudCheckBox></MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudItem>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    .checkbox {
+        transform: scale(0.85);
+    }
+
+    .selected-row {
+        background-color: lightgray !important;
+    }
+</style>
+
+@code {
+    List<MonHocDto>? monHocs;
+    MonHocDto? selectedMonHoc;
+
+    List<DeThiDto>? deThis;
+    DeThiDto? selectedDeThi;
+
+    List<NhomCauHoiDto>? nhomCauHois;
+    NhomCauHoiDto? selectedNhomCauHoi;
+
+    List<CauHoiDto>? cauHois;
+    CauHoiDto? selectedCauHoi;
+
+    private async Task OnValueChangeMonHoc(MonHocDto monHoc)
+    {
+        if(selectedMonHoc == monHoc)
+            return;
+        selectedDeThi = null;
+        selectedMonHoc = monHoc;
+        deThis = await GetAllDeThiAPIByMaMonHocAPI(monHoc.MaMonHoc);
+    }
+    private async Task OnValueChangeDeThi(DeThiDto deThi)
+    {
+    }
+}

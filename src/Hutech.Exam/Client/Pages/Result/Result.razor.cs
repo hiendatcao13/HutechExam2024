@@ -22,6 +22,7 @@ namespace Hutech.Exam.Client.Pages.Result
     {
         [Inject] private HttpClient Http { get; set; } = default!;
         [Inject] private ApplicationDataService MyData { get; set; } = default!;
+        [Inject] private StudentHubService StudentHub { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private NavigationManager Nav { get; set; } = default!;
         private Canvas2DContext? Context { get; set; }
@@ -181,29 +182,15 @@ namespace Hutech.Exam.Client.Pages.Result
         }
         private async Task CreateHubConnection()
         {
-            hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
-                    {
-                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
-                    })
-                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
-                    .Build();
+            hubConnection = await StudentHub.GetConnectionAsync(sinhVien?.MaSinhVien ?? -1);
 
-            hubConnection.Closed += async (error) =>
+            hubConnection.On("ResetLogin", async () =>
             {
-                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                await CreateHubConnection(); // Thử kết nối lại
-            };
-
-            hubConnection.On<long>("ResetLogin", async (ma_sinh_vien) =>
-            {
-                if (sinhVien != null && sinhVien.MaSinhVien == ma_sinh_vien)
-                    await HandleDangXuat();
+                await HandleDangXuat();
             });
-            await hubConnection.StartAsync();
 
-            //tham gia vào group lớp
-            await hubConnection.InvokeAsync("JoinGroupLop", sinhVien?.MaLop ?? -1);
+            //rời group ca thi
+            await hubConnection.InvokeAsync("LeaveGroupMaCaThi", caThi?.MaCaThi ?? -1);
         }
     }
 }

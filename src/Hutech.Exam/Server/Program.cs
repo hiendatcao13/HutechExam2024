@@ -54,7 +54,6 @@ static void Configure(WebApplication app)
     app.MapRazorPages();
     app.MapControllers();
     app.MapFallbackToFile("index.html");
-    app.MapHub<ChiTietCaThiHub>("/ChiTietCaThiHub");
     app.MapHub<MainHub>("/MainHub");
 
     app.Run();

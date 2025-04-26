@@ -1,21 +1,28 @@
 ﻿@inject IJSRuntime js
 
-<div class="error-overlay" style="font-family:'Segoe UI-Bold', 'Helvetica'"></div>
-<div class="error-content d-grid" style="place-content: center">
-    <div class="card">
-        <div class="card-header bg-danger text-white">
-            <h5 class="m-0">Unexpected Error</h5>
-        </div>
-        <div class="card-body">
-            <p>Oops, có lỗi không mong muốn xảy ra</p>
-            <pre class="p-3" style="--bs-bg-opacity: 0.25; background-color: aliceblue">Hệ thống có lỗi phát sinh. Vui lòng chờ trong giây lát</pre>
-        </div>
-        <div class="card-footer d-flex">
-            <button type="button" class="btn btn-success ms-auto" @onclick="@OnHandle">OK</button>
-        </div>
-    </div>
+<MudPaper Class="error-overlay">
+    <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Class="error-content" Style="min-height: 100vh;">
+        <MudItem xs="12" sm="8" md="6" lg="4">
+            <MudCard>
+                <MudCardHeader Class="bg-danger text-white">
+                    <MudText Typo="Typo.h5" Class="m-0">Unexpected Error</MudText>
+                </MudCardHeader>
 
-</div>
+                <MudCardContent>
+                    <MudText>Oops, có lỗi không mong muốn xảy ra</MudText>
+                    <MudPaper>
+                        <pre class="p-3" style="--bs-bg-opacity: 0.25; background-color: aliceblue">Hệ thống có lỗi phát sinh. Vui lòng chờ trong giây lát</pre>
+                    </MudPaper>
+                </MudCardContent>
+
+                <MudCardActions Class="d-flex">
+                    <MudSpacer />
+                    <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="@OnHandle">OK</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 <style type="text/css">
     .error-overlay{
         position: fixed;

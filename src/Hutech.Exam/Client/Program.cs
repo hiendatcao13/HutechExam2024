@@ -23,6 +23,8 @@ builder.Services.AddAuthorizationCore();
 // bien toan cuc
 builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
+builder.Services.AddSingleton<AdminHubService>();
+builder.Services.AddSingleton<StudentHubService>();
 // them MudBlazor
 builder.Services.AddMudServices();
 

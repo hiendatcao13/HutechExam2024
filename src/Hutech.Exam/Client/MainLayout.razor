@@ -53,7 +53,6 @@
     private ErrorBoundary? _errorBoundary;
     // Hiển thị alert báo lỗi -> click ok -> refresh lại page
     private void ResetErrorBoundary() => _errorBoundary?.Recover();
-    [Inject] AdminDataService MyData { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
 

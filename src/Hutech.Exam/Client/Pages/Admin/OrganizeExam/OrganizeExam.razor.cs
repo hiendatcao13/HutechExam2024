@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Hutech.Exam.Client.Components.Dialogs;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
+using Hutech.Exam.Shared.Models;
 
 namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 {
@@ -21,7 +22,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        [Inject] private AdminDataService MyData { get; set; } = default!;
+        [Inject] private AdminHubService AdminHub { get; set; } = default!;
 
         private List<DotThiDto>? dotThis = [];
         private List<ChiTietDotThiDto>? chiTietDotThis = [];
@@ -58,7 +59,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private async Task Start()
         {
-            dotThis = await GetAllDotThiAPI();
+            dotThis = await DotThis_GetAllAPI();
         }
 
         private async Task GetItemsInSessionStorage()
@@ -76,10 +77,10 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         {
             if (selectedDotThi != null && selectedDotThi != null)
             {
-                chiTietDotThis = await GetCTDotThi_MaDotThiAPI(selectedDotThi.MaDotThi);
+                chiTietDotThis = await ChiTietDotThis_SelectBy_MaDotThiAPI(selectedDotThi.MaDotThi);
                 if (selectedChiTietDotThi != null)
                 {
-                    caThis = await GetCaThi_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
+                    caThis = await CaThis_SelectBy_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
                 }
             }
         }
@@ -127,6 +128,8 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             {
                 Snackbar.Add(SUCCESS_DELETE_DOTTHI, Severity.Success);
                 selectedDotThi = null;
+                chiTietDotThis = [];
+                caThis = [];
             }
             else
                 Snackbar.Add(ERROR_DELETE_DOTTHI, Severity.Error);
@@ -189,6 +192,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             {
                 Snackbar.Add(SUCCESS_DELETE_DOTTHI, Severity.Success);
                 selectedChiTietDotThi = null;
+                caThis = [];
             }
             else
                 Snackbar.Add(ERROR_DELETE_DOTTHI, Severity.Error);
@@ -243,7 +247,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi())   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("Xóa ca thi", parameters, options);
+            await Dialog.ShowAsync<Simple_Dialog>("XÓA CA THI", parameters, options);
         }
         private async Task HandleDeleteCaThi()
         {
@@ -257,6 +261,35 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             else
                 Snackbar.Add(ERROR_DELETE_CATHI, Severity.Error);
         }
+        private async Task OnClickCapNhatDeThi(CaThiDto caThi)
+        {
+            var result = await OpenCapNhatDeThiDialog(caThi);
+            if (result != null && result.Data != null && !result.Canceled)
+            {
+                var caThiThayDoi = await CaThi_SelectOneAPI(Convert.ToInt32(result.Data));
+                caThi.MaDeThi = caThiThayDoi?.MaDeThi ?? caThi.MaDeThi;
+            }
+        }
+        private async Task<DialogResult?> OpenCapNhatDeThiDialog(CaThiDto caThi)
+        {
+            if (selectedChiTietDotThi == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return DialogResult.Cancel();
+            }
+            var parameters = new DialogParameters<CapNhatDeThiDialog>
+            {
+                { x => x.MaChiTietDotThi, selectedChiTietDotThi.MaChiTietDotThi },
+                { x => x.TenDotThi, selectedDotThi?.TenDotThi ?? "Không có DL tên"},
+                { x => x.TenLopAo , selectedChiTietDotThi.MaLopAoNavigation.TenLopAo },
+                { x => x.TenMonThi, selectedChiTietDotThi.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
+                { x => x.LanThi, selectedChiTietDotThi.LanThi },
+                { x => x.CaThi, caThi }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<CapNhatDeThiDialog>("UPDATE ĐỀ THI", parameters, options);
+            return await dialog.Result;
+        }
 
         private async Task OnClickShowChiTietCaThi(CaThiDto caThi)
         {
@@ -269,82 +302,6 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         }
 
 
-        private async Task CreateHubConnection()
-        {
-            hubConnection = new HubConnectionBuilder()
-                    .WithUrl(Nav.ToAbsoluteUri("/MainHub"), options =>
-                    {
-                        options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
-                    })
-                    .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
-            .Build();
-
-            hubConnection.Closed += async (error) =>
-            {
-                await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                await CreateHubConnection(); // Thử kết nối lại
-            };
-
-            hubConnection.On("ChangeDotThi", async () =>
-            {
-                await CallLoadDotThi(false);
-                StateHasChanged();
-            });
-            hubConnection.On("DeleteDotThi", async () =>
-            {
-                await CallLoadDotThi(true);
-                StateHasChanged();
-            });
-            hubConnection.On("ChangeChiTietDotThi", async () =>
-            {
-                await CallLoadCTDotThi(false);
-                StateHasChanged();
-            });
-            hubConnection.On("DeleteChiTietDotThi", async () =>
-            {
-                await CallLoadCTDotThi(true);
-                StateHasChanged();
-            });
-            hubConnection.On("ChangeCaThi", async () =>
-            {
-                await CallLoadCaThi();
-                StateHasChanged();
-            });
-
-            await hubConnection.StartAsync();
-
-            // tham gia vào group admin
-            await hubConnection.InvokeAsync("JoinGroupAdmin");
-        }
-        private async Task CallLoadDotThi(bool isDelete)
-        {
-            if (isDelete)
-            {
-                selectedDotThi = null;
-                chiTietDotThis = [];
-                caThis = [];
-            }
-            dotThis = await GetAllDotThiAPI();
-        }
-        private async Task CallLoadCTDotThi(bool isDelete)
-        {
-            if (isDelete)
-            {
-                selectedChiTietDotThi = null;
-                caThis = [];
-            }
-            if (selectedDotThi != null)
-            {
-                chiTietDotThis = await GetCTDotThi_MaDotThiAPI(selectedDotThi.MaDotThi);
-            }
-        }
-        private async Task CallLoadCaThi()
-        {
-            if (selectedChiTietDotThi != null)
-            {
-                caThis = await GetCaThi_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
-            }
-        }
 
 
         private async Task SaveData()

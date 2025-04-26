@@ -2,7 +2,7 @@
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 
-namespace Hutech.Exam.Client.Components.MessageBox
+namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 {
     public partial class MBSuaSV
     {

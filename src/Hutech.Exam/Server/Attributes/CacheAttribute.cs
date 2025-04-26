@@ -2,7 +2,6 @@
 using Hutech.Exam.Server.Configurations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 
 namespace Hutech.Exam.Server.Attributes
@@ -26,7 +25,15 @@ namespace Hutech.Exam.Server.Attributes
             }
             var cacheService = context.HttpContext.RequestServices.GetRequiredService<IResponseCacheService>();
             var cacheKey = GenerateCacheKeyFromRequest(context.HttpContext.Request);
-            var cacheResponse = await cacheService.GetCacheResponseAsync(cacheKey);
+            string? cacheResponse = null;
+            try
+            {
+                cacheResponse = await cacheService.GetCacheResponseAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Redis] GetCache failed: {ex.Message}");
+            }
 
             if (!string.IsNullOrEmpty(cacheResponse))
             {
@@ -41,10 +48,18 @@ namespace Hutech.Exam.Server.Attributes
             }
 
             var excutedContext = await next();
-            if (excutedContext.Result is OkObjectResult objectResult && objectResult.Value != null)
-                await cacheService.SetCacheResponseAsync(cacheKey, objectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
-            else if (excutedContext.Result is ObjectResult okObjectResult && okObjectResult.Value != null)
-                await cacheService.SetCacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
+            try
+            {
+                if (excutedContext.Result is OkObjectResult objectResult && objectResult.Value != null)
+                    await cacheService.SetCacheResponseAsync(cacheKey, objectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
+                else if (excutedContext.Result is ObjectResult okObjectResult && okObjectResult.Value != null)
+                    await cacheService.SetCacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
+            } 
+            catch(Exception ex)
+            {
+                Console.WriteLine($"[Redis] SetCache failed: {ex.Message}");
+            }
+ 
         }
         // lấy các parameter của controller
         private static string GenerateCacheKeyFromRequest(HttpRequest request) 

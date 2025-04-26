@@ -9,7 +9,7 @@
 <MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
     <DialogContent>
         <MudGrid>
-            <MudItem xs ="4"><MudText>Tên Đợt thi:</MudText></MudItem>
+            <MudItem xs="4"><MudText>Tên Đợt thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text">@TenDotThi</span></MudText></MudItem>
 
             <MudItem xs="4"><MudText>Môn thi:</MudText></MudItem>
@@ -36,7 +36,7 @@
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
             <MudItem xs="8">
-                <MudSelect T="DeThiDto" @bind-Value="selectDeThi" Label="Đề thi" Required>
+                <MudSelect T="DeThiDto" @bind-Value="selectDeThi" Label="Đề thi" Required ReadOnly="true">
                     @if (deThis != null)
                     {
                         foreach (var item in deThis)
@@ -69,12 +69,9 @@
     backdrop-filter: blur(10px);
     }
 
-    .mud-grid-item{
-        padding-top: 5px !important;
-    }
     .title-text{
-        font-weight: bold;
-        color: darkslateblue;
+    font-weight: bold;
+    color: darkslateblue;
     }
 </style>
 
@@ -112,6 +109,9 @@
     private async Task HandleInput()
     {
         deThis = await GetAllDeThiAPI();
+        // thêm 1 trường null
+        deThis?.Add(new DeThiDto() {MaDeThi = -1, TenDeThi = "Chưa có mã đề"});
+        selectDeThi = deThis?.FirstOrDefault(p => p.MaDeThi == -1);
         if(IsEdit && CaThi != null){
             ten_ca_thi = CaThi.TenCaThi;
             ngay_thi = CaThi.ThoiGianBatDau;

@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\Admin\ExamQuestion\Dialog\" />
     <Folder Include="wwwroot\css\exam\" />
     <Folder Include="wwwroot\images\admin\monitor\" />
     <Folder Include="wwwroot\images\exam\" />

@@ -17,6 +17,7 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         [Inject] private HttpClient Http { get; set; } = default!;
         [Inject] private ApplicationDataService MyData { get; set; } = default!;
+        [Inject] private StudentHubService StudentHub { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private NavigationManager Nav { get; set; } = default!;
         [Inject] private IJSRuntime Js { get; set; } = default!;
@@ -44,7 +45,9 @@ namespace Hutech.Exam.Client.Pages.Exam
         private const string ERROR_FETCH_BAILAM = "Không thể lấy bài làm trước hoặc hệ thống lỗi";
         private const string ERROR_UPDATE_BAILAM = "Lưu bài không thành công";
         private const string DONG_BANG_CA_THI = "Quản trị viên đang tạm thời dừng ca thi này. Thí sinh vui lòng chờ trong giây lát";
+        private const string RESET_LOGIN = "Quản trị viên đã tạm thời đăng xuất bạn khỏi ca thi này. Vui lòng đăng nhập lại để tiếp tục thi";
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
+        private const string ADMIN_NOP_BAI = "Bài thi của bạn được quản trị viên yêu cầu nộp bài";
         private async Task checkPage()
         {
             if (MyData.ChiTietCaThi.MaChiTietCaThi == 0 || MyData.SinhVien.MaSinhVien == 0)
@@ -94,9 +97,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         public async Task KetThucThoiGianLamBai()
         {
             await UpdateChiTietBaiThiAPI();
-            // Cập nhật cho quản trị viên biết sinh đã hoàn thành bài thi
-            if (IsConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
-                await SendMessage((int)chiTietCaThi.MaCaThi);
+
             if (chiTietBaiThis != null && listDapAn != null)
             {
                 MyData.ChiTietBaiThis = chiTietBaiThis;
@@ -114,9 +115,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             chiTietCaThi = MyData.ChiTietCaThi;
             customDeThis = MyData.CustomDeThis = await GetDeThiAPI(chiTietCaThi.MaDeThi) ?? [];
             await ModifyNhomCauHoi();
-            // Cập nhật cho quản trị viên biết sinh viên đang thi
-            if (IsConnectHub() && chiTietCaThi != null && chiTietCaThi.MaCaThi != null)
-                await SendMessage((int)chiTietCaThi.MaCaThi);
+
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
             if (MyData.ChiTietCaThi != null && MyData.ChiTietCaThi.DaThi)
             {
@@ -225,7 +224,6 @@ namespace Hutech.Exam.Client.Pages.Exam
         public void Dispose()
         {
             timer?.Dispose();
-            hubConnection?.DisposeAsync();
         }
 
     }

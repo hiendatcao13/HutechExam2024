@@ -1,11 +1,10 @@
-﻿using Hutech.Exam.Client.Components.MessageBox;
-using Hutech.Exam.Shared.DTO;
+﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
 using System.Text;
 using System.Text.Json;
 
-namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
+namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 {
     public partial class ExamMonitor
     {

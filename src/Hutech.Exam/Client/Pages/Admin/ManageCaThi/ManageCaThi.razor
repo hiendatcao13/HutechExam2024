@@ -78,13 +78,13 @@
                         <MudTd DataLabel="Thời Lượng Thi">@item.ThoiGianBatDau</MudTd>
                         <MudTd DataLabel="Thời Gian Bắt Đầu">@item.ThoiGianThi</MudTd>
                         <MudTd>
-                            <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)" OnClick="async () => await OnClickShowDialog(item)" />
+                            <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)"  />
                         </MudTd>
                         <MudTd>
                             <MudButtonGroup Style="zoom: 0.7">
-                                <MudIconButton Icon="@Icons.Material.Filled.Pageview" Color="Color.Primary" OnClick="() => OnClickChiTietCaThi(item)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="() => OnClickChiTietCaThi(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickShowDialog(item)" />
+                                @* <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" /> *@
                             </MudButtonGroup>
                         </MudTd>
                     </RowTemplate>
@@ -124,7 +124,7 @@
         selectedLanThi = null;
         selectedMonHoc = monHoc;
         if (monHoc != null)
-            lopAos = await LopAo_SelectedByMonHocAPI(monHoc.MaMonHoc);
+            lopAos = await LopAos_SelectBy_MaMonHocAPI(monHoc.MaMonHoc);
         else
         {
             lopAos?.Clear();
@@ -154,7 +154,7 @@
     {
         if (selectedDotThi != null && selectedLopAo != null && selectedLanThi != null && selectedMonHoc != null)
         {
-            caThis = await GetAllCaThi_SelectBy_MaDotThi_MaLopAo_LanThiAPI(selectedDotThi.MaDotThi, selectedLopAo.MaLopAo, selectedLanThi);
+            caThis = await CaThis_SelectBy_MaDotThi_MaLopAo_LanThiAPI(selectedDotThi.MaDotThi, selectedLopAo.MaLopAo, selectedLanThi);
             await SetItemsInSessionStorage();
         }
         else
@@ -169,7 +169,7 @@
             LopAo = selectedLopAo,
             LanThi = selectedLanThi
         };
-        await SessionStorage.SetItemAsync("storedDataEM", selectedData);
+        await SessionStorage.SetItemAsync("storedDataMC", selectedData);
     }
 
 }

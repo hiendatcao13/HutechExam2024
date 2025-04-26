@@ -4,6 +4,7 @@ using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -24,6 +25,38 @@ namespace Hutech.Exam.Server.Controllers
             _monHocService = monHocService;
             _mainHub = mainHub;
         }
+        [HttpGet("SelectOne")]
+        public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromQuery] int ma_chi_tiet_dot_thi)
+        {
+            var chiTietDotThi = await _chiTietDotThiService.SelectOne(ma_chi_tiet_dot_thi);
+            chiTietDotThi.MaLopAoNavigation = await GetLopAo(chiTietDotThi.MaLopAo);
+            chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = await GetMonHoc(chiTietDotThi.MaLopAoNavigation.MaMonHoc ?? -1);
+            return Ok(chiTietDotThi);
+        }
+        [HttpPost("Insert")]
+        public async Task<ActionResult<int>> Insert([FromBody] ChiTietDotThiDto chiTietDotThi)
+        {
+            var id = await _chiTietDotThiService.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+            await NotifyChangeChiTietDotThiToAdmin(id, 0);
+            return Ok(id);
+        }
+        [HttpPut("Update")]
+        public async Task<ActionResult> Update([FromBody] ChiTietDotThiDto chiTietDotThi)
+        {
+            await _chiTietDotThiService.Update(chiTietDotThi.MaChiTietDotThi, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+            await NotifyChangeChiTietDotThiToAdmin(chiTietDotThi.MaChiTietDotThi, 1);
+            return Ok();
+        }
+        [HttpDelete("Remove")]
+        public async Task<ActionResult> Remove([FromQuery] int ma_chi_tiet_dot_thi)
+        {
+            await _chiTietDotThiService.Remove(ma_chi_tiet_dot_thi);
+            await NotifyChangeChiTietDotThiToAdmin(ma_chi_tiet_dot_thi, 2);
+            return Ok();
+        }
+
+
+
         [HttpGet("LanThis_SelectBy_MaDotThiMaLopAo")]
         public async Task<ActionResult<List<string>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int ma_dot_thi, [FromQuery] int ma_lop_ao)
         {
@@ -39,33 +72,12 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<List<string>>> SelectBy_MaDotThi([FromQuery] int ma_dot_thi)
         {
             var result = await _chiTietDotThiService.SelectBy_MaDotThi(ma_dot_thi);
-            foreach(var item in result)
+            foreach (var item in result)
             {
                 item.MaLopAoNavigation = await GetLopAo(item.MaLopAo);
                 item.MaLopAoNavigation.MaMonHocNavigation = await GetMonHoc(item.MaLopAoNavigation.MaMonHoc ?? -1);
             }
             return Ok(result);
-        }
-        [HttpPost("Insert")]
-        public async Task<ActionResult<int>> Insert([FromBody] ChiTietDotThiDto chiTietDotThi)
-        {
-            var id = await _chiTietDotThiService.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
-            await NotifyChangeChiTietDotThiToAdmin();
-            return Ok(id);
-        }
-        [HttpPut("Update")]
-        public async Task<ActionResult> Update([FromBody] ChiTietDotThiDto chiTietDotThi)
-        {
-            await _chiTietDotThiService.Update(chiTietDotThi.MaChiTietDotThi, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
-            await NotifyChangeChiTietDotThiToAdmin();
-            return Ok();
-        }
-        [HttpDelete("Remove")]
-        public async Task<ActionResult> Remove([FromQuery] int ma_chi_tiet_dot_thi)
-        {
-            await _chiTietDotThiService.Remove(ma_chi_tiet_dot_thi);
-            await NotifyDeleteChiTietDotThiToAdmin();
-            return Ok();
         }
 
 
@@ -84,13 +96,11 @@ namespace Hutech.Exam.Server.Controllers
         }
 
 
-        private async Task NotifyChangeChiTietDotThiToAdmin()
+        private async Task NotifyChangeChiTietDotThiToAdmin(int ma_chi_tiet_dot_thi, int function)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("ChangeChiTietDotThi");
-        }
-        private async Task NotifyDeleteChiTietDotThiToAdmin()
-        {
-            await _mainHub.Clients.Group("admin").SendAsync("DeleteChiTietDotThi");
+            // 0: Insert, 1: Update, 2:Delete
+            string message = (function == 0) ? "InsertCTDotThi" : (function == 1) ? "UpdateCTDotThi" : "DeleteCTDotThi";
+            await _mainHub.Clients.Group("admin").SendAsync(message, ma_chi_tiet_dot_thi);
         }
     }
 }

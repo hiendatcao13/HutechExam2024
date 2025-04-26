@@ -58,8 +58,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> KichHoatCaThi([FromBody] int ma_ca_thi)
         {
             await _caThiService.ca_thi_Activate(ma_ca_thi, true);
-            await NotifyChangeStatusCaThiToSV(ma_ca_thi);
-            await NotifyChangeStatusCaThiToAdmin();
+            await NotifyChangeCaThiToAdmin(ma_ca_thi, 1);
             return Ok();
         }
         [HttpPut("HuyKichHoatCaThi")]
@@ -84,7 +83,7 @@ namespace Hutech.Exam.Server.Controllers
                     }
                     await DungCaThi(ma_ca_thi);
                     await NotifyChangeStatusCaThiToSV(ma_ca_thi);
-                    await NotifyChangeStatusCaThiToAdmin();
+                    await NotifyChangeCaThiToAdmin(ma_ca_thi, 1);
 
                     // Commit tất cả thay đổi nếu không có lỗi
                     transaction.Complete();
@@ -102,7 +101,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             await _caThiService.ca_thi_Activate(ma_ca_thi, false);
             await NotifyChangeStatusCaThiToSV(ma_ca_thi);
-            await NotifyChangeStatusCaThiToAdmin();
+            await NotifyChangeCaThiToAdmin(ma_ca_thi, 1);
             return Ok();
         }
         [HttpPut("KetThucCaThi")]
@@ -124,7 +123,7 @@ namespace Hutech.Exam.Server.Controllers
 
                     await _caThiService.ca_thi_Ketthuc(ma_ca_thi);
                     await NotifyChangeStatusCaThiToSV(ma_ca_thi);
-                    await NotifyChangeStatusCaThiToAdmin();
+                    await NotifyChangeCaThiToAdmin(ma_ca_thi, 1);
 
                     // Xác nhận tất cả thao tác hợp lệ
                     transaction.Complete();
@@ -141,7 +140,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<int>> Insert([FromBody] CustomCaThi caThi)
         {
             var id = await _caThiService.Insert(caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
-            await NotifyChangeCaThiToAdmin();
+            await NotifyChangeCaThiToAdmin(id, 0);
             return Ok(id);
         }
         [HttpPut("Update")]
@@ -149,14 +148,14 @@ namespace Hutech.Exam.Server.Controllers
         {
             if (caThi.TenCaThi != null)
                 await _caThiService.Update(caThi.MaCaThi, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
-            await NotifyChangeCaThiToAdmin();
+            await NotifyChangeCaThiToAdmin(caThi.MaCaThi, 1);
             return Ok();
         }
         [HttpDelete("Remove")]
         public async Task<ActionResult> Remove([FromQuery] int ma_ca_thi)
         {
             await _caThiService.Remove(ma_ca_thi);
-            await NotifyChangeCaThiToAdmin();
+            await NotifyChangeCaThiToAdmin(ma_ca_thi, 2);
             return Ok();
         }
         [HttpPost("GenerateExcelFile")]
@@ -215,18 +214,18 @@ namespace Hutech.Exam.Server.Controllers
             foreach (var item in chiTietBaiThis)
                 await _chiTietBaiThiService.Delete(item.MaChiTietBaiThi);
         }
-        private async Task NotifyChangeStatusCaThiToSV(int ma_lop)
+
+
+        private async Task NotifyChangeStatusCaThiToSV(int ma_ca_thi)
         {
-            await _mainHub.Clients.Group(ma_lop + "").SendAsync("ChangeStatusCaThi", ma_lop);
+            await _mainHub.Clients.Group(ma_ca_thi + "").SendAsync("ChangeStatusCaThi");
         }
         // các admin khác cũng nhận được sự thay đổi của TT ca thi
-        private async Task NotifyChangeStatusCaThiToAdmin()
+        private async Task NotifyChangeCaThiToAdmin(int ma_ca_thi, int function)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("ChangeStatusCaThi");
-        }
-        private async Task NotifyChangeCaThiToAdmin()
-        {
-            await _mainHub.Clients.Group("admin").SendAsync("ChangeCaThi");
+            // 0: Insert, 1: Update, 2:Delete
+            string message = (function == 0) ? "InsertCaThi" : (function == 1) ? "UpdateCaThi" : "DeleteCaThi";
+            await _mainHub.Clients.Group("admin").SendAsync(message, ma_ca_thi);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Hutech.Exam.Server.BUS
         public async Task<DeThiDto> SelectOne(int ma_de_thi)
         {
             DeThiDto deThi = new();
-            using(IDataReader dataReader = await _deThiRepository.SelectOne(ma_de_thi))
+            using (IDataReader dataReader = await _deThiRepository.SelectOne(ma_de_thi))
             {
                 if (dataReader.Read())
                 {
@@ -60,6 +60,18 @@ namespace Hutech.Exam.Server.BUS
         {
             List<DeThiDto> result = new();
             using (IDataReader dataReader = await _deThiRepository.GetAll())
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(getProperty(dataReader));
+                }
+            }
+            return result;
+        }
+        public async Task<List<DeThiDto>> SelectByMonHoc(int ma_mon_hoc)
+        {
+            List<DeThiDto> result = new();
+            using (IDataReader dataReader = await _deThiRepository.SelectByMonHoc(ma_mon_hoc))
             {
                 while (dataReader.Read())
                 {

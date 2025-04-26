@@ -4,6 +4,7 @@ using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -20,6 +21,7 @@ namespace Hutech.Exam.Server.Controllers
         private readonly MonHocService _monHocService;
         private readonly DotThiService _dotThiService;
         private readonly IHubContext<MainHub> _mainHub;
+        
 
         public ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, CaThiService caThiService,
             SinhVienService sinhVienService, ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService,
@@ -67,21 +69,24 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("UpdateBatDauThi")]
         public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
+            chiTietCaThi.ThoiGianBatDau = DateTime.Now;
             await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
-            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, true, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }
-        [HttpPut("UpdateKetThuc")]
-        public async Task<ActionResult> UpdateKetThuc([FromBody] ChiTietCaThiDto chiTietCaThi)
+        [HttpPut("UpdateKetThucThi")]
+        public async Task<ActionResult> UpdateKetThucThi([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
+            chiTietCaThi.ThoiGianKetThuc = DateTime.Now;
             await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
-            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, false, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }
         [HttpGet("SelectBy_MaCaThi")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<ChiTietCaThiDto>>> GetThongTinCTCaThiTheoMaCaThi([FromQuery] int ma_ca_thi)
         {
+            // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
             List<ChiTietCaThiDto> result = await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi);
             foreach (var item in result)
                 if(item.MaSinhVien != null)
@@ -94,7 +99,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             await _chiTietCaThiService.CongGio(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong ?? DateTime.Now, chiTietCaThi.LyDoCong ?? "");
             // báo cho tất cả admin
-            await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi);
+            await NotifyCongGioSVToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok(true);
         }
 
@@ -134,9 +139,20 @@ namespace Hutech.Exam.Server.Controllers
         {
             return await _monHocService.SelectOne(ma_mon_hoc);
         }
-        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi)
+
+
+
+
+
+
+        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("SV_Status", ma_chi_tiet_ca_thi);
+            // 0: bắt đầu thi, 1: kết thúc thi
+            await _mainHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+        }
+        private async Task NotifyCongGioSVToAdmin(int ma_chi_tiet_ca_thi)
+        {
+            await _mainHub.Clients.Group("admin").SendAsync("CongGioSV", ma_chi_tiet_ca_thi);
         }
     }
 }

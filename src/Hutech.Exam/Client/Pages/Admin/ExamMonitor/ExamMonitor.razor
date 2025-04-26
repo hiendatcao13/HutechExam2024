@@ -16,14 +16,6 @@
                 <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf"  Color="Color.Default">Export PDF</MudButton>
                 <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcel">Export EXCEL</MudButton>
             </MudPaper>
-            @* <MudPaper Elevation="2" Class="pa-4" Style="margin-top: 5%; position: sticky; top: 8%">
-                <MudText Typo="Typo.subtitle2">THỜI GIAN BIỂU SV</MudText>
-                <MudText Typo="Typo.caption">ĐNhap: @currentlyHover_dangNhap</MudText><br />
-                <MudText Typo="Typo.caption">ĐXuat: @currentlyHover_dangXuat</MudText><br />
-                <MudText Typo="Typo.caption">BĐ thi: @currentlyHover_thoiGianBD</MudText><br />
-                <MudText Typo="Typo.caption">KT thi: @currentlyHover_thoiGianKT</MudText><br />
-                <MudText Typo="Typo.caption">Cộng: @currentlyHover_thoiGianCong</MudText>
-            </MudPaper> *@
         </MudItem>
         @if(chiTietCaThis != null)
         {
@@ -58,6 +50,7 @@
                             <MudButtonGroup Style="zoom: 0.7">
                                 <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Success" OnClick="() => OnClickResetLogin(item?.MaSinhVienNavigation)" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickCongGioThem(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Done" Color="Color.Info" OnClick="() => OnClickNopBai(item)" />
                                 <MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" />
                             </MudButtonGroup>
                         </MudTd>
