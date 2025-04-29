@@ -84,9 +84,15 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
 
+            CreateMap<Clo, CloDto>();
+            CreateMap<CloDto, Clo>();
+
             // ánh xạ giữa CustomChiTietBaiThi và ChiTietBaiThiDto (không có CustomDeThi)
             CreateMap<CustomChiTietBaiThi, ChiTietBaiThiDto>();
             CreateMap<ChiTietBaiThiDto, CustomChiTietBaiThi>();
+
+            CreateMap<CustomNhomCauHoi, NhomCauHoiDto>();
+            CreateMap<NhomCauHoiDto, CustomNhomCauHoi>();
         }
     }
 }

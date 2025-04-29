@@ -28,6 +28,7 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<NhomCauHoiService>();
             services.AddScoped<SinhVienService>();
             services.AddScoped<UserService>();
+            services.AddScoped<CloService>();
 
             // sử dụng custom lại đề
             services.AddScoped<CustomDeThiService>();

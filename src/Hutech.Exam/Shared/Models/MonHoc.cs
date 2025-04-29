@@ -12,4 +12,5 @@ public partial class MonHoc
     public string? TenMonHoc { get; set; }
 
     public virtual ICollection<LopAo> LopAos { get; set; } = new List<LopAo>();
+    public virtual ICollection<Clo> Clos { get; set; } = new List<Clo>();
 }

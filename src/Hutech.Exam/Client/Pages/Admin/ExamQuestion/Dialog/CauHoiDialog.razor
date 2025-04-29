@@ -1,0 +1,332 @@
+﻿@using Hutech.Exam.Client.Components.Dialogs
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 700px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs = "6">
+                <MudSelect Label="CLO" T="CloDto" Clearable="true" @bind-Value="selectedClo">
+                    @if (clos != null)
+                    {
+                        foreach (var item in clos)
+                        {
+                            <MudSelectItem Value="item">[@item.MaSoClo]: @item.TieuDe</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudSelect Label="Kiểu nội dung" T="int" Clearable="true" @bind-Value="selectedKieuNoiDung">
+                    @foreach (var item in kieuNoiDungCauHoi)
+                    {
+                        <MudSelectItem Value="item.Key">@item.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudTextField Label="Tiêu đề" Class="tieu-de" Required InputType="InputType.Text" @bind-Value="tieu_de" Lines="2"/><br />
+
+            <MudItem xs ="12" Style="padding: 5px 0 5px 20px">
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" Style="margin-right: 5px" OnClick="async () => await OnClickViewNoiDung()">Xem chuyển</MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Accessibility" Color="Color.Info" OnClick="async () => await OnClickHoTro()">Hỗ trợ</MudButton>
+            </MudItem>
+            <MudTextField Label="Nội dung gốc" Class="tieu-de" Style="background-color: lightyellow !important; margin-top: 5px !important" Required InputType="InputType.Text" @bind-Value="noi_dung" Lines="8" />
+
+            <MudTextField Label="A" Class="answer" ReadOnly="isAlreadyCreateQuestion" InputType="InputType.Text" @bind-Value="cau_tra_loi_1" />
+            <MudButtonGroup Style="zoom: 0.7">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary"  />
+            </MudButtonGroup>
+            <MudCheckBox T="bool" Label="HV" @bind-Value="hoanVi1" Color="Color.Default" />
+            <MudCheckBox T="bool" Label="ĐA" @bind-Value="dapAn1" Color="Color.Default" />
+
+            <MudTextField Label="B" Class="answer" ReadOnly="!isAlreadyCreateQuestion" InputType="InputType.Text" @bind-Value="cau_tra_loi_1" />
+            <MudButtonGroup Style="zoom: 0.7">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" />
+            </MudButtonGroup>
+            <MudCheckBox T="bool" Label="HV" @bind-Value="hoanVi2" Color="Color.Default" />
+            <MudCheckBox T="bool" Label="ĐA" @bind-Value="dapAn2" Color="Color.Default" />
+
+            <MudTextField Label="C" Class="answer" ReadOnly="!isAlreadyCreateQuestion" InputType="InputType.Text" @bind-Value="cau_tra_loi_1"/>
+            <MudButtonGroup Style="zoom: 0.7">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" />
+            </MudButtonGroup>
+            <MudCheckBox T="bool" Label="HV" @bind-Value="hoanVi3" Color="Color.Default" />
+            <MudCheckBox T="bool" Label="ĐA" @bind-Value="dapAn3" Color="Color.Default" />
+
+            <MudTextField Label="D" Class="answer" ReadOnly="!isAlreadyCreateQuestion" InputType="InputType.Text" @bind-Value="cau_tra_loi_1" />
+            <MudButtonGroup Style="zoom: 0.7">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" />
+            </MudButtonGroup>
+            <MudCheckBox T="bool" Label="HV" @bind-Value="hoanVi4" Color="Color.Default" />
+            <MudCheckBox T="bool" Label="ĐA" @bind-Value="dapAn4" Color="Color.Default" />
+
+            <MudCheckBox T="bool" Style="margin-left: 20px" Label="Hoán vị câu trả lời" @bind-Value="isHoanVi" Color="Color.Primary" />
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+    .tieu-de {
+    width: 450px;
+    margin: 5px 0px 5px 20px;
+    border: 1px solid;
+    background-color: lightcyan;
+    }
+    .answer{
+    width: 400px;
+    margin: 5px 0px 5px 20px;
+    border: 1px solid;
+    background-color: aliceblue;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Inject] public HttpClient Http { get; set; } = default!;
+
+    [Parameter] public CauHoiDto? CauHoi { get; set; }
+    [Parameter] public MonHocDto? MonHoc { get; set; }
+    [Parameter] public NhomCauHoiDto? NhomCauHoi { get; set; }
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    Dictionary<int, string> kieuNoiDungCauHoi = [];
+    List<CloDto>? clos;
+
+    CloDto? selectedClo;
+    int selectedKieuNoiDung = -1;
+    bool isHoanVi = false;
+    bool isAlreadyCreateQuestion = false;
+    string? noi_dung;
+    string? tieu_de;
+
+    //hiện văn bản gốc
+    bool isShowPlainText = false;
+
+    string? cau_tra_loi_1, cau_tra_loi_2, cau_tra_loi_3, cau_tra_loi_4;
+    bool dapAn1 = false, dapAn2 = false, dapAn3 = false, dapAn4 = false;
+    bool hoanVi1 = false, hoanVi2 = false, hoanVi3 = false, hoanVi4 = false;
+
+
+    //kết quả id mới nhất được tạo ra
+    private int? result_id;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private const string MISSING_ANSWER = "Vui lòng nhập ít nhất 2 câu trả lời";
+    private const string NO_RIGHT_ANSWER = "Vui lòng chọn ít nhất 1 đáp án đúng";
+    private const string NO_MANY_ANSWER = "Vui lòng chỉ chọn 1 đáp án đúng";
+    private const string SUCCESS_ADDCauHoi = "Thêm câu hỏi thành công";
+    private const string FAIL_ADDCauHoi = "Thêm câu hỏi thất bại";
+    private const string SUCCESS_EDITCauHoi = "Sửa câu hỏi thành công";
+    private const string FAIL_EDITCauHoi = "Sửa câu hỏi thất bại";
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        clos = await Clos_SelectBy_MaMonHocAPI(MonHoc?.MaMonHoc ?? 0);
+        HandleInput();
+        HandleKieuNoiDungCauHoi();
+        await base.OnInitializedAsync();
+    }
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+    private void HandleInput()
+    {
+        if(IsEdit && CauHoi != null)
+        {
+            isAlreadyCreateQuestion = true;
+            noi_dung = CauHoi.NoiDung;
+            tieu_de = CauHoi.TieuDe;
+            selectedKieuNoiDung = CauHoi.KieuNoiDung;
+            isHoanVi = CauHoi.HoanVi ?? false;
+            selectedClo = CauHoi.MaCloNavigation;
+            HandleCauTraLoi();
+        }
+    }
+    private void HandleCauTraLoi()
+    {
+        var danhSach = CauHoi?.CauTraLois?.ToArray();
+        if (danhSach == null || danhSach.Length == 0)
+            return;
+
+        var noiDungs = new[] { cau_tra_loi_1, cau_tra_loi_2, cau_tra_loi_3, cau_tra_loi_4 };
+
+        for (int i = 0; i < danhSach.Length && i < noiDungs.Length; i++)
+        {
+            noiDungs[i] = danhSach[i].NoiDung;
+        }
+    }
+    private void HandleKieuNoiDungCauHoi()
+    {
+        kieuNoiDungCauHoi.Add(-1, "Câu hỏi thường");
+        if(NhomCauHoi != null && NhomCauHoi.LaCauHoiNhom == true)
+        {
+            kieuNoiDungCauHoi.Add(1, "Câu hỏi nhóm");
+            kieuNoiDungCauHoi.Add(2, "Câu hỏi điền khuyết (không thể hoán vị câu hỏi)");
+        }
+        else{
+            kieuNoiDungCauHoi.Add(1, "Câu hỏi trả lời ngắn");
+            kieuNoiDungCauHoi.Add(2, "Câu hỏi nhiều lựa chọn");
+        }
+    }
+    private async Task OnClickThem()
+    {
+        if (!isValidForm())
+            return;
+        var result = await InsertAPI(CreateCauHoi(NhomCauHoi?.MaNhom ?? 0, selectedClo?.MaClo ?? 0, tieu_de?.ToString() ?? "", selectedKieuNoiDung, noi_dung?.ToString() ?? "", "", isHoanVi));
+        if(result)
+        {
+            Snackbar.Add(SUCCESS_ADDCauHoi, Severity.Success);
+            isAlreadyCreateQuestion = true;
+        }
+        else
+        {
+            Snackbar.Add(FAIL_ADDCauHoi, Severity.Error);
+        }
+    }
+
+    private async Task OnClickSua()
+    {
+        if (!isValidForm())
+            return;
+        var result = await UpdateAPI(CreateCauHoi(NhomCauHoi?.MaNhom ?? 0, selectedClo?.MaClo ?? 0, tieu_de?.ToString() ?? "", selectedKieuNoiDung, noi_dung?.ToString() ?? "", CauHoi?.GhiChu ?? "", isHoanVi));
+        if (result)
+        {
+            Snackbar.Add(SUCCESS_EDITCauHoi, Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(FAIL_EDITCauHoi, Severity.Error);
+        }
+    }
+    private async Task OnClickViewNoiDung()
+    {
+        var parameters = new DialogParameters<NoiDungCauHoiDialog>
+        {
+            { x => x.Text, noi_dung},
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        await Dialog.ShowAsync<NoiDungCauHoiDialog>("XEM CHUYỂN", parameters, options);
+    }
+    private async Task OnClickHoTro()
+    {
+        var parameters = new DialogParameters<HoTroDialog>{};
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+
+        await Dialog.ShowAsync<HoTroDialog>("Hướng dẫn", parameters, options);
+    }
+    private bool isValidForm()
+    {
+        if (string.IsNullOrEmpty(noi_dung?.ToString()) || string.IsNullOrEmpty(tieu_de?.ToString()) || selectedClo == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return false;
+        }
+        if(isNoAnswer())
+        {
+            Snackbar.Add(NO_RIGHT_ANSWER, Severity.Error);
+            return false;
+        }
+        if (isMissingAnswer())
+        {
+            Snackbar.Add(MISSING_ANSWER, Severity.Error);
+            return false;
+        }
+        if(selectedKieuNoiDung != 2 && isManyAnswer())
+        {
+            Snackbar.Add(NO_MANY_ANSWER, Severity.Error);
+            return false;
+        }
+        return true;
+    }
+    private bool isMissingAnswer()
+    {
+        var answers = new[] { cau_tra_loi_1, cau_tra_loi_2, cau_tra_loi_3, cau_tra_loi_4 };
+        int missingCount = answers.Count(ans => string.IsNullOrWhiteSpace(ans?.ToString()));
+        return missingCount <= 2;
+    }
+    private bool isNoAnswer()
+    {
+        var correctAnswers = new[] { dapAn1, dapAn2, dapAn3, dapAn4 };
+        return correctAnswers.All(isSelected => !isSelected);
+    }
+    private bool isManyAnswer()
+    {
+        var correctAnswers = new[] { dapAn1, dapAn2, dapAn3, dapAn4 };
+        int selectedCount = correctAnswers.Count(isSelected => isSelected);
+        return selectedCount > 1;
+    }
+
+
+    private async Task<bool> InsertAPI(CauHoiDto cauHoi)
+    {
+        var json = JsonSerializer.Serialize(cauHoi);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await Http.PostAsync("api/CauHoi/Insert", content);
+        if (response.IsSuccessStatusCode)
+        {
+            result_id = await response.Content.ReadFromJsonAsync<int?>();
+            return true;
+        }
+        return false;
+    }
+    private async Task<bool> UpdateAPI(CauHoiDto cauHoi)
+    {
+        var json = JsonSerializer.Serialize(cauHoi);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await Http.PutAsync("api/CauHoi/Update", content);
+        if (response.IsSuccessStatusCode)
+        {
+            result_id = await response.Content.ReadFromJsonAsync<int?>();
+            return true;
+        }
+        return false;
+    }
+    private async Task<List<CloDto>?> Clos_SelectBy_MaMonHocAPI(int maMonHoc)
+    {
+        var response = await Http.GetAsync($"api/Clo/SelectBy_MaMonHoc?ma_mon_hoc={maMonHoc}");
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<List<CloDto>?>();
+        }
+        return null;
+    }
+
+    private CauHoiDto CreateCauHoi(int maNhom, int maClo, string tieuDe, int kieuNoiDung, string noiDung, string ghiChu, bool hoanVi)
+    {
+        return new CauHoiDto
+            {
+                MaCauHoi = CauHoi?.MaCauHoi ?? 0,
+                MaNhom = maNhom,
+                MaClo = maClo,
+                TieuDe = tieuDe,
+                KieuNoiDung = kieuNoiDung,
+                NoiDung = noiDung,
+                GhiChu = ghiChu,
+                HoanVi = hoanVi,
+                MaNhomNavigation = NhomCauHoi ?? new(),
+                MaCloNavigation = selectedClo ?? new(),
+                CauTraLois = []
+            };
+    }
+}

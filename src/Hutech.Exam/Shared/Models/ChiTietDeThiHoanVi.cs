@@ -18,4 +18,6 @@ public partial class ChiTietDeThiHoanVi
     public int? DapAn { get; set; }
 
     public virtual NhomCauHoiHoanVi Ma { get; set; } = null!;
+
+    public virtual CauHoi MaCauHoiNavigation { get; set; } = null!;
 }

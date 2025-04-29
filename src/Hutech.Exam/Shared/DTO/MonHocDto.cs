@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +15,7 @@ namespace Hutech.Exam.Shared.DTO
         public string? TenMonHoc { get; set; }
 
         public virtual ICollection<LopAoDto> LopAos { get; set; } = new List<LopAoDto>();
+        public virtual ICollection<CloDto> Clos { get; set; } = new List<CloDto>();
 
         public override string ToString()
         {

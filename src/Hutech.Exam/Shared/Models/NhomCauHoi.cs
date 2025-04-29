@@ -26,4 +26,5 @@ public partial class NhomCauHoi
     public bool? LaCauHoiNhom { get; set; }
 
     public virtual DeThi MaDeThiNavigation { get; set; } = null!;
+    public virtual ICollection<CauHoi> CauHois { get; set; } = new List<CauHoi>();
 }

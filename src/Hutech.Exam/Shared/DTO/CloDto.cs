@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +23,6 @@ namespace Hutech.Exam.Shared.DTO
         public int SoCau { get; set; }
 
         public virtual ICollection<CauHoiDto> CauHois { get; set; } = new List<CauHoiDto>();
+        public virtual MonHocDto MaMonHocNavigation { get; set; } = null!;
     }
 }

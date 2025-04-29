@@ -1,0 +1,85 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        @if (noi_dung != null)
+        {
+            foreach (var ctCauHoi in noi_dung)
+            {
+                if (ctCauHoi.Contains("$$"))
+                {
+                    <Hutech.Exam.Client.Pages.Latext.Equation Value="@ctCauHoi.Substring(2)"></Hutech.Exam.Client.Pages.Latext.Equation>
+                }
+                else
+                {
+                    @((MarkupString)ctCauHoi)
+                }
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public string? Text { get; set; }
+
+    private List<string>? noi_dung;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(!string.IsNullOrEmpty(Text))
+        {
+            noi_dung = HandleLatex(Text);
+        }
+        await base.OnInitializedAsync();
+    }
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private static List<string> HandleLatex(string text)
+    {
+        List<string> result = new();
+        if (!text.Contains("<latex>"))
+            return [text];
+
+        string[] parts = text.Split("<latex>");
+
+        // xử lí phần đầu chắc chắn không có latex hoặc là thuần latex
+        if (!string.IsNullOrEmpty(parts[0]))
+            result.Add(parts[0]);
+
+        for (int i = 1; i < parts.Length; i++)
+        {
+            // phần cắt này chỉ có 2 phần duy nhất
+            string[] parts2 = parts[i].Split("</latex>");
+
+            // xử lí phần đầu chắc chắn là latex
+            result.Add("$$" + parts2[0]);
+
+            // / phần còn lại là chữ hoặc không có nếu là thuần latex
+            if (parts2.Length > 1 && !string.IsNullOrEmpty(parts2[1]))
+                result.Add(parts2[1]);
+        }
+
+        return result;
+    }
+}

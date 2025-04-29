@@ -8,9 +8,6 @@ public partial class ApplicationDbContext : DbContext
 {
 
     private readonly IConfiguration _configuration;
-    public ApplicationDbContext()
-    {
-    }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
         : base(options)
@@ -135,6 +132,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.MaClo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CauHoi_CLO");
+
+            entity.HasOne(d => d.MaNhomNavigation).WithMany(p => p.CauHois)
+                .HasForeignKey(d => d.MaNhom)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CauHoi_NhomCauHoi");
         });
 
         modelBuilder.Entity<CauTraLoi>(entity =>
@@ -232,6 +234,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HoanViTraLoi).HasMaxLength(4);
             entity.Property(e => e.ThuTu).HasDefaultValueSql("((1))");
 
+            entity.HasOne(d => d.MaCauHoiNavigation).WithMany(p => p.ChiTietDeThiHoanVis)
+                .HasForeignKey(d => d.MaCauHoi)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ChiTietDeThiHoanVi_CauHoi");
+
             entity.HasOne(d => d.Ma).WithMany(p => p.ChiTietDeThiHoanVis)
                 .HasForeignKey(d => new { d.MaDeHv, d.MaNhom })
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -274,8 +281,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MaClo).HasColumnName("MaCLO");
             entity.Property(e => e.MaSoClo)
                 .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("MaSoCLO");
             entity.Property(e => e.TieuChi).HasColumnName("TieuChi(%)");
+
+            entity.HasOne(d => d.MaMonHocNavigation).WithMany(p => p.Clos)
+                .HasForeignKey(d => d.MaMonHoc)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CLO_mon_hoc");
         });
 
         modelBuilder.Entity<DeThi>(entity =>

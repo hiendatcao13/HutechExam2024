@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hutech.Exam.Shared.DTO
+namespace Hutech.Exam.Shared.DTO.Custom
 {
-    public class NhomCauHoiDto
+    public class CustomNhomCauHoi
     {
         public int MaNhom { get; set; }
 
@@ -27,7 +27,7 @@ namespace Hutech.Exam.Shared.DTO
         public int SoCauLay { get; set; }
 
         public bool? LaCauHoiNhom { get; set; }
-        public virtual ICollection<CauHoiDto> CauHois { get; set; } = new List<CauHoiDto>();
+        public virtual ICollection<CustomNhomCauHoi> NhomCauHoiCons { get; set; } = [];
 
         public virtual DeThiDto MaDeThiNavigation { get; set; } = null!;
 

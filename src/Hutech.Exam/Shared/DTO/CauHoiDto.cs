@@ -10,6 +10,8 @@ namespace Hutech.Exam.Shared.DTO
     {
         public int MaCauHoi { get; set; }
 
+        public int MaNhom { get; set; }
+
         public int MaClo { get; set; }
 
         public string? TieuDe { get; set; }
@@ -24,7 +26,16 @@ namespace Hutech.Exam.Shared.DTO
 
         public virtual ICollection<CauTraLoiDto> CauTraLois { get; set; } = new List<CauTraLoiDto>();
 
+        public virtual ICollection<ChiTietDeThiHoanViDto> ChiTietDeThiHoanVis { get; set; } = new List<ChiTietDeThiHoanViDto>();
+
         public virtual CloDto MaCloNavigation { get; set; } = null!;
+
+        public virtual NhomCauHoiDto MaNhomNavigation { get; set; } = null!;
+
+        public override string ToString()
+        {
+            return NoiDung ?? "Không có tiêu đề";
+        }
 
     }
 }

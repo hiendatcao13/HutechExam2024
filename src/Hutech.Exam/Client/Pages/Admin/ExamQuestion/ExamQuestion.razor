@@ -1,5 +1,6 @@
-﻿@page "/admin/examquestion"
+﻿@page "/admin/question"
 @using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.DTO.Custom
 @attribute [Authorize(Roles = "Admin")]
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
@@ -33,59 +34,71 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="4">
-            <MudTable Items="@nhomCauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
+            <MudPaper Elevation="5">
+                @if (customNhomCauHois != null)
+                {
+                    <MudTreeView T="CustomNhomCauHoi" Hover="true" SelectionMode="SelectionMode.SingleSelection" SelectedValueChanged="@(async (value) => await OnValueChangeNhomCauHoi(value))">
+                        <MudText Typo="Typo.h6" Style="margin: 20px; margin-bottom: 5px;">Chương/Phần</MudText>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemNhomCauHoi()">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaNhomCauHoi()">Sửa</MudButton>
+                        @foreach (var item in customNhomCauHois)
+                        {
+                            <MudTreeViewItem Value="@item" Text="@item.TenNhom" Icon="@Icons.Custom.Uncategorized.Folder" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen" @bind-SelectedValue="@selectedNhomCauHoi" Expanded>
+                                @foreach (var itemcon in item.NhomCauHoiCons)
+                                {
+                                    <MudTreeViewItem Value="@itemcon" Text="@itemcon.TenNhom" Icon="@Icons.Custom.Uncategorized.Folder" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen" />
+                                }
+                            </MudTreeViewItem>
+                        }
+                    </MudTreeView>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="8">
+            <MudTable Items="@cauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
                 <ToolBarContent>
-                    <MudText Typo="Typo.h6">Chương/Phần</MudText>
+                    <MudText Typo="Typo.h6">Câu hỏi</MudText>
                     <MudSpacer />
                     @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">Sửa</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Ẩn</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Xem ẩn</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCauHoi()">Thêm</MudButton>
                 </ToolBarContent>
                 <HeaderContent>
-                    <MudTh>Thứ tự</MudTh>
-                    <MudTh>Tên</MudTh>
+                    <MudTh>Nội dung</MudTh>
+                    <MudTh>Loại</MudTh>
+                    <MudTh>CLO</MudTh>
+                    <MudTh>Hoán vị</MudTh>
+                    <MudTh>Chức năng</MudTh>
                 </HeaderContent>
                 <RowTemplate Context="item">
-                    <MudTd DataLabel="Thứ tự">@item.ThuTu</MudTd>
-                    <MudTd DataLabel="Tên">@item.TenNhom (@item.SoCauHoi)</MudTd>
+                    <MudTd DataLabel="Nội dung">@item.NoiDung</MudTd>
+                    <MudTd DataLabel="Loại câu hỏi">@item.KieuNoiDung</MudTd>
+                    <MudTd DataLabel="CLO">@item.MaCloNavigation.MaSoClo</MudTd>
+                    <MudTd DataLabel="Hoán vị"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Chức năng">
+                        <MudButtonGroup Style="zoom: 0.7">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCauHoi(item)"/>
+                            <MudIconButton Icon="@Icons.Material.Filled.Announcement" Color="Color.Info" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                        </MudButtonGroup>
+                    </MudTd>
                 </RowTemplate>
             </MudTable>
-            <MudItem xs="8">
-                <MudTable Items="@cauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6">Câu hỏi</MudText>
-                        <MudSpacer />
-                        @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">Sửa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Ẩn</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Xem ẩn</MudButton>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Nội dung</MudTh>
-                        <MudTh>CLO</MudTh>
-                        <MudTh>Hoán vị</MudTh>
-                    </HeaderContent>
-                    <RowTemplate Context="item">
-                        <MudTd DataLabel="Nội dung">@item</MudTd>
-                        <MudTd DataLabel="CLO">@item.MaCloNavigation.MaSoClo</MudTd>
-                        <MudTd DataLabel="Hoán vị"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudCheckBox></MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudItem>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 <style>
     .checkbox {
-        transform: scale(0.85);
+    transform: scale(0.85);
+    }
+
+    .add-button {
+    transform: scale(0.85);
+    margin-bottom: 2%;
     }
 
     .selected-row {
-        background-color: lightgray !important;
+    background-color: lightgray !important;
     }
 </style>
 
@@ -96,21 +109,64 @@
     List<DeThiDto>? deThis;
     DeThiDto? selectedDeThi;
 
-    List<NhomCauHoiDto>? nhomCauHois;
-    NhomCauHoiDto? selectedNhomCauHoi;
+    List<NhomCauHoiDto>? nhomCauHois; // ds các nhóm câu hỏi gốc
+    List<CustomNhomCauHoi>? customNhomCauHois = [];
+    CustomNhomCauHoi? selectedNhomCauHoi;
 
-    List<CauHoiDto>? cauHois;
-    CauHoiDto? selectedCauHoi;
+    List<CauHoiDto>? cauHois = [];
 
+
+    private void InputDataForSelect(DeThiDto? deThi, CustomNhomCauHoi? nhomCauHoi)
+    {
+        selectedDeThi = deThi;
+        selectedNhomCauHoi = nhomCauHoi;
+    }
     private async Task OnValueChangeMonHoc(MonHocDto monHoc)
     {
-        if(selectedMonHoc == monHoc)
-            return;
-        selectedDeThi = null;
+        InputDataForSelect(null, null);
+
         selectedMonHoc = monHoc;
-        deThis = await GetAllDeThiAPIByMaMonHocAPI(monHoc.MaMonHoc);
+        if(monHoc != null)
+        {
+            deThis = await DeThis_SelectBy_MaMonHocAPI(monHoc.MaMonHoc);
+            return;
+        }
+        deThis?.Clear();
+        customNhomCauHois?.Clear();
+        cauHois?.Clear();
     }
     private async Task OnValueChangeDeThi(DeThiDto deThi)
     {
+        InputDataForSelect(deThi, null);
+
+        selectedDeThi = deThi;
+        if (deThi != null)
+        {
+            nhomCauHois = await NhomCauHois_SelectAllBy_MaDeThiAPI(deThi.MaDeThi);
+
+            // convert nhomCauHois to CustomNhomCauHoi
+            if (nhomCauHois != null)
+                customNhomCauHois = HandleNhomCauHoi(nhomCauHois);
+            if (deThi.TongSoDeHoanVi != 0)
+            {
+                await OpenDialogAlreadyHasDeThiHoanVi();
+            }
+            return;
+        }
+
+        customNhomCauHois?.Clear();
+        cauHois?.Clear();
+    }
+    private async Task OnValueChangeNhomCauHoi(CustomNhomCauHoi nhomCauHoi)
+    {
+        InputDataForSelect(selectedDeThi, nhomCauHoi);
+
+        selectedNhomCauHoi = nhomCauHoi;
+        if (nhomCauHoi != null)
+        {
+            cauHois = await CauHois_SelectBy_MaNhomAPI(nhomCauHoi.MaNhom);
+            return;
+        }
+        cauHois?.Clear();
     }
 }

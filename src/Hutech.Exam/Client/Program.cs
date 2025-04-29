@@ -25,6 +25,7 @@ builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
 builder.Services.AddSingleton<AdminHubService>();
 builder.Services.AddSingleton<StudentHubService>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // them MudBlazor
 builder.Services.AddMudServices();
 

@@ -69,3 +69,7 @@
 26/04/2025 11:00PM
 - Hơi bận chuyện phỏng vấn CMC, TMA
 - Tối ưu lại SignalR, các ConnectionId được lưu vào Redis Cache, SingleTon cho tạo kết nối HubConnection
+---------------------------------
+29/04/2025 11:00PM
+- Thêm và sửa logic cho các store procedure cho CLO, CauHoi, NhomCauHoi
+- Đang quá trình hoàn thiện trang Quản lí đề thi gốc

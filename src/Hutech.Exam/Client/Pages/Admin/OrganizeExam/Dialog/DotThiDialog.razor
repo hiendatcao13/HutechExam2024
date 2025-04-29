@@ -57,6 +57,7 @@
     private const string FAIL_ADDDOTTHI = "Thêm đợt thi thất bại";
     private const string SUCCESS_EDITDOTTHI = "Sửa đợt thi thành công";
     private const string FAIL_EDITDOTTHI = "Sửa đợt thi thất bại";
+    private const string ERROR_NGAYKETTHUC = "Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu";
 
     public void OnClickThoat()
     {
@@ -84,7 +85,7 @@
     }
     private async Task OnClickThem()
     {
-        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null)
+        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null || CheckValidDate())
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
@@ -100,7 +101,7 @@
     }
     private async Task OnClickSua()
     {
-        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null)
+        if (ten_dot_thi == null || selected_nam_hoc == 0 || thoi_gian_bat_dau == null || thoi_gian_ket_thuc == null || CheckValidDate())
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
@@ -113,6 +114,20 @@
         }
         else
             Snackbar.Add(FAIL_EDITDOTTHI, Severity.Error);
+    }
+    private bool CheckValidDate()
+    {
+        if ((thoi_gian_bat_dau != null && thoi_gian_bat_dau.Value.Year != selected_nam_hoc) || (thoi_gian_ket_thuc != null && thoi_gian_ket_thuc.Value.Year != selected_nam_hoc + 1))
+        {
+            Snackbar.Add($"Năm học bắt đầu phải {selected_nam_hoc} và năm học kết thục phải {selected_nam_hoc + 1}", Severity.Error);
+            return false;
+        }
+        if (thoi_gian_bat_dau > thoi_gian_ket_thuc)
+        {
+            Snackbar.Add(ERROR_NGAYKETTHUC, Severity.Error);
+            return false;
+        }
+        return true;
     }
 
 

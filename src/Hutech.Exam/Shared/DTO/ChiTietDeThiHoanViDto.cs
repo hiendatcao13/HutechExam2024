@@ -1,5 +1,4 @@
-﻿using Hutech.Exam.Shared.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +21,7 @@ namespace Hutech.Exam.Shared.DTO
         public int? DapAn { get; set; }
 
         public virtual NhomCauHoiHoanViDto Ma { get; set; } = null!;
+
+        public virtual CauHoiDto MaCauHoiNavigation { get; set; } = null!;
     }
 }

@@ -32,10 +32,22 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
-        public async Task<List<NhomCauHoiDto>> SelectBy_MaDeThi(int ma_de_thi)
+        public async Task<int> Insert(int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom)
+        {
+            return Convert.ToInt32(await _nhomCauHoiRepository.Insert(ma_de_thi, ten_nhom, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha, so_cau_lay, la_cau_hoi_nhom) ?? -1);
+        }
+        public async Task<int> Update(int ma_nhom, int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha)
+        {
+            return await _nhomCauHoiRepository.Update(ma_nhom, ma_de_thi, ten_nhom, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha);
+        }
+        public async Task<int> Remove(int ma_nhom)
+        {
+            return await _nhomCauHoiRepository.Remove(ma_nhom);
+        }
+        public async Task<List<NhomCauHoiDto>> SelectAllBy_MaDeThi(int ma_de_thi)
         {
             List<NhomCauHoiDto> list = new();
-            using(IDataReader dataReader = await _nhomCauHoiRepository.SelectBy_MaDeThi(ma_de_thi))
+            using(IDataReader dataReader = await _nhomCauHoiRepository.SelectAllBy_MaDeThi(ma_de_thi))
             {
                 while (dataReader.Read())
                 {

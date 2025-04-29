@@ -28,6 +28,19 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CauTraLoiDto>(cauTraLoi);
         }
+        public async Task<int> Insert(int ma_cau_hoi, int thu_tu, string noi_dung, bool la_dap_an, bool hoan_vi)
+        {
+            return Convert.ToInt32(await _cauTraLoiRepository.Insert(ma_cau_hoi, thu_tu, noi_dung, la_dap_an, hoan_vi) ?? -1);
+        }
+        public async Task<int> Update(int ma_cau_tra_loi, int ma_cau_hoi, int thu_tu, string noi_dung, bool la_dap_an, bool hoan_vi)
+        {
+            return await _cauTraLoiRepository.Update(ma_cau_tra_loi, ma_cau_hoi, thu_tu, noi_dung, la_dap_an, hoan_vi);
+        }
+        public async Task<int> Remove(int ma_cau_tra_loi)
+        {
+            return await _cauTraLoiRepository.Remove(ma_cau_tra_loi);
+        }
+
         public async Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi)
         {
             List<CauTraLoiDto> result = new();

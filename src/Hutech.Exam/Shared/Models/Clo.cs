@@ -23,5 +23,6 @@ namespace Hutech.Exam.Shared.Models
         public int SoCau { get; set; }
 
         public virtual ICollection<CauHoi> CauHois { get; set; } = new List<CauHoi>();
+        public virtual MonHoc MaMonHocNavigation { get; set; } = null!;
     }
 }
