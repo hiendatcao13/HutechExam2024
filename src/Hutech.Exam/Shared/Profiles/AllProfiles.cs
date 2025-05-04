@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.Models;
 
 namespace Hutech.Exam.Shared.Profiles
@@ -88,11 +89,15 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<CloDto, Clo>();
 
             // ánh xạ giữa CustomChiTietBaiThi và ChiTietBaiThiDto (không có CustomDeThi)
-            CreateMap<CustomChiTietBaiThi, ChiTietBaiThiDto>();
-            CreateMap<ChiTietBaiThiDto, CustomChiTietBaiThi>();
+            CreateMap<ChiTietBaiThiRequest, ChiTietBaiThiDto>();
+            CreateMap<ChiTietBaiThiDto, ChiTietBaiThiRequest>();
 
             CreateMap<CustomNhomCauHoi, NhomCauHoiDto>();
             CreateMap<NhomCauHoiDto, CustomNhomCauHoi>();
+
+            // ánh xạ Request vs Dto ---------------------------------------------------------------------
+            CreateMap<CauHoiRequest, CauHoiDto>();
+            CreateMap<CauHoiDto, CauHoiRequest>();
         }
     }
 }

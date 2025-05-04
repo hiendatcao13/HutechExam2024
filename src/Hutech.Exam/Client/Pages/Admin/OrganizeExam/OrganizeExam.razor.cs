@@ -270,6 +270,20 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 caThi.MaDeThi = caThiThayDoi?.MaDeThi ?? caThi.MaDeThi;
             }
         }
+        private async Task OnClickCapNhatSVCaThi()
+        {
+            if(selectedCaThi == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return;
+            }
+            var parameters = new DialogParameters<ThemSVExcelDialog>
+            {
+                { x => x.CaThi, selectedCaThi }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<ThemSVExcelDialog>("THÊM DANH SÁCH SINH VIÊN", parameters, options);
+        }
         private async Task<DialogResult?> OpenCapNhatDeThiDialog(CaThiDto caThi)
         {
             if (selectedChiTietDotThi == null)
@@ -290,6 +304,8 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var dialog = await Dialog.ShowAsync<CapNhatDeThiDialog>("UPDATE ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
+
+
 
         private async Task OnClickShowChiTietCaThi(CaThiDto caThi)
         {

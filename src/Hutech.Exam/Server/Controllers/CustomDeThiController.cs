@@ -23,7 +23,8 @@ namespace Hutech.Exam.Server.Controllers
         {
             try
             {
-                return Ok(await _customDeThiService.handleDeThi(ma_de_thi_hoan_vi));
+                //return Ok(await _customDeThiService.HandleDeThi(ma_de_thi_hoan_vi));
+                return Ok(await _customDeThiService.GetDeThi(ma_de_thi_hoan_vi));
             }
             catch (Exception ex)
             {

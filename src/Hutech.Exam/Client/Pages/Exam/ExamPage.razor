@@ -1,0 +1,56 @@
+﻿@page "/test"
+@* @implements IDisposable *@
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize]
+
+<PageTitle>Exam Page</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12" Class="heading">
+        <MudImage Src="images/exam/Logo.svg" Width="200" style="margin-right: 20%;" />
+        <MudText Typo="Typo.h5" Style="color: black;">Thời Gian: 88:99</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Style="margin-left: 5%;">Nộp Bài</MudButton>
+    </MudItem>
+
+
+    <MudItem xs="9">
+        <!--Hiển thị nhóm cha-->
+        <MudText>Typo="Typo.h6">Questions 186-190 refer to the following letters.</MudText>
+        <MudText Typo="Typo.body1">What is the main purpose of the first letter?</MudText>
+        <MudRadioGroup T="string">
+            <MudItem xs="6">
+                <MudRadio Value="@("option1")">
+                    <MudText Typo="Typo.subtitle1">To fix a mistake in the contract</MudText>
+                </MudRadio>
+            </MudItem>
+            <MudItem xs="6">
+                <MudRadio Value="@("option2")">
+                    <MudText Typo="Typo.subtitle1">To complain about a bank service procedure</MudText>
+                </MudRadio>
+            </MudItem>
+            <MudItem xs="6">
+                <MudRadio Value="@("option3")">
+                    <MudText Typo="Typo.subtitle1">To complain about one of a bank employee’s behavior</MudText>
+                </MudRadio>
+            </MudItem>
+            <MudItem xs="6">
+                <MudRadio Value="@("option4")">
+                    <MudText Typo="Typo.subtitle1">To ask for a financial compensation</MudText>
+                </MudRadio>
+            </MudItem>
+        </MudRadioGroup>
+    </MudItem>
+</MudGrid>
+
+<style>
+    .heading{
+        padding-bottom: 5px;
+        display: flex;
+        align-items: center;
+        background-color: antiquewhite;
+    }
+</style>
+@code {
+
+}

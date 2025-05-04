@@ -5,10 +5,6 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
-<script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
-
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
         @if (noi_dung != null)
@@ -32,30 +28,33 @@
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
+
 </style>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Inject] private IJSRuntime JS { get; set; } = default!;
     [Parameter] public string? Text { get; set; }
 
     private List<string>? noi_dung;
 
     protected override async Task OnInitializedAsync()
     {
-        if(!string.IsNullOrEmpty(Text))
+        if (!string.IsNullOrEmpty(Text))
         {
             noi_dung = HandleLatex(Text);
         }
         await base.OnInitializedAsync();
     }
+
     private void OnClickThoat()
     {
         MudDialog?.Cancel();
     }
 
-    private static List<string> HandleLatex(string text)
+    private List<string> HandleLatex(string text)
     {
         List<string> result = new();
         if (!text.Contains("<latex>"))
@@ -79,7 +78,6 @@
             if (parts2.Length > 1 && !string.IsNullOrEmpty(parts2[1]))
                 result.Add(parts2[1]);
         }
-
         return result;
     }
 }

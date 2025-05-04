@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
@@ -50,6 +51,10 @@ namespace Hutech.Exam.Server.BUS
         {
             await _chiTietBaiThiRepository.Save(MaChiTietCaThi, MaDeHV, MaNhom, MaCauHoi, MaClo, CauTraLoi, NgayTao, NgayCapNhat, KetQua, ThuTu);
         }
+        public async Task Save_Batch(List<ChiTietBaiThiDto> chiTietBaiThis)
+        {
+            await _chiTietBaiThiRepository.Save_Batch(chiTietBaiThis);
+        }
         public async Task<List<ChiTietBaiThiDto>> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
             List<ChiTietBaiThiDto> result = new();
@@ -64,28 +69,28 @@ namespace Hutech.Exam.Server.BUS
             return result;
 
         }
-        public async Task InsertChiTietBaiThis_SelectByChiTietDeThiHV(List<CustomDeThi>? customDeThis, int ma_chi_tiet_ca_thi, long ma_de_hoan_vi)
-        {
-            int stt = 0;
-            if (customDeThis == null)
-                return;
-            foreach (var item in customDeThis)
-            {
-                await Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, item.MaClo, DateTime.Now, ++stt);
-            }
-        }
-        public async Task UpdateChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)
-        {
-            foreach (var item in chiTietBaiThis)
-            {
-                if (item.CauTraLoi != null && item.KetQua != null)
-                {
-                    var chiTiet = await this.SelectOne_v2(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi);
-                    long ma_chi_tiet_bai_thi = chiTiet.MaChiTietBaiThi;
-                    await Update(ma_chi_tiet_bai_thi, (int)item.CauTraLoi, DateTime.Now, (bool)item.KetQua);
-                }
-            }
-        }
+        //public async Task InsertChiTietBaiThis_SelectByChiTietDeThiHV(List<CustomDeThi>? customDeThis, int ma_chi_tiet_ca_thi, long ma_de_hoan_vi)
+        //{
+        //    int stt = 0;
+        //    if (customDeThis == null)
+        //        return;
+        //    foreach (var item in customDeThis)
+        //    {
+        //        await Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, item.MaClo, DateTime.Now, ++stt);
+        //    }
+        //}
+        //public async Task UpdateChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)
+        //{
+        //    foreach (var item in chiTietBaiThis)
+        //    {
+        //        if (item.CauTraLoi != null && item.KetQua != null)
+        //        {
+        //            var chiTiet = await this.SelectOne_v2(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi);
+        //            long ma_chi_tiet_bai_thi = chiTiet.MaChiTietBaiThi;
+        //            await Update(ma_chi_tiet_bai_thi, (int)item.CauTraLoi, DateTime.Now, (bool)item.KetQua);
+        //        }
+        //    }
+        //}
         public async Task<int> Delete(long ma_chi_tiet_bai_thi)
         {
             return await _chiTietBaiThiRepository.Delete(ma_chi_tiet_bai_thi);

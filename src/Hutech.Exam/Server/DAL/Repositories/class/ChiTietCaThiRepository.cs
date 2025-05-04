@@ -89,5 +89,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau ?? (Object)DBNull.Value);
             return await sql.ExecuteNonQueryAsync();
         }
+        public async Task<IDataReader> SelectBy_ma_ca_thi_MSSV(int ma_ca_thi)
+        {
+            DatabaseReader sql = new("chi_tiet_ca_thi_SelectBy_ma_ca_thi_MSSV");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            return await sql.ExecuteReaderAsync();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace Hutech.Exam.Client.Pages.Latext
         private IJSObjectReference? module;
         [Inject] private IJSRuntime jsRuntime { get; set; } = null!;
 
-        [Parameter] public bool TeXDisplay { get; set; } = true; // only works for TeX inputs
+        [Parameter] public bool TeXDisplay { get; set; } = false; // only works for TeX inputs
         [Parameter] public EventCallback<string> OutputChanged { get; set; }
         //[Parameter] public bool ShowRawOutput { get; set; } = false;  //for debug, no need for templated component
         [Parameter] public RenderFragment<string> Template { get; set; } = null!;

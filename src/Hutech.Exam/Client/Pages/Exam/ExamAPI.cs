@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.Models;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -24,12 +25,12 @@ namespace Hutech.Exam.Client.Pages.Exam
                 return null;
             }
         }
-        private async Task<List<CustomChiTietBaiThi>?> GetBaiThi_DaThiAPI(int ma_chi_tiet_ca_thi)
+        private async Task<List<ChiTietBaiThiRequest>?> GetBaiThi_DaThiAPI(int ma_chi_tiet_ca_thi)
         {
             var response = await Http.GetAsync($"api/CustomChiTietBaiThi/GetBaiThi_DaThi?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}");
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<List<CustomChiTietBaiThi>>();
+                return await response.Content.ReadFromJsonAsync<List<ChiTietBaiThiRequest>>();
             }
             else
             {

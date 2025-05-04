@@ -37,7 +37,6 @@ namespace Hutech.Exam.Server.Controllers
             _mainHub = mainHub;
         }
         [HttpPost("Insert")]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
             if (chiTietCaThi.MaCaThi == null || chiTietCaThi.MaSinhVien == null || chiTietCaThi.MaDeThi == null)
@@ -101,6 +100,12 @@ namespace Hutech.Exam.Server.Controllers
             // báo cho tất cả admin
             await NotifyCongGioSVToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok(true);
+        }
+        [HttpGet("SelectBy_MaCaThi_MSSV")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<string>>> SelectBy_MaCaThi_MSSV([FromQuery] int ma_ca_thi)
+        {
+            return await _chiTietCaThiService.SelectBy_ma_ca_thi_MSSV(ma_ca_thi);
         }
 
 

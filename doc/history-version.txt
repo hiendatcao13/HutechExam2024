@@ -73,3 +73,8 @@
 29/04/2025 11:00PM
 - Thêm và sửa logic cho các store procedure cho CLO, CauHoi, NhomCauHoi
 - Đang quá trình hoàn thiện trang Quản lí đề thi gốc
+---------------------------------
+04/05/2025 11:00PM
+- Tối ưu các store procedure, load đề nhanh hơn với lần gọi duy nhất xuống database
+- Lưu bài nhanh hơn với cơ chế table type cho phép param là 1 list
+- Đang tu sửa trang Exam thi

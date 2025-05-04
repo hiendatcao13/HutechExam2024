@@ -524,6 +524,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("SinhVien_DuPhong");
 
             entity.Property(e => e.MaSinhVienDuPhong).HasColumnName("ma_sinh_vien_du_phong");
+            entity.Property(e => e.MaCaThi).HasColumnName("ma_ca_thi");
             entity.Property(e => e.MaLopAo).HasColumnName("ma_lop_ao");
             entity.Property(e => e.MaSinhVien).HasColumnName("ma_sinh_vien");
         });

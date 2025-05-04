@@ -1,81 +1,67 @@
-﻿using Hutech.Exam.Shared.DTO;
+﻿using Hutech.Exam.Server.DAL.Repositories;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
+using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
     public class CustomDeThiService
     {
-        private readonly CustomDeThi _customDeThi;
-        private readonly ChiTietDeThiHoanViService _chiTietDeThiHoanViService;
-        private readonly NhomCauHoiService _nhomCauHoiService;
-        private readonly CauHoiService _cauHoiService;
-        private readonly CauTraLoiService _cauTraLoiService;
-        public readonly DeThiService _deThiService;
-
-        public CustomDeThiService(CustomDeThi customDeThi, ChiTietDeThiHoanViService chiTietDeThiHoanViService, NhomCauHoiService nhomCauHoiService, CauHoiService cauHoiService, CauTraLoiService cauTraLoiService, DeThiService deThiService)
+        private readonly ICustomRepository _customRepository;
+        public CustomDeThiService(ICustomRepository customRepository)
         {
-            _customDeThi = customDeThi;
-            _chiTietDeThiHoanViService = chiTietDeThiHoanViService;
-            _nhomCauHoiService = nhomCauHoiService;
-            _cauHoiService = cauHoiService;
-            _cauTraLoiService = cauTraLoiService;
-            _deThiService = deThiService;
-        }       
-        public async Task<List<CustomDeThi>> handleDeThi(long ma_de_hoan_vi)
-        { 
-            List<CustomDeThi> result = new List<CustomDeThi>();
-            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = await getNoiDungChiTietDeThiHV(ma_de_hoan_vi);
-            foreach (var item in chiTietDeThiHoanVis)
-                result.Add(await getNoiDungFromCTDeThiHV(item));
-            return result;
+            _customRepository = customRepository;
         }
-        private async Task<List<ChiTietDeThiHoanViDto>> getNoiDungChiTietDeThiHV(long ma_de_hoan_vi)
+        private CustomDeThi GetProperty(IDataReader dataReader)
         {
-            return await _chiTietDeThiHoanViService.SelectBy_MaDeHV(ma_de_hoan_vi); ;
+            CustomDeThi customDeThi = new();
+            customDeThi.MaNhom = dataReader.GetInt32(0);
+            customDeThi.MaCauHoi = dataReader.GetInt32(1);
+            customDeThi.MaNhomCha = dataReader.GetInt32(2);
+            customDeThi.MaSoCLO = dataReader.IsDBNull(3) ? null : dataReader.GetString(3);
+            customDeThi.NoiDungCauHoiNhomCha = dataReader.IsDBNull(4) ? null : dataReader.GetString(4);
+            customDeThi.NoiDungCauHoiNhom = dataReader.IsDBNull(5) ? null : dataReader.GetString(5);
+            customDeThi.NoiDungCauHoi = dataReader.IsDBNull(6) ? null : dataReader.GetString(6);
+            customDeThi.KieuNoiDungCauHoi = dataReader.GetInt32(7);
+            string? ma_dap_an_gop = dataReader.IsDBNull(8) ? null : dataReader.GetString(8);
+            string? noi_dung_dap_an_gop = dataReader.IsDBNull(9) ? null : dataReader.GetString(9);
+            customDeThi.CauTraLois = HandleDapAnGop(ma_dap_an_gop, noi_dung_dap_an_gop);
+            return customDeThi;
         }
-        private async Task<NhomCauHoiDto> getNoiDungCauHoiNhom(int ma_cau_hoi_nhom)
+        private Dictionary<int, string?> HandleDapAnGop(string? ma_dap_an_gop, string? noi_dung_dap_an_gop)
         {
-            return await _nhomCauHoiService.SelectOne(ma_cau_hoi_nhom);
-        }
-        private async Task<CauHoiDto> getNoiDungCauHoi(int ma_cau_hoi)
-        {
-            return await _cauHoiService.SelectOne(ma_cau_hoi);
-        }
-        private async Task<List<CauTraLoiDto>> getNoiDungCauTraLoi(int ma_cau_hoi)
-        {
-            return await _cauTraLoiService.SelectBy_MaCauHoi(ma_cau_hoi);
-        }
-        private async Task<CustomDeThi> getNoiDungFromCTDeThiHV(ChiTietDeThiHoanViDto chiTietDeThiHoanVi)
-        {
-            CustomDeThi chiTietDeThi = new();
-            NhomCauHoiDto nhomCauHoi = await getNoiDungCauHoiNhom(chiTietDeThiHoanVi.MaNhom);
-            CauHoiDto cauHoi = await getNoiDungCauHoi(chiTietDeThiHoanVi.MaCauHoi);
-            List<CauTraLoiDto> cauTraLois = await getNoiDungCauTraLoi(chiTietDeThiHoanVi.MaCauHoi);
-
-            chiTietDeThi.MaNhom = nhomCauHoi.MaNhom;
-            chiTietDeThi.MaCauHoi = cauHoi.MaCauHoi;
-
-            // lấy nội dung của mã nhóm cha (nếu có)
-            if (nhomCauHoi.MaNhomCha != -1)
+            if(string.IsNullOrEmpty(ma_dap_an_gop) || string.IsNullOrEmpty(noi_dung_dap_an_gop))
             {
-                var ketQua = await getNoiDungCauHoiNhom(nhomCauHoi.MaNhomCha);
-                chiTietDeThi.NoiDungCauHoiNhomCha = ketQua.NoiDung;
+                return [];
             }
-            chiTietDeThi.NoiDungCauHoiNhom = nhomCauHoi.NoiDung;
-            chiTietDeThi.NoiDungCauHoi = cauHoi.NoiDung;
-            chiTietDeThi.KieuNoiDungCauHoi = cauHoi.KieuNoiDung;
-            chiTietDeThi.MaClo = cauHoi.MaClo;
-            chiTietDeThi.CauTraLois = new Dictionary<int, string?>();
-            // Xem coi đề thi có bỏ chương phần không
-            var deThi = await _deThiService.SelectBy_ma_de_hv(chiTietDeThiHoanVi.MaDeHv);
-            chiTietDeThi.BoChuongPhan = deThi.BoChuongPhan;
+            // Xử lý dữ liệu của ma_dap_an_gop và noi_dung_dap_an_gop
+            // Chia nhỏ chuỗi ma_dap_an_gop thành các phần tử riêng biệt
+            string[] maDapAnParts = ma_dap_an_gop.Split(";;;", StringSplitOptions.RemoveEmptyEntries);
+            string[] noiDungDapAnParts = noi_dung_dap_an_gop.Split(";;;", StringSplitOptions.RemoveEmptyEntries);
 
-            // lấy nội dung câu hỏi bằng dictionary
-            chiTietDeThi.CauTraLois = new Dictionary<int, string?>();
-            foreach (var item in cauTraLois)
-                chiTietDeThi.CauTraLois.Add(item.MaCauTraLoi, item.NoiDung);
-            return chiTietDeThi;
+            // Tạo một Dictionary để lưu trữ các cặp giá trị
+            Dictionary<int, string?> cauTraLois = [];
+            for (int i = 0; i < maDapAnParts.Length; i++)
+            {
+                int maDapAn = int.Parse(maDapAnParts[i]);
+                string? noiDungDapAn = i < noiDungDapAnParts.Length ? noiDungDapAnParts[i] : null;
+                cauTraLois.Add(maDapAn, noiDungDapAn);
+            }
+            return cauTraLois;
+        }
+
+        public async Task<List<CustomDeThi>> GetDeThi(long ma_de_hoan_vi)
+        {
+            List<CustomDeThi> result = [];
+            using (IDataReader dataReader = await _customRepository.GetDeThi(ma_de_hoan_vi))
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(GetProperty(dataReader));
+                }
+            }
+            return result;
         }
     }
 }

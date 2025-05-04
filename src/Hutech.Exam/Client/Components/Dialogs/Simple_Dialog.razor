@@ -1,6 +1,6 @@
 ﻿<MudDialog style="transform: scale(0.7)">
     <DialogContent>
-        <MudText>@ContentText</MudText>
+        <MudText>@((MarkupString)(ContentText ?? ""))</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Thoát</MudButton>

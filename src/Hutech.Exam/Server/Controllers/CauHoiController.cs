@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
@@ -29,15 +30,15 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(result);
         }
         [HttpPost("Insert")]
-        public async Task<ActionResult<int>> Insert([FromBody] CauHoiDto cauHoiDto)
+        public async Task<ActionResult<int>> Insert([FromBody] CauHoiRequest cauHoi)
         {
-            int result = await _cauHoiService.Insert(cauHoiDto.MaClo, cauHoiDto.MaNhom, cauHoiDto.TieuDe ?? "", cauHoiDto.KieuNoiDung, cauHoiDto.NoiDung ?? "", cauHoiDto.GhiChu ?? "", cauHoiDto.HoanVi ?? false);
+            int result = await _cauHoiService.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe ?? "", cauHoi.KieuNoiDung, cauHoi.NoiDung ?? "", cauHoi.GhiChu ?? "", cauHoi.HoanVi ?? false);
             return Ok(result);
         }
         [HttpPut("Update")]
-        public async Task<ActionResult> Update([FromBody] CauHoiDto cauHoiDto)
+        public async Task<ActionResult> Update([FromBody] CauHoiRequest cauHoi)
         {
-            await _cauHoiService.Update(cauHoiDto.MaCauHoi, cauHoiDto.MaNhom, cauHoiDto.MaClo, cauHoiDto.TieuDe ?? "", cauHoiDto.KieuNoiDung, cauHoiDto.NoiDung ?? "", cauHoiDto.GhiChu ?? "", cauHoiDto.HoanVi ?? false);
+            await _cauHoiService.Update(cauHoi.MaCauHoi, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe ?? "", cauHoi.KieuNoiDung, cauHoi.NoiDung ?? "", cauHoi.GhiChu ?? "", cauHoi.HoanVi ?? false);
             return Ok();
         }
         [HttpDelete("Remove")]

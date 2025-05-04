@@ -37,5 +37,23 @@ namespace Hutech.Exam.Shared.DTO
             return NoiDung ?? "Không có tiêu đề";
         }
 
+        public CauHoiDto() { }
+
+        public CauHoiDto(CauHoiDto cauHoi)
+        {
+            MaCauHoi = cauHoi.MaCauHoi;
+            MaNhom = cauHoi.MaNhom;
+            MaClo = cauHoi.MaClo;
+            TieuDe = cauHoi.TieuDe;
+            KieuNoiDung = cauHoi.KieuNoiDung;
+            NoiDung = cauHoi.NoiDung;
+            GhiChu = cauHoi.GhiChu;
+            HoanVi = cauHoi.HoanVi;
+            CauTraLois = cauHoi.CauTraLois;
+            ChiTietDeThiHoanVis = cauHoi.ChiTietDeThiHoanVis;
+            MaCloNavigation = cauHoi.MaCloNavigation;
+            MaNhomNavigation = cauHoi.MaNhomNavigation;
+        }
+
     }
 }

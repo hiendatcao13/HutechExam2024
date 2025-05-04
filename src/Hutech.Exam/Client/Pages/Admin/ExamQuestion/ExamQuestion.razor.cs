@@ -148,6 +148,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             }
             NhomCauHoiDto nhomCauHoi = Mapper.Map<NhomCauHoiDto>(selectedNhomCauHoi);
             await OpenCauHoiDialog("Sửa Câu Hỏi", true, cauHoi, selectedMonHoc, nhomCauHoi);
+            cauHois?.Clear();
             cauHois = await CauHois_SelectBy_MaNhomAPI(nhomCauHoi.MaNhom);
         }
         private async Task<DialogResult?> OpenNhomCauHoiDialog(string tittle, bool isEdit, NhomCauHoiDto? nhomCauHoiCha, NhomCauHoiDto? nhomCauHoi, DeThiDto deThi)

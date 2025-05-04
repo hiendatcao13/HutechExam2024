@@ -30,6 +30,7 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<ISinhVienRepository, SinhVienRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICloRepository, CloRepository>();
+            services.AddScoped<ICustomRepository, CustomRepository>();
             services.AddScoped<CustomDeThi>();
         }
     }

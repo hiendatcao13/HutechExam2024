@@ -5,10 +5,6 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
-<script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
-
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
         <p>
@@ -34,6 +30,10 @@
     .my-custom-class {
         backdrop-filter: blur(10px);
     }
+
+    .mjx-container[jax="CHTML"][display="true"] {
+        display: contents;
+    }
 </style>
 
 @code {
@@ -44,7 +44,7 @@
     const string italicTag = "<i>text</i>";
     const string underlineTag = "<u>text</u>";
 
-    const string latexTag = "<latex>text</latex>";
+    const string latexTag = "<latex>E = mc^2</latex>";
     const string latextText = "E = mc^2";
     private void OnClickThoat()
     {

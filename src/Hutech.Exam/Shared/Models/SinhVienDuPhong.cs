@@ -14,6 +14,6 @@ namespace Hutech.Exam.Shared.Models
 
         public int MaLopAo { get; set; }
 
-        public Guid UserId { get; set; }
+        public int MaCaThi { get; set; }
     }
 }

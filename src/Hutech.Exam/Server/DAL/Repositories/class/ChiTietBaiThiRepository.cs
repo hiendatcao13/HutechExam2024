@@ -1,4 +1,6 @@
 ﻿using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Server.DAL.Helper;
+using Hutech.Exam.Shared.DTO;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -51,6 +53,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@NgayCapNhat", SqlDbType.DateTime, NgayCapNhat);
             sql.SqlParams("@KetQua", SqlDbType.Bit, KetQua);
             sql.SqlParams("@ThuTu", SqlDbType.Int, ThuTu);
+            return await sql.ExecuteNonQueryAsync();
+        }
+        public async Task<int> Save_Batch(List<ChiTietBaiThiDto> chiTietBaiThis)
+        {
+            var dt = ChiTietBaiThiHelper.ToDataTable(chiTietBaiThis);
+            DatabaseReader sql = new("chi_tiet_bai_thi_Save_Batch");
+            sql.SqlParams("@Data", SqlDbType.Structured, dt);
             return await sql.ExecuteNonQueryAsync();
         }
         public async Task<IDataReader> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hutech.Exam.Shared.DTO.Custom
+namespace Hutech.Exam.Shared.DTO.Request
 {
-    public class CustomChiTietBaiThi
+    public class ChiTietBaiThiRequest
     {
         public long MaChiTietBaiThi { get; set; }
 

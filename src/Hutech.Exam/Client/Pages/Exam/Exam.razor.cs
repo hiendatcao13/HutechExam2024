@@ -10,6 +10,7 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using System.Text.Json;
+using Hutech.Exam.Shared.DTO.Request;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
@@ -34,8 +35,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         private readonly List<string>? alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
 
         private static ChiTietCaThiDto? chiTietCaThi = new();
-        private static List<CustomChiTietBaiThi>? chiTietBaiThis = [];
-        private static List<CustomChiTietBaiThi>? dsBaiThi_Update = []; // lưu ds các câu sv vừa mới trả lời về server
+        private static List<ChiTietBaiThiRequest>? chiTietBaiThis = [];
+        private static List<ChiTietBaiThiRequest>? dsBaiThi_Update = []; // lưu ds các câu sv vừa mới trả lời về server
         private static List<int>? cau_da_chons = []; // lưu vết các đáp án đã khoanh trước đó
         public static List<int>? listDapAn = [];// lưu vết các đáp án sinh viên chọn (public)
 

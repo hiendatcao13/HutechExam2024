@@ -4,9 +4,6 @@
 @inject IDialogService Dialog
 @attribute [Authorize]
 
-<script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -63,7 +60,7 @@
                                 {
                                     thu_tu_ma_nhom = item.MaNhom;
                                     // Hiển thị nội dụng câu hỏi nhóm cha (nếu có)
-                                    if (item.NoiDungCauHoiNhomCha != null && item.NoiDungCauHoiNhomCha != ma_nhom_cha && !item.BoChuongPhan)
+                                    if (!string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha) && item.NoiDungCauHoiNhomCha != ma_nhom_cha)
                                     {
                                         ma_nhom_cha = item.NoiDungCauHoiNhomCha;
                                         <section id="question@(QuestionMask )" class="txt" style="background-color:antiquewhite; text-transform:uppercase">
@@ -72,7 +69,7 @@
                                         </section>
                                     }
                                     <section id="question@(QuestionMask )" class="txt">
-                                        @if (item.NoiDungCauHoiNhom != null)
+                                        @if (!string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
                                         {
                                             int STT = QuestionMask;
                                             // xử lí câu hỏi điền khuyết
@@ -109,7 +106,7 @@
                                     {
                                         thu_tu_ma_cau_hoi = item.MaCauHoi;
                                         <div class="txt_question">
-                                            @if (item.NoiDungCauHoi != null)
+                                            @if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
                                             {
                                                 <b>Câu hỏi @QuestionMask: </b>
                                                 List<string> latex = HandleLatex(item.NoiDungCauHoi);

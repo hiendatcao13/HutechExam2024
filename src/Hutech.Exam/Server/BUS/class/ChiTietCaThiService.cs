@@ -74,7 +74,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<ChiTietCaThiDto>> SelectBy_ma_sinh_vien(long ma_sinh_vien)
         {
-            List<ChiTietCaThiDto> result = new();
+            List<ChiTietCaThiDto> result = [];
             using(IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_ma_sinh_vien(ma_sinh_vien))
             {
                 while (dataReader.Read())
@@ -92,6 +92,18 @@ namespace Hutech.Exam.Server.BUS
                 while (dataReader.Read())
                 {
                     result.Add(getProperty(dataReader));
+                }
+            }
+            return result;
+        }
+        public async Task<List<string>> SelectBy_ma_ca_thi_MSSV(int ma_ca_thi)
+        {
+            List<string> result = [];
+            using (IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_ma_ca_thi_MSSV(ma_ca_thi))
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(dataReader.GetString(0));
                 }
             }
             return result;
