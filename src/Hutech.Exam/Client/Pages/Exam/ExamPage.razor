@@ -12,43 +12,53 @@
         <MudText Typo="Typo.h5" Style="color: black;">Thời Gian: 88:99</MudText>
         <MudButton Variant="Variant.Filled" Color="Color.Success" Style="margin-left: 5%;">Nộp Bài</MudButton>
     </MudItem>
+    <MudItem xs="12" Style="padding-top: 30px"></MudItem>
 
-
-    <MudItem xs="9">
+    <MudItem xs="10" Style="transform: scale(0.92); border: 1px solid">
         <!--Hiển thị nhóm cha-->
-        <MudText>Typo="Typo.h6">Questions 186-190 refer to the following letters.</MudText>
+        <MudText Typo="Typo.h5" Style="text-transform: uppercase;">Chương I: Nhóm thành phần</MudText>
+        <MudText Typo="Typo.h6">Questions 186-190 refer to the following letters.</MudText>
         <MudText Typo="Typo.body1">What is the main purpose of the first letter?</MudText>
         <MudRadioGroup T="string">
             <MudItem xs="6">
-                <MudRadio Value="@("option1")">
+                <MudRadio Value="@("option1")" Size="Size.Small">
                     <MudText Typo="Typo.subtitle1">To fix a mistake in the contract</MudText>
                 </MudRadio>
             </MudItem>
             <MudItem xs="6">
-                <MudRadio Value="@("option2")">
+                <MudRadio Value="@("option2")" Size="Size.Small">
                     <MudText Typo="Typo.subtitle1">To complain about a bank service procedure</MudText>
                 </MudRadio>
             </MudItem>
             <MudItem xs="6">
-                <MudRadio Value="@("option3")">
+                <MudRadio Value="@("option3")" Size="Size.Small">
                     <MudText Typo="Typo.subtitle1">To complain about one of a bank employee’s behavior</MudText>
                 </MudRadio>
             </MudItem>
             <MudItem xs="6">
-                <MudRadio Value="@("option4")">
-                    <MudText Typo="Typo.subtitle1">To ask for a financial compensation</MudText>
+                <MudRadio Value="@("option4")" Size="Size.Small">
+                    <MudText Typo="Typo.subtitle1">Xin chào mọi người. Tôi tên là Đạt, tôi đến từ thành phố Hồ Chí Minh và rất hân hạnh được gặp mọi người</MudText>
                 </MudRadio>
             </MudItem>
         </MudRadioGroup>
     </MudItem>
+    <MudItem xs="2" Style="border: 1px solid; transform: scale(0.9)">
+        <MudImage Src="images/exam/Ellipse 1.svg" Width="150" />
+        <MudText Typo="Typo.body2">Tên: Cao Hiển Đạt</MudText>
+        <MudText Typo="Typo.body2">Mã sinh viên: 2180608276</MudText>
+        <MudText Typo="Typo.body2">Môn thi: Tiếng Anh tổng hợp</MudText>
+        <MudText Typo="Typo.body2">Mã đề: 007</MudText>
+    </MudItem>
+
 </MudGrid>
 
 <style>
-    .heading{
+    .heading {
         padding-bottom: 5px;
         display: flex;
         align-items: center;
         background-color: antiquewhite;
+        border: 1px solid;
     }
 </style>
 @code {

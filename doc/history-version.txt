@@ -78,3 +78,7 @@
 - Tối ưu các store procedure, load đề nhanh hơn với lần gọi duy nhất xuống database
 - Lưu bài nhanh hơn với cơ chế table type cho phép param là 1 list
 - Đang tu sửa trang Exam thi
+----------------------------------
+07/05/2025 11:00PM
+- Chỉnh sửa thanh Drawer cho các trang admin
+- Xóa những thứ cần xóa với git --all chứ không phải git add .

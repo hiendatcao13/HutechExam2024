@@ -66,7 +66,7 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
             await customAuthenticationStateProvider.UpdateAuthenticationState(userSession);
 
             await SessionStorage.SetItemAsStringAsync("Name", userSession.Name);
-            Nav.NavigateTo("/admin/control", true);
+            Nav.NavigateTo("/admin/home", true);
         }
     }
 }
