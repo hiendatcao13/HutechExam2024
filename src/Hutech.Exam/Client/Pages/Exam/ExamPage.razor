@@ -2,7 +2,7 @@
 @* @implements IDisposable *@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 
 <PageTitle>Exam Page</PageTitle>
 
@@ -168,6 +168,8 @@
 		grid-template-columns: auto auto;
 	}
 </style>
+
+
 @code {
 	[Inject] private IJSRuntime JS { get; set; }
 	private ElementReference[] questionRefs = new ElementReference[10];

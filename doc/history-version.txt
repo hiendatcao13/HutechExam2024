@@ -86,4 +86,7 @@
 13/05/2025 10PM
 - Cập nhật primary constructor, globalexceptionmiddleware
 - tạo khuôn APIresponse<TData> và ExamPage
+- tạo script database13/05/2025 10PM
+- Cập nhật primary constructor, globalexceptionmiddleware
+- tạo khuôn APIresponse<TData> và ExamPage
 - tạo script database

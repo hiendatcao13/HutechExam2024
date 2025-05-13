@@ -64,6 +64,6 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.InstallerServicesInAssembly(configuration);
 
 
-    services.AddDbContext<ApplicationDbContext>(options =>
+    services.AddDbContextPool<ApplicationDbContext>(options =>
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 }
