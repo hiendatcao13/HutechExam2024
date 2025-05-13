@@ -82,3 +82,8 @@
 07/05/2025 11:00PM
 - Chỉnh sửa thanh Drawer cho các trang admin
 - Xóa những thứ cần xóa với git --all chứ không phải git add .
+----------------------------------
+13/05/2025 10PM
+- Cập nhật lại primary constructor, GlobalExceptionMiddleware
+- Thêm mới APIResponse<TData>
+- Tạo dựng khung sườn cho trang Exam

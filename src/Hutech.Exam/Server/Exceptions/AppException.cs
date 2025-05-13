@@ -4,11 +4,12 @@ namespace Hutech.Exam.Server.Exceptions
 {
     public class AppException : Exception
     {
-        public ErrorCode errCode { get; set; }
+        public ErrorCode ErrorCode { get;}
 
-        public AppException(ErrorCode errCode) : base(errCode.message)
+
+        public AppException(ErrorCode errorCode) : base(errorCode.Message)
         {
-            this.errCode = errCode;
+            ErrorCode = errorCode;
         }
     }
 }
