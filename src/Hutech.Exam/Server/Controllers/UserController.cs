@@ -9,13 +9,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class UserController : Controller
+    public class UserController(UserService userService) : Controller
     {
-        private readonly UserService _userService;
-        public UserController(UserService userService) 
-        {
-            _userService = userService;
-        }
+        private readonly UserService _userService = userService;
+
         [HttpPut("Login")]
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Login([FromBody] AccountRequest account)

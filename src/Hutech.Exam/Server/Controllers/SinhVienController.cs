@@ -15,21 +15,15 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SinhVienController : Controller
+    public class SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub, IConnectionMultiplexer redis) : Controller
     {
-        private readonly SinhVienService _sinhVienService;
-        private readonly IHubContext<MainHub> _mainHub;
-        private readonly IDatabase _redisDb;
+        private readonly SinhVienService _sinhVienService = sinhVienService;
+        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IDatabase _redisDb = redis.GetDatabase();
 
 
-        private static int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
+        private const int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
 
-        public SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub, IConnectionMultiplexer redis)
-        {
-            _sinhVienService = sinhVienService;
-            _mainHub = mainHub;
-            _redisDb = redis.GetDatabase();
-        }
         [HttpPut("Login")]
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Verify([FromBody] string ma_so_sinh_vien)
@@ -58,8 +52,7 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string ma_so_sinh_vien)
         {
-            await _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien);
-            return Ok();
+            return Ok(await _sinhVienService.SelectBy_ma_so_sinh_vien(ma_so_sinh_vien));
         }
         [HttpPut("ResetLogin")]
         [Authorize(Roles = "Admin")]

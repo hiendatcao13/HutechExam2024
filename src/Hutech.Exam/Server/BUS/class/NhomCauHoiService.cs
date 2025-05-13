@@ -6,29 +6,27 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class NhomCauHoiService
+    public class NhomCauHoiService(INhomCauHoiRepository nhomCauHoiRepository, IMapper mapper)
     {
-        private readonly INhomCauHoiRepository _nhomCauHoiRepository;
-        private readonly IMapper _mapper;
-        public NhomCauHoiService(INhomCauHoiRepository nhomCauHoiRepository, IMapper mapper)
-        {
-            _nhomCauHoiRepository = nhomCauHoiRepository;
-            _mapper = mapper;   
-        }
-        private NhomCauHoiDto getProperty(IDataReader dataReader)
+        private readonly INhomCauHoiRepository _nhomCauHoiRepository = nhomCauHoiRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 10; // số lượng cột trong bảng NhomCauHoi
+
+        public NhomCauHoiDto GetProperty(IDataReader dataReader, int start = 0)
         {
             NhomCauHoi nhomCauHoi = new()
             {
-                MaNhom = dataReader.GetInt32(0),
-                MaDeThi = dataReader.GetInt32(1),
-                TenNhom = dataReader.GetString(2),
-                NoiDung = dataReader.IsDBNull(3) ? null : dataReader.GetString(3),
-                SoCauHoi = dataReader.GetInt32(4),
-                HoanVi = dataReader.GetBoolean(5),
-                ThuTu = dataReader.GetInt32(6),
-                MaNhomCha = dataReader.GetInt32(7),
-                SoCauLay = dataReader.GetInt32(8),
-                LaCauHoiNhom = dataReader.IsDBNull(9) ? null : dataReader.GetBoolean(9)
+                MaNhom = dataReader.GetInt32(0 + start),
+                MaDeThi = dataReader.GetInt32(1 + start),
+                TenNhom = dataReader.GetString(2 + start),
+                NoiDung = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
+                SoCauHoi = dataReader.GetInt32(4 + start),
+                HoanVi = dataReader.GetBoolean(5 + start),
+                ThuTu = dataReader.GetInt32(6 + start),
+                MaNhomCha = dataReader.GetInt32(7 + start),
+                SoCauLay = dataReader.GetInt32(8 + start),
+                LaCauHoiNhom = dataReader.IsDBNull(9 + start) ? null : dataReader.GetBoolean(9 + start)
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
@@ -46,12 +44,12 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<NhomCauHoiDto>> SelectAllBy_MaDeThi(int ma_de_thi)
         {
-            List<NhomCauHoiDto> list = new();
+            List<NhomCauHoiDto> list = [];
             using(IDataReader dataReader = await _nhomCauHoiRepository.SelectAllBy_MaDeThi(ma_de_thi))
             {
                 while (dataReader.Read())
                 {
-                    NhomCauHoiDto nhomCauHoi = getProperty(dataReader);
+                    NhomCauHoiDto nhomCauHoi = GetProperty(dataReader);
                     list.Add(nhomCauHoi);
                 }
             }
@@ -64,7 +62,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    nhomCauHoi = getProperty(dataReader);
+                    nhomCauHoi = GetProperty(dataReader);
                 }
             }
             return nhomCauHoi;

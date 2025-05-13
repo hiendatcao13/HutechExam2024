@@ -4,23 +4,17 @@ using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class DotThiController : Controller
+    public class DotThiController(DotThiService dotThiService, IHubContext<MainHub> mainHub) : Controller
     {
-        private readonly DotThiService _dotThiService;
-        private readonly IHubContext<MainHub> _mainHub;
+        private readonly DotThiService _dotThiService = dotThiService;
+        private readonly IHubContext<MainHub> _mainHub = mainHub;
 
-        public DotThiController(DotThiService dotThiService, IHubContext<MainHub> mainHub) 
-        {
-            _dotThiService = dotThiService;
-            _mainHub = mainHub;
-        }
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<DotThiDto>>> GetAll()
         {

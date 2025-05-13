@@ -13,7 +13,7 @@ public partial class ChiTietDotThi
 
     public int MaDotThi { get; set; }
 
-    public string LanThi { get; set; } = null!;
+    public int LanThi { get; set; }
 
     public virtual ICollection<CaThi> CaThis { get; set; } = new List<CaThi>();
 

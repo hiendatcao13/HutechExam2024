@@ -4,6 +4,7 @@ using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Shared.DTO;
 using System.Net.Http.Json;
+using Hutech.Exam.Shared.DTO.Request;
 
 namespace Hutech.Exam.Client.Pages.Result
 {
@@ -11,7 +12,7 @@ namespace Hutech.Exam.Client.Pages.Result
     {
         private async Task<bool> UpdateKetThucAPI(ChiTietCaThiDto chiTietCaThi)
         {
-            var jsonString = JsonSerializer.Serialize(chiTietCaThi);
+            var jsonString = JsonSerializer.Serialize(Mapper.Map<ChiTietCaThiRequest>(chiTietCaThi));
             var response = await Http.PutAsync("api/ChiTietCaThi/UpdateKetThucThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             return response.IsSuccessStatusCode;
         }

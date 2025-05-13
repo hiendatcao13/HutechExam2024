@@ -8,6 +8,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         public DotThiDto? DotThi { get; set; }
         public MonHocDto? MonHoc { get; set; }
         public LopAoDto? LopAo { get; set; }
-        public string? LanThi { get; set; }
+        public int LanThi { get; set; }
     }
 }

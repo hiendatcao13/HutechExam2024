@@ -6,36 +6,34 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class ChiTietDeThiHoanViService
+    public class ChiTietDeThiHoanViService(IChiTietDeThiHoanViRepository chiTietDeThiHoanViRepository, IMapper mapper)
     {
-        private readonly IChiTietDeThiHoanViRepository _chiTietDeThiHoanViRepository;
-        private readonly IMapper _mapper;
-        public ChiTietDeThiHoanViService(IChiTietDeThiHoanViRepository chiTietDeThiHoanViRepository, IMapper mapper)
-        {
-            _chiTietDeThiHoanViRepository = chiTietDeThiHoanViRepository;
-            _mapper = mapper;
-        }
-        private ChiTietDeThiHoanViDto getProperty(IDataReader dataReader)
+        private readonly IChiTietDeThiHoanViRepository _chiTietDeThiHoanViRepository = chiTietDeThiHoanViRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 6; // số lượng cột trong bảng ChiTietDeThiHoanVi
+
+        public ChiTietDeThiHoanViDto GetProperty(IDataReader dataReader, int start = 0)
         {
             ChiTietDeThiHoanVi chiTietDeThiHoanVi = new()
             {
-                MaDeHv = dataReader.GetInt64(0),
-                MaNhom = dataReader.GetInt32(1),
-                MaCauHoi = dataReader.GetInt32(2),
-                ThuTu = dataReader.GetInt32(3),
-                HoanViTraLoi = dataReader.IsDBNull(4) ? null : dataReader.GetString(4),
-                DapAn = dataReader.IsDBNull(5) ? null : dataReader.GetInt32(5)
+                MaDeHv = dataReader.GetInt64(0 + start),
+                MaNhom = dataReader.GetInt32(1 + start),
+                MaCauHoi = dataReader.GetInt32(2 + start),
+                ThuTu = dataReader.GetInt32(3 + start),
+                HoanViTraLoi = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
+                DapAn = dataReader.IsDBNull(5 + start) ? null : dataReader.GetInt32(5 + start)
             };
             return _mapper.Map<ChiTietDeThiHoanViDto>(chiTietDeThiHoanVi);
         }
         public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV)
         {
-            List<ChiTietDeThiHoanViDto> result = new();
+            List<ChiTietDeThiHoanViDto> result = [];
             using(IDataReader dataReader = await _chiTietDeThiHoanViRepository.SelectBy_MaDeHV(maDeHV))
             {
                 while (dataReader.Read())
                 {
-                    ChiTietDeThiHoanViDto chiTietDeThiHoanVi = getProperty(dataReader);
+                    ChiTietDeThiHoanViDto chiTietDeThiHoanVi = GetProperty(dataReader);
                     result.Add(chiTietDeThiHoanVi);
                 }
             }
@@ -43,12 +41,12 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV_MaNhom(long ma_de_hoan_vi, int ma_nhom)
         {
-            List<ChiTietDeThiHoanViDto> list = new();
+            List<ChiTietDeThiHoanViDto> list = [];
             using (IDataReader dataReader = await _chiTietDeThiHoanViRepository.SelectBy_MaDeHV_MaNhom(ma_de_hoan_vi, ma_nhom))
             {
                 while (dataReader.Read())
                 {
-                    ChiTietDeThiHoanViDto chiTietDeThiHoanVi = getProperty(dataReader);
+                    ChiTietDeThiHoanViDto chiTietDeThiHoanVi = GetProperty(dataReader);
                     list.Add(chiTietDeThiHoanVi);
                 }
             }

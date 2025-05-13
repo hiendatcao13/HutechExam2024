@@ -7,24 +7,22 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class ChiTietDotThiService
+    public class ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository, IMapper mapper)
     {
-        private readonly IChiTietDotThiResposity _chiTietDotThiResposity;
-        private readonly IMapper _mapper;
-        public ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository, IMapper mapper)
-        {
-            _chiTietDotThiResposity = chiTietDotThiRepository;
-            _mapper = mapper;
-        }
-        private ChiTietDotThiDto getProperty(IDataReader dataReader)
+        private readonly IChiTietDotThiResposity _chiTietDotThiResposity = chiTietDotThiRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng ChiTietDotThi
+
+        public ChiTietDotThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
             ChiTietDotThi chiTietDotThi = new()
             {
-                MaChiTietDotThi = dataReader.GetInt32(0),
-                TenChiTietDotThi = dataReader.GetString(1),
-                MaLopAo = dataReader.GetInt32(2),
-                MaDotThi = dataReader.GetInt32(3),
-                LanThi = dataReader.GetString(4)
+                MaChiTietDotThi = dataReader.GetInt32(0 + start),
+                TenChiTietDotThi = dataReader.GetString(1 + start),
+                MaLopAo = dataReader.GetInt32(2 + start),
+                MaDotThi = dataReader.GetInt32(3 + start),
+                LanThi = dataReader.GetInt32(4 + start)
             };
             return _mapper.Map<ChiTietDotThiDto>(chiTietDotThi);
         }
@@ -35,7 +33,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 while(dataReader.Read())
                 {
-                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
+                    ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                     list.Add(chiTietDotThi);
                 }
             }
@@ -49,13 +47,13 @@ namespace Hutech.Exam.Server.BUS
 
                 while (dataReader.Read())
                 {
-                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
+                    ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                     list.Add(chiTietDotThi);
                 }
             }
             return list;
         }
-        public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, string lan_thi)
+        public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, int lan_thi)
         {
             ChiTietDotThiDto chiTietDotThi = new();
             using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi_MaLopAo_LanThi(ma_dot_thi, ma_lop_ao, lan_thi))
@@ -63,7 +61,7 @@ namespace Hutech.Exam.Server.BUS
 
                 if (dataReader.Read())
                 {
-                    chiTietDotThi = getProperty(dataReader);
+                    chiTietDotThi = GetProperty(dataReader);
                 }
             }
             return chiTietDotThi;
@@ -76,29 +74,29 @@ namespace Hutech.Exam.Server.BUS
 
                 if (dataReader.Read())
                 {
-                    chiTietDotThi = getProperty(dataReader);
+                    chiTietDotThi = GetProperty(dataReader);
                 }
             }
             return chiTietDotThi;
         }
         public async Task<List<ChiTietDotThiDto>> GetAll()
         {
-            List<ChiTietDotThiDto> result = new();
+            List<ChiTietDotThiDto> result = [];
             using (IDataReader dataReader = await _chiTietDotThiResposity.GetAll())
             {
                 while (dataReader.Read())
                 {
-                    ChiTietDotThiDto chiTietDotThi = getProperty(dataReader);
+                    ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                     result.Add(chiTietDotThi);
                 }
             }
             return result;
         }
-        public async Task<int> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        public async Task<int> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
             return Convert.ToInt32(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
         }
-        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
             return await _chiTietDotThiResposity.Update(ma_chi_tiet_dot_thi, ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi);
         }

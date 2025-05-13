@@ -6,33 +6,30 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class KhoaService
+    public class KhoaService(IKhoaRepository khoaRepository, IMapper mapper)
     {
-        private readonly IKhoaRepository _khoaRepository;
-        private readonly IMapper _mapper;
+        private readonly IKhoaRepository _khoaRepository = khoaRepository;
+        private readonly IMapper _mapper = mapper;
 
-        public KhoaService(IKhoaRepository khoaRepository, IMapper mapper)
-        {
-            _khoaRepository = khoaRepository;
-            _mapper = mapper;
-        }
-        private KhoaDto getProperty(IDataReader dataReader)
+        public static readonly int COLUMN_LENGTH = 3; // số lượng cột trong bảng Khoa
+
+        public KhoaDto GetProperty(IDataReader dataReader, int start = 0)
         {
             Khoa khoa = new()
             {
-                MaKhoa = dataReader.GetInt32(0),
-                TenKhoa = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
-                NgayThanhLap = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2)
+                MaKhoa = dataReader.GetInt32(0 + start),
+                TenKhoa = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                NgayThanhLap = dataReader.IsDBNull(2 + start) ? null : dataReader.GetDateTime(2 + start)
             };
             return _mapper.Map<KhoaDto>(khoa);
         }
         public async Task<List<KhoaDto>> GetAll()
         {
-            List<KhoaDto> results = new List<KhoaDto>();
+            List<KhoaDto> results = [];
             using (IDataReader dataReader = await _khoaRepository.GetAll())
             {
                 while (dataReader.Read())                {
-                    results.Add(getProperty(dataReader));
+                    results.Add(GetProperty(dataReader));
                 }
             }
             return results;

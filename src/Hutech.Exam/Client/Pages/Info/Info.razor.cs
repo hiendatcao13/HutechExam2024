@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
+using AutoMapper;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
@@ -18,6 +19,7 @@ namespace Hutech.Exam.Client.Pages.Info
         [Inject] private ApplicationDataService MyData { get; set; } = default!;
         [Inject] private StudentHubService StudentHub { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+        [Inject] private IMapper Mapper { get; set; } = default!;
 
         private SinhVienDto? sinhVien = new();
         private CaThiDto? caThi = new();
@@ -118,11 +120,12 @@ namespace Hutech.Exam.Client.Pages.Info
                 Snackbar.Add(EXPIRED_TIME, Severity.Error);
                 return;
             }
-            await UpdateBatDauThiAPI(selectedCTCaThi);
             Snackbar.Add(ENTER_EXAM, Severity.Success);
             if (selectedCTCaThi != null)
+            {
+                await UpdateBatDauThiAPI(selectedCTCaThi);
                 MyData.ChiTietCaThi = selectedCTCaThi;
-            await Task.Delay(1000);
+            }    
             Nav?.NavigateTo("/exam");
         }
         private async Task Start()

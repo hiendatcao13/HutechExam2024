@@ -8,13 +8,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
-    public class ConnectionIdController : Controller
+    public class ConnectionIdController(IConnectionMultiplexer redis) : Controller
     {
-        private readonly IDatabase _redisDb;
-        public ConnectionIdController(IConnectionMultiplexer redis)
-        {
-            _redisDb = redis.GetDatabase();
-        }
+        private readonly IDatabase _redisDb = redis.GetDatabase();
+
         [HttpPut("SetConnectionId")]
         public async Task<IActionResult> SetConnectionIdAsync([FromBody]DataMessage data)
         {

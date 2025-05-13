@@ -6,25 +6,23 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class CauTraLoiService
+    public class CauTraLoiService(ICauTraLoiRepository cauTraLoiRepository, IMapper mapper)
     {
-        private readonly ICauTraLoiRepository _cauTraLoiRepository;
-        private readonly IMapper _mapper;
-        public CauTraLoiService(ICauTraLoiRepository cauTraLoiRepository, IMapper mapper)
-        {
-            _cauTraLoiRepository = cauTraLoiRepository;
-            _mapper = mapper;
-        }
-        private CauTraLoiDto getProperty(IDataReader dataReader)
+        private readonly ICauTraLoiRepository _cauTraLoiRepository = cauTraLoiRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 6; // số lượng cột trong bảng CauTraLoi
+
+        public CauTraLoiDto GetProperty(IDataReader dataReader, int start = 0)
         {
             CauTraLoi cauTraLoi = new()
             {
-                MaCauTraLoi = dataReader.GetInt32(0),
-                MaCauHoi = dataReader.GetInt32(1),
-                ThuTu = dataReader.GetInt32(2),
-                NoiDung = dataReader.IsDBNull(3) ? null : dataReader.GetString(3),
-                LaDapAn = dataReader.GetBoolean(4),
-                HoanVi = dataReader.GetBoolean(5)
+                MaCauTraLoi = dataReader.GetInt32(0 + start),
+                MaCauHoi = dataReader.GetInt32(1 + start),
+                ThuTu = dataReader.GetInt32(2 + start),
+                NoiDung = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
+                LaDapAn = dataReader.GetBoolean(4 + start),
+                HoanVi = dataReader.GetBoolean(5 + start)
             };
             return _mapper.Map<CauTraLoiDto>(cauTraLoi);
         }
@@ -43,17 +41,16 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi)
         {
-            List<CauTraLoiDto> result = new();
+            List<CauTraLoiDto> result = [];
             using (IDataReader dataReader = await _cauTraLoiRepository.SelectBy_MaCauHoi(ma_cau_hoi))
             {
                 while (dataReader.Read())
                 {
-                    CauTraLoiDto cauTraLoi = getProperty(dataReader);
+                    CauTraLoiDto cauTraLoi = GetProperty(dataReader);
                     result.Add(cauTraLoi);
                 }
             }
             return result;
         }
-
     }
 }

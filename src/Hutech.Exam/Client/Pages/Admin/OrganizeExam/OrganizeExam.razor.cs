@@ -336,7 +336,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 DotThi = selectedDotThi,
                 MonHoc = selectedChiTietDotThi?.MaLopAoNavigation.MaMonHocNavigation,
                 LopAo = selectedChiTietDotThi?.MaLopAoNavigation,
-                LanThi = selectedChiTietDotThi?.LanThi
+                LanThi = selectedChiTietDotThi?.LanThi ?? 0
             };
             await SessionStorage.SetItemAsync("storedDataEM", selectedData);
         }

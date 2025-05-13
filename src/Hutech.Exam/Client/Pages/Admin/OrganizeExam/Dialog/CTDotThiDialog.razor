@@ -48,7 +48,7 @@
             </MudItem>
         </MudGrid>
         
-        <MudSelect T="string" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
+        <MudSelect T="int" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
             @foreach (var item in lanThis)
             {
                 <MudSelectItem Value="item">Lần @item</MudSelectItem>
@@ -93,7 +93,7 @@
 
     private MonHocDto? selectedMonHoc;
     private LopAoDto? selectedLopAo;
-    private string? selectedLanThi;
+    private int selectedLanThi = 0;
 
     private List<MonHocDto>? monHocs;
     private List<LopAoDto>? lopAos;
@@ -132,11 +132,11 @@
             selectedMonHoc = ChiTietDotThi?.MaLopAoNavigation.MaMonHocNavigation;
             lopAos = await LopAo_SelectedByMonHocAPI(selectedMonHoc?.MaMonHoc ?? -1);
             selectedLopAo = ChiTietDotThi?.MaLopAoNavigation;
-            selectedLanThi = ChiTietDotThi?.LanThi;
+            selectedLanThi = ChiTietDotThi?.LanThi ?? 0;
         }
     }
     private async Task OnClickThemCTDT(){
-        if (selectedMonHoc == null || selectedLopAo == null || string.IsNullOrEmpty(selectedLanThi))
+        if (selectedMonHoc == null || selectedLopAo == null || selectedLanThi == 0)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
@@ -154,7 +154,7 @@
     }
     private async Task OnClickSuaCTDT()
     {
-        if (selectedMonHoc == null || selectedLopAo == null || string.IsNullOrEmpty(selectedLanThi))
+        if (selectedMonHoc == null || selectedLopAo == null || selectedLanThi == 0)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
@@ -298,7 +298,7 @@
         return false;
     }
 
-    private ChiTietDotThiDto CreateChiTietDotThi(int ma_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, string lan_thi){
+    private ChiTietDotThiDto CreateChiTietDotThi(int ma_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int lan_thi){
         return new ChiTietDotThiDto
             {
                 MaChiTietDotThi = ChiTietDotThi?.MaChiTietDotThi ?? -1,

@@ -5,13 +5,9 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RabbitMqController : Controller
+    public class RabbitMqController(RabbitMqCTBTService rabbitMqService) : Controller
     {
-        private readonly RabbitMqCTBTService _rabbitMqService;
-        public RabbitMqController(RabbitMqCTBTService rabbitMqService)
-        {
-            _rabbitMqService = rabbitMqService;
-        }
+        private readonly RabbitMqCTBTService _rabbitMqService = rabbitMqService;
 
         //[HttpGet("SendMessage")]
         //public async Task<IActionResult> SendMessage([FromQuery] string message)

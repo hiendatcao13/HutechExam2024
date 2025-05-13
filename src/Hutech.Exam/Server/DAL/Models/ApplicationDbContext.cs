@@ -252,9 +252,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("chi_tiet_dot_thi");
 
             entity.Property(e => e.MaChiTietDotThi).HasColumnName("ma_chi_tiet_dot_thi");
-            entity.Property(e => e.LanThi)
-                .HasMaxLength(200)
-                .HasColumnName("lan_thi");
+            entity.Property(e => e.LanThi).HasDefaultValueSql("((1))");
             entity.Property(e => e.MaDotThi).HasColumnName("ma_dot_thi");
             entity.Property(e => e.MaLopAo).HasColumnName("ma_lop_ao");
             entity.Property(e => e.TenChiTietDotThi)

@@ -7,39 +7,35 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class UserService
+    public class UserService(IUserRepository userRepository, IMapper mapper)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IMapper mapper)
-        {
-            _userRepository = userRepository;
-            _mapper = mapper;
-        }
-        private UserDto getProperty(IDataReader dataReader)
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public UserDto GetProperty(IDataReader dataReader, int start = 0)
         {
             User user = new()
             {
-                UserId = dataReader.GetGuid(0),
-                LoginName = dataReader.GetString(1),
-                Email = dataReader.GetString(2),
-                Name = dataReader.GetString(3),
-                Password = dataReader.GetString(4),
-                MaRole = dataReader.GetInt32(5),
-                DateCreated = dataReader.GetDateTime(6),
-                IsDeleted = dataReader.GetBoolean(7),
-                IsLockedOut = dataReader.GetBoolean(8),
-                LastActivityDate = dataReader.IsDBNull(9) ? null : dataReader.GetDateTime(9),
-                LastLoginDate = dataReader.IsDBNull(10) ? null : dataReader.GetDateTime(10),
-                LastPasswordChangedDate = dataReader.IsDBNull(11) ? null : dataReader.GetDateTime(11),
-                LastLockoutDate = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12),
-                FailedPwdAttemptCount = dataReader.IsDBNull(13) ? null : dataReader.GetInt32(13),
-                FailedPwdAttemptWindowStart = dataReader.IsDBNull(14) ? null : dataReader.GetDateTime(14),
-                FailedPwdAnswerCount = dataReader.IsDBNull(15) ? null : dataReader.GetInt32(15),
-                FailedPwdAnswerWindowStart = dataReader.IsDBNull(16) ? null : dataReader.GetDateTime(16),
-                PasswordSalt = dataReader.IsDBNull(17) ? null : dataReader.GetString(17),
-                Comment = dataReader.GetString(18),
-                IsBuildInUser = dataReader.GetBoolean(19)
+                UserId = dataReader.GetGuid(0 + start),
+                LoginName = dataReader.GetString(1 + start),
+                Email = dataReader.GetString(2  + start),
+                Name = dataReader.GetString(3 + start),
+                Password = dataReader.GetString(4 + start),
+                MaRole = dataReader.GetInt32(5 + start),
+                DateCreated = dataReader.GetDateTime(6 + start),
+                IsDeleted = dataReader.GetBoolean(7 + start),
+                IsLockedOut = dataReader.GetBoolean(8 + start),
+                LastActivityDate = dataReader.IsDBNull(9 + start) ? null : dataReader.GetDateTime(9 + start),
+                LastLoginDate = dataReader.IsDBNull(10 + start) ? null : dataReader.GetDateTime(10 + start),
+                LastPasswordChangedDate = dataReader.IsDBNull(11 + start) ? null : dataReader.GetDateTime(11 + start),
+                LastLockoutDate = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
+                FailedPwdAttemptCount = dataReader.IsDBNull(13 + start) ? null : dataReader.GetInt32(13 + start),
+                FailedPwdAttemptWindowStart = dataReader.IsDBNull(14 + start) ? null : dataReader.GetDateTime(14 + start),
+                FailedPwdAnswerCount = dataReader.IsDBNull(15 + start) ? null : dataReader.GetInt32(15 + start),
+                FailedPwdAnswerWindowStart = dataReader.IsDBNull(16 + start) ? null : dataReader.GetDateTime(16 + start),
+                PasswordSalt = dataReader.IsDBNull(17 + start) ? null : dataReader.GetString(17 + start),
+                Comment = dataReader.GetString(18 + start),
+                IsBuildInUser = dataReader.GetBoolean(19 + start)
             };
             return _mapper.Map<UserDto>(user);
         }
@@ -50,7 +46,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    user = getProperty(dataReader);
+                    user = GetProperty(dataReader);
                 }
             }
             return user;
@@ -62,7 +58,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    user = getProperty(dataReader);
+                    user = GetProperty(dataReader);
                 }
             }
             return user;

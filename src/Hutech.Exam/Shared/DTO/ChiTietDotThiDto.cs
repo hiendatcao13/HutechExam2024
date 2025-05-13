@@ -17,7 +17,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public int MaDotThi { get; set; }
 
-        public string LanThi { get; set; } = null!;
+        public int LanThi { get; set; }
 
         public virtual ICollection<CaThiDto> CaThis { get; set; } = new List<CaThiDto>();
 

@@ -8,13 +8,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class AudioListenedController : Controller
+    public class AudioListenedController(AudioListenedService audioListenedService) : Controller
     {
-        private readonly AudioListenedService _audioListenedService;
-        public AudioListenedController(AudioListenedService audioListenedService)
-        {
-            _audioListenedService = audioListenedService;
-        }
+        private readonly AudioListenedService _audioListenedService = audioListenedService;
+
         [HttpGet("GetSoLanNghe")]
         public async Task<ActionResult<int>> GetSoLanNghe([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
         {

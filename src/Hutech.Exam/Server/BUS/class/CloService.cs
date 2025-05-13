@@ -6,27 +6,24 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class CloService
+    public class CloService(ICloRepository cloRepository, IMapper mapper)
     {
-        private readonly ICloRepository _cloRepository;
-        private IMapper _mapper;
-        public CloService(ICloRepository cloRepository, IMapper mapper)
-        {
-            _cloRepository = cloRepository;
-            _mapper = mapper;
-        }
+        private readonly ICloRepository _cloRepository = cloRepository;
+        private IMapper _mapper = mapper;
 
-        private CloDto getProperty(IDataReader dataReader)
+        public static readonly int COLUMN_LENGTH = 7; // số lượng cột trong bảng Clo
+
+        public CloDto GetProperty(IDataReader dataReader, int start = 0)
         {
             Clo clo = new()
             {
-                MaClo = dataReader.GetInt32(0),
-                MaMonHoc = dataReader.GetInt32(1),
-                MaSoClo = dataReader.GetString(2),
-                TieuDe = dataReader.GetString(3),
-                NoiDung = dataReader.IsDBNull(4) ? null : dataReader.GetString(4),
-                TieuChi = dataReader.GetInt32(5),
-                SoCau = dataReader.GetInt32(6)
+                MaClo = dataReader.GetInt32(0 + start),
+                MaMonHoc = dataReader.GetInt32(1 + start),
+                MaSoClo = dataReader.GetString(2 + start),
+                TieuDe = dataReader.GetString(3 + start),
+                NoiDung = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
+                TieuChi = dataReader.GetInt32(5 + start),
+                SoCau = dataReader.GetInt32(6 + start)
             };
             return _mapper.Map<CloDto>(clo);
         }
@@ -37,7 +34,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    clo = getProperty(dataReader);
+                    clo = GetProperty(dataReader);
                 }
             }
             return clo;
@@ -61,7 +58,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 while (dataReader.Read())
                 {
-                    CloDto clo = getProperty(dataReader);
+                    CloDto clo = GetProperty(dataReader);
                     result.Add(clo);
                 }
             }

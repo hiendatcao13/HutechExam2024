@@ -7,16 +7,11 @@ using System.Text;
 using System.Text.Json;
 namespace Hutech.Exam.Server.BUS
 {
-    public class RabbitMqCTBTService
+    public class RabbitMqCTBTService(ChiTietBaiThiService chiTietBaiThiService)
     {
         private readonly string _hostname = "localhost"; // Thay bằng hostname của RabbitMQ nếu dùng từ xa
         private readonly string _queueName = "Exam.Hutech.ChiTietBaiThi";
-        private readonly ChiTietBaiThiService _chiTietBaiThiService;
-
-        public RabbitMqCTBTService(ChiTietBaiThiService chiTietBaiThiService)
-        {
-            _chiTietBaiThiService = chiTietBaiThiService;
-        }
+        private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
 
         public async Task PublishMessage(List<ChiTietBaiThi> messages)
         {
@@ -75,7 +70,7 @@ namespace Hutech.Exam.Server.BUS
                     if (messages != null)
                     {
                         // Gọi hàm xử lý message
-                        processMessage(messages);
+                        ProcessMessage(messages);
                     }
 
                     // Xác nhận message đã được xử lý thành công
@@ -91,7 +86,7 @@ namespace Hutech.Exam.Server.BUS
             }
             
         }
-        private async Task processMessage(List<ChiTietBaiThiDto> chiTietBaiThis)
+        private async Task ProcessMessage(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
             // Lưu message vào database hoặc thực hiện một hành động cụ thể
             if (chiTietBaiThis.Count != 0)

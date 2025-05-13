@@ -43,7 +43,7 @@
             @for (int index = 1; index <= ketQuaDapAn.Count; index++)
             {
                 string thu_tu = index.ToString();
-                MudBlazor.Color color = ketQuaDapAn[index - 1] == true ? Color.Success : (ketQuaDapAn[index - 1] == false ? Color.Error : Color.Default);
+                MudBlazor.Color color = ketQuaDapAn[index - 1] == true ? Color.Success : (ketQuaDapAn[index - 1] == false ? Color.Error : Color.Dark);
                 <MudChip Size="Size.Small" T="int" Color="@color">@thu_tu.ToString()</MudChip>
             }
         }

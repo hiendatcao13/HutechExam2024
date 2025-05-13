@@ -11,20 +11,14 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class ChiTietDotThiController : Controller
+    public class ChiTietDotThiController(ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService,
+        MonHocService monHocService, IHubContext<MainHub> mainHub) : Controller
     {
-        private readonly ChiTietDotThiService _chiTietDotThiService;
-        private readonly LopAoService _lopAoService;
-        private readonly MonHocService _monHocService;
-        private readonly IHubContext<MainHub> _mainHub;
-        public ChiTietDotThiController(ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService, 
-            MonHocService monHocService, IHubContext<MainHub> mainHub)
-        {
-            _chiTietDotThiService = chiTietDotThiService;
-            _lopAoService = lopAoService;
-            _monHocService = monHocService;
-            _mainHub = mainHub;
-        }
+        private readonly ChiTietDotThiService _chiTietDotThiService = chiTietDotThiService;
+        private readonly LopAoService _lopAoService = lopAoService;
+        private readonly MonHocService _monHocService = monHocService;
+        private readonly IHubContext<MainHub> _mainHub = mainHub;
+
         [HttpGet("SelectOne")]
         public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromQuery] int ma_chi_tiet_dot_thi)
         {
@@ -60,7 +54,7 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("LanThis_SelectBy_MaDotThiMaLopAo")]
         public async Task<ActionResult<List<string>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int ma_dot_thi, [FromQuery] int ma_lop_ao)
         {
-            List<string> result = [];
+            List<int> result = [];
             var chiTietDotThis = await SelectBy_MaDotThiMaLopAo(ma_dot_thi, ma_lop_ao);
             foreach (var item in chiTietDotThis)
             {

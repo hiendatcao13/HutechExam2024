@@ -8,33 +8,31 @@ using System.Diagnostics;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class SinhVienService
+    public class SinhVienService(ISinhVienRepository sinhVienRepository, IMapper mapper)
     {
-        private readonly ISinhVienRepository _sinhVienRepository;
-        private readonly IMapper _mapper;
-        public SinhVienService(ISinhVienRepository sinhVienRepository, IMapper mapper)
-        {
-            _sinhVienRepository = sinhVienRepository;
-            _mapper = mapper;
-        }
-        private SinhVienDto getProperty(IDataReader dataReader)
+        private readonly ISinhVienRepository _sinhVienRepository = sinhVienRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 14; // số lượng cột trong bảng SinhVien
+
+        public SinhVienDto GetProperty(IDataReader dataReader, int start = 0)
         {
             SinhVien sv = new()
             {
-                MaSinhVien = dataReader.GetInt64(0),
-                HoVaTenLot = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
-                TenSinhVien = dataReader.IsDBNull(2) ? null : dataReader.GetString(2),
-                GioiTinh = dataReader.IsDBNull(3) ? null : dataReader.GetInt16(3),
-                NgaySinh = dataReader.IsDBNull(4) ? null : dataReader.GetDateTime(4),
-                MaLop = dataReader.IsDBNull(5) ? null : dataReader.GetInt32(5),
-                DiaChi = dataReader.IsDBNull(6) ? null : dataReader.GetString(6),
-                Email = dataReader.IsDBNull(7) ? null : dataReader.GetString(7),
-                DienThoai = dataReader.IsDBNull(8) ? null : dataReader.GetString(8),
-                MaSoSinhVien = dataReader.IsDBNull(9) ? null : dataReader.GetString(9),
-                StudentId = dataReader.IsDBNull(10) ? null : dataReader.GetGuid(10),
-                IsLoggedIn = dataReader.IsDBNull(11) ? null : dataReader.GetBoolean(11),
-                LastLoggedIn = dataReader.IsDBNull(12) ? null : dataReader.GetDateTime(12),
-                LastLoggedOut = dataReader.IsDBNull(13) ? null : dataReader.GetDateTime(13),
+                MaSinhVien = dataReader.GetInt64(0 + start),
+                HoVaTenLot = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                TenSinhVien = dataReader.IsDBNull(2 + start) ? null : dataReader.GetString(2 + start),
+                GioiTinh = dataReader.IsDBNull(3 + start) ? null : dataReader.GetInt16(3 + start),
+                NgaySinh = dataReader.IsDBNull(4 + start) ? null : dataReader.GetDateTime(4 + start),
+                MaLop = dataReader.IsDBNull(5 + start) ? null : dataReader.GetInt32(5 + start),
+                DiaChi = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
+                Email = dataReader.IsDBNull(7 + start) ? null : dataReader.GetString(7 + start),
+                DienThoai = dataReader.IsDBNull(8 + start) ? null : dataReader.GetString(8 + start),
+                MaSoSinhVien = dataReader.IsDBNull(9 + start) ? null : dataReader.GetString(9 + start),
+                StudentId = dataReader.IsDBNull(10 + start) ? null : dataReader.GetGuid(10 + start),
+                IsLoggedIn = dataReader.IsDBNull(11 + start) ? null : dataReader.GetBoolean(11 + start),
+                LastLoggedIn = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
+                LastLoggedOut = dataReader.IsDBNull(13 + start) ? null : dataReader.GetDateTime(13 + start),
                 Photo = null // chưa biết cách xử lí (image === byte)
             };
             return _mapper.Map<SinhVienDto>(sv);
@@ -46,7 +44,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 while (dataReader.Read())
                 {
-                    SinhVienDto sv = getProperty(dataReader);
+                    SinhVienDto sv = GetProperty(dataReader);
                     result.Add(sv);
                 }
             }
@@ -59,7 +57,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    sv = getProperty(dataReader);
+                    sv = GetProperty(dataReader);
                 }
             }
             return sv;
@@ -81,7 +79,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if(dataReader.Read())
                 {
-                    sv = getProperty(dataReader);
+                    sv = GetProperty(dataReader);
                 }
             }
             return sv;

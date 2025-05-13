@@ -9,14 +9,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CustomDeThiController : Controller
+    public class CustomDeThiController(CustomDeThiService customDeThiService) : Controller
     {
-        private readonly CustomDeThiService _customDeThiService;
+        private readonly CustomDeThiService _customDeThiService = customDeThiService;
 
-        public CustomDeThiController(CustomDeThiService customDeThiService)
-        {
-            _customDeThiService = customDeThiService;
-        }
         [HttpGet("GetDeThi")]
         [Cache(120)]
         public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromQuery] long ma_de_thi_hoan_vi)

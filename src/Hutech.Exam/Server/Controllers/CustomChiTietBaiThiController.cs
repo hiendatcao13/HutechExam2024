@@ -13,67 +13,36 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CustomChiTietBaiThiController : Controller
+    public class CustomChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService, IMapper mapper) : Controller
     {
-        private readonly ChiTietBaiThiService _chiTietBaiThiService;
-        private readonly ChiTietDeThiHoanViService _chiTietDeThiHoanViService;
-        private readonly IMapper _mapper;
-        public CustomChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService,  IMapper mapper, ChiTietDeThiHoanViService chiTietDeThiHoanViService)
-        {
-            _chiTietBaiThiService = chiTietBaiThiService;
-            _chiTietDeThiHoanViService = chiTietDeThiHoanViService;
-            _mapper = mapper;
-        }
+        private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
+        private readonly IMapper _mapper = mapper;
+
         [HttpGet("GetBaiThi_DaThi")] // khi này sinh viên đã thi trước đó và tiếp tục thi nên không cần insert chi tiet bai thi nữa mà chỉ lấy -> tối ưu API
-        public async Task<ActionResult<List<ChiTietBaiThiRequest>>> GetBaiThi_DaThi([FromQuery] int ma_chi_tiet_ca_thi)
+        public async Task<ActionResult<List<int>>> GetBaiThi_DaThi([FromQuery] int ma_chi_tiet_ca_thi)
         {
-            try
-            {
-                // tránh trường hợp lấy đề của những môn khác
-                var chiTietBaiThis = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi);
-                List<ChiTietBaiThiRequest> result = [];
-                foreach(var item in chiTietBaiThis)
-                {
-                    result.Add(_mapper.Map<ChiTietBaiThiRequest>(item));
-                }
-                return Ok(result);
-            }
-            catch
-            {
-                return BadRequest();
-            }
+            return Ok(await _chiTietBaiThiService.DaThi(ma_chi_tiet_ca_thi));
         }
-        [HttpPut("Update")]
-        public async Task<ActionResult> Update([FromBody] List<ChiTietBaiThiRequest> chiTietBaiThis)
-        {
-            try
-            {
-                List<int>? listDapAn = await this.GetListDapAnWithCacheAsync(chiTietBaiThis[0].MaDeHv);
-                foreach (var item in chiTietBaiThis)
-                {
-                    item.KetQua = listDapAn?.Contains(item.CauTraLoi ?? -1) ?? false;
-                }
-                var result = _mapper.Map<List<ChiTietBaiThiDto>>(chiTietBaiThis);
-                await _chiTietBaiThiService.Save_Batch(result);
-                return Ok();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return BadRequest();
-            }
-        }
-        [HttpPut("GetListDungSai")]
-        public async Task<ActionResult<int>> GetListDungSai([FromQuery] long ma_de_hv, [FromBody] List<int?> listDapAnKhoanh)
-        {
-            List<int>? listDapAn = await this.GetListDapAnWithCacheAsync(ma_de_hv);
-            List<bool?> result = [];
-            foreach (var item in listDapAnKhoanh)
-            {
-                result.Add((item != null) ? listDapAn?.Contains((int)item) : null);
-            }
-            return Ok(result);
-        }
+        //[HttpPut("Update")]
+        //public async Task<ActionResult> Update([FromBody] List<ChiTietBaiThiRequest> chiTietBaiThis)
+        //{
+        //    try
+        //    {
+        //        List<int>? listDapAn = await this.GetListDapAnWithCacheAsync(chiTietBaiThis[0].MaDeHv);
+        //        foreach (var item in chiTietBaiThis)
+        //        {
+        //            item.KetQua = listDapAn?.Contains(item.CauTraLoi ?? -1) ?? false;
+        //        }
+        //        var result = _mapper.Map<List<ChiTietBaiThiDto>>(chiTietBaiThis);
+        //        await _chiTietBaiThiService.Save_Batch(result);
+        //        return Ok();
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        return BadRequest();
+        //    }
+        //}
 
 
 
@@ -93,13 +62,7 @@ namespace Hutech.Exam.Server.Controllers
             }
 
             // Nếu không có, thực hiện logic lấy dữ liệu từ database
-            List<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis = await _chiTietDeThiHoanViService.SelectBy_MaDeHV(maDeHv);
-            List<int> listDapAn = new List<int>();
-            foreach (var item in chiTietDeThiHoanVis)
-            {
-                if (item.DapAn != null)
-                    listDapAn.Add((int)item.DapAn);
-            }
+            List<int> listDapAn = await _chiTietBaiThiService.SelectBy_MaDe_DapAn(maDeHv);
 
             // Lưu vào cache
             await cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(120));

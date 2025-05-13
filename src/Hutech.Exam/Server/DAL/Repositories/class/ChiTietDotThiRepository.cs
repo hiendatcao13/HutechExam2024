@@ -18,7 +18,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<IDataReader> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, string lan_thi)
+        public async Task<IDataReader> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, int lan_thi)
         {
             DatabaseReader sql = new("chi_tiet_dot_thi_SelectBy_MaDotThi_MaLopAo_LanThi");
             sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
@@ -37,7 +37,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             DatabaseReader sql = new("chi_tiet_dot_thi_GetAll");
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<object?> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        public async Task<object?> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
             DatabaseReader sql = new("chi_tiet_dot_thi_Insert");
             sql.SqlParams("@ten_chi_tiet_dot_thi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
@@ -46,7 +46,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@lan_thi", SqlDbType.NVarChar, lan_thi);
             return await sql.ExecuteScalarAsync();
         }
-        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, string lan_thi)
+        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
             DatabaseReader sql = new("chi_tiet_dot_thi_Update");
             sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);

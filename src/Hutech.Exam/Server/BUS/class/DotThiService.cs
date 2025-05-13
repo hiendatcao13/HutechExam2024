@@ -6,35 +6,33 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class DotThiService
+    public class DotThiService(IDotThiRepository dotThiRepository, IMapper mapper)
     {
-        private readonly IDotThiRepository _dotThiRepository;
-        private readonly IMapper _mapper;
-        public DotThiService(IDotThiRepository dotThiRepository, IMapper mapper)
-        {
-            _dotThiRepository = dotThiRepository;
-            _mapper = mapper;
-        }
-        private DotThiDto getProperty(IDataReader dataReader)
+        private readonly IDotThiRepository _dotThiRepository = dotThiRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng DotThi
+
+        public DotThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
             DotThi dotThi = new()
             {
-                MaDotThi = dataReader.GetInt32(0),
-                TenDotThi = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
-                ThoiGianBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2),
-                ThoiGianKetThuc = dataReader.IsDBNull(3) ? null : dataReader.GetDateTime(3),
-                NamHoc = dataReader.IsDBNull(4) ? null : dataReader.GetInt32(4)
+                MaDotThi = dataReader.GetInt32(0 + start),
+                TenDotThi = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                ThoiGianBatDau = dataReader.IsDBNull(2 + start) ? null : dataReader.GetDateTime(2 + start),
+                ThoiGianKetThuc = dataReader.IsDBNull(3 + start) ? null : dataReader.GetDateTime(3 + start),
+                NamHoc = dataReader.IsDBNull(4 + start) ? null : dataReader.GetInt32(4 + start)
             };
             return _mapper.Map<DotThiDto>(dotThi);
         }
         public async Task<List<DotThiDto>> GetAll()
         {
-            List<DotThiDto> result = new();
+            List<DotThiDto> result = [];
             using (IDataReader dataReader = await _dotThiRepository.GetAll())
             {
                 while (dataReader.Read())
                 {
-                    DotThiDto dotThi = getProperty(dataReader);
+                    DotThiDto dotThi = GetProperty(dataReader);
                     result.Add(dotThi);
                 }
             }
@@ -47,7 +45,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    dotThi = getProperty(dataReader);
+                    dotThi = GetProperty(dataReader);
                 }
             }
             return dotThi;

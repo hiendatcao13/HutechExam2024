@@ -6,24 +6,22 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class DeThiHoanViService
+    public class DeThiHoanViService(IDeThiHoanViRepository deThiHoanViRepository, IMapper mapper)
     {
-        private readonly IDeThiHoanViRepository _deThiHoanViRepository;
-        private readonly IMapper _mapper;
-        public DeThiHoanViService(IDeThiHoanViRepository deThiHoanViRepository, IMapper mapper)
-        {
-            _deThiHoanViRepository = deThiHoanViRepository;
-            _mapper = mapper;
-        }
-        private DeThiHoanViDto getProperty(IDataReader dataReader)
+        private readonly IDeThiHoanViRepository _deThiHoanViRepository = deThiHoanViRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng DeThiHoanVi
+
+        public DeThiHoanViDto GetProperty(IDataReader dataReader, int start = 0)
         {
             DeThiHoanVi deThiHoanVi = new()
             {
-                MaDeHv = dataReader.GetInt64(0),
-                MaDeThi = dataReader.GetInt32(1),
-                KyHieuDe = dataReader.IsDBNull(2) ? null : dataReader.GetString(2),
-                NgayTao = dataReader.GetDateTime(3),
-                Guid = dataReader.IsDBNull(4) ? null : dataReader.GetGuid(4)
+                MaDeHv = dataReader.GetInt64(0 + start),
+                MaDeThi = dataReader.GetInt32(1 + start),
+                KyHieuDe = dataReader.IsDBNull(2 + start) ? null : dataReader.GetString(2 + start),
+                NgayTao = dataReader.GetDateTime(3 + start),
+                Guid = dataReader.IsDBNull(4 + start) ? null : dataReader.GetGuid(4 + start)
             };
             return _mapper.Map<DeThiHoanViDto>(deThiHoanVi);
         }
@@ -49,9 +47,9 @@ namespace Hutech.Exam.Server.BUS
             {
                 while (dataReader.Read())
                 {
-                    DeThiHoanViDto deThiHoanVi = getProperty(dataReader);
+                    DeThiHoanViDto deThiHoanVi = GetProperty(dataReader);
                     deThiHoanVi.MaDeThiNavigation = new();
-                    deThiHoanVis.Add(getProperty(dataReader));
+                    deThiHoanVis.Add(GetProperty(dataReader));
                 }
                 
             }

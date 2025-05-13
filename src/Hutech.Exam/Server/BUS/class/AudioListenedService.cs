@@ -7,23 +7,21 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class AudioListenedService
+    public class AudioListenedService(IAudioListenedRepository audioListenedRepository, IMapper mapper)
     {
-        private readonly IAudioListenedRepository _audioListenedRepository;
-        private readonly IMapper _mapper;
-        public AudioListenedService(IAudioListenedRepository audioListenedRepository, IMapper mapper)
-        {
-            _audioListenedRepository = audioListenedRepository;
-            _mapper = mapper;
-        }
-        private AudioListenedDto getProperty(IDataReader dataReader)
+        private readonly IAudioListenedRepository _audioListenedRepository = audioListenedRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 4; // số lượng cột trong bảng AudioListened
+
+        public AudioListenedDto GetProperty(IDataReader dataReader, int start = 0)
         {
             AudioListened audioListened = new()
             {
-                ListenId = dataReader.GetInt64(0),
-                MaChiTietCaThi = dataReader.GetInt32(1),
-                FileName = dataReader.GetString(2),
-                ListenedCount = dataReader.GetInt32(3)
+                ListenId = dataReader.GetInt64(0 + start),
+                MaChiTietCaThi = dataReader.GetInt32(1 + start),
+                FileName = dataReader.GetString(2 + start),
+                ListenedCount = dataReader.GetInt32(3 + start)
             };
             return _mapper.Map<AudioListenedDto>(audioListened);
         }

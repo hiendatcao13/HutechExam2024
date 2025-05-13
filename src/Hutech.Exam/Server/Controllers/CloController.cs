@@ -8,13 +8,9 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CloController : Controller
+    public class CloController(CloService cloService) : Controller
     {
-        private readonly CloService _cloService;
-        public CloController(CloService cloService)
-        {
-            _cloService = cloService;
-        }
+        private readonly CloService _cloService = cloService;
 
         [HttpGet("SelectOne")]
         public async Task<ActionResult<CloDto>> SelectOne([FromQuery] int ma_clo)

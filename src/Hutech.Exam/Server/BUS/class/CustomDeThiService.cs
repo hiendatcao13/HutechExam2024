@@ -6,26 +6,25 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class CustomDeThiService
+    public class CustomDeThiService(ICustomRepository customRepository)
     {
-        private readonly ICustomRepository _customRepository;
-        public CustomDeThiService(ICustomRepository customRepository)
+        private readonly ICustomRepository _customRepository = customRepository;
+
+        public CustomDeThi GetProperty(IDataReader dataReader, int start = 0)
         {
-            _customRepository = customRepository;
-        }
-        private CustomDeThi GetProperty(IDataReader dataReader)
-        {
-            CustomDeThi customDeThi = new();
-            customDeThi.MaNhom = dataReader.GetInt32(0);
-            customDeThi.MaCauHoi = dataReader.GetInt32(1);
-            customDeThi.MaNhomCha = dataReader.GetInt32(2);
-            customDeThi.MaSoCLO = dataReader.IsDBNull(3) ? null : dataReader.GetString(3);
-            customDeThi.NoiDungCauHoiNhomCha = dataReader.IsDBNull(4) ? null : dataReader.GetString(4);
-            customDeThi.NoiDungCauHoiNhom = dataReader.IsDBNull(5) ? null : dataReader.GetString(5);
-            customDeThi.NoiDungCauHoi = dataReader.IsDBNull(6) ? null : dataReader.GetString(6);
-            customDeThi.KieuNoiDungCauHoi = dataReader.GetInt32(7);
-            string? ma_dap_an_gop = dataReader.IsDBNull(8) ? null : dataReader.GetString(8);
-            string? noi_dung_dap_an_gop = dataReader.IsDBNull(9) ? null : dataReader.GetString(9);
+            CustomDeThi customDeThi = new()
+            {
+                MaNhom = dataReader.GetInt32(0 + start),
+                MaCauHoi = dataReader.GetInt32(1 + start),
+                MaNhomCha = dataReader.GetInt32(2 + start),
+                MaSoCLO = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
+                NoiDungCauHoiNhomCha = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
+                NoiDungCauHoiNhom = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
+                NoiDungCauHoi = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
+                KieuNoiDungCauHoi = dataReader.GetInt32(7 + start)
+            };
+            string? ma_dap_an_gop = dataReader.IsDBNull(8 + start) ? null : dataReader.GetString(8 + start);
+            string? noi_dung_dap_an_gop = dataReader.IsDBNull(9 + start) ? null : dataReader.GetString(9 + start);
             customDeThi.CauTraLois = HandleDapAnGop(ma_dap_an_gop, noi_dung_dap_an_gop);
             return customDeThi;
         }

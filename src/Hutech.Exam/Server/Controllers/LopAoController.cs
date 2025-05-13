@@ -8,13 +8,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class LopAoController : Controller
+    public class LopAoController(LopAoService lopAoService) : Controller
     {
-        private readonly LopAoService _lopAoService;
-        public LopAoController(LopAoService lopAoService)
-        {
-            _lopAoService = lopAoService;
-        }
+        private readonly LopAoService _lopAoService = lopAoService;
+
         [HttpGet("SelectOne")]
         public async Task<ActionResult<LopAoDto>> SelectOne([FromQuery] int ma_lop_ao)
         {

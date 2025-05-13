@@ -2,19 +2,17 @@
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CauTraLoiController : Controller
+    public class CauTraLoiController(CauTraLoiService cauTraLoiService) : Controller
     {
-        private readonly CauTraLoiService _cauTraLoiService;
-        public CauTraLoiController(CauTraLoiService cauTraLoiService)
-        {
-            _cauTraLoiService = cauTraLoiService;
-        }
+        private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
+
         [HttpGet("SelectOne")]
         public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromQuery] int ma_cau_tra_loi)
         {

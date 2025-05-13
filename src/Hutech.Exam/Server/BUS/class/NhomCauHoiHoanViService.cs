@@ -6,25 +6,22 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class NhomCauHoiHoanViService
+    public class NhomCauHoiHoanViService(INhomCauHoiHoanViRepository nhomCauHoiHoanViRepository, IMapper mapper)
     {
-        private readonly INhomCauHoiHoanViRepository _nhomCauHoiHoanViRepository;
-        private readonly IMapper _mapper;
-        public NhomCauHoiHoanViService(INhomCauHoiHoanViRepository nhomCauHoiHoanViRepository, IMapper mapper)
+        private readonly INhomCauHoiHoanViRepository _nhomCauHoiHoanViRepository = nhomCauHoiHoanViRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 3; // số lượng cột trong bảng NhomCauHoiHoanVi
+        public NhomCauHoiHoanViDto GetProperty(IDataReader dataReader, int start = 0)
         {
-            _nhomCauHoiHoanViRepository = nhomCauHoiHoanViRepository;
-            _mapper = mapper;
+            NhomCauHoiHoanVi nhomCauHoiHoanVi = new()
+            {
+                MaDeHv = dataReader.GetInt64(0 + start),
+                MaNhom = dataReader.GetInt32(1 + start),
+                ThuTu = dataReader.GetInt32(2 + start)
+            };
+            return _mapper.Map<NhomCauHoiHoanViDto>(nhomCauHoiHoanVi);
         }
-        //private NhomCauHoiHoanViDto getProperty(IDataReader dataReader, TblDeThiHoanVi deThiHoanVi)
-        //{
-        //    TblNhomCauHoiHoanVi nhomCauHoiHoanVi = new TblNhomCauHoiHoanVi();
-        //    nhomCauHoiHoanVi.MaDeHv = dataReader.GetInt64(0);
-        //    nhomCauHoiHoanVi.MaNhom = dataReader.GetInt32(1);
-        //    nhomCauHoiHoanVi.ThuTu = dataReader.GetInt32(2);
-        //    // có trường đặc biệt MaDeNavigation - là đối tượng Mã đề hoán vị
-        //    nhomCauHoiHoanVi.MaDeHvNavigation = deThiHoanVi;
-        //    return _mapper.Map<NhomCauHoiHoanViDto>(nhomCauHoiHoanVi);
-        //}
         //public TblNhomCauHoiHoanVi SelectOne(long ma_de_hoan_vi, int ma_nhom)
         //{
         //    TblNhomCauHoiHoanVi nhomCauHoiHoanVi = new TblNhomCauHoiHoanVi();

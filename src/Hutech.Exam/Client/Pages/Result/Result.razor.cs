@@ -15,6 +15,7 @@ using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http.Connections;
+using AutoMapper;
 
 namespace Hutech.Exam.Client.Pages.Result
 {
@@ -25,6 +26,7 @@ namespace Hutech.Exam.Client.Pages.Result
         [Inject] private StudentHubService StudentHub { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private NavigationManager Nav { get; set; } = default!;
+        [Inject] private IMapper Mapper { get; set; } = default!;
         private Canvas2DContext? Context { get; set; }
         protected BECanvasComponent? CanvasReference { get; set; }
 

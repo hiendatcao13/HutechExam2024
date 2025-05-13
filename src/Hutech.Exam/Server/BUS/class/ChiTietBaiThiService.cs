@@ -1,37 +1,33 @@
 ﻿using AutoMapper;
-using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class ChiTietBaiThiService
+    public class ChiTietBaiThiService(IChiTietBaiThiRepository chiTietBaiThiRepository, IMapper mapper)
     {
-        private readonly IChiTietBaiThiRepository _chiTietBaiThiRepository;
-        private readonly IMapper _mapper;
-        public ChiTietBaiThiService(IChiTietBaiThiRepository chiTietBaiThiRepository, IMapper mapper)
-        {
-            _chiTietBaiThiRepository = chiTietBaiThiRepository;
-            _mapper = mapper;
-        }
-        private ChiTietBaiThiDto getProperty(IDataReader dataReader)
+        private readonly IChiTietBaiThiRepository _chiTietBaiThiRepository = chiTietBaiThiRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 11; // số lượng cột trong bảng ChiTietBaiThi
+
+        public ChiTietBaiThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
             ChiTietBaiThi chiTietBaiThi = new()
             {
-                MaChiTietBaiThi = dataReader.GetInt64(0),
-                MaChiTietCaThi = dataReader.GetInt32(1),
-                MaDeHv = dataReader.GetInt64(2),
-                MaNhom = dataReader.GetInt32(3),
-                MaClo = dataReader.GetInt32(4),
-                MaCauHoi = dataReader.GetInt32(5),
-                CauTraLoi = dataReader.IsDBNull(6) ? null : dataReader.GetInt32(6),
-                NgayTao = dataReader.GetDateTime(7),
-                NgayCapNhat = dataReader.IsDBNull(8) ? null : dataReader.GetDateTime(8),
-                KetQua = dataReader.IsDBNull(9) ? null : dataReader.GetBoolean(9),
-                ThuTu = dataReader.GetInt32(10)
+                MaChiTietBaiThi = dataReader.GetInt64(0 + start),
+                MaChiTietCaThi = dataReader.GetInt32(1 + start),
+                MaDeHv = dataReader.GetInt64(2 + start),
+                MaNhom = dataReader.GetInt32(3 + start),
+                MaClo = dataReader.GetInt32(4 + start),
+                MaCauHoi = dataReader.GetInt32(5 + start),
+                CauTraLoi = dataReader.IsDBNull(6 + start) ? null : dataReader.GetInt32(6 + start),
+                NgayTao = dataReader.GetDateTime(7 + start),
+                NgayCapNhat = dataReader.IsDBNull(8 + start) ? null : dataReader.GetDateTime(8 + start),
+                KetQua = dataReader.IsDBNull(9 + start) ? null : dataReader.GetBoolean(9 + start),
+                ThuTu = dataReader.GetInt32(10 + start)
             };
             return _mapper.Map<ChiTietBaiThiDto>(chiTietBaiThi);
         }
@@ -57,40 +53,23 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<List<ChiTietBaiThiDto>> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
-            List<ChiTietBaiThiDto> result = new();
+            List<ChiTietBaiThiDto> result = [];
             using (IDataReader dataReader = await _chiTietBaiThiRepository.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi))
             {
                 while (dataReader.Read())
                 {
-                    ChiTietBaiThiDto chiTietBaiThi = getProperty(dataReader);
+                    ChiTietBaiThiDto chiTietBaiThi = GetProperty(dataReader);
                     result.Add(chiTietBaiThi);
                 }
             }
             return result;
 
         }
-        //public async Task InsertChiTietBaiThis_SelectByChiTietDeThiHV(List<CustomDeThi>? customDeThis, int ma_chi_tiet_ca_thi, long ma_de_hoan_vi)
-        //{
-        //    int stt = 0;
-        //    if (customDeThis == null)
-        //        return;
-        //    foreach (var item in customDeThis)
-        //    {
-        //        await Insert(ma_chi_tiet_ca_thi, ma_de_hoan_vi, item.MaNhom, item.MaCauHoi, item.MaClo, DateTime.Now, ++stt);
-        //    }
-        //}
-        //public async Task UpdateChiTietBaiThis(List<ChiTietBaiThiDto> chiTietBaiThis)
-        //{
-        //    foreach (var item in chiTietBaiThis)
-        //    {
-        //        if (item.CauTraLoi != null && item.KetQua != null)
-        //        {
-        //            var chiTiet = await this.SelectOne_v2(item.MaChiTietCaThi, item.MaDeHv, item.MaNhom, item.MaCauHoi);
-        //            long ma_chi_tiet_bai_thi = chiTiet.MaChiTietBaiThi;
-        //            await Update(ma_chi_tiet_bai_thi, (int)item.CauTraLoi, DateTime.Now, (bool)item.KetQua);
-        //        }
-        //    }
-        //}
+        public async Task<List<int>> DaThi(int ma_chi_tiet_ca_thi)
+        {
+            string result = await _chiTietBaiThiRepository.DaThi(ma_chi_tiet_ca_thi);
+            return result.Split(";;;").Select(int.Parse).ToList();
+        }
         public async Task<int> Delete(long ma_chi_tiet_bai_thi)
         {
             return await _chiTietBaiThiRepository.Delete(ma_chi_tiet_bai_thi);
@@ -102,10 +81,22 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    chiTietBaiThi = getProperty(dataReader);
+                    chiTietBaiThi = GetProperty(dataReader);
                 }
             }
             return chiTietBaiThi;
+        }
+        public async Task<List<int>> SelectBy_MaDe_DapAn(long maDeHV)
+        {
+            List<int> listDapAn = [];
+            using (IDataReader dataReader = await _chiTietBaiThiRepository.SelectBy_MaDe_DapAn(maDeHV))
+            {
+                while (dataReader.Read())
+                {
+                    listDapAn.Add(dataReader.GetInt32(0));
+                }
+            }
+            return listDapAn;
         }
     }
 }

@@ -7,22 +7,20 @@ using System.Data.Common;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class MonHocService
+    public class MonHocService(IMonHocRepository monHocRepository, IMapper mapper)
     {
-        private readonly IMonHocRepository _monHocRepository;
-        private readonly IMapper _mapper;
-        public MonHocService(IMonHocRepository monHocRepository, IMapper mapper)
-        {
-            _monHocRepository = monHocRepository;
-            _mapper = mapper;
-        }
-        private MonHocDto getProperty(IDataReader dataReader)
+        private readonly IMonHocRepository _monHocRepository = monHocRepository;
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 3; // số lượng cột trong bảng MonHoc
+
+        public MonHocDto GetProperty(IDataReader dataReader, int start = 0)
         {
             MonHoc monHoc = new()
             {
-                MaMonHoc = dataReader.GetInt32(0),
-                MaSoMonHoc = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
-                TenMonHoc = dataReader.IsDBNull(2) ? null : dataReader.GetString(2)
+                MaMonHoc = dataReader.GetInt32(0 + start),
+                MaSoMonHoc = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                TenMonHoc = dataReader.IsDBNull(2 + start) ? null : dataReader.GetString(2 + start)
             };
             return _mapper.Map<MonHocDto>(monHoc);
         }
@@ -33,32 +31,19 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    monHoc = getProperty(dataReader);
+                    monHoc = GetProperty(dataReader);
                 }
             }
             return monHoc;
         }
-        //public List<MonHocDto> SelectBy_ListLopAo(List<LopAo> list)
-        //{
-        //    List<MonHocDto> result = new List<MonHocDto>();
-        //    foreach(var lopAo in list)
-        //    {
-        //        MonHocDto monHoc = this.SelectOne((int)lopAo.MaMonHoc);
-        //        if (!result.Contains(monHoc))
-        //        {
-        //            result.Add(monHoc);
-        //        }
-        //    }
-        //    return result;
-        //}
         public async Task<List<MonHocDto>> GetAll()
         {
-            List<MonHocDto> result = new();
+            List<MonHocDto> result = [];
             using (IDataReader dataReader = await _monHocRepository.GetAll())
             {
                 while (dataReader.Read())
                 {
-                    result.Add(getProperty(dataReader));
+                    result.Add(GetProperty(dataReader));
                 }
             }
             return result;

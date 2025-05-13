@@ -10,25 +10,20 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CauHoiController : Controller
+    public class CauHoiController(CauHoiService cauHoiService, CloService cloService, CauTraLoiService cauTraLoiService) : Controller
     {
-        private readonly CauHoiService _cauHoiService;
-        private readonly CloService _cloService;
-        private readonly CauTraLoiService _cauTraLoiService;
-        public CauHoiController(CauHoiService cauHoiService, CloService cloService, CauTraLoiService cauTraLoiService)
-        {
-            _cauHoiService = cauHoiService;
-            _cloService = cloService;
-            _cauTraLoiService = cauTraLoiService;
-        }
-        [HttpGet("SelectOne")]
-        public async Task<ActionResult<CauHoiDto>> SelectOne([FromQuery] int ma_cau_hoi)
-        {
-            var result = await _cauHoiService.SelectOne(ma_cau_hoi);
-            result.MaCloNavigation = await GetThongTinClo(result.MaClo);
-            result.CauTraLois = await GetThongTinCauTraLois(result.MaCauHoi);
-            return Ok(result);
-        }
+        private readonly CauHoiService _cauHoiService = cauHoiService;
+        private readonly CloService _cloService = cloService;
+        private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
+
+        //[HttpGet("SelectOne")]
+        //public async Task<ActionResult<CauHoiDto>> SelectOne([FromQuery] int ma_cau_hoi)
+        //{
+        //    var result = await _cauHoiService.SelectOne(ma_cau_hoi);
+        //    result.MaCloNavigation = await GetThongTinClo(result.MaClo);
+        //    result.CauTraLois = await GetThongTinCauTraLois(result.MaCauHoi);
+        //    return Ok(result);
+        //}
         [HttpPost("Insert")]
         public async Task<ActionResult<int>> Insert([FromBody] CauHoiRequest cauHoi)
         {
@@ -50,13 +45,7 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("SelectBy_MaNhom")]
         public async Task<ActionResult<List<CauHoiDto>>> SelectBy_MaNhom([FromQuery] int ma_nhom)
         {
-            var result = await _cauHoiService.SelectBy_MaNhom(ma_nhom);
-            foreach (var item in result)
-            {
-                item.MaCloNavigation = await GetThongTinClo(item.MaClo);
-                item.CauTraLois = await GetThongTinCauTraLois(item.MaCauHoi);
-            }
-            return Ok(result);
+            return Ok(await _cauHoiService.SelectBy_MaNhom(ma_nhom));
         }
 
 

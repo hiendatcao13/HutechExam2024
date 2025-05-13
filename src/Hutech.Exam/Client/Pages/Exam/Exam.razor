@@ -108,7 +108,7 @@
                                         <div class="txt_question">
                                             @if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
                                             {
-                                                <b>Câu hỏi @QuestionMask: </b>
+                                                <b>(@item.MaSoCLO) Câu hỏi @QuestionMask: </b>
                                                 List<string> latex = HandleLatex(item.NoiDungCauHoi);
                                                 foreach (var ctCauHoi in latex)
                                                 {

@@ -8,13 +8,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class DeThiController : Controller
+    public class DeThiController(DeThiService deThiService) : Controller
     {
-        private readonly DeThiService _deThiService;
-        public DeThiController(DeThiService deThiService)
-        {
-            _deThiService = deThiService;
-        }
+        private readonly DeThiService _deThiService = deThiService;
+
         [HttpGet("SelectOne")]
         public async Task<ActionResult<DeThiDto>> SelectOne([FromQuery]int ma_de_thi)
         {

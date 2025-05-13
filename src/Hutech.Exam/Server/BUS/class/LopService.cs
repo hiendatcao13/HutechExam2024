@@ -6,24 +6,21 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class LopService
+    public class LopService(ILopRepository lopRepository, IMapper mapper)
     {
-        private readonly ILopRepository _lopRepository;
-        private readonly IMapper _mapper;
-        public LopService(ILopRepository lopRepository, IMapper mapper)
-        {
-            _lopRepository = lopRepository;
-            _mapper = mapper;
-        }
+        private readonly ILopRepository _lopRepository = lopRepository;
+        private readonly IMapper _mapper = mapper;
 
-        private LopDto getProperty(IDataReader dataReader)
+        public static readonly int COLUMN_LENGTH = 4; // số lượng cột trong bảng Lop
+
+        public LopDto GetProperty(IDataReader dataReader, int start = 0)
         {
             Lop lop = new()
             {
-                MaLop = dataReader.GetInt32(0),
-                TenLop = dataReader.IsDBNull(1) ? null : dataReader.GetString(1),
-                NgayBatDau = dataReader.IsDBNull(2) ? null : dataReader.GetDateTime(2),
-                MaKhoa = dataReader.IsDBNull(3) ? null : dataReader.GetInt32(3)
+                MaLop = dataReader.GetInt32(0 + start),
+                TenLop = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                NgayBatDau = dataReader.IsDBNull(2 + start) ? null : dataReader.GetDateTime(2 + start),
+                MaKhoa = dataReader.IsDBNull(3 + start) ? null : dataReader.GetInt32(3 + start)
             };
             return _mapper.Map<LopDto>(lop);
         }
@@ -34,7 +31,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 if (dataReader.Read())
                 {
-                    lop = getProperty(dataReader);
+                    lop = GetProperty(dataReader);
                 }
             }
             return lop;

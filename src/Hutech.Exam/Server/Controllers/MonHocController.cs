@@ -8,13 +8,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class MonHocController : Controller
+    public class MonHocController(MonHocService monHocService) : Controller
     {
-        private readonly MonHocService _monHocService;
-        public MonHocController(MonHocService monHocService)
-        {
-            _monHocService = monHocService;
-        }
+        private readonly MonHocService _monHocService = monHocService;
+
         [HttpGet("SelectOne")]
         public async Task<ActionResult<MonHocDto>> SelectOne([FromQuery] int ma_mon_hoc)
         {

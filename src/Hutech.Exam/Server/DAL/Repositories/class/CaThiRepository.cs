@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.DAL.DataReader;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -22,14 +23,20 @@ namespace Hutech.Exam.Server.DAL.Repositories
             DatabaseReader sql = new("ca_thi_GetAll");
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<int> ca_thi_Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<int> Activate(int ma_ca_thi, bool IsActivated)
         {
             DatabaseReader sql = new("ca_thi_Activate");
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             sql.SqlParams("@IsActivated", SqlDbType.Bit, IsActivated);
             return await sql.ExecuteNonQueryAsync();
         }
-        public async Task<int> ca_thi_Ketthuc(int ma_ca_thi)
+        public async Task<int> HuyKichHoat(int ma_ca_thi)
+        {
+            DatabaseReader sql = new("ca_thi_InActive");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            return await sql.ExecuteNonQueryAsync();
+        }
+        public async Task<int> Ketthuc(int ma_ca_thi)
         {
             DatabaseReader sql = new("ca_thi_Ketthuc");
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
@@ -61,6 +68,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             sql.SqlParams("@ThoiGianThi", SqlDbType.Int, thoi_gian_thi);
             return await sql.ExecuteNonQueryAsync();
+        }
+        public async Task<IDataReader> SelectBy_MaDotThi_MaLop_LanThi(int ma_dot_thi, int ma_lop, int lan_thi)
+        {
+            DatabaseReader sql = new("ca_thi_SelectBy_MaDotThi_MaLop_LanThi");
+            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+            sql.SqlParams("@lan_thi", SqlDbType.Int, lan_thi);
+            return await sql.ExecuteReaderAsync();
         }
     }
 }

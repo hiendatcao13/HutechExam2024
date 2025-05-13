@@ -7,7 +7,7 @@
 
         <MudGrid>
             <MudItem xs="6">
-                <MudTextField Label="MSSV" @bind-Value="MSSV" OnBlur="OnBlurMSSV" OnKeyDown="OnKeyDownMSSV" />
+                <MudTextField Label="MSSV" @bind-Value="MSSV" @onfocus="OnFocusMSSV"/>
             </MudItem>
 
             <MudItem xs="3">
@@ -39,7 +39,6 @@
             </MudItem>
         </MudGrid>
 
-        <MudText Typo="Typo.body1" Color="@(is_existMSSV ? Color.Success : Color.Error)">Check: @(is_existMSSV ? "Đã tìm thấy trong CSDL" : "Không tìm thấy trong CSDL")</MudText>
 
         <MudText Color="Color.Warning" Typo="Typo.caption">
             Lưu ý: Hãy chắc chắn rằng các mã đề hoán vị đã được tạo sẵn và sinh viên đã tồn tại trong bảng sinh viên trước khi đưa vào bảng ca thi.
@@ -53,7 +52,7 @@
         }
         else
         {
-            <MudButton Disabled Color="Color.Success">Lưu</MudButton>
+            <MudButton Color="Color.Info" OnClick="OnClickKiemTra">Kiểm tra</MudButton>
         }
     </DialogActions>
 </MudDialog>
@@ -81,12 +80,13 @@
     private string? tenSinhVien;
     private string? hoTenLot;
 
-
+    private const string NO_SV = "Không tìm thấy sinh viên nào với mã sinh viên này. Vui lòng kiểm tra lại";
+    private const string YES_SV = "Đã tìm thấy sinh viên trong dữ liệu. Vui lòng chọn lưu để thêm";
     private const string SUCCESS_ADDSV = "Thêm thí sinh thành công";
     private const string ALREADY_EXSIST_MSSV = "Mã thí sinh đã tồn tại trong ca thi. Vui lòng kiểm tra";
     private const string INVALID_MADETHI = "Vui lòng chọn mã đề";
 
-    private async Task OnBlurMSSV()
+    private async Task OnClickKiemTra()
     {
         if (MSSV != null && MSSV != "")
         {
@@ -103,11 +103,15 @@
             hoTenLot = sinhVien.HoVaTenLot;
             tenSinhVien = sinhVien.TenSinhVien;
             isMale = sinhVien.GioiTinh == 0 ? true : false;
+            Snackbar.Add(YES_SV, Severity.Success);
         }
         else
+        {
             is_existMSSV = false;
+            Snackbar.Add(NO_SV, Severity.Error);
+        }
     }
-    private void OnKeyDownMSSV()
+    private void OnFocusMSSV()
     {
         is_existMSSV = false;
         hoTenLot = tenSinhVien = "";

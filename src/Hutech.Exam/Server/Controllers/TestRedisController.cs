@@ -6,13 +6,9 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestRedisController : ControllerBase
+    public class TestRedisController(IResponseCacheService responseCacheService) : ControllerBase
     {
-        private readonly IResponseCacheService _responseCacheService;
-        public TestRedisController(IResponseCacheService responseCacheService)
-        {
-            _responseCacheService = responseCacheService;
-        }
+        private readonly IResponseCacheService _responseCacheService = responseCacheService;
 
         [HttpGet("Create")]
         public async Task<IActionResult> Create()

@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -21,11 +22,10 @@ namespace Hutech.Exam.Client.Pages.Info
             var response = await Http.PutAsync($"api/SinhVien/UpdateLogout", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             return response.IsSuccessStatusCode;
         }
-        private async Task<bool> UpdateBatDauThiAPI(ChiTietCaThiDto? chiTietCaThi)
+        private async Task<bool> UpdateBatDauThiAPI(ChiTietCaThiDto chiTietCaThi)
         {
-            if (chiTietCaThi != null)
-                chiTietCaThi.ThoiGianBatDau = DateTime.Now;
-            var jsonString = JsonSerializer.Serialize(chiTietCaThi);
+            chiTietCaThi.ThoiGianBatDau = DateTime.Now;
+            var jsonString = JsonSerializer.Serialize(Mapper.Map<ChiTietCaThiRequest>(chiTietCaThi));
             var response = await Http.PutAsync("api/ChiTietCaThi/UpdateBatDauThi", new StringContent(jsonString, Encoding.UTF8, "application/json"));
             return response.IsSuccessStatusCode;
         }

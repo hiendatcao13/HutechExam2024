@@ -98,6 +98,9 @@ namespace Hutech.Exam.Shared.Profiles
             // ánh xạ Request vs Dto ---------------------------------------------------------------------
             CreateMap<CauHoiRequest, CauHoiDto>();
             CreateMap<CauHoiDto, CauHoiRequest>();
+
+            CreateMap<ChiTietCaThiRequest, ChiTietCaThiDto>();
+            CreateMap<ChiTietCaThiDto, ChiTietCaThiRequest>();
         }
     }
 }

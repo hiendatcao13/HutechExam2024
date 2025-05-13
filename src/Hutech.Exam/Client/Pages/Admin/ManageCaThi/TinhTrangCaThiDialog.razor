@@ -23,7 +23,7 @@
                 <MudItem xs="2">
                     <MudText>Ca thi:</MudText>
                     <MudText>Thời lượng:</MudText>
-                    <MudText>@(caThi.KetThuc ? "Giờ kết thúc" : caThi.IsActivated ? "Giờ kích hoạt" : "Giờ hủy/dừng kích hoạt")</MudText>
+                    <MudText>@(caThi.KetThuc ? "Giờ kết thúc" : caThi.IsActivated ? "Giờ kích hoạt" : "Giờ hủy kích hoạt")</MudText>
                 </MudItem>
                 <MudItem xs="4" Style="font-weight: bold">
                     <MudText Class="content">@caThi?.TenCaThi</MudText>
@@ -71,11 +71,13 @@
 
     private const string UPDATE_SUCCESS_TINHTRANGCATHI = "Cập nhật tình trạng ca thi thành công";
     private const string UPDATE_FAILED_TINHTRANGCATHI = "Cập nhật tình trạng ca thi không thành công. Vui lòng kiểm tra lại";
-    private const string ALERT_HUYKICHHOATCATHI = "Hệ thống sẽ mất ít thời gian để xóa toàn bộ dữ liệu";
-    private const string ALERT_KETTHUCCATHI = "Ca thi không thể kết thúc khi có thí sinh chưa hoàn thành bài thi. Vui lòng hủy kích hoạt ca thi trước hoặc lỗi hệ thống";
+
+    private const string FAILED_KETTHUC_HUY = "Không thể kết thúc ca thi khi ca thi chưa được hủy kích hoạt. Vui lòng chọn hủy kích hoạt trước";
+    private const string ALERT_KETTHUCCATHI = "Hệ thống sẽ mất ít thời gian để xóa toàn bộ dữ liệu";
+
     private const string CONFIRM_KICHHOATCATHI = "Bạn có muốn kích hoạt ca thi?";
-    private const string CONFRIM_HUYKICHHOATCATHI = "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận đáp án mà tất cả sinh viên đã làm trong ca thi này. Nếu bạn chỉ muốn dừng tạm thời ca thi, hãy chọn \"Dừng ca thi\"";
-    private const string CONFRIM_KETTHUCCATHI = "Bạn có chắc chắn muốn kết thúc ca thi. Việc này sẽ không thể kích hoạt lại ca thi này nữa";
+    private const string CONFRIM_HUYKICHHOATCATHI = "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận phần bài làm mà tất cả sinh viên đã làm trong ca thi này nhưng điểm số vẫn giữ nguyên. Nếu bạn chỉ muốn dừng tạm thời ca thi, hãy chọn \"Dừng ca thi\"";
+    private const string CONFRIM_KETTHUCCATHI = "Bạn có chắc chắn muốn kết thúc ca thi. Việc này sẽ không thể kích hoạt lại ca thi này nữa. Toàn bộ phần bài làm của thí sinh sẽ bị xóa nhưng điểm vẫn được giữ";
     private const string CONFRIM_DUNGCATHI = "Bạn có chắc chắn muốn dừng ca thi. Việc này sẽ sẽ khiến toàn bộ sinh viên đang làm bài bị out ra tạm thời cho đến khi được kích hoạt trở lại";
 
     protected override void OnInitialized()
@@ -155,7 +157,6 @@
     {
         var json = JsonSerializer.Serialize(ma_ca_thi);
         var response = await Http.PutAsync($"api/CaThi/HuyKichHoatCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
-        Snackbar.Add(ALERT_HUYKICHHOATCATHI, MudBlazor.Severity.Info);
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
     }
     private async Task<bool> DungCaThiAPI(int ma_ca_thi)
@@ -166,6 +167,12 @@
     }
     private async Task<bool> KetThucCaThiAPI(int ma_ca_thi)
     {
+        if(caThi != null && caThi.IsActivated)
+        {
+            Snackbar.Add(FAILED_KETTHUC_HUY, Severity.Error);
+            return false;
+        }
+        Snackbar.Add(ALERT_KETTHUCCATHI, Severity.Warning);
         var json = JsonSerializer.Serialize(ma_ca_thi);
         var response = await Http.PutAsync($"api/CaThi/KetThucCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
@@ -179,7 +186,7 @@
             UpdateTrangThai();
         }
         else
-            Snackbar.Add(ALERT_KETTHUCCATHI, MudBlazor.Severity.Error);
+            Snackbar.Add(UPDATE_FAILED_TINHTRANGCATHI, MudBlazor.Severity.Error);
         return result;
     }
 }
