@@ -21,13 +21,13 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost("Insert")]
         public async Task<ActionResult<int>> Insert([FromBody] NhomCauHoiDto nhomCauHoi)
         {
-            var id = await _nhomCauHoiService.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha, nhomCauHoi.SoCauLay, nhomCauHoi.LaCauHoiNhom ?? false);
+            var id = await _nhomCauHoiService.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha, nhomCauHoi.SoCauLay, nhomCauHoi.LaCauHoiNhom ?? false);
             return Ok(id);
         }
         [HttpPut("Update")]
         public async Task<ActionResult> Update([FromBody] NhomCauHoiDto nhomCauHoi)
         {
-            await _nhomCauHoiService.Update(nhomCauHoi.MaNhom, nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha);
+            await _nhomCauHoiService.Update(nhomCauHoi.MaNhom, nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha);
             return Ok();
         }
         [HttpDelete("Remove")]

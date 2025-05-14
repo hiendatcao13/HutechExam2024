@@ -442,6 +442,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MaNhomCha).HasDefaultValueSql("((-1))");
             entity.Property(e => e.NoiDung).HasColumnType("ntext");
             entity.Property(e => e.SoCauLay).HasDefaultValueSql("((-1))");
+            entity.Property(e => e.KieuNoiDung).HasDefaultValueSql("((-1))");
             entity.Property(e => e.TenNhom).HasMaxLength(250);
 
             entity.HasOne(d => d.MaDeThiNavigation).WithMany(p => p.NhomCauHois)

@@ -90,3 +90,7 @@
 - Cập nhật primary constructor, globalexceptionmiddleware
 - tạo khuôn APIresponse<TData> và ExamPage
 - tạo script database
+--------------------------------------
+
+- cập nhật store procedure lấy đề (thêm số thứ tự)
+- thêm field kiểu nội dung cho nhóm câu hỏi (câu hỏi nhóm âm thanh, điền khuyết, nhóm thường)

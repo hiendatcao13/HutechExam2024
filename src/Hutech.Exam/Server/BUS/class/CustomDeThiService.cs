@@ -1,7 +1,5 @@
 ﻿using Hutech.Exam.Server.DAL.Repositories;
-using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
-using Hutech.Exam.Shared.Models;
 using System.Data;
 
 namespace Hutech.Exam.Server.BUS
@@ -21,16 +19,18 @@ namespace Hutech.Exam.Server.BUS
                 NoiDungCauHoiNhomCha = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
                 NoiDungCauHoiNhom = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
                 NoiDungCauHoi = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
-                KieuNoiDungCauHoi = dataReader.GetInt32(7 + start)
+                KieuNoiDungCauHoi = dataReader.GetInt32(7 + start),
+                KieuNoiDungCauHoiNhom = dataReader.GetInt32(8 + start),
             };
-            string? ma_dap_an_gop = dataReader.IsDBNull(8 + start) ? null : dataReader.GetString(8 + start);
-            string? noi_dung_dap_an_gop = dataReader.IsDBNull(9 + start) ? null : dataReader.GetString(9 + start);
+            string? ma_dap_an_gop = dataReader.IsDBNull(9 + start) ? null : dataReader.GetString(9 + start);
+            string? noi_dung_dap_an_gop = dataReader.IsDBNull(10 + start) ? null : dataReader.GetString(10 + start);
             customDeThi.CauTraLois = HandleDapAnGop(ma_dap_an_gop, noi_dung_dap_an_gop);
+            customDeThi.ThuTuCauHoi = dataReader.GetInt64(11 + start);
             return customDeThi;
         }
         private Dictionary<int, string?> HandleDapAnGop(string? ma_dap_an_gop, string? noi_dung_dap_an_gop)
         {
-            if(string.IsNullOrEmpty(ma_dap_an_gop) || string.IsNullOrEmpty(noi_dung_dap_an_gop))
+            if (string.IsNullOrEmpty(ma_dap_an_gop) || string.IsNullOrEmpty(noi_dung_dap_an_gop))
             {
                 return [];
             }

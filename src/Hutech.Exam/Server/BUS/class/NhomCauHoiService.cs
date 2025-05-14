@@ -20,23 +20,24 @@ namespace Hutech.Exam.Server.BUS
                 MaNhom = dataReader.GetInt32(0 + start),
                 MaDeThi = dataReader.GetInt32(1 + start),
                 TenNhom = dataReader.GetString(2 + start),
-                NoiDung = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
-                SoCauHoi = dataReader.GetInt32(4 + start),
-                HoanVi = dataReader.GetBoolean(5 + start),
-                ThuTu = dataReader.GetInt32(6 + start),
-                MaNhomCha = dataReader.GetInt32(7 + start),
-                SoCauLay = dataReader.GetInt32(8 + start),
-                LaCauHoiNhom = dataReader.IsDBNull(9 + start) ? null : dataReader.GetBoolean(9 + start)
+                KieuNoiDung = dataReader.GetInt32(3 + start),
+                NoiDung = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
+                SoCauHoi = dataReader.GetInt32(5 + start),
+                HoanVi = dataReader.GetBoolean(6 + start),
+                ThuTu = dataReader.GetInt32(7 + start),
+                MaNhomCha = dataReader.GetInt32(8 + start),
+                SoCauLay = dataReader.GetInt32(9 + start),
+                LaCauHoiNhom = dataReader.IsDBNull(10 + start) ? null : dataReader.GetBoolean(10 + start)
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
-        public async Task<int> Insert(int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom)
+        public async Task<int> Insert(int ma_de_thi, string ten_nhom, int kieu_noi_dung, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom)
         {
-            return Convert.ToInt32(await _nhomCauHoiRepository.Insert(ma_de_thi, ten_nhom, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha, so_cau_lay, la_cau_hoi_nhom) ?? -1);
+            return Convert.ToInt32(await _nhomCauHoiRepository.Insert(ma_de_thi, ten_nhom, kieu_noi_dung, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha, so_cau_lay, la_cau_hoi_nhom) ?? -1);
         }
-        public async Task<int> Update(int ma_nhom, int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha)
+        public async Task<int> Update(int ma_nhom, int ma_de_thi, string ten_nhom, int kieu_noi_dung, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha)
         {
-            return await _nhomCauHoiRepository.Update(ma_nhom, ma_de_thi, ten_nhom, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha);
+            return await _nhomCauHoiRepository.Update(ma_nhom, ma_de_thi, ten_nhom, kieu_noi_dung, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha);
         }
         public async Task<int> Remove(int ma_nhom)
         {

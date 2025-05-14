@@ -1,0 +1,8 @@
+Câu hỏi:
+	+ -1:	câu hỏi thường
+	+ 1:	câu hỏi nhiều đáp án
+	+ 2:	câu hỏi trả lời ngắn
+Nhóm câu hỏi:
+	+ -1:	nhóm câu hỏi bình thường
+	+ 1:	nhóm câu hỏi điền khuyết (không hoán vị)
+	+ 2:	nhóm câu hỏi âm thanh

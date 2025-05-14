@@ -183,6 +183,7 @@
     }
     private void HandleKieuNoiDungCauHoi()
     {
+        //TODO: Sửa lại mô hình nhóm câu hỏi và câu hỏi
         kieuNoiDungCauHoi.Add(-1, "Câu hỏi thường");
         if (NhomCauHoi != null && NhomCauHoi.LaCauHoiNhom == true)
         {
@@ -191,8 +192,8 @@
         }
         else
         {
-            kieuNoiDungCauHoi.Add(1, "Câu hỏi trả lời ngắn");
-            kieuNoiDungCauHoi.Add(2, "Câu hỏi nhiều lựa chọn");
+            kieuNoiDungCauHoi.Add(3, "Câu hỏi nhiều lựa chọn");
+            kieuNoiDungCauHoi.Add(4, "Câu hỏi trả lời ngắn");
         }
     }
     private async Task OnClickThem()

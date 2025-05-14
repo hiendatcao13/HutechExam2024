@@ -11,6 +11,8 @@ public partial class NhomCauHoi
 
     public string TenNhom { get; set; } = null!;
 
+    public int KieuNoiDung { get; set; }
+
     public string? NoiDung { get; set; }
 
     public int SoCauHoi { get; set; }

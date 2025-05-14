@@ -6,52 +6,6 @@
 
 <PageTitle>Exam Page</PageTitle>
 
-@* <MudGrid> *@
-@*     <MudItem xs="12" Class="heading"> *@
-@*         <MudImage Src="images/exam/Logo.svg" Width="200" style="margin-right: 20%;" /> *@
-@*         <MudText Typo="Typo.h5" Style="color: black;">Thời Gian: 88:99</MudText> *@
-@*         <MudButton Variant="Variant.Filled" Color="Color.Success" Style="margin-left: 5%;">Nộp Bài</MudButton> *@
-@*     </MudItem> *@
-@*     <MudItem xs="12" Style="padding-top: 30px"></MudItem> *@
-
-@*     <MudItem xs="10" Style="transform: scale(0.92); border: 1px solid"> *@
-@*         <!--Hiển thị nhóm cha--> *@
-@*         <MudText Typo="Typo.h5" Style="text-transform: uppercase;">Chương I: Nhóm thành phần</MudText> *@
-@*         <MudText Typo="Typo.h6">Questions 186-190 refer to the following letters.</MudText> *@
-@*         <MudText Typo="Typo.body1">What is the main purpose of the first letter?</MudText> *@
-@*         <MudRadioGroup T="string"> *@
-@*             <MudItem xs="6"> *@
-@*                 <MudRadio Value="@("option1")" Size="Size.Small"> *@
-@*                     <MudText Typo="Typo.subtitle1">To fix a mistake in the contract</MudText> *@
-@*                 </MudRadio> *@
-@*             </MudItem> *@
-@*             <MudItem xs="6"> *@
-@*                 <MudRadio Value="@("option2")" Size="Size.Small"> *@
-@*                     <MudText Typo="Typo.subtitle1">To complain about a bank service procedure</MudText> *@
-@*                 </MudRadio> *@
-@*             </MudItem> *@
-@*             <MudItem xs="6"> *@
-@*                 <MudRadio Value="@("option3")" Size="Size.Small"> *@
-@*                     <MudText Typo="Typo.subtitle1">To complain about one of a bank employee’s behavior</MudText> *@
-@*                 </MudRadio> *@
-@*             </MudItem> *@
-@*             <MudItem xs="6"> *@
-@*                 <MudRadio Value="@("option4")" Size="Size.Small"> *@
-@*                     <MudText Typo="Typo.subtitle1">Xin chào mọi người. Tôi tên là Đạt, tôi đến từ thành phố Hồ Chí Minh và rất hân hạnh được gặp mọi người</MudText> *@
-@*                 </MudRadio> *@
-@*             </MudItem> *@
-@*         </MudRadioGroup> *@
-@*     </MudItem> *@
-@*     <MudItem xs="2" Style="border: 1px solid; transform: scale(0.9)"> *@
-@*         <MudImage Src="images/exam/Ellipse 1.svg" Width="150" /> *@
-@*         <MudText Typo="Typo.body2">Tên: Cao Hiển Đạt</MudText> *@
-@*         <MudText Typo="Typo.body2">Mã sinh viên: 2180608276</MudText> *@
-@*         <MudText Typo="Typo.body2">Môn thi: Tiếng Anh tổng hợp</MudText> *@
-@*         <MudText Typo="Typo.body2">Mã đề: 007</MudText> *@
-@*     </MudItem> *@
-
-@* </MudGrid> *@
-
 
 <MudPaper Elevation="4" Class="pa-4" Style="background-color: #f9f9f9;">
 	<!-- Header Section -->
@@ -60,124 +14,156 @@
 			<MudImage Src="images/exam/Logo.svg" Width="150" />
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-center">
-			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b>88:99</b></MudText>
+			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b>@displayTime</b></MudText>
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-end">
-			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Large">Nộp Bài</MudButton>
+			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" OnClick="async () => await OnClickNopBai()">Nộp Bài</MudButton>
 		</MudItem>
 	</MudGrid>
 
 	<MudGrid>
-		<!-- Main Content Area -->
 		<MudItem xs="12" md="9">
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
-				<MudText Typo="Typo.h5" GutterBottom="true" Style="text-transform: uppercase; color: #2e7d32;">
-					Chương I: Nhóm thành phần
-				</MudText>
-				<MudText Typo="Typo.subtitle1" GutterBottom="true">Questions 186-190 refer to the following letters.</MudText>
-				<MudText Typo="Typo.body1" GutterBottom="true">
-					What is the main purpose of the first letter?
-				</MudText>
+				@if (customDeThis != null)
+				{
+					foreach (var item in customDeThis)
+					{
+						<MudText>@current_ma_nhom_cha + heloooooo + @item.MaNhomCha</MudText>
+						//Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
+						if (current_ma_nhom_cha != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
+						{
+							current_ma_nhom_cha = item.MaNhomCha;
+							<MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
+								<NoiDungFragment NoiDung="@item.NoiDungCauHoiNhomCha.ToUpper()" isNoiDungCha="true" />
+							</MudText>
+						}
 
-				<MudRadioGroup T="string" Class="mt-2">
-					<MudItem xs="12" sm="6">
-						<MudRadio Value=@("option1")>To fix a mistake in the contract</MudRadio>
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudRadio Value=@("option2")>To complain about a bank service procedure</MudRadio>
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudRadio Value=@("option3")>To complain about one of a bank employee’s behavior</MudRadio>
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudRadio Value=@("option4")>
-							Xin chào mọi người. Tôi tên là Đạt, tôi đến từ thành phố Hồ Chí Minh và rất hân hạnh
-							được gặp mọi người, làm việc với mọi người thật sự rất vui
-						</MudRadio>
-					</MudItem>
-				</MudRadioGroup>
+						//Hiển thị nội dung câu hỏi nhóm con cấp 2
+						if (current_ma_nhom != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
+						{
+							current_ma_nhom = item.MaNhom;
 
+							// xử lí câu hỏi âm thanh
+							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && isDisableAudio != null && item.GhiChu != null)
+							{
+								string audio_source = HandleAudioSource(item.NoiDungCauHoiNhom);
+								string text_before = HandleBeforeAudio(item, item.NoiDungCauHoiNhom, ma_audio);
+								string id = $"audio{ma_audio}";
+								<p>@((MarkupString)(text_before))</p>
+								<span>
+									<audio id=@id controls controlsList="nodownload" @onplay="async () => await OnPlayAudio(item, ma_audio, audio_source, id)">
+										<source src="@audio_source" />
+									</audio>
+									@((MarkupString)(item.GhiChu))
+								</span>
+								ma_audio++;
+							}
+							else
+							{
+								<MudText Typo="Typo.subtitle1" GutterBottom="true">
+									<b><NoiDungFragment NoiDung="@item.NoiDungCauHoiNhom" /></b>
+								</MudText>
+							}
+						}
 
+						//Hiển thị nội dung câu hỏi
+						if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
+						{
+							<MudText Typo="Typo.body1" GutterBottom="true">
+								<b>Câu hỏi @(item.ThuTuCauHoi): <NoiDungFragment NoiDung="@item.NoiDungCauHoi" /></b>
+							</MudText>
+						}
 
-				<!--Câu trả lời nhiều lựa chọn-->
-				<MudText Typo="Typo.body1" GutterBottom="true">
-					What is the main purpose of the first letter?
-				</MudText>
-				<MudGrid>
-					<MudItem xs="12" sm="6">
-						<MudCheckBox Value=false Label="To complain about a bank service procedure" />
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudCheckBox Value=false Label="To complain about a bank service procedure" />
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudCheckBox Value=false Label ="To complain about one of a bank employee’s behavior" />
-					</MudItem>
-					<MudItem xs="12" sm="6">
-						<MudCheckBox Value=false Label="Xin chào mọi người. Tôi tên là Đạt, tôi đến từ TP.HCM..." />
-					</MudItem>
-				</MudGrid>
+						// Hiển thị nội dung câu trả lời
+						@if (item.CauTraLois != null)
+						{
+							int stt = 0;
+							// xử lí câu trả lời nhiều đáp án
+							if (item.KieuNoiDungCauHoi == 1)
+							{
+								<MudGrid>
+									@foreach (var noidung in item.CauTraLois)
+									{
+										<MudItem xs="12" sm="6" Style="padding-top: 15px">
+											<MudCheckBox Value=false>@alphabet[stt++]. <NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudCheckBox>
+										</MudItem>
+									}
+								</MudGrid>
+							}
 
-				<!--Câu trả lời điền vào chỗ trống-->
-				<MudText Typo="Typo.body1" GutterBottom="true">
-					What is the main purpose of the first letter?
-				</MudText>
-				<MudItem xs="10" sm="7">
-					<MudTextField Value=@("hello") Label="Điền vào chỗ trống" Variant="Variant.Outlined"/>
-				</MudItem>
+							// xử lí câu trả lời ngắn
+							else if (item.KieuNoiDungCauHoi == 2)
+							{
+								<MudItem xs="10" sm="7">
+									<MudTextField Value=@("hello") Label="Điền vào chỗ trống" Variant="Variant.Outlined" />
+								</MudItem>
+							}
+
+							// xử lí câu trả lời truyền thống
+							else
+							{
+								<MudRadioGroup T="string" Class="mt-2" Style="padding-bottom: 10px">
+									@foreach (var noidung in item.CauTraLois)
+									{
+										<MudItem xs="12" sm="6">
+											<MudRadio Value=@("option1")>@alphabet[stt++]. <NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
+										</MudItem>
+									}
+								</MudRadioGroup>
+
+							}
+						}
+					}
+				}
 			</MudPaper>
 		</MudItem>
 
 		<!-- Sidebar Info -->
 		<MudItem xs="12" md="3">
-			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc;">
+			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
 				<MudImage Src="images/exam/Ellipse 1.svg" Width="120" Class="mb-2" />
 				<MudDivider Class="mb-2" />
-				<MudText Typo="Typo.subtitle2"><b>Tên:</b> Cao Hiển Đạt</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> 2180608276</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> Tiếng Anh tổng hợp</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> 007</MudText>
-
+				<MudText Typo="Typo.subtitle2"><b>Tên:</b> @sinhVien?.HoVaTenLot @sinhVien?.TenSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @sinhVien?.MaSoSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @caThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @chiTietCaThi?.MaDeThi?.ToString("D3")</MudText>
+			</MudPaper>
+			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 5%">
 				<MudText Typo="Typo.subtitle2" Class="mb-2"><b>Danh sách câu hỏi</b></MudText>
 				<MudGrid>
-					@for (int i = 0; i < 40; i++)
-					{
-						<MudItem xs="3">
-							<MudButton Size="Size.Small"
-									   Variant="@(selectedQuestion == i ? Variant.Filled : Variant.Outlined)"
-									   Color="@(selectedQuestion == i ? Color.Primary : Color.Default)"
-									   OnClick="@(() => ScrollToQuestion(i))">
-								@(i + 1)
-							</MudButton>
-						</MudItem>
+					@{
+						int totalQuestions = customDeThis?.Count ?? 0;
+						for (int i = 0; i < totalQuestions; i++)
+						{
+							int stt = i + 1;
+							<MudItem xs="3" md="3" Style="transform: scale(0.85)">
+								<MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Default">
+									@(stt)
+								</MudButton>
+							</MudItem>
+						}
 					}
 				</MudGrid>
-			</MudPaper>
-		</MudItem>
-		<MudItem xs="12" md="3">
-			<MudPaper Class="pa-4 mt-2" Style="border: 1px solid #ccc;">
-
 			</MudPaper>
 		</MudItem>
 	</MudGrid>
 </MudPaper>
 
+<script src="js/exam.js" type="text/javascript"></script>
+
 <style>
-	.answer {
-		display: grid;
-		grid-template-columns: auto auto;
+	.nhomCauHoiCha {
+		border: 1px solid;
+		background-color: antiquewhite;
+		border-radius: 5px;
+		padding: 5px;
 	}
 </style>
 
-
 @code {
-	[Inject] private IJSRuntime JS { get; set; }
-	private ElementReference[] questionRefs = new ElementReference[10];
-	private int selectedQuestion = 0;
+	int current_ma_nhom_cha = -1;
+	int current_ma_nhom = 0;
 
-	private async Task ScrollToQuestion(int index)
-	{
-		selectedQuestion = index;
-		await JS.InvokeVoidAsync("scrollToElement", $"question-{index}");
-	}
+	// TODO: cần xử lí audio lại
+	int ma_audio = 0;
 }
