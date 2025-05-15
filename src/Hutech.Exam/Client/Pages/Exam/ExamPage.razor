@@ -1,8 +1,7 @@
 ﻿@page "/test"
-@* @implements IDisposable *@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@* @attribute [Authorize] *@
+@attribute [Authorize]
 
 <PageTitle>Exam Page</PageTitle>
 
@@ -26,9 +25,12 @@
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
 				@if (customDeThis != null)
 				{
+					int current_ma_nhom_cha = -1;
+					int current_ma_nhom = 0;
+					int ma_audio = 0;
+
 					foreach (var item in customDeThis)
 					{
-						<MudText>@current_ma_nhom_cha + heloooooo + @item.MaNhomCha</MudText>
 						//Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
 						if (current_ma_nhom_cha != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
 						{
@@ -160,10 +162,21 @@
 	}
 </style>
 
-@code {
-	int current_ma_nhom_cha = -1;
-	int current_ma_nhom = 0;
+<script>
+		window.focusWatcher = {
+		init: function (dotNetHelper) {
+			document.addEventListener('visibilitychange', function () {
+				if (document.hidden) {
+					// Khi người dùng rời khỏi tab
+					dotNetHelper.invokeMethodAsync('OnFocusLost');
+				}
+			});
 
-	// TODO: cần xử lí audio lại
-	int ma_audio = 0;
-}
+			window.addEventListener('blur', function () {
+				// Khi mất focus khỏi cửa sổ
+				dotNetHelper.invokeMethodAsync('OnFocusLost');
+			});
+		}
+	};
+</script>
+

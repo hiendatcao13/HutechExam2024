@@ -126,7 +126,7 @@ namespace Hutech.Exam.Client.Pages.Info
                 //await UpdateBatDauThiAPI(selectedCTCaThi);
                 MyData.ChiTietCaThi = selectedCTCaThi;
             }    
-            Nav?.NavigateTo("/test");
+            Nav.NavigateTo("/test");
         }
         private async Task Start()
         {

@@ -1,0 +1,64 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@implements IDisposable
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudText>Bạn đã rời khỏi trang thi, hãy quay lại trang thi để tiếp tục làm bài. Nếu không quay lại trong <strong style="color: red">@giay</strong> giây, hệ thống sẽ tự động nộp bài.</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    int giay = 20;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StartCountdown();
+    }
+    private async Task StartCountdown()
+    {
+        try
+        {
+            while (giay > 0)
+            {
+                await Task.Delay(1000, _cts.Token);
+                giay--;
+                StateHasChanged();
+            }
+
+            if (giay <= 0)
+            {
+                MudDialog?.Close(DialogResult.Ok(true)); // người dùng đã out 20 giây
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Người dùng đã quay lại hoặc thoát dialog
+        }
+    }
+    private void OnClickThoat()
+    {
+        _cts.Cancel(); // Ngừng đếm
+        MudDialog?.Cancel();
+    }
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

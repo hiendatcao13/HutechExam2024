@@ -1,5 +1,4 @@
 ﻿using AspNetCoreRateLimit;
-using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
 using Hutech.Exam.Server.Middleware;
@@ -16,7 +15,7 @@ var app = builder.Build();
 
 //Khởi chạy RabbitMQ
 var scope = app.Services.CreateScope();
-var consumeService = scope.ServiceProvider.GetRequiredService<RabbitMqCTBTService>();
+var consumeService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
 //if (consumeService != null)
 //{
 //    Task.Run(() => consumeService.ConsumeMessages());
@@ -54,7 +53,9 @@ static void Configure(WebApplication app)
     app.MapRazorPages();
     app.MapControllers();
     app.MapFallbackToFile("index.html");
-    app.MapHub<MainHub>("/MainHub");
+
+    app.MapHub<AdminHub>("/adminhub");
+    app.MapHub<SinhVienHub>("/sinhvienhub");
 
     app.Run();
 }

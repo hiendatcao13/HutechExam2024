@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -86,14 +87,17 @@ namespace Hutech.Exam.Server.BUS
             }
             return chiTietBaiThi;
         }
-        public async Task<List<int>> SelectBy_MaDe_DapAn(long maDeHV)
+
+
+
+        public List<int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest> listChiTietBaiThi)
         {
             List<int> listDapAn = [];
-            using (IDataReader dataReader = await _chiTietBaiThiRepository.SelectBy_MaDe_DapAn(maDeHV))
+            foreach (var chiTietBaiThi in listChiTietBaiThi)
             {
-                while (dataReader.Read())
+                if (chiTietBaiThi.CauTraLoi != null)
                 {
-                    listDapAn.Add(dataReader.GetInt32(0));
+                    listDapAn.Add((int)chiTietBaiThi.CauTraLoi);
                 }
             }
             return listDapAn;

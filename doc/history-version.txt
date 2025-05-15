@@ -91,6 +91,9 @@
 - tạo khuôn APIresponse<TData> và ExamPage
 - tạo script database
 --------------------------------------
-
+15/05/2025 6PM
 - cập nhật store procedure lấy đề (thêm số thứ tự)
 - thêm field kiểu nội dung cho nhóm câu hỏi (câu hỏi nhóm âm thanh, điền khuyết, nhóm thường)
+- sửa lại store của câu trả lời lấy đáp án
+- cấu hình lại redis, rabbitmq
+- sửa lại quy trình lưu bài thi

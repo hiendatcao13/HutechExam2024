@@ -7,9 +7,10 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
+    [Authorize]
     public class ConnectionIdController(IConnectionMultiplexer redis) : Controller
     {
+        
         private readonly IDatabase _redisDb = redis.GetDatabase();
 
         [HttpPut("SetConnectionId")]
@@ -28,7 +29,6 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
         [HttpGet("GetConnectionId")]
-        [Authorize]
         public async Task<IActionResult> GetConnectionIdAsync([FromQuery]long ma_sinh_vien)
         {
             try

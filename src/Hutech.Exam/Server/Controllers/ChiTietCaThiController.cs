@@ -12,10 +12,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<MainHub> mainHub) : Controller
+    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> mainHub) : Controller
     {
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
-        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
         [HttpPost("Insert")]
         public async Task<ActionResult> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)

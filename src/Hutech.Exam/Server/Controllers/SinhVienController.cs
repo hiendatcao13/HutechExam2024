@@ -15,10 +15,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SinhVienController(SinhVienService sinhVienService, IHubContext<MainHub> mainHub, IConnectionMultiplexer redis) : Controller
+    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> mainHub, IConnectionMultiplexer redis) : Controller
     {
         private readonly SinhVienService _sinhVienService = sinhVienService;
-        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _mainHub = mainHub;
         private readonly IDatabase _redisDb = redis.GetDatabase();
 
 

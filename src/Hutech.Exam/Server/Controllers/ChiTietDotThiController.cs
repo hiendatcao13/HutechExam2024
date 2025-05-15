@@ -12,12 +12,12 @@ namespace Hutech.Exam.Server.Controllers
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class ChiTietDotThiController(ChiTietDotThiService chiTietDotThiService, LopAoService lopAoService,
-        MonHocService monHocService, IHubContext<MainHub> mainHub) : Controller
+        MonHocService monHocService, IHubContext<AdminHub> mainHub) : Controller
     {
         private readonly ChiTietDotThiService _chiTietDotThiService = chiTietDotThiService;
         private readonly LopAoService _lopAoService = lopAoService;
         private readonly MonHocService _monHocService = monHocService;
-        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
         [HttpGet("SelectOne")]
         public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromQuery] int ma_chi_tiet_dot_thi)

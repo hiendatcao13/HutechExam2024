@@ -1,23 +1,12 @@
-﻿using Hutech.Exam.Shared.Models;
+﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO.Request;
 using Microsoft.AspNetCore.SignalR;
+using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Hubs
 {
-    public class MainHub : Hub
+    public class AdminHub : Hub
     {
-        //Note: DotThi, CTDotThi ngoài có NotifyChange thì có NotifyDelete
-
-
-        // hub cho thí sinh tham gia và rời tham gia nhóm "student"
-        public async Task JoinGroupMaCaThi(int ma_ca_thi)
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, ma_ca_thi + "");
-        }
-        public async Task LeaveGroupMaCaThi(int ma_ca_thi)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, ma_ca_thi + "");
-        }
-
         // hub cho admin tham gia và rời tham gia nhóm "admin"
         public async Task JoinGroupAdmin()
         {
@@ -28,10 +17,6 @@ namespace Hutech.Exam.Server.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "admin");
         }
 
-        public string GetConnectionId()
-        {
-            return Context.ConnectionId;
-        }
 
         // các thông điệp được minh họa tại đây vì nó được gọi trực tiếp
 

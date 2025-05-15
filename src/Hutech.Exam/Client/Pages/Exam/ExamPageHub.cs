@@ -27,7 +27,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             //tham gia vào group mã ca thi
             await hubConnection.InvokeAsync("JoinGroupMaCaThi", caThi?.MaCaThi ?? -1);
         }
-        private bool IsConnectHub() => hubConnection?.State == HubConnectionState.Connected;
 
         private async Task HandleDangXuat()
         {

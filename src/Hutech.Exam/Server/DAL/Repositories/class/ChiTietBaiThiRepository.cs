@@ -83,12 +83,6 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaCauHoi", SqlDbType.Int, ma_cau_hoi);
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<IDataReader> SelectBy_MaDe_DapAn(long maDeHV)
-        {
-            DatabaseReader sql = new("chi_tiet_bai_thi_SelectBy_MaDe_DapAn");
-            sql.SqlParams("@MaDeHV", SqlDbType.BigInt, maDeHV);
-            return await sql.ExecuteReaderAsync();
-        }
         public async Task<string> DaThi(int ma_chi_tiet_ca_thi)
         {
             DatabaseReader sql = new("chi_tiet_bai_thi_DaThi");

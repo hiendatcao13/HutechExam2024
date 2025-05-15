@@ -2,8 +2,6 @@
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Configurations;
 using Hutech.Exam.Server.DAL.Repositories;
-using Hutech.Exam.Server.Hubs;
-using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Installers
@@ -24,6 +22,8 @@ namespace Hutech.Exam.Server.Installers
             services.AddStackExchangeRedisCache(option => option.Configuration = redisConfiguarion.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
 
+            //cấu hình RabbitMQ trong appsettings.json
+            services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQConfiguration"));
         }
     }
 }

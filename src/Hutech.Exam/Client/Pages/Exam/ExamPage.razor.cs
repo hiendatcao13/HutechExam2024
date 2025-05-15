@@ -21,13 +21,13 @@ namespace Hutech.Exam.Client.Pages.Exam
         [Inject] AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] NavigationManager Nav { get; set; } = default!;
         [Inject] IJSRuntime Js { get; set; } = default!;
+        private DotNetObjectReference<ExamPage> objRef = default!;
 
         SinhVienDto? sinhVien = new();
         CaThiDto? caThi = new();
         System.Timers.Timer? timer;
         string? displayTime;
         HubConnection? hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
-        bool is_pause = false; // cập nhật trạng thái dừng ca thi của thí sinh
         List<bool>? isDisableAudio = [];
         List<CustomDeThi>? customDeThis = [];
         List<int>? cau_da_chons_tagA = [];// lưu vết các đáp án đã khoanh trước đó cho tag Answer button
@@ -75,9 +75,15 @@ namespace Hutech.Exam.Client.Pages.Exam
             else
                 Nav?.NavigateTo("/");
             await CheckPage();
-            // chế độ focus page
-            Js?.InvokeVoidAsync("focusPage", DotNetObjectReference.Create(this));
             await base.OnInitializedAsync();
+        }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                objRef = DotNetObjectReference.Create(this);
+                await Js.InvokeVoidAsync("focusWatcher.init", objRef);
+            }
         }
 
         private async Task Start()
@@ -88,7 +94,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             await ModifyNhomCauHoi();
 
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
-            if (MyData.ChiTietCaThi != null && MyData.ChiTietCaThi.DaThi)
+            if (MyData.ChiTietCaThi.DaThi)
             {
                 await GetBaiThi_DaThi();
                 ProcessTiepTucThi();
@@ -275,7 +281,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            timer?.Dispose();
         }
     }
 }

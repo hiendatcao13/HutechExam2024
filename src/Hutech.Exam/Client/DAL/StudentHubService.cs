@@ -3,19 +3,14 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Text.Json;
 using System.Text;
-using static System.Net.WebRequestMethods;
+using Hutech.Exam.Shared.DTO.Request;
 
 namespace Hutech.Exam.Client.DAL
 {
-    public class StudentHubService : IAsyncDisposable
+    public class StudentHubService(IServiceProvider serviceProvider) : IAsyncDisposable
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
         private HubConnection? hubConnection;
-
-        public StudentHubService(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
 
         public async Task<HubConnection> GetConnectionAsync(long ma_sinh_vien)
         {
@@ -23,7 +18,7 @@ namespace Hutech.Exam.Client.DAL
             if (hubConnection == null)
             {
                 hubConnection = new HubConnectionBuilder()
-                    .WithUrl(nav.ToAbsoluteUri("/MainHub"), options =>
+                    .WithUrl(nav.ToAbsoluteUri("/sinhvienhub"), options =>
                     {
                         options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
                     })
@@ -38,33 +33,27 @@ namespace Hutech.Exam.Client.DAL
 
                 await hubConnection.StartAsync();
 
-                // set ConnectionId vào Redis
-                var connectionId = await GetConnectionId();
-                if (connectionId != null)
-                    await SetConnectionIdAPI(connectionId, ma_sinh_vien);
+                // set ConnectionId vào Redis của server
+                await hubConnection.InvokeAsync("SetConnectionId", ma_sinh_vien);
             }
 
             return hubConnection;
         }
-        private async Task<string?> GetConnectionId()
+        public async Task SendMessageChiTietBaiThi(ChiTietBaiThiRequest chiTietBaiThi)
         {
-            if(hubConnection != null)
-                return await hubConnection.InvokeAsync<string>("GetConnectionId");
-            return null;
-        }
-
-        private async Task SetConnectionIdAPI(string ConnectionId, long ma_sinh_vien)
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var http = scope.ServiceProvider.GetRequiredService<HttpClient>();
-
-            var data = new
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                ConnectionId,
-                MaSinhVien = ma_sinh_vien
-            };
-            var jsonString = JsonSerializer.Serialize(data);
-            await http.PutAsync("api/ConnectionId/SetConnectionId", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+                var messageJson = JsonSerializer.Serialize(chiTietBaiThi);
+                var messageBytes = Encoding.UTF8.GetBytes(messageJson);
+                await hubConnection.SendAsync("StudentSelectDapAn", messageBytes);
+            }
+        }
+        public async Task RequestChiTietBaiThi()
+        {
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("RequestChiTietBaiThi");
+            }
         }
         public async ValueTask DisposeAsync()
         {

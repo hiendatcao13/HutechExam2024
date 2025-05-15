@@ -21,7 +21,7 @@ namespace Hutech.Exam.Client.DAL
             if (hubConnection == null)
             {
                 hubConnection = new HubConnectionBuilder()
-                    .WithUrl(nav.ToAbsoluteUri("/MainHub"), options =>
+                    .WithUrl(nav.ToAbsoluteUri("/adminhub"), options =>
                     {
                         options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
                     })

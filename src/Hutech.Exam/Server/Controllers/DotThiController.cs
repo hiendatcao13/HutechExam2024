@@ -10,10 +10,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class DotThiController(DotThiService dotThiService, IHubContext<MainHub> mainHub) : Controller
+    public class DotThiController(DotThiService dotThiService, IHubContext<AdminHub> mainHub) : Controller
     {
         private readonly DotThiService _dotThiService = dotThiService;
-        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<DotThiDto>>> GetAll()

@@ -13,7 +13,6 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public Task<IDataReader> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi);
         public Task<int> Delete(long ma_chi_tiet_bai_thi);
         public Task<IDataReader> SelectOne_v2(int ma_chi_tiet_ca_thi, long ma_de_hv, int ma_nhom, int ma_cau_hoi);
-        public Task<IDataReader> SelectBy_MaDe_DapAn(long maDeHV);
         public Task<string> DaThi(int ma_chi_tiet_ca_thi);
     }
 }

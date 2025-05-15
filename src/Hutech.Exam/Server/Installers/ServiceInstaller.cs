@@ -35,7 +35,10 @@ namespace Hutech.Exam.Server.Installers
 
 
             //sử dụng RabbitMQ
-            services.AddScoped<RabbitMqCTBTService>();
+            services.AddScoped<RabbitMQService>();
+
+            //sử dụng Redis
+            services.AddScoped<RedisService>();
 
         }
     }

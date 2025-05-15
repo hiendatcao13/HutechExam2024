@@ -2,7 +2,6 @@
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO;
 using MudBlazor;
-using static System.Net.WebRequestMethods;
 using System.Text.Json;
 using System.Text;
 using System.Net.Http.Json;

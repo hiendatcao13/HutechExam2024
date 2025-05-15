@@ -12,10 +12,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CaThiController(CaThiService caThiService, IHubContext<MainHub> mainHub) : Controller
+    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> mainHub) : Controller
     {
         private readonly CaThiService _caThiService = caThiService;
-        private readonly IHubContext<MainHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
         [HttpGet("IsActiveCaThi")]
         [Authorize]

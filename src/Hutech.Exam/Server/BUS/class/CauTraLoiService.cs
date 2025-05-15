@@ -52,5 +52,17 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
+        public async Task<List<int>> SelectBy_MaDeHV_DapAn(long ma_de_hv)
+        {
+            List<int> result = [];
+            using (IDataReader dataReader = await _cauTraLoiRepository.SelectBy_MaDeHV_DapAn(ma_de_hv))
+            {
+                if (dataReader.Read())
+                {
+                    result = dataReader.GetString(0).Split(";;;").Select(int.Parse).ToList();
+                }
+            }
+            return result;
+        }
     }
 }
