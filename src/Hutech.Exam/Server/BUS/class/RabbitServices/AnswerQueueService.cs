@@ -17,9 +17,8 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
                 {
                     await base.InitializeAsync(); // Ensure initialization if channel is not available
                 }
-                else
+                if (_channel != null)
                 {
-
                     await _channel.BasicPublishAsync(exchange: "",
                                                      routingKey: _queueName,
                                                      body: message);
@@ -42,28 +41,36 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
                 {
                     await base.InitializeAsync(); // Ensure initialization if channel is not available
                 }
-                else
+                if (_channel != null)
                 {
+                    //await _channel.BasicQosAsync(0, 10, false); // Fair dispatch
                     var consumer = new AsyncEventingBasicConsumer(_channel);
 
                     consumer.ReceivedAsync += async (model, ea) =>
                     {
                         if (cancellationToken.IsCancellationRequested) return;
 
-                        var body = ea.Body.ToArray();
-
-                        if (body != null)
+                        try
                         {
-                            await ProcessMessageAsync(body);
-                        }
+                            var body = ea.Body.ToArray();
 
-                        // Acknowledge the message after processing
-                        await _channel.BasicAckAsync(ea.DeliveryTag, false);
+                            if (body != null)
+                            {
+                                await ProcessMessageAsync(body);
+                            }
+
+                            // Acknowledge the message after successful processing
+                            await _channel.BasicAckAsync(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the error and Nack the message to requeue it
+                            Console.Error.WriteLine($"Error processing message: {ex.Message}");
+                            await _channel.BasicNackAsync(ea.DeliveryTag, false, true); // requeue = true
+                        }
                     };
 
-                    await _channel.BasicConsumeAsync(queue: _queueName,
-                                                     autoAck: false,
-                                                     consumer: consumer);
+                    await _channel.BasicConsumeAsync(queue: _queueName, autoAck: false, consumer: consumer, cancellationToken: cancellationToken);
 
                     // Keep consuming messages until cancellation is requested
                     await Task.Delay(Timeout.Infinite, cancellationToken);
@@ -74,7 +81,6 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
             {
                 // Log error and rethrow or handle accordingly
                 Console.Error.WriteLine($"Error during message consumption: {ex.Message}");
-                throw;
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿
 using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.BUS.RabbitServices;
 
 namespace Hutech.Exam.Server.Installers
 {
@@ -35,7 +36,8 @@ namespace Hutech.Exam.Server.Installers
 
 
             //sử dụng RabbitMQ
-            services.AddScoped<RabbitMQService>();
+            services.AddScoped<AnswerQueueService>();
+            services.AddScoped<SubmitQueueService>();
 
             //sử dụng Redis
             services.AddScoped<RedisService>();

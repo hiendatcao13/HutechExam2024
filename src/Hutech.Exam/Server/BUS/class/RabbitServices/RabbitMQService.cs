@@ -40,6 +40,7 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
                                              autoDelete: false,
                                              arguments: null);
         }
+        // Liên kết queue với exchange thông qua routing key
         public abstract Task PublishMessageAsync(byte[] message);
         public abstract Task ConsumeMessagesAsync(CancellationToken cancellationToken);
         public async ValueTask DisposeAsync()

@@ -1,4 +1,5 @@
 ﻿using AspNetCoreRateLimit;
+using Hutech.Exam.Server.BUS.RabbitServices;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
 using Hutech.Exam.Server.Middleware;
@@ -14,8 +15,9 @@ ConfigureServices(builder.Services, builder.Configuration);
 var app = builder.Build();
 
 //Khởi chạy RabbitMQ
-var scope = app.Services.CreateScope();
-var consumeService = scope.ServiceProvider.GetRequiredService<RabbitMQService>();
+//var scope = app.Services.CreateScope();
+//var consumeService = scope.ServiceProvider.GetRequiredService<AnswerQueueService>();
+//var submitService = scope.ServiceProvider.GetRequiredService<SubmitQueueService>();
 //if (consumeService != null)
 //{
 //    Task.Run(() => consumeService.ConsumeMessages());
@@ -37,6 +39,19 @@ static void Configure(WebApplication app)
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
+
+    // Lấy CancellationToken khi ứng dụng dừng lại
+    var lifetime = app.Lifetime;
+    var cancellationToken = new CancellationTokenSource();
+
+    // Tạo scope để giải quyết dịch vụ scoped
+    var scope = app.Services.CreateScope();
+    var consumeService = scope.ServiceProvider.GetRequiredService<AnswerQueueService>();
+    if (consumeService != null)
+    {
+        Task.Run(() => consumeService.ConsumeMessagesAsync(cancellationToken.Token));
+    }
+
 
     app.UseResponseCompression();
     app.UseHttpsRedirection();

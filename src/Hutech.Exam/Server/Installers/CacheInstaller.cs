@@ -1,7 +1,7 @@
 ﻿
 using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.BUS.@class;
 using Hutech.Exam.Server.Configurations;
-using Hutech.Exam.Server.DAL.Repositories;
 using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Installers

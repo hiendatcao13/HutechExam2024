@@ -10,10 +10,11 @@ using Hutech.Exam.Client.Authentication;
 using MudBlazor;
 using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
+using Hutech.Exam.Shared.Models;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
-    public partial class ExamPage : IDisposable
+    public partial class ExamPage : IAsyncDisposable
     {
         [Inject] HttpClient Http { get; set; } = default!;
         [Inject] ApplicationDataService MyData { get; set; } = default!;
@@ -33,12 +34,26 @@ namespace Hutech.Exam.Client.Pages.Exam
         List<int>? cau_da_chons_tagA = [];// lưu vết các đáp án đã khoanh trước đó cho tag Answer button
         readonly string[] alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
 
-        static ChiTietCaThiDto? chiTietCaThi = new();
+        ChiTietCaThiDto chiTietCaThi = new();
+        List<ChiTietBaiThiUpdate> chiTietBaiThiUpdate = new(); // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
+
+
+
+        int so_thu_tu_tra_loi = 0; // thứ tự trả lời câu hỏi cho sv
+
+
+
+
+
+
         static List<ChiTietBaiThiRequest>? chiTietBaiThis = [];
         static List<ChiTietBaiThiRequest>? dsBaiThi_Update = []; // lưu ds các câu sv vừa mới trả lời về server
         static List<int>? cau_da_chons = []; // lưu vết các đáp án đã khoanh trước đó
         public static List<int>? listDapAn = [];// lưu vết các đáp án sinh viên chọn (public)
 
+
+        const int QUY_DINH_CAP_NHAT_DAP_AN = -1; // quy định được áp dụng vào thứ tự của chi tiết bài thi
+        const int QUY_DINH_XOA_DAP_AN = -2; // quy định được áp dụng vào thứ tự của chi tiết bài thi
 
         const int GIAY_CAP_NHAT = 10; // tự động lưu bài sau n giây (2p). Với bonus time, vui lòng chỉnh trang info (THOI_GIAN_TRUOC_THI) 
         const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
@@ -77,14 +92,14 @@ namespace Hutech.Exam.Client.Pages.Exam
             await CheckPage();
             await base.OnInitializedAsync();
         }
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                objRef = DotNetObjectReference.Create(this);
-                await Js.InvokeVoidAsync("focusWatcher.init", objRef);
-            }
-        }
+        //protected override async Task OnAfterRenderAsync(bool firstRender)
+        //{
+        //    if (firstRender)
+        //    {
+        //        objRef = DotNetObjectReference.Create(this);
+        //        await Js.InvokeVoidAsync("window.focusWatcher.init", objRef);
+        //    }
+        //}
 
         private async Task Start()
         {
@@ -212,52 +227,9 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
 
 
-        [JSInvokable]
-        public async Task KetThucThoiGianLamBai()
-        {
-            await UpdateChiTietBaiThiAPI();
 
-            if (chiTietBaiThis != null && listDapAn != null)
-            {
-                MyData.ChiTietBaiThis = chiTietBaiThis;
-                MyData.ListDapAnKhoanh = listDapAn;
-            }
-            Nav?.NavigateTo("/result");
-        }
-        [JSInvokable] // Đánh dấu hàm để có thể gọi từ JavaScript
-        public static Task<int> GetDapAnFromJavaScript(int vi_tri_cau_hoi, int ma_cau_tra_loi, int ma_nhom, int ma_cau_hoi)
-        {
-            // Xử lý giá trị được truyền từ JavaScript
-            if (listDapAn != null)
-                listDapAn.Add(ma_cau_tra_loi);
 
-            ChiTietBaiThiRequest? findChiTietBaiThi = chiTietBaiThis?.FirstOrDefault(p => p.MaNhom == ma_nhom && p.MaCauHoi == ma_cau_hoi);
-            ChiTietBaiThiRequest tempChiTietBaiThi = getPropertyCTBT(vi_tri_cau_hoi, ma_cau_tra_loi, ma_nhom, ma_cau_hoi);
-
-            // trường hợp thí sinh sửa đáp án của câu đã trả lời trước đó
-            if (findChiTietBaiThi != null && chiTietBaiThis != null)
-            {
-                findChiTietBaiThi.CauTraLoi = ma_cau_tra_loi;
-                //tempChiTietBaiThi.ThuTu = 0; // biến này để đánh dấu cho server biết câu này đã được insert, chỉ cần update
-            }
-            else
-                chiTietBaiThis?.Add(tempChiTietBaiThi);
-
-            // trường hợp sinh viên lại khoanh lại đáp án nhiều lần trong 1 lần lưu
-            ChiTietBaiThiRequest? chiTietBaiThi = dsBaiThi_Update?.FirstOrDefault(p => p.MaNhom == ma_nhom && p.MaCauHoi == ma_cau_hoi);
-            if (chiTietBaiThi != null)
-            {
-                chiTietBaiThi.CauTraLoi = ma_cau_tra_loi;
-            }
-            else
-            {
-                dsBaiThi_Update?.Add(tempChiTietBaiThi);
-            }
-
-            return Task.FromResult<int>(ma_cau_tra_loi);
-        }
-
-        private static ChiTietBaiThiRequest getPropertyCTBT(int vi_tri_cau_hoi, int ma_cau_tra_loi, int ma_nhom, int ma_cau_hoi)
+        private ChiTietBaiThiRequest GetPropertyCTBT(int vi_tri_cau_hoi, int ma_cau_tra_loi, int ma_nhom, int ma_cau_hoi)
         {
             ChiTietBaiThiRequest chiTietBaiThi = new();
             if (chiTietCaThi != null && chiTietCaThi.MaDeThi != null)
@@ -271,17 +243,72 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             return chiTietBaiThi;
         }
-
-
-
-
-
-
-
-
-        public void Dispose()
+        
+        private async Task OnClickDapAn(CustomDeThi deThi, int ma_cau_tra_loi)
         {
+            ChiTietBaiThiRequest chiTietBai;
+            var findChiTietBai = chiTietBaiThiUpdate.FirstOrDefault(p => p.MaCauHoi == deThi.MaCauHoi);
+            if(findChiTietBai == null)
+            {
+                chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++so_thu_tu_tra_loi);
+                chiTietBaiThiUpdate.Add(new ChiTietBaiThiUpdate(deThi.MaCauHoi, ma_cau_tra_loi, so_thu_tu_tra_loi, DateTime.Now));
+            }
+            else
+            {
+                chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, findChiTietBai.NgayTao, DateTime.Now, null, findChiTietBai.ThuTu);
+            }
+            //gửi bài cho server qua signalR
+            await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
+        }
+
+        //private async Task OnClickDapAnCheckBox(CustomDeThi deThi, int ma_cau_tra_loi, bool isChoose)
+        //{
+        //    ChiTietBaiThiRequest chiTietBai;
+        //    if(!isChoose)
+        //    {
+
+        //    }    
+
+
+        //    if (cau_tra_loi_da_chons.Contains(ma_cau_tra_loi))
+        //    {
+        //        //update câu trả lời
+        //        chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, DateTime.Now, null, QUY_DINH_CAP_NHAT_DAP_AN);
+        //    }
+        //    else
+        //    {
+        //        cau_tra_loi_da_chons.Add(ma_cau_tra_loi);
+        //        chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++so_thu_tu_tra_loi);
+        //    }
+        //}
+        //private async Task OnClickNhapDapAnFieldText()
+        //{
+        //}
+
+
+
+
+
+        public async ValueTask DisposeAsync()
+        {
+            await Js.InvokeVoidAsync("window.focusWatcher.dispose");
             timer?.Dispose();
+        }
+    }
+    //TODO: Nên xét theo dictionary cho nhanh thay vì List đổi lại DIctionary<mã câu hỏi, ChiTietBaiThiUpdate>
+    public class ChiTietBaiThiUpdate
+    {
+        public int MaCauHoi { get; set; }
+        public int CauTraLoi { get; set; }
+        public int ThuTu { get; set; }
+        public DateTime NgayTao { get; set; }
+
+        public ChiTietBaiThiUpdate(int maCauHoi, int cauTraLoi, int thuTu, DateTime ngayTao)
+        {
+            MaCauHoi = maCauHoi;
+            CauTraLoi = cauTraLoi;
+            ThuTu = thuTu;
+            NgayTao = ngayTao;
         }
     }
 }

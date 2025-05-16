@@ -101,6 +101,7 @@ namespace Hutech.Exam.Shared.Profiles
 
             CreateMap<ChiTietCaThiRequest, ChiTietCaThiDto>();
             CreateMap<ChiTietCaThiDto, ChiTietCaThiRequest>();
+
         }
     }
 }

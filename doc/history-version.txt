@@ -97,3 +97,8 @@
 - sửa lại store của câu trả lời lấy đáp án
 - cấu hình lại redis, rabbitmq
 - sửa lại quy trình lưu bài thi
+-----------------------------------------
+16/05/2025 6PM
+- đã thêm quy trình đẩy vào rabbitMQ và đẩy xuống RabbitMQ cho việc khoanh đáp án
+- tối ưu code
+- hiện tại đã giản lược bỏ lại cho câu hỏi multi, input (đang comment vì quy trình nghiệp vụ chưa đc)

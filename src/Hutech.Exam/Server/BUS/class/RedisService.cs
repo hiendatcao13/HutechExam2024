@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, CauTraLoiService cauTraLoiService, IResponseCacheService cacheService, ILogger logger)
+    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, CauTraLoiService cauTraLoiService, IResponseCacheService cacheService, ILogger<RedisService> logger)
     {
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
@@ -63,7 +63,7 @@ namespace Hutech.Exam.Server.BUS
                 var cacheKey = $"ChiTietBaiThi:{chiTietBaiThi.MaChiTietCaThi}";
 
                 // Lưu chuỗi JSON vào Redis với TTL 150 phút
-                await _cacheService.SetCacheResponseAsync(cacheKey, messageJson, TimeSpan.FromMinutes(150));
+                await _cacheService.SetHashAsync(cacheKey, chiTietBaiThi.MaCauHoi + "", messageJson, TimeSpan.FromMinutes(150));
             }
             catch (Exception ex)
             {
@@ -77,15 +77,16 @@ namespace Hutech.Exam.Server.BUS
             try
             {
                 var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
-                var chiTietBaiThiJson = await _cacheService.GetCacheResponseAsync(cacheKey);
+                var chiTietBaiThiJson = await _cacheService.GetAllFieldsFromHashAsync(cacheKey);
 
-                if (string.IsNullOrEmpty(chiTietBaiThiJson) || string.IsNullOrWhiteSpace(chiTietBaiThiJson))
+                if (chiTietBaiThiJson == null)
                 {
                     _logger.LogWarning("[Redis] No data found for key: {Key}", cacheKey);
                     return [];
                 }
 
-                var chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiRequest>>(chiTietBaiThiJson.ToString());
+                var data = chiTietBaiThiJson.Values.ToList(); // convert Dictionary<string, object> -> List<object>
+                var chiTietBaiThis = data.OfType<ChiTietBaiThiRequest>().ToList();
 
                 if (chiTietBaiThis == null || chiTietBaiThis.Count == 0)
                 {

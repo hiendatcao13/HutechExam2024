@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Hutech.Exam.Server.BUS.RabbitServices;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Hutech.Exam.Server.Controllers
 {

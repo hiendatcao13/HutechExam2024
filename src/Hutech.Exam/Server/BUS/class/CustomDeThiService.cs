@@ -15,17 +15,18 @@ namespace Hutech.Exam.Server.BUS
                 MaNhom = dataReader.GetInt32(0 + start),
                 MaCauHoi = dataReader.GetInt32(1 + start),
                 MaNhomCha = dataReader.GetInt32(2 + start),
-                MaSoCLO = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
-                NoiDungCauHoiNhomCha = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
-                NoiDungCauHoiNhom = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
-                NoiDungCauHoi = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
-                KieuNoiDungCauHoi = dataReader.GetInt32(7 + start),
-                KieuNoiDungCauHoiNhom = dataReader.GetInt32(8 + start),
+                MaCLO = dataReader.GetInt32(3 + start),
+                MaSoCLO = dataReader.IsDBNull(4 + start) ? null : dataReader.GetString(4 + start),
+                NoiDungCauHoiNhomCha = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
+                NoiDungCauHoiNhom = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
+                NoiDungCauHoi = dataReader.IsDBNull(7 + start) ? null : dataReader.GetString(7 + start),
+                KieuNoiDungCauHoi = dataReader.GetInt32(8 + start),
+                KieuNoiDungCauHoiNhom = dataReader.GetInt32(9 + start),
             };
-            string? ma_dap_an_gop = dataReader.IsDBNull(9 + start) ? null : dataReader.GetString(9 + start);
-            string? noi_dung_dap_an_gop = dataReader.IsDBNull(10 + start) ? null : dataReader.GetString(10 + start);
+            string? ma_dap_an_gop = dataReader.IsDBNull(10 + start) ? null : dataReader.GetString(10 + start);
+            string? noi_dung_dap_an_gop = dataReader.IsDBNull(11 + start) ? null : dataReader.GetString(11 + start);
             customDeThi.CauTraLois = HandleDapAnGop(ma_dap_an_gop, noi_dung_dap_an_gop);
-            customDeThi.ThuTuCauHoi = dataReader.GetInt64(11 + start);
+            customDeThi.ThuTuCauHoi = dataReader.GetInt64(12 + start);
             return customDeThi;
         }
         private Dictionary<int, string?> HandleDapAnGop(string? ma_dap_an_gop, string? noi_dung_dap_an_gop)

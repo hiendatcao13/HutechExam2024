@@ -13,6 +13,17 @@ namespace Hutech.Exam.Client.Pages.Exam
             {
                 foreach (var item in customDeThis)
                 {
+                    // thêm các chữ A,B,C,D vào nội dung câu trả lời
+                    if(item.CauTraLois != null)
+                    {
+                        int stt = 0;
+                        var keys = item.CauTraLois.Keys.ToList();
+                        foreach (var key in keys)
+                        {
+                            item.CauTraLois[key] = $"{alphabet[stt++]}. {item.CauTraLois[key]}";
+                        }
+                    }    
+                    
                     if (item.MaNhom != ma_nhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
                     {
                         ma_nhom = item.MaNhom;

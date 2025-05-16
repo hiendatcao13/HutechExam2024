@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System.Text.Json;
 using System.Text;
 using Hutech.Exam.Shared.DTO.Request;
+using AutoMapper;
 
 namespace Hutech.Exam.Client.DAL
 {
@@ -43,9 +44,10 @@ namespace Hutech.Exam.Client.DAL
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
+                // ánh xạ cho phần update
                 var messageJson = JsonSerializer.Serialize(chiTietBaiThi);
                 var messageBytes = Encoding.UTF8.GetBytes(messageJson);
-                await hubConnection.SendAsync("StudentSelectDapAn", messageBytes);
+                await hubConnection.SendAsync("SelectDapAn", messageBytes);
             }
         }
         public async Task RequestChiTietBaiThi()

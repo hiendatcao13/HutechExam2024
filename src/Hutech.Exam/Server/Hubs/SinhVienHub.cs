@@ -8,7 +8,7 @@ namespace Hutech.Exam.Server.Hubs
     public class SinhVienHub(RedisService redisService, AnswerQueueService rabbitMQService) : Hub
     {
         private readonly RedisService _redisService = redisService;
-        private readonly AnswerQueueService _rabbitMQService = rabbitMQService;
+        private readonly RabbitMQService _rabbitMQService = rabbitMQService;
 
 
         // cho thí sinh tham gia và rời tham gia nhóm theo mã ca thi - đóng băng ca thi

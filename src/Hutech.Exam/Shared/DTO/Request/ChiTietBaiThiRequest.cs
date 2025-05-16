@@ -15,7 +15,6 @@ namespace Hutech.Exam.Shared.DTO.Request
         public long MaDeHv { get; set; }
 
         public int MaNhom { get; set; }
-
         public int MaClo { get; set; }
 
         public int MaCauHoi { get; set; }
@@ -29,5 +28,21 @@ namespace Hutech.Exam.Shared.DTO.Request
         public bool? KetQua { get; set; }
 
         public int ThuTu { get; set; }
+
+        public ChiTietBaiThiRequest() { }
+        public ChiTietBaiThiRequest(long maChiTietBaiThi, int maChiTietCaThi, long maDeHv, int maNhom, int maClo, int maCauHoi, int? cauTraLoi, DateTime ngayTao, DateTime? ngayCapNhat, bool? ketQua, int thuTu)
+        {
+            MaChiTietBaiThi = maChiTietBaiThi;
+            MaChiTietCaThi = maChiTietCaThi;
+            MaDeHv = maDeHv;
+            MaNhom = maNhom;
+            MaClo = maClo;
+            MaCauHoi = maCauHoi;
+            CauTraLoi = cauTraLoi;
+            NgayTao = ngayTao;
+            NgayCapNhat = ngayCapNhat;
+            KetQua = ketQua;
+            ThuTu = thuTu;
+        }
     }
 }

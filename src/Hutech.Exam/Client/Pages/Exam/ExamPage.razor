@@ -104,11 +104,11 @@
 							// xử lí câu trả lời truyền thống
 							else
 							{
-								<MudRadioGroup T="string" Class="mt-2" Style="padding-bottom: 10px">
+								<MudRadioGroup T="int" Class="mt-2" Style="padding-bottom: 10px" ValueChanged="async (value) => await OnClickDapAn(item, value)">
 									@foreach (var noidung in item.CauTraLois)
 									{
 										<MudItem xs="12" sm="6">
-											<MudRadio Value=@("option1")>@alphabet[stt++]. <NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
+											<MudRadio T="int" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
 										</MudItem>
 									}
 								</MudRadioGroup>
@@ -163,20 +163,46 @@
 </style>
 
 <script>
-		window.focusWatcher = {
-		init: function (dotNetHelper) {
-			document.addEventListener('visibilitychange', function () {
-				if (document.hidden) {
-					// Khi người dùng rời khỏi tab
-					dotNetHelper.invokeMethodAsync('OnFocusLost');
-				}
-			});
+			window.focusWatcher = (function () {
+		let visibilityChangeHandler;
+		let blurHandler;
+		let dotNetHelperRef;
 
-			window.addEventListener('blur', function () {
-				// Khi mất focus khỏi cửa sổ
-				dotNetHelper.invokeMethodAsync('OnFocusLost');
-			});
-		}
-	};
+		return {
+			init: function (dotNetHelper) {
+				dotNetHelperRef = dotNetHelper;
+
+				visibilityChangeHandler = function () {
+					if (document.hidden) {
+						dotNetHelperRef.invokeMethodAsync('OnFocusLost');
+					}
+				};
+
+				blurHandler = function () {
+					dotNetHelperRef.invokeMethodAsync('OnFocusLost');
+				};
+
+				document.addEventListener('visibilitychange', visibilityChangeHandler);
+				window.addEventListener('blur', blurHandler);
+			},
+
+			dispose: function () {
+				if (visibilityChangeHandler) {
+					document.removeEventListener('visibilitychange', visibilityChangeHandler);
+				}
+				if (blurHandler) {
+					window.removeEventListener('blur', blurHandler);
+				}
+				if (dotNetHelperRef) {
+					dotNetHelperRef.dispose(); // rất quan trọng trong Blazor WASM
+				}
+
+				// Dọn dẹp biến
+				visibilityChangeHandler = null;
+				blurHandler = null;
+				dotNetHelperRef = null;
+			}
+		};
+	})();
 </script>
 
