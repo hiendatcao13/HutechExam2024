@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 namespace Hutech.Exam.Server.BUS.RabbitServices
 {
-    public class AnswerQueueService(IOptions<RabbitMQConfiguration> config, RedisService redisService) : RabbitMQService(config.Value.HostName, config.Value.QueueName)
+    public class AnswerQueueService(IOptions<RabbitMQConfiguration> config, RedisService redisService) : RabbitMQService(config.Value.UserName, config.Value.Password, config.Value.HostName, config.Value.QueueName)
     {
         private readonly RedisService _redisService = redisService;
 
@@ -85,9 +85,20 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
         }
 
 
-        private async Task ProcessMessageAsync(byte[] chiTietBaiThis)
+        public override async Task ProcessMessageAsync(byte[] message)
         {
-            await _redisService.SetChiTietBaiLamAsync(chiTietBaiThis);
+            try
+            {
+                await _redisService.SetChiTietBaiLamAsync(message);
+            }
+            catch(Exception ex)
+            {
+                // Log error and rethrow or handle accordingly
+                Console.Error.WriteLine($"Error processing message: {ex.Message}");
+                throw;
+            }
         }
+
+
     }
 }

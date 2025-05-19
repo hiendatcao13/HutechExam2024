@@ -19,6 +19,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ThuTu", SqlDbType.Int, ThuTu);
             return await sql.ExecuteScalarAsync();
         }
+        public async Task Insert_Batch(List<ChiTietBaiThiDto> chiTietBaiThis)
+        {
+            var dt = ChiTietBaiThiHelper.ToDataTable(chiTietBaiThis);
+            DatabaseReader sql = new("chi_tiet_bai_thi_Insert_Batch");
+            sql.SqlParams("@Data", SqlDbType.Structured, dt);
+            await sql.ExecuteNonQueryAsync();
+        }
         public async Task<int> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
         {
             DatabaseReader sql = new("chi_tiet_bai_thi_Update");

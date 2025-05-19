@@ -1,14 +1,18 @@
-﻿using Hutech.Exam.Shared.DTO.Request;
+﻿using AutoMapper;
+using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, CauTraLoiService cauTraLoiService, IResponseCacheService cacheService, ILogger<RedisService> logger)
+    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, CauTraLoiService cauTraLoiService, IResponseCacheService cacheService, ILogger<RedisService> logger, IMapper mapper)
     {
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
         private readonly IResponseCacheService _cacheService = cacheService;
+        private readonly IMapper _mapper = mapper;
 
         private readonly ILogger _logger = logger;
         public async Task SetConnectionIdAsync(long ma_sinh_vien, string connectionId)
@@ -72,7 +76,7 @@ namespace Hutech.Exam.Server.BUS
             }
         }
         // dành cho thí sinh tiếp tục thi khi bị treo máy
-        public async Task<List<int>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<int, int>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
         {
             try
             {
@@ -85,16 +89,18 @@ namespace Hutech.Exam.Server.BUS
                     return [];
                 }
 
-                var data = chiTietBaiThiJson.Values.ToList(); // convert Dictionary<string, object> -> List<object>
-                var chiTietBaiThis = data.OfType<ChiTietBaiThiRequest>().ToList();
+                var data = chiTietBaiThiJson.Values
+                    .Select(json => JsonSerializer.Deserialize<ChiTietBaiThiRequest>(json + ""))
+                    .Where(deserialized => deserialized != null) // To ensure we don't add null values to the list
+                    .ToList();
 
-                if (chiTietBaiThis == null || chiTietBaiThis.Count == 0)
+                if (data == null || data.Count == 0)
                 {
                     _logger.LogWarning("[Redis] Deserialized list is null or empty for key: {Key}", cacheKey);
                     return [];
                 }
 
-                return _chiTietBaiThiService.GetDapAnKhoanh_SelectByListCTBT(chiTietBaiThis);
+                return _chiTietBaiThiService.GetDapAnKhoanh_SelectByListCTBT(data);
             }
             catch (Exception ex)
             {
@@ -103,25 +109,52 @@ namespace Hutech.Exam.Server.BUS
             }
         }
         // dành cho thí sinh lúc nộp bài thi
-        public async Task<List<ChiTietBaiThiRequest>> GetChiTietBaiLamAsync(int ma_chi_tiet_ca_thi)
+        public async Task<List<bool>> GetDungSaiAsync(int ma_chi_tiet_ca_thi, long ma_de_hoan_vi, byte[] message)
         {
             try
             {
-                var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
-                var chiTietBaiThiJson = await _cacheService.GetCacheResponseAsync(cacheKey);
+                if (message == null || message.Length == 0)
+                {
+                    _logger.LogError("[Redis] Received empty or null message.");
+                    throw new ArgumentException("Message cannot be null or empty.");
+                }
 
-                if (string.IsNullOrEmpty(chiTietBaiThiJson) || string.IsNullOrWhiteSpace(chiTietBaiThiJson))
+                var messageJson = Encoding.UTF8.GetString(message);
+
+                //TODO: xử lí phần int int ở đây
+                // Deserialize vào đối tượng chiTietBaiThi
+                var chiTietBaiThi = JsonSerializer.Deserialize<(int, int)>(messageJson);
+
+                var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
+                var chiTietBaiThiJson = await _cacheService.GetAllFieldsFromHashAsync(cacheKey);
+
+                if (chiTietBaiThiJson == null)
                 {
                     _logger.LogWarning("[Redis] No data found for key: {Key}", cacheKey);
                     return [];
                 }
-                var chiTietBaiThis = JsonSerializer.Deserialize<List<ChiTietBaiThiRequest>>(chiTietBaiThiJson.ToString());
-                if (chiTietBaiThis == null || chiTietBaiThis.Count == 0)
+
+                Dictionary<int, int> dapAns = await GetDapAnAsync(ma_de_hoan_vi);
+
+                Dictionary<int, ChiTietBaiThiRequest> data = [];
+                foreach (var item in chiTietBaiThiJson)
+                {
+                    var deserialized = JsonSerializer.Deserialize<ChiTietBaiThiRequest>(item.Value + "");
+                    if (deserialized != null)
+                    {
+                        data[deserialized.MaCauHoi] = deserialized;
+                    }
+                }
+
+                if (data == null || data.Count == 0)
                 {
                     _logger.LogWarning("[Redis] Deserialized list is null or empty for key: {Key}", cacheKey);
                     return [];
                 }
-                return chiTietBaiThis;
+
+                await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(data.Values.ToList()));
+
+                return _chiTietBaiThiService.GetDungSai_SelectByListCTBT_DapAn(data, dapAns);
             }
             catch (Exception ex)
             {
@@ -129,7 +162,7 @@ namespace Hutech.Exam.Server.BUS
                 return [];
             }
         }
-        public async Task<List<int>> GetDapAn(int maDeHV)
+        public async Task<Dictionary<int, int>> GetDapAnAsync(long maDeHV)
         {
             try
             {
@@ -140,7 +173,7 @@ namespace Hutech.Exam.Server.BUS
                 if (!string.IsNullOrEmpty(cachedData))
                 {
                     // Nếu có, deserialization và trả về dữ liệu
-                    var result = JsonSerializer.Deserialize<List<int>>(cachedData.ToString());
+                    var result = JsonSerializer.Deserialize<Dictionary<int, int>>(cachedData.ToString());
                     if (result == null || result.Count == 0)
                     {
                         _logger.LogWarning("[Redis] Deserialized list is null or empty for key: {Key}", cacheKey);
@@ -151,10 +184,10 @@ namespace Hutech.Exam.Server.BUS
                 }
 
                 // Nếu không có, thực hiện logic lấy dữ liệu từ database
-                List<int> listDapAn = await _cauTraLoiService.SelectBy_MaDeHV_DapAn(maDeHV);
+                Dictionary<int, int> listDapAn = await _cauTraLoiService.SelectBy_MaDeHV_DapAn(maDeHV);
 
                 // Lưu vào cache
-                await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(120));
+                await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(150));
 
                 return listDapAn;
             }

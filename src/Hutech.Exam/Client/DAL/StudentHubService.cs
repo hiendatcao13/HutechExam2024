@@ -47,15 +47,25 @@ namespace Hutech.Exam.Client.DAL
                 // ánh xạ cho phần update
                 var messageJson = JsonSerializer.Serialize(chiTietBaiThi);
                 var messageBytes = Encoding.UTF8.GetBytes(messageJson);
+
                 await hubConnection.SendAsync("SelectDapAn", messageBytes);
             }
         }
-        public async Task RequestChiTietBaiThi()
+        public async Task<Dictionary<int, int>> RequestChiTietBaiThi(int ma_chi_tiet_ca_thi)
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                await hubConnection.SendAsync("RequestChiTietBaiThi");
+                return await hubConnection.InvokeAsync<Dictionary<int, int>>("RequestTiepTucThi", ma_chi_tiet_ca_thi);
             }
+            return [];
+        }
+        public async Task<List<bool>> RequestSubmit(int ma_chi_tiet_ca_thi)
+        {
+            if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                return await hubConnection.InvokeAsync<List<bool>>("RequestSubmit", ma_chi_tiet_ca_thi);
+            }
+            return [];
         }
         public async ValueTask DisposeAsync()
         {

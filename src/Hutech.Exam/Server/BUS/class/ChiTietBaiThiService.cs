@@ -52,6 +52,10 @@ namespace Hutech.Exam.Server.BUS
         {
             await _chiTietBaiThiRepository.Save_Batch(chiTietBaiThis);
         }
+        public async Task Insert_Batch(List<ChiTietBaiThiDto> chiTietBaiThis)
+        {
+            await _chiTietBaiThiRepository.Insert_Batch(chiTietBaiThis);
+        }
         public async Task<List<ChiTietBaiThiDto>> SelectBy_ma_chi_tiet_ca_thi(int ma_chi_tiet_ca_thi)
         {
             List<ChiTietBaiThiDto> result = [];
@@ -90,17 +94,38 @@ namespace Hutech.Exam.Server.BUS
 
 
 
-        public List<int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest> listChiTietBaiThi)
+        public Dictionary<int, int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest?> listChiTietBaiThi)
         {
-            List<int> listDapAn = [];
+            Dictionary<int, int> result = [];
             foreach (var chiTietBaiThi in listChiTietBaiThi)
             {
-                if (chiTietBaiThi.CauTraLoi != null)
+                if (chiTietBaiThi != null && chiTietBaiThi.CauTraLoi != null)
                 {
-                    listDapAn.Add((int)chiTietBaiThi.CauTraLoi);
+                    result[chiTietBaiThi.MaCauHoi] = (int)chiTietBaiThi.CauTraLoi;
                 }
             }
-            return listDapAn;
+            return result;
+        }
+        public List<bool> GetDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
+        {
+            List<bool> result = [];
+            foreach(var item in dapAns)
+            {
+                if (chiTietBaiThis.ContainsKey(item.Key))
+                {
+                    if (item.Value == chiTietBaiThis[item.Key].CauTraLoi)
+                    {
+                        chiTietBaiThis[item.Key].KetQua = true;
+                        result.Add(true);
+                    }
+                    else
+                    {
+                        chiTietBaiThis[item.Key].KetQua = false;
+                        result.Add(false);
+                    }
+                }
+            }
+            return result;
         }
     }
 }

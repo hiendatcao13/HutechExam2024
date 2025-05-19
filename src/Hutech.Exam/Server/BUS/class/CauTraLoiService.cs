@@ -52,14 +52,14 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<List<int>> SelectBy_MaDeHV_DapAn(long ma_de_hv)
+        public async Task<Dictionary<int, int>> SelectBy_MaDeHV_DapAn(long ma_de_hv)
         {
-            List<int> result = [];
+            Dictionary<int, int> result = [];
             using (IDataReader dataReader = await _cauTraLoiRepository.SelectBy_MaDeHV_DapAn(ma_de_hv))
             {
                 if (dataReader.Read())
                 {
-                    result = dataReader.GetString(0).Split(";;;").Select(int.Parse).ToList();
+                    result[dataReader.GetInt32(0)] = dataReader.GetInt32(1);
                 }
             }
             return result;

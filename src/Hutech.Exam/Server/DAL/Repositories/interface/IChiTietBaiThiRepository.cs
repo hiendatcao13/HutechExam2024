@@ -6,6 +6,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
     public interface IChiTietBaiThiRepository
     {
         public Task<object?> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, DateTime NgayTao, int ThuTu);
+        public Task Insert_Batch(List<ChiTietBaiThiDto> chiTietBaiThis);
         public Task<int> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua);
         public Task<int> Update_v2(int MaChiTietCaThi, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayCapNhat, bool KetQua);
         public Task<int> Save(int MaChiTietCaThi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayTao, DateTime NgayCapNhat, bool KetQua, int ThuTu);

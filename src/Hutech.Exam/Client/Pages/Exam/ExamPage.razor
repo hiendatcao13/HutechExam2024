@@ -13,7 +13,7 @@
 			<MudImage Src="images/exam/Logo.svg" Width="150" />
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-center">
-			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b>@displayTime</b></MudText>
+			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b>@DisplayTime</b></MudText>
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-end">
 			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" OnClick="async () => await OnClickNopBai()">Nộp Bài</MudButton>
@@ -23,13 +23,13 @@
 	<MudGrid>
 		<MudItem xs="12" md="9">
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
-				@if (customDeThis != null)
+				@if (CustomDeThis != null)
 				{
 					int current_ma_nhom_cha = -1;
 					int current_ma_nhom = 0;
 					int ma_audio = 0;
 
-					foreach (var item in customDeThis)
+					foreach (var item in CustomDeThis)
 					{
 						//Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
 						if (current_ma_nhom_cha != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
@@ -79,7 +79,6 @@
 						// Hiển thị nội dung câu trả lời
 						@if (item.CauTraLois != null)
 						{
-							int stt = 0;
 							// xử lí câu trả lời nhiều đáp án
 							if (item.KieuNoiDungCauHoi == 1)
 							{
@@ -87,7 +86,7 @@
 									@foreach (var noidung in item.CauTraLois)
 									{
 										<MudItem xs="12" sm="6" Style="padding-top: 15px">
-											<MudCheckBox Value=false>@alphabet[stt++]. <NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudCheckBox>
+											<MudCheckBox Value=false><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudCheckBox>
 										</MudItem>
 									}
 								</MudGrid>
@@ -104,11 +103,11 @@
 							// xử lí câu trả lời truyền thống
 							else
 							{
-								<MudRadioGroup T="int" Class="mt-2" Style="padding-bottom: 10px" ValueChanged="async (value) => await OnClickDapAn(item, value)">
+								<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi]" ValueChanged="async (value) => await OnClickDapAn(item, value)">
 									@foreach (var noidung in item.CauTraLois)
 									{
 										<MudItem xs="12" sm="6">
-											<MudRadio T="int" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
+											<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
 										</MudItem>
 									}
 								</MudRadioGroup>
@@ -125,22 +124,21 @@
 			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
 				<MudImage Src="images/exam/Ellipse 1.svg" Width="120" Class="mb-2" />
 				<MudDivider Class="mb-2" />
-				<MudText Typo="Typo.subtitle2"><b>Tên:</b> @sinhVien?.HoVaTenLot @sinhVien?.TenSinhVien</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @sinhVien?.MaSoSinhVien</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @caThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @chiTietCaThi?.MaDeThi?.ToString("D3")</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Tên:</b> @SinhVien?.HoVaTenLot @SinhVien?.TenSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @SinhVien?.MaSoSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @CaThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @ChiTietCaThi?.MaDeThi?.ToString("D3")</MudText>
 			</MudPaper>
-			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 5%">
+			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 5%; max-height: 700px; overflow-y: auto">
 				<MudText Typo="Typo.subtitle2" Class="mb-2"><b>Danh sách câu hỏi</b></MudText>
 				<MudGrid>
 					@{
-						int totalQuestions = customDeThis?.Count ?? 0;
-						for (int i = 0; i < totalQuestions; i++)
+						int thu_tu_cau_hoi = 0;
+						foreach (var item in DSKhoanhDapAn)
 						{
-							int stt = i + 1;
-							<MudItem xs="3" md="3" Style="transform: scale(0.85)">
-								<MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Default">
-									@(stt)
+							<MudItem xs="2" md="3" Style="padding-left: 15px">
+								<MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value != null) ? Color.Success : Color.Default">
+									@(++thu_tu_cau_hoi)
 								</MudButton>
 							</MudItem>
 						}
@@ -163,7 +161,7 @@
 </style>
 
 <script>
-			window.focusWatcher = (function () {
+		window.focusWatcher = (function () {
 		let visibilityChangeHandler;
 		let blurHandler;
 		let dotNetHelperRef;

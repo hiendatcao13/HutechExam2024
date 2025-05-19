@@ -101,14 +101,8 @@ namespace Hutech.Exam.Client.Pages.Info
                 Snackbar.Add(HAS_NO_MADETHI, Severity.Error);
                 return;
             }
-            string formatTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"); // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại
-            string formatThoiGianThi = caThi != null ? caThi.ThoiGianBatDau.ToString("dd/MM/yyyy HH:mm:ss") : "";
-
-            DateTime currentTime = DateTime.Now;
-            DateTime thoiGianThi = new DateTime();
-
-            DateTime.TryParse(formatThoiGianThi, out thoiGianThi);
-            DateTime.TryParse(formatTime, out currentTime);
+            DateTime currentTime = DateTime.Now; // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại
+            DateTime thoiGianThi = caThi?.ThoiGianBatDau ?? DateTime.Now;
 
             if (caThi != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
@@ -120,12 +114,13 @@ namespace Hutech.Exam.Client.Pages.Info
                 Snackbar.Add(EXPIRED_TIME, Severity.Error);
                 return;
             }
+            Console.WriteLine($"Thời gian thi: {thoiGianThi} và thời gian hiện tại: {currentTime}");
             Snackbar.Add(ENTER_EXAM, Severity.Success);
             if (selectedCTCaThi != null)
             {
-                //await UpdateBatDauThiAPI(selectedCTCaThi);
+                await UpdateBatDauThiAPI(selectedCTCaThi);
                 MyData.ChiTietCaThi = selectedCTCaThi;
-            }    
+            }
             Nav.NavigateTo("/test");
         }
         private async Task Start()

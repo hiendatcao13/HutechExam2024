@@ -22,44 +22,52 @@ namespace Hutech.Exam.Client.Pages.Exam
         [Inject] AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] NavigationManager Nav { get; set; } = default!;
         [Inject] IJSRuntime Js { get; set; } = default!;
-        private DotNetObjectReference<ExamPage> objRef = default!;
-
-        SinhVienDto? sinhVien = new();
-        CaThiDto? caThi = new();
-        System.Timers.Timer? timer;
-        string? displayTime;
-        HubConnection? hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
-        List<bool>? isDisableAudio = [];
-        List<CustomDeThi>? customDeThis = [];
-        List<int>? cau_da_chons_tagA = [];// lưu vết các đáp án đã khoanh trước đó cho tag Answer button
-        readonly string[] alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
-
-        ChiTietCaThiDto chiTietCaThi = new();
-        List<ChiTietBaiThiUpdate> chiTietBaiThiUpdate = new(); // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
 
 
 
-        int so_thu_tu_tra_loi = 0; // thứ tự trả lời câu hỏi cho sv
+        // các biến binding cho UI
+        private DotNetObjectReference<ExamPage> _objRef { get; set; } = default!;
+
+        private List<CustomDeThi>? CustomDeThis { get; set; } = [];
+
+        private SinhVienDto? SinhVien { get; set; } = new();
+
+        private CaThiDto? CaThi { get; set; } = new();
+
+        private ChiTietCaThiDto ChiTietCaThi { get; set; } = new();
+
+        private string? DisplayTime { get; set; }
+
+        private Dictionary<int, int?> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
 
 
+
+        // các biến chỉ trong backend
+        private HubConnection? _hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
+
+        private System.Timers.Timer? _timer;
+
+        private Dictionary<int, ChiTietBaiThiUpdate> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
+
+        private int _thuTuTraLoi = 0; // thứ tự trả lời câu hỏi cho sv
+
+        private readonly string[] _alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
+
+
+
+        private List<bool>? isDisableAudio { get; set; } = [];
 
 
 
 
         static List<ChiTietBaiThiRequest>? chiTietBaiThis = [];
-        static List<ChiTietBaiThiRequest>? dsBaiThi_Update = []; // lưu ds các câu sv vừa mới trả lời về server
-        static List<int>? cau_da_chons = []; // lưu vết các đáp án đã khoanh trước đó
         public static List<int>? listDapAn = [];// lưu vết các đáp án sinh viên chọn (public)
 
 
-        const int QUY_DINH_CAP_NHAT_DAP_AN = -1; // quy định được áp dụng vào thứ tự của chi tiết bài thi
-        const int QUY_DINH_XOA_DAP_AN = -2; // quy định được áp dụng vào thứ tự của chi tiết bài thi
 
-        const int GIAY_CAP_NHAT = 10; // tự động lưu bài sau n giây (2p). Với bonus time, vui lòng chỉnh trang info (THOI_GIAN_TRUOC_THI) 
         const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
         const string ERROR_FETCH_DETHI = "Không thể lấy đề thi. Vui lòng kiểm tra SV đã có đề thi chưa hoặc hệ thống lỗi";
         const string ERROR_FETCH_BAILAM = "Không thể lấy bài làm trước hoặc hệ thống lỗi";
-        const string ERROR_UPDATE_BAILAM = "Lưu bài không thành công";
         const string DONG_BANG_CA_THI = "Quản trị viên đang tạm thời dừng ca thi này. Thí sinh vui lòng chờ trong giây lát";
         const string RESET_LOGIN = "Quản trị viên đã tạm thời đăng xuất bạn khỏi ca thi này. Vui lòng đăng nhập lại để tiếp tục thi";
         const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
@@ -74,11 +82,11 @@ namespace Hutech.Exam.Client.Pages.Exam
                 Nav?.NavigateTo("/info");
                 return;
             }
-            chiTietCaThi = MyData.ChiTietCaThi;
-            caThi = MyData.ChiTietCaThi.MaCaThiNavigation;
-            sinhVien = MyData.SinhVien;
+            ChiTietCaThi = MyData.ChiTietCaThi;
+            CaThi = MyData.ChiTietCaThi.MaCaThiNavigation;
+            SinhVien = MyData.SinhVien;
+
             await Start();
-            Time(); // xử lí countdown
         }
         protected override async Task OnInitializedAsync()
         {
@@ -103,27 +111,33 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private async Task Start()
         {
+            Time(); // xử lí countdown
             await CreateHubConnection();
-            chiTietCaThi = MyData.ChiTietCaThi;
-            customDeThis = MyData.CustomDeThis = await GetDeThiAPI(chiTietCaThi.MaDeThi) ?? [];
+
+            CustomDeThis = MyData.CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi) ?? [];
             await ModifyNhomCauHoi();
 
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
             if (MyData.ChiTietCaThi.DaThi)
             {
                 await GetBaiThi_DaThi();
-                ProcessTiepTucThi();
             }
         }
         private async Task GetBaiThi_DaThi()
         {
-            if (chiTietCaThi != null)
-                chiTietBaiThis = await GetBaiThi_DaThiAPI(chiTietCaThi.MaChiTietCaThi) ?? [];
+            // lấy ds bài thi đã khoanh trước đó
+            var _dsDapAnTiepTucThi = await StudentHub.RequestChiTietBaiThi(ChiTietCaThi.MaChiTietCaThi);
+
+            // xử lí câu đáp án đã khoanh
+            foreach (var item in _dsDapAnTiepTucThi)
+            {
+                DSKhoanhDapAn[item.Key] = item.Value;
+            }    
         }
 
         private void Time()
         {
-            timer = new System.Timers.Timer
+            _timer = new System.Timers.Timer
             {
                 Interval = 1000, // 1000 = 1ms
                 AutoReset = true,
@@ -133,75 +147,40 @@ namespace Hutech.Exam.Client.Pages.Exam
             int tong_so_giay = 0;
             // cập nhật thời gian thi còn lại cho sinh viên nếu bị out
             int? thoi_gian_con_lai = (int?)ThoiGianConLai();
-            if (caThi != null && chiTietCaThi != null && thoi_gian_con_lai != null)
+            if (CaThi != null && ChiTietCaThi != null && thoi_gian_con_lai != null)
             {
-                tong_so_giay += (caThi.ThoiGianThi + chiTietCaThi.GioCongThem + MyData.BonusTime - (int)thoi_gian_con_lai) * 60;
-                tong_so_giay = (tong_so_giay > (caThi.ThoiGianThi * 60)) ? (caThi.ThoiGianThi * 60) : tong_so_giay;
+                tong_so_giay += (CaThi.ThoiGianThi + ChiTietCaThi.GioCongThem + MyData.BonusTime - (int)thoi_gian_con_lai) * 60;
+                tong_so_giay = (tong_so_giay > (CaThi.ThoiGianThi * 60)) ? (CaThi.ThoiGianThi * 60) : tong_so_giay;
             }
-            displayTime = FormatTime(tong_so_giay);
+            DisplayTime = FormatTime(tong_so_giay);
             int so_giay_hien_tai = tong_so_giay; // tránh sv đổi thời gian
-            timer.Elapsed += async (sender, e) =>
+            _timer.Elapsed += async (sender, e) =>
             {
                 so_giay_hien_tai--;
-                // cứ mỗi n giây thì hệ thống tự động lưu bài của SV
-                if (so_giay_hien_tai % GIAY_CAP_NHAT == 0)
-                {
-                    await UpdateChiTietBaiThiAPI();
-                }
                 if (so_giay_hien_tai == 60)
                 {
                     await Js.InvokeVoidAsync("changeColorTime"); // đổi màu đồng hồ thành đỏ khi gần kết thúc
                 }
                 if (so_giay_hien_tai >= 0)
                 {
-                    displayTime = FormatTime(so_giay_hien_tai);
+                    DisplayTime = FormatTime(so_giay_hien_tai);
                     await InvokeAsync(StateHasChanged); // Cập nhật giao diện người dùng
                 }
                 else
                 {
-                    timer.Stop(); // Dừng timer khi countdown kết thúc
+                    _timer.Stop(); // Dừng timer khi countdown kết thúc
                     await KetThucThoiGianLamBai();
                 }
             };
         }
 
-        // Xử lí việc thí sinh bị out ra khi đang làm bài
-        private void ProcessTiepTucThi()
-        {
-            if (chiTietBaiThis != null)
-            {
-                foreach (var item in chiTietBaiThis)
-                {
-                    if (item.CauTraLoi != null && customDeThis != null && cau_da_chons != null && cau_da_chons_tagA != null)
-                    {
-                        cau_da_chons.Add((int)item.CauTraLoi);
-                        int STT = 1;
-                        foreach (var chiTietDeThi in customDeThis)
-                        {
-                            if (chiTietDeThi.MaNhom == item.MaNhom && chiTietDeThi.MaCauHoi == item.MaCauHoi)
-                                cau_da_chons_tagA.Add(STT);
 
-                            // cập nhật lại danh sách sinh viên đã khoanh
-                            listDapAn?.Add((int)item.CauTraLoi);
-                            STT++;
-                        }
-                    }
-                }
-            }
-        }
         private double? ThoiGianConLai()
         {
-            if (caThi == null) return null;
+            if (CaThi == null) return null;
 
             DateTime currentTime = DateTime.Now;
-            DateTime thoiGianBatDau = caThi.ThoiGianBatDau;
-
-            // Ensure both dates are in the same format
-            string currentTimeFormatted = currentTime.ToString("MM/dd/yyyy HH:mm:ss");
-            string thoiGianBatDauFormatted = thoiGianBatDau.ToString("MM/dd/yyyy HH:mm:ss");
-
-            DateTime.TryParse(currentTimeFormatted, out currentTime);
-            DateTime.TryParse(thoiGianBatDauFormatted, out thoiGianBatDau);
+            DateTime thoiGianBatDau = CaThi.ThoiGianBatDau;
 
             TimeSpan? result = currentTime - thoiGianBatDau;
             return result?.TotalMinutes;
@@ -232,30 +211,32 @@ namespace Hutech.Exam.Client.Pages.Exam
         private ChiTietBaiThiRequest GetPropertyCTBT(int vi_tri_cau_hoi, int ma_cau_tra_loi, int ma_nhom, int ma_cau_hoi)
         {
             ChiTietBaiThiRequest chiTietBaiThi = new();
-            if (chiTietCaThi != null && chiTietCaThi.MaDeThi != null)
+            if (ChiTietCaThi != null && ChiTietCaThi.MaDeThi != null)
             {
                 chiTietBaiThi.CauTraLoi = ma_cau_tra_loi;
                 chiTietBaiThi.MaCauHoi = ma_cau_hoi;
                 chiTietBaiThi.MaNhom = ma_nhom;
                 chiTietBaiThi.ThuTu = vi_tri_cau_hoi;
-                chiTietBaiThi.MaChiTietCaThi = chiTietCaThi.MaChiTietCaThi;
-                chiTietBaiThi.MaDeHv = (long)chiTietCaThi.MaDeThi;
+                chiTietBaiThi.MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi;
+                chiTietBaiThi.MaDeHv = (long)ChiTietCaThi.MaDeThi;
             }
             return chiTietBaiThi;
         }
-        
-        private async Task OnClickDapAn(CustomDeThi deThi, int ma_cau_tra_loi)
+
+        private async Task OnClickDapAn(CustomDeThi deThi, int? ma_cau_tra_loi)
         {
+            // xanh phần tô
+            DSKhoanhDapAn[deThi.MaCauHoi] = ma_cau_tra_loi;
+
             ChiTietBaiThiRequest chiTietBai;
-            var findChiTietBai = chiTietBaiThiUpdate.FirstOrDefault(p => p.MaCauHoi == deThi.MaCauHoi);
-            if(findChiTietBai == null)
+            if (!_dsThiSinhDaKhoanh.ContainsKey(deThi.MaCauHoi))
             {
-                chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++so_thu_tu_tra_loi);
-                chiTietBaiThiUpdate.Add(new ChiTietBaiThiUpdate(deThi.MaCauHoi, ma_cau_tra_loi, so_thu_tu_tra_loi, DateTime.Now));
+                chiTietBai = new(-1, ChiTietCaThi.MaChiTietCaThi, ChiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++_thuTuTraLoi);
+                _dsThiSinhDaKhoanh[deThi.MaCauHoi] = new(ma_cau_tra_loi ?? -1, _thuTuTraLoi, DateTime.Now);
             }
             else
             {
-                chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, findChiTietBai.NgayTao, DateTime.Now, null, findChiTietBai.ThuTu);
+                chiTietBai = new(-1, ChiTietCaThi.MaChiTietCaThi, ChiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, _dsThiSinhDaKhoanh[deThi.MaCauHoi].NgayTao, DateTime.Now, null, _dsThiSinhDaKhoanh[deThi.MaCauHoi].ThuTu);
             }
             //gửi bài cho server qua signalR
             await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
@@ -292,20 +273,18 @@ namespace Hutech.Exam.Client.Pages.Exam
         public async ValueTask DisposeAsync()
         {
             await Js.InvokeVoidAsync("window.focusWatcher.dispose");
-            timer?.Dispose();
+            _timer?.Dispose();
         }
     }
     //TODO: Nên xét theo dictionary cho nhanh thay vì List đổi lại DIctionary<mã câu hỏi, ChiTietBaiThiUpdate>
     public class ChiTietBaiThiUpdate
     {
-        public int MaCauHoi { get; set; }
         public int CauTraLoi { get; set; }
         public int ThuTu { get; set; }
         public DateTime NgayTao { get; set; }
 
-        public ChiTietBaiThiUpdate(int maCauHoi, int cauTraLoi, int thuTu, DateTime ngayTao)
+        public ChiTietBaiThiUpdate(int cauTraLoi, int thuTu, DateTime ngayTao)
         {
-            MaCauHoi = maCauHoi;
             CauTraLoi = cauTraLoi;
             ThuTu = thuTu;
             NgayTao = ngayTao;

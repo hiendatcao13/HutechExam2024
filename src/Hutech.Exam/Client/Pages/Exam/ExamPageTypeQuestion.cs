@@ -9,18 +9,21 @@ namespace Hutech.Exam.Client.Pages.Exam
         private async Task ModifyNhomCauHoi()
         {
             int ma_nhom = 0;
-            if (customDeThis != null)
+            if (CustomDeThis != null)
             {
-                foreach (var item in customDeThis)
+                foreach (var item in CustomDeThis)
                 {
+                    // thêm các câu hỏi vào danh sách check đã khoanh hay chưa?
+                    DSKhoanhDapAn?.Add(item.MaCauHoi, null);
+
                     // thêm các chữ A,B,C,D vào nội dung câu trả lời
-                    if(item.CauTraLois != null)
+                    if (item.CauTraLois != null)
                     {
                         int stt = 0;
                         var keys = item.CauTraLois.Keys.ToList();
                         foreach (var key in keys)
                         {
-                            item.CauTraLois[key] = $"{alphabet[stt++]}. {item.CauTraLois[key]}";
+                            item.CauTraLois[key] = $"{_alphabet[stt++]}. {item.CauTraLois[key]}";
                         }
                     }    
                     
@@ -29,10 +32,10 @@ namespace Hutech.Exam.Client.Pages.Exam
                         ma_nhom = item.MaNhom;
 
                         // xử lí audio
-                        if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && chiTietCaThi != null)
+                        if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && ChiTietCaThi != null)
                         {
                             string fileName = HandleAudioSource(item.NoiDungCauHoiNhom);
-                            int so_lan_nghe = (chiTietCaThi.DaThi) ? await GetSoLanNgheAPI(chiTietCaThi.MaChiTietCaThi, fileName) : 0;
+                            int so_lan_nghe = (ChiTietCaThi.DaThi) ? await GetSoLanNgheAPI(ChiTietCaThi.MaChiTietCaThi, fileName) : 0;
                             item.GhiChu = so_lan_nghe.ToString();
                         }
                         // xử lí câu hỏi điền khuyết
@@ -43,33 +46,6 @@ namespace Hutech.Exam.Client.Pages.Exam
                     }
                 }
             }
-        }
-        private static List<string> HandleLatex(string text)
-        {
-            List<string> result = new();
-            if (!text.Contains("<latex>"))
-                return [text];
-
-            string[] parts = text.Split("<latex>");
-
-            // xử lí phần đầu chắc chắn không có latex hoặc là thuần latex
-            if (!string.IsNullOrEmpty(parts[0]))
-                result.Add(parts[0]);
-
-            for (int i = 1; i < parts.Length; i++)
-            {
-                // phần cắt này chỉ có 2 phần duy nhất
-                string[] parts2 = parts[i].Split("</latex>");
-
-                // xử lí phần đầu chắc chắn là latex
-                result.Add("$$" + parts2[0]);
-
-                // / phần còn lại là chữ hoặc không có nếu là thuần latex
-                if (parts2.Length > 1 && !string.IsNullOrEmpty(parts2[1]))
-                    result.Add(parts2[1]);
-            }
-
-            return result;
         }
         private static string HandleDienKhuyet(string text, long STT)
         {
@@ -91,7 +67,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         private string HandleBeforeAudio(CustomDeThi customDeThi, string text, int ma_audio)
         {
             int index_audio = text.IndexOf("<audio");
-            if (int.TryParse(customDeThi.GhiChu, out int temp) && chiTietCaThi != null)
+            if (int.TryParse(customDeThi.GhiChu, out int temp) && ChiTietCaThi != null)
             {
                 if (temp == 3)
                     isDisableAudio?.Insert(ma_audio, true);
@@ -103,13 +79,13 @@ namespace Hutech.Exam.Client.Pages.Exam
         private async Task OnPlayAudio(CustomDeThi customDeThi, int ma_audio, string fileName, string elementId)
         {
             // tăng số lần nghe lên
-            if (int.TryParse(customDeThi.GhiChu, out int so_lan_nghe) && chiTietCaThi != null && Js != null)
+            if (int.TryParse(customDeThi.GhiChu, out int so_lan_nghe) && ChiTietCaThi != null && Js != null)
             {
                 await Js.InvokeVoidAsync("playAudio", elementId, so_lan_nghe);
                 if (so_lan_nghe < 3 && isDisableAudio != null)
                 {
                     customDeThi.GhiChu = (++so_lan_nghe).ToString();
-                    await AddOrUpdateListenAPI(chiTietCaThi.MaChiTietCaThi, fileName);
+                    await AddOrUpdateListenAPI(ChiTietCaThi.MaChiTietCaThi, fileName);
                 }
             }
             StateHasChanged();

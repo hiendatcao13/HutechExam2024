@@ -38,16 +38,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         private async Task UpdateChiTietBaiThiAPI()
         {
-            if (dsBaiThi_Update != null && dsBaiThi_Update.Count != 0)
-            {
-                var jsonString = JsonSerializer.Serialize(dsBaiThi_Update);
-                dsBaiThi_Update?.Clear(); // xóa toàn bộ các phần tử khi đã được update, tiếp tục lưu những phần tử sv làm
-                var result = await Http.PutAsync("api/CustomChiTietBaiThi/Update", new StringContent(jsonString, Encoding.UTF8, "application/json"));
-                if (!result.IsSuccessStatusCode)
-                {
-                    Snackbar.Add(ERROR_UPDATE_BAILAM, Severity.Error);
-                }
-            }
+            
         }
 
         private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, string filename)

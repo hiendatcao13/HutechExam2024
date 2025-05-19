@@ -7,25 +7,25 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task CreateHubConnection()
         {
-            hubConnection = await StudentHub.GetConnectionAsync(MyData.SinhVien.MaSinhVien);
+            _hubConnection = await StudentHub.GetConnectionAsync(MyData.SinhVien.MaSinhVien);
 
             // trường hợp thay đổi tình trạng ca thi
-            hubConnection.On("ChangeStatusCaThi", async () =>
+            _hubConnection.On("ChangeStatusCaThi", async () =>
             {
                 await CallLoadThayDoiTinhTrangCaThi();
             });
-            hubConnection.On("ResetLogin", async () =>
+            _hubConnection.On("ResetLogin", async () =>
             {
                 await CallLoadDangXuat();
             });
-            hubConnection.On("SubmitExam", async () =>
+            _hubConnection.On("SubmitExam", async () =>
             {
                 Snackbar.Add(ADMIN_NOP_BAI, MudBlazor.Severity.Info);
                 await KetThucThoiGianLamBai();
             });
 
             //tham gia vào group mã ca thi
-            await hubConnection.InvokeAsync("JoinGroupMaCaThi", caThi?.MaCaThi ?? -1);
+            await _hubConnection.InvokeAsync("JoinGroupMaCaThi", CaThi?.MaCaThi ?? -1);
         }
 
         private async Task HandleDangXuat()
