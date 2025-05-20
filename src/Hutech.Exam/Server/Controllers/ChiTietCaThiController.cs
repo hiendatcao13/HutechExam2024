@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiRequest chiTietCaThi)
         {
             chiTietCaThi.ThoiGianBatDau = DateTime.Now;
-            await _chiTietCaThiService.UpdateBatDau(chiTietCaThi);
+            await _chiTietCaThiService.UpdateBatDau(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, true, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }
@@ -42,7 +42,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult> UpdateKetThucThi([FromBody] ChiTietCaThiRequest chiTietCaThi)
         {
             chiTietCaThi.ThoiGianKetThuc = DateTime.Now;
-            await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi);
+            await _chiTietCaThiService.UpdateKetThuc(chiTietCaThi.MaChiTietCaThi, chiTietCaThi.ThoiGianKetThuc ?? DateTime.Now, chiTietCaThi.Diem, chiTietCaThi.SoCauDung ?? 0, chiTietCaThi.TongSoCau ?? 0);
             await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, false, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }

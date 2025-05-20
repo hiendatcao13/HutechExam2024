@@ -77,6 +77,10 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
                 }
 
             }
+            catch (TaskCanceledException)
+            {
+                await base.DisposeAsync();
+            }
             catch (Exception ex)
             {
                 // Log error and rethrow or handle accordingly

@@ -75,6 +75,10 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
                 }
 
             }
+            catch (TaskCanceledException)
+            {
+                await base.DisposeAsync();
+            }
             catch (Exception ex)
             {
                 // Log error and rethrow or handle accordingly
@@ -82,11 +86,11 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
             }
         }
 
-        public override Task ProcessMessageAsync(byte[] message)
+        public override async Task ProcessMessageAsync(byte[] message)
         {
             try
             {
-                await _redisService.GetDungSaiAsync(message);
+                await _redisService.HandleSubmit(message);
             }
             catch (Exception ex)
             {

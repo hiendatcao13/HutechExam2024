@@ -94,7 +94,7 @@ namespace Hutech.Exam.Server.BUS
 
 
 
-        public Dictionary<int, int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest?> listChiTietBaiThi)
+        public Dictionary<int, int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest> listChiTietBaiThi)
         {
             Dictionary<int, int> result = [];
             foreach (var chiTietBaiThi in listChiTietBaiThi)
@@ -106,26 +106,38 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public List<bool> GetDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
+        public (List<bool>,int, double) GetDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
         {
-            List<bool> result = [];
-            foreach(var item in dapAns)
+            var ketQuaList = new List<bool>(dapAns.Count);
+            int soCauDung = 0;
+
+            foreach (var (cauSo, dapAn) in dapAns)
             {
-                if (chiTietBaiThis.ContainsKey(item.Key))
+                bool ketQua = false;
+
+                if (chiTietBaiThis.TryGetValue(cauSo, out var chiTiet))
                 {
-                    if (item.Value == chiTietBaiThis[item.Key].CauTraLoi)
-                    {
-                        chiTietBaiThis[item.Key].KetQua = true;
-                        result.Add(true);
-                    }
-                    else
-                    {
-                        chiTietBaiThis[item.Key].KetQua = false;
-                        result.Add(false);
-                    }
+                    ketQua = (dapAn == chiTiet.CauTraLoi);
+                    chiTiet.KetQua = ketQua;
                 }
+
+                if (ketQua)
+                    soCauDung++;
+
+                ketQuaList.Add(ketQua);
             }
-            return result;
+
+            double diem = TinhDem(ketQuaList.Count, soCauDung);
+            return (ketQuaList, soCauDung, diem);
+        }
+
+
+        private double TinhDem(int tong_so_cau, int so_cau_dung)
+        {
+            if (so_cau_dung == 0)
+                return 0;
+            double diem = ((double)so_cau_dung / tong_so_cau) * 10;
+            return Math.Round(diem * 4, MidpointRounding.AwayFromZero) / 4.0;
         }
     }
 }

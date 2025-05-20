@@ -30,11 +30,11 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private List<CustomDeThi>? CustomDeThis { get; set; } = [];
 
-        private SinhVienDto? SinhVien { get; set; } = new();
+        private SinhVienDto SinhVien { get; set; } = default!;
 
-        private CaThiDto? CaThi { get; set; } = new();
+        private CaThiDto CaThi { get; set; } = default!;
 
-        private ChiTietCaThiDto ChiTietCaThi { get; set; } = new();
+        private ChiTietCaThiDto ChiTietCaThi { get; set; } = default!;
 
         private string? DisplayTime { get; set; }
 
@@ -83,7 +83,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 return;
             }
             ChiTietCaThi = MyData.ChiTietCaThi;
-            CaThi = MyData.ChiTietCaThi.MaCaThiNavigation;
+            CaThi = MyData.ChiTietCaThi.MaCaThiNavigation ?? new();
             SinhVien = MyData.SinhVien;
 
             await Start();
@@ -126,7 +126,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         private async Task GetBaiThi_DaThi()
         {
             // lấy ds bài thi đã khoanh trước đó
-            var _dsDapAnTiepTucThi = await StudentHub.RequestChiTietBaiThi(ChiTietCaThi.MaChiTietCaThi);
+            var _dsDapAnTiepTucThi = await StudentHub.RequestTiepTucThi(ChiTietCaThi.MaChiTietCaThi);
 
             // xử lí câu đáp án đã khoanh
             foreach (var item in _dsDapAnTiepTucThi)
@@ -203,24 +203,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
             await Dialog.ShowAsync<Simple_Dialog>("Kết thúc bài làm", parameters, options);
-        }
-
-
-
-
-        private ChiTietBaiThiRequest GetPropertyCTBT(int vi_tri_cau_hoi, int ma_cau_tra_loi, int ma_nhom, int ma_cau_hoi)
-        {
-            ChiTietBaiThiRequest chiTietBaiThi = new();
-            if (ChiTietCaThi != null && ChiTietCaThi.MaDeThi != null)
-            {
-                chiTietBaiThi.CauTraLoi = ma_cau_tra_loi;
-                chiTietBaiThi.MaCauHoi = ma_cau_hoi;
-                chiTietBaiThi.MaNhom = ma_nhom;
-                chiTietBaiThi.ThuTu = vi_tri_cau_hoi;
-                chiTietBaiThi.MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi;
-                chiTietBaiThi.MaDeHv = (long)ChiTietCaThi.MaDeThi;
-            }
-            return chiTietBaiThi;
         }
 
         private async Task OnClickDapAn(CustomDeThi deThi, int? ma_cau_tra_loi)

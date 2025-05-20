@@ -65,7 +65,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         [JSInvokable]
         public async Task KetThucThoiGianLamBai()
         {
-            await UpdateChiTietBaiThiAPI();
+            await StudentHub.RequestSubmit(SinhVien.MaSinhVien, ChiTietCaThi.MaChiTietCaThi, ChiTietCaThi.MaDeThi ?? -1);
 
             if (chiTietBaiThis != null && listDapAn != null)
             {

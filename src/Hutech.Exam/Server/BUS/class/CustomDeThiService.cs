@@ -24,9 +24,10 @@ namespace Hutech.Exam.Server.BUS
                 KieuNoiDungCauHoiNhom = dataReader.GetInt32(9 + start),
             };
             string? ma_dap_an_gop = dataReader.IsDBNull(10 + start) ? null : dataReader.GetString(10 + start);
-            string? noi_dung_dap_an_gop = dataReader.IsDBNull(11 + start) ? null : dataReader.GetString(11 + start);
+            customDeThi.HoanViCauTraLoi = dataReader.IsDBNull(11 + start) ? null : dataReader.GetString(11 + start);
+            string? noi_dung_dap_an_gop = dataReader.IsDBNull(12 + start) ? null : dataReader.GetString(12 + start);
             customDeThi.CauTraLois = HandleDapAnGop(ma_dap_an_gop, noi_dung_dap_an_gop);
-            customDeThi.ThuTuCauHoi = dataReader.GetInt64(12 + start);
+            customDeThi.ThuTuCauHoi = dataReader.GetInt64(13 + start);
             return customDeThi;
         }
         private Dictionary<int, string?> HandleDapAnGop(string? ma_dap_an_gop, string? noi_dung_dap_an_gop)

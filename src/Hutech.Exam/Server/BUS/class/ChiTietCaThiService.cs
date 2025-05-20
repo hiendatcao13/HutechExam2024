@@ -124,20 +124,12 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> UpdateBatDau(ChiTietCaThiRequest chiTietCaThi)
+        public async Task<int> UpdateBatDau(int ma_chi_tiet_ca_thi, DateTime thoi_gian_bat_dau)
         {
-            int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
-            DateTime? thoi_gian_bat_dau = chiTietCaThi.ThoiGianBatDau;
             return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau);
         }
-        public async Task<int> UpdateKetThuc(ChiTietCaThiRequest chiTietCaThi)
+        public async Task<int> UpdateKetThuc(int ma_chi_tiet_ca_thi, DateTime thoi_gian_ket_thuc, double diem, int so_cau_dung, int tong_so_cau)
         {
-            //float diem, int so_cau_dung, int tong_so_cau
-            int ma_chi_tiet_ca_thi = chiTietCaThi.MaChiTietCaThi;
-            DateTime? thoi_gian_ket_thuc = chiTietCaThi.ThoiGianKetThuc;
-            double diem = chiTietCaThi.Diem;
-            int? so_cau_dung = chiTietCaThi.SoCauDung;
-            int? tong_so_cau = chiTietCaThi.TongSoCau;
             return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau);
         }
         public async Task<int> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime thoi_diem_cong, string ly_do_cong)

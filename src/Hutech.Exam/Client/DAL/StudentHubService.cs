@@ -23,35 +23,33 @@ namespace Hutech.Exam.Client.DAL
                     {
                         options.Transports = HttpTransportType.WebSockets; // Ưu tiên WebSockets nếu có thể
                     })
+                    .AddMessagePackProtocol() // Sử dụng MessagePack để truyền tải dữ liệu
                     .WithAutomaticReconnect() // Tự động kết nối lại nếu mất mạng
                     .Build();
-
-                hubConnection.Closed += async (error) =>
-                {
-                    await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                    await GetConnectionAsync(ma_sinh_vien); // Thử kết nối lại
-                };
 
                 await hubConnection.StartAsync();
 
                 // set ConnectionId vào Redis của server
-                await hubConnection.InvokeAsync("SetConnectionId", ma_sinh_vien);
+                await SetConnectionIdAsynv(ma_sinh_vien);
             }
 
             return hubConnection;
+        }
+        private async Task SetConnectionIdAsynv(long ma_sinh_vien)
+        {
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("SetConnectionId", ma_sinh_vien);
+            }
         }
         public async Task SendMessageChiTietBaiThi(ChiTietBaiThiRequest chiTietBaiThi)
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                // ánh xạ cho phần update
-                var messageJson = JsonSerializer.Serialize(chiTietBaiThi);
-                var messageBytes = Encoding.UTF8.GetBytes(messageJson);
-
-                await hubConnection.SendAsync("SelectDapAn", messageBytes);
+                await hubConnection.SendAsync("SelectDapAn", chiTietBaiThi);
             }
         }
-        public async Task<Dictionary<int, int>> RequestChiTietBaiThi(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<int, int>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
@@ -59,13 +57,12 @@ namespace Hutech.Exam.Client.DAL
             }
             return [];
         }
-        public async Task<List<bool>> RequestSubmit(int ma_chi_tiet_ca_thi)
+        public async Task RequestSubmit(long ma_sinh_vien, int ma_chi_tiet_ca_thi, long de_thi_hoan_vi)
         {
             if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                return await hubConnection.InvokeAsync<List<bool>>("RequestSubmit", ma_chi_tiet_ca_thi);
+                await hubConnection.SendAsync("RequestSubmit", ma_sinh_vien, ma_chi_tiet_ca_thi, de_thi_hoan_vi);
             }
-            return [];
         }
         public async ValueTask DisposeAsync()
         {

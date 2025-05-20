@@ -57,7 +57,7 @@ namespace Hutech.Exam.Server.BUS
             Dictionary<int, int> result = [];
             using (IDataReader dataReader = await _cauTraLoiRepository.SelectBy_MaDeHV_DapAn(ma_de_hv))
             {
-                if (dataReader.Read())
+                while(dataReader.Read())
                 {
                     result[dataReader.GetInt32(0)] = dataReader.GetInt32(1);
                 }

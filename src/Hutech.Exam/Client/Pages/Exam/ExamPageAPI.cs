@@ -36,10 +36,6 @@ namespace Hutech.Exam.Client.Pages.Exam
                 return null;
             }
         }
-        private async Task UpdateChiTietBaiThiAPI()
-        {
-            
-        }
 
         private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, string filename)
         {

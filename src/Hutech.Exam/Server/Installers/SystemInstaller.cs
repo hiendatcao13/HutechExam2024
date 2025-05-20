@@ -8,7 +8,8 @@ namespace Hutech.Exam.Server.Installers
     {
         public void InstallService(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSignalR();
+            services.AddSignalR()
+                .AddMessagePackProtocol();
 
             services.AddOptions();
             services.AddMemoryCache();

@@ -2,7 +2,7 @@
 
 namespace Hutech.Exam.Server.BUS.RabbitServices
 {
-    public abstract class RabbitMQService(string hostname, string queue, string username, string password) : IAsyncDisposable
+    public abstract class RabbitMQService(string username, string password, string hostname, string queue) : IAsyncDisposable
     {
         //TODO: ta có thể tạo 2 channel trong đây với 2 tham số queue khác nhau, chưa làm
         protected readonly string _hostname = hostname;

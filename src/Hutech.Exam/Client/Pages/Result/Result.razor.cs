@@ -1,7 +1,5 @@
 ﻿using Hutech.Exam.Client.DAL;
 using Microsoft.AspNetCore.Components;
-using System.Text.Json;
-using System.Text;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using Hutech.Exam.Client.Authentication;
@@ -13,8 +11,6 @@ using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Http.Connections;
 using AutoMapper;
 
 namespace Hutech.Exam.Client.Pages.Result
@@ -27,15 +23,24 @@ namespace Hutech.Exam.Client.Pages.Result
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         [Inject] private NavigationManager Nav { get; set; } = default!;
         [Inject] private IMapper Mapper { get; set; } = default!;
-        private Canvas2DContext? Context { get; set; }
-        protected BECanvasComponent? CanvasReference { get; set; }
 
-        private SinhVienDto? sinhVien = new();
-        private CaThiDto? caThi = new();
-        private ChiTietCaThiDto? chiTietCaThi = new();
-        private List<CustomDeThi>? customDeThis;
-        private List<bool?>? ketQuaDapAn = [];
-        private double diem;
+        // biến binding với UI
+        private Canvas2DContext? Context { get; set; }
+
+        private BECanvasComponent? CanvasReference { get; set; }
+
+        private bool IsLoading {get; set;}
+
+        private SinhVienDto SinhVien { get; set; } = default!;
+
+        private CaThiDto CaThi { get; set; } = default!;
+
+        private ChiTietCaThiDto ChiTietCaThi { get; set; } = default!;
+
+        // biến cục bộ
+
+        private List<bool> ketQuaDapAn = [];
+        private double diem = 0;
         private int so_cau_dung;
         private HubConnection? hubConnection;
 
@@ -46,16 +51,14 @@ namespace Hutech.Exam.Client.Pages.Result
             if (MyData.ChiTietCaThi.MaChiTietCaThi == 0 || MyData.SinhVien.MaSinhVien == 0)
             {
                 Snackbar.Add(ERROR_PAGE, Severity.Error);
-                await Task.Delay(1000);
                 Nav.NavigateTo("/info");
                 return;
             }
-            if (MyData != null && MyData.ChiTietCaThi != null)
+            if (MyData.ChiTietCaThi != null && MyData.ChiTietCaThi.MaCaThiNavigation != null)
             {
-                KhoiTaoBanDau();
-                chiTietCaThi = MyData.ChiTietCaThi;
-                caThi = MyData.ChiTietCaThi.MaCaThiNavigation;
-                sinhVien = MyData.SinhVien;
+                ChiTietCaThi = MyData.ChiTietCaThi;
+                CaThi = MyData.ChiTietCaThi.MaCaThiNavigation;
+                SinhVien = MyData.SinhVien;
                 await Start();
             }
         }
@@ -92,49 +95,6 @@ namespace Hutech.Exam.Client.Pages.Result
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        private async Task HandleUpdateKetThuc()
-        {
-            if (chiTietCaThi != null && customDeThis != null)
-            {
-                chiTietCaThi.ThoiGianKetThuc = DateTime.Now;
-                chiTietCaThi.Diem = diem;
-                chiTietCaThi.SoCauDung = so_cau_dung;
-                chiTietCaThi.TongSoCau = MyData.ListDapAnKhoanh.Count;
-                await UpdateKetThucAPI(chiTietCaThi);
-            }
-        }
-        private void TinhDiemSo()
-        {
-            diem = so_cau_dung = 0;
-            double diem_tung_cau = 0;
-            if (customDeThis != null)
-                diem_tung_cau = (10.0 / customDeThis.Count);
-            if (ketQuaDapAn != null)
-            {
-                foreach (var item in ketQuaDapAn)
-                {
-                    if (item == true)
-                    {
-                        diem += diem_tung_cau;
-                        so_cau_dung++;
-                    }
-                }
-            }
-            diem = QuyDoiDiem(diem);
-        }
-        private double QuyDoiDiem(double diem)
-        {
-            double so_phay = diem % 1;
-            if (so_phay > 0 && so_phay <= 0.25)
-                return Math.Floor(diem) + 0.3;
-            if (so_phay > 0.25 && so_phay <= 0.5)
-                return Math.Floor(diem) + 0.5;
-            if (so_phay > 0.5 && so_phay <= 0.75)
-                return Math.Floor(diem) + 0.8;
-            if (so_phay > 0.75)
-                return Math.Ceiling(diem);
-            return Math.Floor(diem);
-        }
         private async Task OnClickDangXuatAsync()
         {
             var parameters = new DialogParameters<Simple_Dialog>
@@ -159,40 +119,46 @@ namespace Hutech.Exam.Client.Pages.Result
             }
 
         }
-        private void KhoiTaoBanDau()
-        {
-            customDeThis = MyData.CustomDeThis;
-        }
-        private async Task GetListDungSai()
-        {
-            var chiTietBaiThis = MyData.ChiTietBaiThis.OrderBy(p => p.ThuTu).ToList();
-            var listDapAnKhoanh = new List<int?>();
-            int tong_so_cau = MyData.CustomDeThis.Count;
-            for(int i = 1; i <= tong_so_cau; i++)
-            {
-                int? cau_tra_loi = chiTietBaiThis?.FirstOrDefault(p => p.ThuTu == i)?.CauTraLoi;
-                listDapAnKhoanh.Add(cau_tra_loi);
-            }
-            ketQuaDapAn = await GetListDungSaiAPI(listDapAnKhoanh, MyData.ChiTietCaThi.MaDeThi ?? -1);
-        }
         private async Task Start()
         {
+            IsLoading = true;
             await CreateHubConnection();
-            await GetListDungSai();
-            TinhDiemSo();
-            await HandleUpdateKetThuc();
         }
         private async Task CreateHubConnection()
         {
-            hubConnection = await StudentHub.GetConnectionAsync(sinhVien?.MaSinhVien ?? -1);
+            hubConnection = await StudentHub.GetConnectionAsync(SinhVien?.MaSinhVien ?? -1);
 
             hubConnection.On("ResetLogin", async () =>
             {
                 await HandleDangXuat();
             });
 
+            hubConnection.On<List<bool>, int, double>("DeliverDapAn", async (dapAns, so_cau_dung, diem) =>
+            {
+                ketQuaDapAn = dapAns;
+                this.so_cau_dung = so_cau_dung;
+                this.diem = diem;
+                IsLoading = false;
+                Console.WriteLine("NHANNNNNNNNNNNNNNN" + IsLoading + "diem: " + diem + " ,,,," + ketQuaDapAn.Count);
+
+                // tính điểm
+                await HandleDiem();
+                StateHasChanged();
+            });
+
             //rời group ca thi
-            await hubConnection.InvokeAsync("LeaveGroupMaCaThi", caThi?.MaCaThi ?? -1);
+            await hubConnection.InvokeAsync("LeaveGroupMaCaThi", CaThi?.MaCaThi ?? -1);
+        }
+        private async Task HandleDiem()
+        {
+            Context = await CanvasReference.CreateCanvas2DAsync();
+            await Context.SetFontAsync("35px Arial");
+            if (diem - (int)diem != 0)
+            {
+                await Context.FillTextAsync(diem.ToString(), 5, 35);
+            }
+            string text = diem + ".0";
+            await Context.FillTextAsync(text.ToString(), 5, 35);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService, IMapper mapper) : Controller
+    public class ChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService) : Controller
     {
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
 

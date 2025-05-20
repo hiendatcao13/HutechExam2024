@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Configurations;
+using MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text;
@@ -28,7 +29,7 @@ namespace Hutech.Exam.Server.Attributes
             string? cacheResponse = null;
             try
             {
-                cacheResponse = await cacheService.GetCacheResponseAsync(cacheKey);
+                cacheResponse = await cacheService.GetCacheResponseAsync<string>(cacheKey);
             }
             catch (Exception ex)
             {
@@ -54,19 +55,20 @@ namespace Hutech.Exam.Server.Attributes
                     await cacheService.SetCacheResponseAsync(cacheKey, objectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
                 else if (excutedContext.Result is ObjectResult okObjectResult && okObjectResult.Value != null)
                     await cacheService.SetCacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromMinutes(_timeToLiveMinutes));
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($"[Redis] SetCache failed: {ex.Message}");
             }
- 
+
         }
         // lấy các parameter của controller
-        private static string GenerateCacheKeyFromRequest(HttpRequest request) 
+        private static string GenerateCacheKeyFromRequest(HttpRequest request)
         {
             var keyBuilder = new StringBuilder();
-            keyBuilder.Append($"{request.Path }");
-            foreach(var (key, value) in request.Query.OrderBy(x => x.Key)){
+            keyBuilder.Append($"{request.Path}");
+            foreach (var (key, value) in request.Query.OrderBy(x => x.Key))
+            {
                 keyBuilder.Append($"|{key}-{value}");
             }
             return keyBuilder.ToString();

@@ -10,9 +10,9 @@ namespace Hutech.Exam.Client.Pages.Exam
             _hubConnection = await StudentHub.GetConnectionAsync(MyData.SinhVien.MaSinhVien);
 
             // trường hợp thay đổi tình trạng ca thi
-            _hubConnection.On("ChangeStatusCaThi", async () =>
+            _hubConnection.On("ChangeStatusCaThi", () =>
             {
-                await CallLoadThayDoiTinhTrangCaThi();
+                CallLoadThayDoiTinhTrangCaThi();
             });
             _hubConnection.On("ResetLogin", async () =>
             {
@@ -37,15 +37,13 @@ namespace Hutech.Exam.Client.Pages.Exam
                 Nav?.NavigateTo("/", true);
             }
         }
-        private async Task CallLoadThayDoiTinhTrangCaThi()
+        private void CallLoadThayDoiTinhTrangCaThi()
         {
-            await UpdateChiTietBaiThiAPI();
             Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
-            Nav?.NavigateTo("/info");
+            Nav.NavigateTo("/info");
         }
         private async Task CallLoadDangXuat()
         {
-            await UpdateChiTietBaiThiAPI();
             Snackbar.Add(RESET_LOGIN, MudBlazor.Severity.Warning);
             await HandleDangXuat();
         }
