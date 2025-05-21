@@ -124,18 +124,18 @@ namespace Hutech.Exam.Server.BUS
                 // tiến hành lưu vào database TVP chiTietBaiThi
                 await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(data.Values.ToList()));
 
+                // xóa dữ liệu khi đã lưu xong thành công
+                await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{ma_chi_tiet_ca_thi}");
+
                 // xử lí chỉ trả ds đúng sai
                 (List<bool> listDungSai, int so_cau_dung, double diem) = _chiTietBaiThiService.GetDungSai_SelectByListCTBT_DapAn(data, dapAns);
-                Console.WriteLine($"diem: {diem},,,, listDungSai: {listDungSai.Count},,,, socaudung: {so_cau_dung},,,,tong_so_cau{dapAns.Count}");
+                _logger.LogInformation("SV ma: {ma_sinh_vien} co diem {diem}, socaudung {so_cau_dung} tren tong_so_cau {tong_so_cau}", ma_sinh_vien, diem, so_cau_dung, dapAns.Count);
 
                 // tiến hành lưu đáp án vào database
-                //await _chiTietCaThiService.UpdateKetThuc(ma_chi_tiet_ca_thi, DateTime.Now, diem, so_cau_dung, listDungSai.Count);
+                await _chiTietCaThiService.UpdateKetThuc(ma_chi_tiet_ca_thi, DateTime.Now, diem, so_cau_dung, listDungSai.Count);
 
                 // gửi thông điệp cho thí sinh
                 var connectionId = await GetConnectionIdAsync(ma_sinh_vien);
-
-                // xóa dữ liệu khi đã lưu xong thành công
-                //await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{ma_chi_tiet_ca_thi}");
 
                 if (!string.IsNullOrEmpty(connectionId))
                 {
@@ -146,7 +146,7 @@ namespace Hutech.Exam.Server.BUS
                     _logger.LogWarning("[Redis] No connectionId found for ma_sinh_vien: {ma_sinh_vien}", ma_sinh_vien);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) // có thể catch SqlException ở đây
             {
                 _logger.LogError(ex, "[Redis] An error occurred while retrieving ChiTietBaiThi.");
                 throw; // ném ra để rabbitMQ đẩy lại vào hàng đợi, xử lí lại

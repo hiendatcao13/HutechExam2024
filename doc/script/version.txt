@@ -4,3 +4,6 @@
 
 - Sửa lại GetDeThi có thứ tự câu hỏi
 - Thêm field KieuNoiDung cho NhomCauHoi
+--------------------------------
+21/5/2025 11AM
+- Thêm field mã câu hỏi vào trường Audio, field filename có thể null không cần thiết

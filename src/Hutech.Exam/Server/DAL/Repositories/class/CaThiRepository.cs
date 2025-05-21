@@ -18,7 +18,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<IDataReader> ca_thi_GetAll()
+        public async Task<IDataReader> GetAll()
         {
             DatabaseReader sql = new("ca_thi_GetAll");
             return await sql.ExecuteReaderAsync();

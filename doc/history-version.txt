@@ -103,11 +103,16 @@
 - tối ưu code
 - hiện tại đã giản lược bỏ lại cho câu hỏi multi, input (đang comment vì quy trình nghiệp vụ chưa đc)
 -------------------------------------------
-19/5/2024 6PM
+19/5/2025 6PM
 - tối ưu giao diện exam, hoàn thiện sv tiếp tục thi
 - đang cũng cố hoàn thiện phần lưu bài
 ---------------------------------------------
-20/5/2024 6PM
+20/5/2025 6PM
 - signalR, redis và rabbitMQ h đây giao tiếp nhau qua messagepack nhỏ gọn, nhanh chóng dạng nhị phân
 - Hoàn thiện nộp bài, lưu bài vào database
 - TODO: xử lí hoán vị câu trả lời theo mã đề, đang comment xóa redis cache sau khi hoàn thành thi
+----------------------------------------------
+21/5/2025 6PM
+- Đã hoàn thành phần thí sinh, đã xử lí audio lại, nộp bài, hoán vị câu trả lời
+- Đang hoàn thiện phần store procedure phân trang cho admin
+- TODO: xử lí hiện thị data bên phần admin

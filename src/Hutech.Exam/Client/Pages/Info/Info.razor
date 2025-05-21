@@ -1,8 +1,7 @@
 ﻿@page "/info"
+@using Hutech.Exam.Shared.DTO
 @implements IDisposable
 @attribute [Authorize]
-@inject ISnackbar Snackbar
-@inject IDialogService Dialog
 
 
 <PageTitle>Student Information</PageTitle>
@@ -21,12 +20,12 @@
             </MudItem>
             <MudItem xs="8">
                 <MudCardContent Style="padding-bottom:0">
-                    @if (sinhVien != null)
+                    @if (SinhVien != null)
                     {
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Mã số sinh viên: @sinhVien.MaSoSinhVien</MudText>
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Họ và tên: @sinhVien.HoVaTenLot @sinhVien.TenSinhVien</MudText>
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Email: @sinhVien.Email</MudText>
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Thời gian hiện tại: @displayTime</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Mã số sinh viên: @SinhVien.MaSoSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Họ và tên: @SinhVien.HoVaTenLot @SinhVien.TenSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Email: @SinhVien.Email</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Thời gian hiện tại: @DisplayTime</MudText>
                     }
                 </MudCardContent>
             </MudItem>
@@ -35,17 +34,17 @@
             <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="OnClickDangXuat">Đăng xuất</MudButton>
         </MudCardActions>
 
-        @if (chiTietCaThis != null && chiTietCaThis.Count > 0 && chiTietCaThis[0]?.MaCaThiNavigation != null)
+        @if (ChiTietCaThis != null && ChiTietCaThis.Count > 0 && ChiTietCaThis[0]?.MaCaThiNavigation != null)
         {
             <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
             <MudCardContent Style="padding: 0">
-                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @chiTietCaThis.Count ca thi. Vui lòng chọn ca thi</MudText>
+                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @ChiTietCaThis.Count ca thi. Vui lòng chọn ca thi</MudText>
                 <MudRadioGroup @bind-Value="selectedCTCaThi">
-                    @foreach (var item in chiTietCaThis)
+                    @foreach (var item in ChiTietCaThis)
                     {
-                        monHoc = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
-                        caThi = item.MaCaThiNavigation;
-                        <MudRadio Size="Size.Small" Value="@item">@monHoc?.TenMonHoc - @caThi?.TenCaThi</MudRadio>
+                        MonHoc = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
+                        CaThi = item.MaCaThiNavigation;
+                        <MudRadio Size="Size.Small" Value="@item">@MonHoc?.TenMonHoc - @CaThi?.TenCaThi</MudRadio>
                     }
                 </MudRadioGroup>
             </MudCardContent>
@@ -66,3 +65,7 @@
         border-radius: 50%;
     }
 </style>
+
+@code{
+    private ChiTietCaThiDto? selectedCTCaThi;
+}

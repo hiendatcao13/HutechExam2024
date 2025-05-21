@@ -12,12 +12,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@FileName", SqlDbType.NVarChar, fileName);
             return await sql.ExecuteReaderAsync();
         }
-        public async Task<bool> Save(int ma_chi_tiet_ca_thi, string fileName)
+        public async Task<object?> Save(int ma_chi_tiet_ca_thi, int ma_nhom)
         {
             DatabaseReader sql = new("AudioListened_Save");
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@FileName", SqlDbType.NVarChar, fileName);
-            return await sql.ExecuteNonQueryAsync() != 0;
+            sql.SqlParams("@MaNhom", SqlDbType.Int, ma_nhom);
+            return await sql.ExecuteScalarAsync();
         }
     }
 }

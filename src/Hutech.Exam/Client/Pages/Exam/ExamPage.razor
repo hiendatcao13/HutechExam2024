@@ -13,7 +13,7 @@
 			<MudImage Src="images/exam/Logo.svg" Width="150" />
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-center">
-			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b>@DisplayTime</b></MudText>
+			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b class="time-clock">@DisplayTime</b></MudText>
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-end">
 			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" OnClick="async () => await OnClickNopBai()">Nộp Bài</MudButton>
@@ -27,7 +27,6 @@
 				{
 					int current_ma_nhom_cha = -1;
 					int current_ma_nhom = 0;
-					int ma_audio = 0;
 
 					foreach (var item in CustomDeThis)
 					{
@@ -46,21 +45,20 @@
 							current_ma_nhom = item.MaNhom;
 
 							// xử lí câu hỏi âm thanh
-							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && isDisableAudio != null && item.GhiChu != null)
+							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && item.GhiChu != "-1" && DsAudioListened.ContainsKey(item.MaNhom))
 							{
-								string audio_source = HandleAudioSource(item.NoiDungCauHoiNhom);
-								string text_before = HandleBeforeAudio(item, item.NoiDungCauHoiNhom, ma_audio);
-								string id = $"audio{ma_audio}";
-								<p>@((MarkupString)(text_before))</p>
+								<MudText Typo="Typo.subtitle1" GutterBottom="true">
+									<b><NoiDungFragment NoiDung="@DsAudioListened[item.MaNhom].AudioText" /></b>
+								</MudText>
 								<span>
-									<audio id=@id controls controlsList="nodownload" @onplay="async () => await OnPlayAudio(item, ma_audio, audio_source, id)">
-										<source src="@audio_source" />
+									<br />
+									<audio id="@item.MaNhom" controls controlsList="nodownload" @onplay="async () => await OnPlayAudio(item, item.MaNhom)">
+										<source src="@DsAudioListened[item.MaNhom].AudioUrl" />
 									</audio>
-									@((MarkupString)(item.GhiChu))
+									@((MarkupString)(item.GhiChu + ""))
 								</span>
-								ma_audio++;
 							}
-							else
+							else if (item.KieuNoiDungCauHoiNhom != 2)
 							{
 								<MudText Typo="Typo.subtitle1" GutterBottom="true">
 									<b><NoiDungFragment NoiDung="@item.NoiDungCauHoiNhom" /></b>
@@ -202,5 +200,20 @@
 			}
 		};
 	})();
+
+		//Lắng nghe mọi sự kiện audio đều phải phát từ đầu
+		window.playAudioFromStart = (id) => {
+		const audio = document.getElementById(id);
+		if (audio) {
+			audio.currentTime = 0;
+			audio.play();
+		}
+	};
+
+		function changeColorTime() {
+		const clockElement = document.getElementById("time-clock");
+		clockElement.style.color = "red";
+		clockElement.style.fontWeight = 600;
+	}
 </script>
 

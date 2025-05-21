@@ -20,7 +20,7 @@
         @if(chiTietCaThis != null)
         {
             <MudItem xs="10">
-                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By">
+                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" ServerData="LoadServerData" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                         <MudSpacer />
@@ -55,6 +55,9 @@
                             </MudButtonGroup>
                         </MudTd>
                     </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[] {20}" AllItemsText="All" HideRowsPerPage="true"/>
+                    </PagerContent>
                 </MudTable>
             </MudItem>
         }
@@ -78,6 +81,7 @@
 @code{
     private string GetTrangThai (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";
     private string GetDangNhap (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
+    
 
     private string searchString = "";
 
@@ -89,5 +93,20 @@
 
         // Kiểm tra null an toàn trước khi truy cập thuộc tính con
         return element.MaSinhVienNavigation?.MaSoSinhVien?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private async Task<TableData<ChiTietCaThiDto>> LoadServerData(TableState state)
+    {
+        int page = state.Page;                   // Trang hiện tại (0-based)
+        int pageSize = state.PageSize;           // Số phần tử mỗi trang
+
+        // Lấy dữ liệu từ DB theo trang
+        var result = await GetPagedDataFromDbAsync(page, pageSize);
+
+        return new TableData<ChiTietCaThiDto>()
+        {
+            TotalItems = result.TotalCount,
+            Items = result.Items
+        };
     }
 }

@@ -6,29 +6,29 @@ namespace Hutech.Exam.Shared.DTO.API.Response
     public class ResponseAPI<TData>
     {
         [JsonPropertyName("timeStamp")]
-        public DateTime Timestamp { get; }
+        public DateTime Timestamp { get; set; }
 
         [JsonPropertyName("success")]
-        public bool Success { get; }
+        public bool Success { get; set; }
 
         [JsonPropertyName("message")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Message { get; }
+        public string? Message { get; set; }
 
         [JsonPropertyName("data")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public TData? Data { get; }
+        public TData? Data { get; set; }
 
         [JsonPropertyName("statusCode")]
-        public int StatusCode { get; }
+        public int StatusCode { get; set; }
 
         [JsonPropertyName("errorCode")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? ErrorCode { get; }
+        public string? ErrorCode { get; set; }
 
         [JsonPropertyName("errorDetails")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? ErrorDetails { get; }
+        public string? ErrorDetails { get; set; }
 
         public ResponseAPI(bool success, string? message, TData? data, HttpStatusCode statusCode, string? errorCode = null, string? errorDetails = null)
         {

@@ -40,7 +40,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private Dictionary<int, int?> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
 
-
+        private Dictionary<int, AudioInfo> DsAudioListened { get; set; } = []; // lưu vết các câu hỏi đã nghe audio của sinh viên (để hiển thị số lần nghe audio cho sinh viên)
 
         // các biến chỉ trong backend
         private HubConnection? _hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
@@ -56,7 +56,6 @@ namespace Hutech.Exam.Client.Pages.Exam
 
 
         private List<bool>? isDisableAudio { get; set; } = [];
-
 
 
 
@@ -100,14 +99,14 @@ namespace Hutech.Exam.Client.Pages.Exam
             await CheckPage();
             await base.OnInitializedAsync();
         }
-        //protected override async Task OnAfterRenderAsync(bool firstRender)
-        //{
-        //    if (firstRender)
-        //    {
-        //        objRef = DotNetObjectReference.Create(this);
-        //        await Js.InvokeVoidAsync("window.focusWatcher.init", objRef);
-        //    }
-        //}
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                _objRef = DotNetObjectReference.Create(this);
+                await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
+            }
+        }
 
         private async Task Start()
         {
@@ -115,7 +114,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             await CreateHubConnection();
 
             CustomDeThis = MyData.CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi) ?? [];
-            await ModifyNhomCauHoi();
+            ModifyNhomCauHoi();
 
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
             if (MyData.ChiTietCaThi.DaThi)
@@ -271,5 +270,11 @@ namespace Hutech.Exam.Client.Pages.Exam
             ThuTu = thuTu;
             NgayTao = ngayTao;
         }
+    }
+
+    public class AudioInfo
+    {
+        public string? AudioUrl { get; set; }
+        public string? AudioText { get; set; }
     }
 }

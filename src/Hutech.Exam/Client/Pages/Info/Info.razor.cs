@@ -8,27 +8,48 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
 using AutoMapper;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
     public partial class Info
     {
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private ApplicationDataService MyData { get; set; } = default!;
+
         [Inject] private StudentHubService StudentHub { get; set; } = default!;
+
+        [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+        [Inject] private IDialogService Dialog { get; set; } = default!;
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
         [Inject] private IMapper Mapper { get; set; } = default!;
 
-        private SinhVienDto? sinhVien = new();
-        private CaThiDto? caThi = new();
-        private MonHocDto? monHoc = new();
-        private ChiTietCaThiDto? selectedCTCaThi = new();
-        private List<ChiTietCaThiDto> chiTietCaThis = [];
-        private System.Timers.Timer? timer;
-        private HubConnection? hubConnection;
-        private string? displayTime;
+        [Inject] private ISenderAPI SendAPI { get; set; } = default!;
+
+        // biến binding UI
+        private SinhVienDto? SinhVien { get; set; }
+
+        private CaThiDto? CaThi { get; set; }
+
+        private List<ChiTietCaThiDto> ChiTietCaThis { get; set; } = [];
+
+        private MonHocDto? MonHoc { get; set; }
+
+        private string? DisplayTime { get; set; }
+
+        // biến nội bộ
+
+        private System.Timers.Timer? _timer;
+
+        private HubConnection? _hubConnection;
 
         private const int THOI_GIAN_TRUOC_THI = 1; // thí sinh được phép thi trước n phút so với ca thi (1p) - BONUS TIME
         private const int THOI_GIAN_SAU_THI = 15; // thí sinh không được phép thi sau n phút so với ca thi (15p) 
@@ -57,8 +78,8 @@ namespace Hutech.Exam.Client.Pages.Info
             var getThongTinCTCT_gan_nhat = await GetChiTietCaThiAPI(ma_sinh_vien);
             if (getThongTinCTCT_gan_nhat != null && getThongTinCTCT_gan_nhat.MaSinhVienNavigation != null)
             {
-                chiTietCaThis.Add(getThongTinCTCT_gan_nhat);
-                sinhVien = MyData.SinhVien = getThongTinCTCT_gan_nhat.MaSinhVienNavigation;
+                ChiTietCaThis.Add(getThongTinCTCT_gan_nhat);
+                SinhVien = MyData.SinhVien = getThongTinCTCT_gan_nhat.MaSinhVienNavigation;
             }
         }
         private async Task OnClickDangXuat()
@@ -91,7 +112,7 @@ namespace Hutech.Exam.Client.Pages.Info
                 Snackbar.Add(NOT_CHOOSE_CA_THI, Severity.Info);
                 return;
             }
-            if (caThi != null && (caThi.IsActivated == false || caThi.KetThuc == true))
+            if (CaThi != null && (CaThi.IsActivated == false || CaThi.KetThuc == true))
             {
                 Snackbar.Add(NOT_ACTIVATED_CA_THI, Severity.Error);
                 return;
@@ -102,14 +123,14 @@ namespace Hutech.Exam.Client.Pages.Info
                 return;
             }
             DateTime currentTime = DateTime.Now; // vì cách hiển thị của DateTimeNow dạng local dd/MM trong khi sql lưu dạng MM/dd hoặc ngc lại
-            DateTime thoiGianThi = caThi?.ThoiGianBatDau ?? DateTime.Now;
+            DateTime thoiGianThi = CaThi?.ThoiGianBatDau ?? DateTime.Now;
 
-            if (caThi != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
+            if (CaThi != null && DateTime.Compare(thoiGianThi, currentTime.AddMinutes(THOI_GIAN_TRUOC_THI)) > 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
                 Snackbar.Add(NOT_ARRIVED_TIME, Severity.Error);
                 return;
             }
-            if (caThi != null && DateTime.Compare(thoiGianThi.AddMinutes(THOI_GIAN_SAU_THI), currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
+            if (CaThi != null && DateTime.Compare(thoiGianThi.AddMinutes(THOI_GIAN_SAU_THI), currentTime) < 0 && selectedCTCaThi != null && !selectedCTCaThi.DaThi)
             {
                 Snackbar.Add(EXPIRED_TIME, Severity.Error);
                 return;
@@ -127,7 +148,7 @@ namespace Hutech.Exam.Client.Pages.Info
         {
             await GetThongTinSV();
             await CreateHubConnection();
-            displayTime = DateTime.Now.ToString("hh:mm:ss tt");
+            DisplayTime = DateTime.Now.ToString("hh:mm:ss tt");
             MyData.BonusTime = THOI_GIAN_TRUOC_THI;
         }
         private async Task GetThongTinSV()
@@ -142,13 +163,13 @@ namespace Hutech.Exam.Client.Pages.Info
         }
         private void Time()
         {
-            timer = new System.Timers.Timer();
-            timer.Interval = 1000; // 1000 = 1ms
-            timer.AutoReset = true;
-            timer.Enabled = true;
-            timer.Elapsed += (sender, e) =>
+            _timer = new System.Timers.Timer();
+            _timer.Interval = 1000; // 1000 = 1ms
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
+            _timer.Elapsed += (sender, e) =>
             {
-                displayTime = DateTime.Now.ToString("hh:mm:ss tt");
+                DisplayTime = DateTime.Now.ToString("hh:mm:ss tt");
                 InvokeAsync(() =>
                 {
                     StateHasChanged();
@@ -157,16 +178,16 @@ namespace Hutech.Exam.Client.Pages.Info
         }
         private async Task CreateHubConnection()
         {
-            hubConnection = await StudentHub.GetConnectionAsync(sinhVien?.MaSinhVien ?? -1);
+            _hubConnection = await StudentHub.GetConnectionAsync(SinhVien?.MaSinhVien ?? -1);
 
-            hubConnection.On("ResetLogin", async () =>
+            _hubConnection.On("ResetLogin", async () =>
             {
                await HandleDangXuat();
             });
         }
         public void Dispose()
         {
-            timer?.Dispose();
+            _timer?.Dispose();
         }
     }
 }

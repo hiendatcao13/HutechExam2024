@@ -1,5 +1,6 @@
 using Blazored.SessionStorage;
 using Hutech.Exam.Client;
+using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Client.BUS;
 using Hutech.Exam.Client.DAL;
@@ -19,6 +20,7 @@ builder.Services.AddHttpClient("Hutech.Exam.ServerAPI", client => client.BaseAdd
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Hutech.Exam.ServerAPI"));
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<ISenderAPI, SenderAPI>();
 builder.Services.AddAuthorizationCore();
 // bien toan cuc
 builder.Services.AddSingleton<AdminDataService>();

@@ -74,7 +74,7 @@ namespace Hutech.Exam.Server.BUS
         public async Task<List<CaThiDto>> GetAll()
         {
             List<CaThiDto> result = [];
-            using (IDataReader dataReader = await _caThiRepository.ca_thi_GetAll())
+            using (IDataReader dataReader = await _caThiRepository.GetAll())
             {
                 while (dataReader.Read())
                 {

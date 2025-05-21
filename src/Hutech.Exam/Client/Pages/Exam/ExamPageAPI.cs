@@ -5,6 +5,7 @@ using MudBlazor;
 using System.Text.Json;
 using System.Text;
 using System.Net.Http.Json;
+using StackExchange.Redis;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
@@ -37,20 +38,18 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
         }
 
-        private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, string filename)
+        private async Task<int> GetSoLanNgheAPI(int ma_chi_tiet_ca_thi, int ma_nhom, string? filename = null)
         {
-            var response = await Http.GetAsync($"api/AudioListened/GetSoLanNghe?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}&filename={filename}");
-            return await response.Content.ReadFromJsonAsync<int>();
-        }
-        private async Task AddOrUpdateListenAPI(int ma_chi_tiet_ca_thi, string filename)
-        {
-            AudioListenedDto audio = new AudioListenedDto
+            AudioListenedDto audio = new()
             {
                 MaChiTietCaThi = ma_chi_tiet_ca_thi,
+                MaNhom = ma_nhom,
                 FileName = filename
             };
             var jsonString = JsonSerializer.Serialize(audio);
-            await Http.PutAsync($"api/AudioListened/AddOrUpdate", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            var response = await Http.PutAsync($"api/AudioListened/GetSoLanNghe", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+
+            return await response.Content.ReadFromJsonAsync<int>();
         }
         private async Task<bool> UpdateLogoutAPI(SinhVienDto sinhVien)
         {

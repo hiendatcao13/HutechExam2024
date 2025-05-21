@@ -20,8 +20,9 @@ namespace Hutech.Exam.Server.BUS
             {
                 ListenId = dataReader.GetInt64(0 + start),
                 MaChiTietCaThi = dataReader.GetInt32(1 + start),
-                FileName = dataReader.GetString(2 + start),
-                ListenedCount = dataReader.GetInt32(3 + start)
+                MaNhom = dataReader.GetInt32(2 + start),
+                FileName = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
+                ListenedCount = dataReader.GetInt32(4 + start)
             };
             return _mapper.Map<AudioListenedDto>(audioListened);
         }
@@ -37,16 +38,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return listenedCount;
         }
-        public async Task Save(int ma_chi_tiet_ca_thi, string fileName)
+        public async Task<int> Save(int ma_chi_tiet_ca_thi, int ma_nhom)
         {
-            try
-            {
-                await _audioListenedRepository.Save(ma_chi_tiet_ca_thi, fileName);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return Convert.ToInt32(await _audioListenedRepository.Save(ma_chi_tiet_ca_thi, ma_nhom));
         }
     }
 }

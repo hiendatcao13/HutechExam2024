@@ -3,12 +3,9 @@ using Hutech.Exam.Shared;
 using Microsoft.AspNetCore.Components.Authorization;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Web;
-using Hutech.Exam.Shared.DTO;
 using MudBlazor;
-using Hutech.Exam.Client.DAL;
-using Microsoft.AspNetCore.Http.Connections;
+using Hutech.Exam.Client.API;
 namespace Hutech.Exam.Client.Pages.Login
 {
 
@@ -17,12 +14,15 @@ namespace Hutech.Exam.Client.Pages.Login
         [Inject] private HttpClient Http { get; set; } = default!;
         [Inject] private NavigationManager Nav { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        [Inject] private ApplicationDataService MyData { get; set; } = default!;
 
-        private UserSession? userSession;
-        private string? username = "";
-        private string? password = "";
+        // biến binding với UI
+        private string? Username { get; set; } = string.Empty;
+        private string? Password { get; set; } = string.Empty;
+
+        // biến nội bộ
+        private UserSession? _userSession;
 
         private const string FAILED_MESSSAGE = "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết";
         private const string ERROR_MESSAGE = "Username và password không trùng khớp";
@@ -37,7 +37,7 @@ namespace Hutech.Exam.Client.Pages.Login
             {
                 Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
                 var authState = await AuthenticationState;
-                username = authState?.User.Identity?.Name;
+                Username = authState?.User.Identity?.Name;
                 Nav?.NavigateTo("/info", true);
             }
             await base.OnInitializedAsync();
@@ -51,15 +51,15 @@ namespace Hutech.Exam.Client.Pages.Login
         }
         private async Task OnClickDangNhap()
         {
-            if (string.IsNullOrEmpty(username) || username != password)
+            if (string.IsNullOrEmpty(Username) || Username != Password)
             {
                 Snackbar.Add(ERROR_MESSAGE, Severity.Error);
                 return;
             }
 
-            userSession = await LoginAPI(username);
+            _userSession = await LoginAPI(Username);
 
-            if (userSession == null)
+            if (_userSession == null)
             {
                 Snackbar.Add(FAILED_MESSSAGE, Severity.Error);
                 return;
@@ -73,7 +73,7 @@ namespace Hutech.Exam.Client.Pages.Login
             }
 
             // Cập nhật trạng thái xác thực
-            await customAuthenticationStateProvider.UpdateAuthenticationState(userSession);
+            await customAuthenticationStateProvider.UpdateAuthenticationState(_userSession);
 
             Nav.NavigateTo("/info", true);
         }

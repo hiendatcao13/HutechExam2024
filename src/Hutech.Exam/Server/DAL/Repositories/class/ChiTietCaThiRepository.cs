@@ -23,6 +23,23 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             return await sql.ExecuteReaderAsync();
         }
+        public async Task<IDataReader> SelectBy_ma_ca_thi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("chi_tiet_ca_thi_SelectBy_ma_ca_thi_Search_Paged");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
+        public async Task<IDataReader> SelectBy_ma_ca_thi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("chi_tiet_ca_thi_SelectBy_ma_ca_thi_Paged");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
         public async Task<IDataReader> SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)
         {
             DatabaseReader sql = new("chi_tiet_ca_thi_SelectBy_MaCaThi_MaSinhVien");

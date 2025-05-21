@@ -7,9 +7,11 @@ public partial class AudioListened
 {
     public long ListenId { get; set; }
 
+    public int MaNhom { get; set; }
+
     public int MaChiTietCaThi { get; set; }
 
-    public string FileName { get; set; } = null!;
+    public string? FileName { get; set; }
 
     public int ListenedCount { get; set; }
 }

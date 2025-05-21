@@ -62,7 +62,46 @@ namespace Hutech.Exam.Server.BUS
                     result.Add(GetProperty(dataReader));
                 }
             }
+
+            // hoán vị thứ tự câu trả lời
+            HandleHoanViTraLoi(result);
+
             return result;
+        }
+
+
+
+        private void HandleHoanViTraLoi(List<CustomDeThi> deThis)
+        {
+            foreach (var item in deThis)
+            {
+                if (item.CauTraLois == null || item.CauTraLois.Count == 0 || string.IsNullOrEmpty(item.HoanViCauTraLoi))
+                {
+                    continue;
+                }
+
+                var cauTraLoisList = item.CauTraLois.ToList(); // Chuyển sang list để truy cập theo chỉ số
+                var cauTraLoiHoanVi = new Dictionary<int, string?>();
+
+                bool invalid = false;
+                foreach (char c in item.HoanViCauTraLoi)
+                {
+                    if (!char.IsDigit(c) || !int.TryParse(c.ToString(), out int index) || index <= 0 || index > cauTraLoisList.Count)
+                    {
+                        invalid = true;
+                        break;
+                    }
+
+                    var pair = cauTraLoisList[index - 1];
+                    cauTraLoiHoanVi[pair.Key] = pair.Value;
+                }
+
+
+                // Nếu có lỗi định dạng thì giữ nguyên thứ tự gốc
+                item.CauTraLois = invalid ? item.CauTraLois : cauTraLoiHoanVi;
+            }
+
+
         }
     }
 }
