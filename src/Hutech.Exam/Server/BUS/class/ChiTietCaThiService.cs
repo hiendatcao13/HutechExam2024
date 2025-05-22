@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.Models;
 using System.Data;
@@ -68,6 +69,58 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
+        public async Task<ChiTietCaThiPageResult> SelectBy_MaCaThi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
+        {
+            List<ChiTietCaThiDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_ma_ca_thi_Paged(ma_ca_thi, pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
+                    chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
+                    result.Add(chiTietCaThi);
+                }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new ChiTietCaThiPageResult() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+        }
+
+        public async Task<ChiTietCaThiPageResult> SelectBy_MaCaThi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
+        {
+            List<ChiTietCaThiDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_ma_ca_thi_Search_Paged(ma_ca_thi, keyword, pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
+                    chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
+                    result.Add(chiTietCaThi);
+                }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new ChiTietCaThiPageResult() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+        }
+
         public async Task<ChiTietCaThiDto> SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)
         {
             ChiTietCaThiDto chiTietCaThi = new();
@@ -139,6 +192,11 @@ namespace Hutech.Exam.Server.BUS
         public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
         {
             return Convert.ToInt32(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
+        }
+
+        public async Task<int> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
+        {
+            return Convert.ToInt32(await _chiTietCaThiRepository.ThemSVKhanCap(ma_so_sinh_vien, ma_ca_thi, ma_de_thi));
         }
         public async Task<int> Remove(int ma_chi_tiet_ca_thi)
         {

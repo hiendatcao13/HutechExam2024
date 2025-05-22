@@ -24,7 +24,7 @@ var app = builder.Build();
 //}
 
 // Thêm các middleware trung gian xử lí các request, trước khi trả về reponse
-app.UseMiddleware<GlobalExceptionMiddleware>();
+//app.UseMiddleware<GlobalExceptionMiddleware>();
 Configure(app);
 
 static void Configure(WebApplication app)

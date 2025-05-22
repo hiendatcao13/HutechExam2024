@@ -116,3 +116,7 @@
 - Đã hoàn thành phần thí sinh, đã xử lí audio lại, nộp bài, hoán vị câu trả lời
 - Đang hoàn thiện phần store procedure phân trang cho admin
 - TODO: xử lí hiện thị data bên phần admin
+-------------------------------------------------
+22/5/2025 6PM
+- Đang hoàn thiện trang exam monitor, đã có phân trang, tìm kiếm phân trang
+- TODO: khắc phục thêm sinh viên khẩn cấp chưa ra real-time

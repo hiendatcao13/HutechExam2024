@@ -3,24 +3,20 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.API.Response;
-using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using StackExchange.Redis;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> mainHub, IConnectionMultiplexer redis) : Controller
+    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> mainHub, RedisService redisService) : Controller
     {
         private readonly SinhVienService _sinhVienService = sinhVienService;
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
-        private readonly IDatabase _redisDb = redis.GetDatabase();
+        private readonly RedisService _redisService = redisService;
 
 
         private const int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
@@ -102,18 +98,7 @@ namespace Hutech.Exam.Server.Controllers
 
         private async Task<string?> GetConnectionIdAsync(long ma_sinh_vien)
         {
-            try
-            {
-                var key = $"connection:{ma_sinh_vien}";
-                var connectionId = await _redisDb.StringGetAsync(key);
-
-                return connectionId;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return await _redisService.GetConnectionIdAsync(ma_sinh_vien);
         }
         private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien, bool isLogin, DateTime thoi_gian)
         {

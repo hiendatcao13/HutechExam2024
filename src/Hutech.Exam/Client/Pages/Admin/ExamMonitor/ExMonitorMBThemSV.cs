@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
+using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 
 
@@ -13,7 +14,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             string?[] content_texts = [caThi?.TenCaThi ?? "", caThi?.ThoiGianBatDau.ToString() ?? "", caThi?.ThoiGianThi.ToString() ?? ""];
             var parameters = new DialogParameters<ThemSVDialog>
             {
-                { x => x.contexts, content_texts },
                 { x => x.maMSSVs, GetMSSVs() },
                 { x => x.maDeHVs, GetMaDeThis() },
                 { x => x.ma_ca_thi, caThi?.MaCaThi},
@@ -22,8 +22,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
+            var result = await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
+            HandleThemSVDialog(await result.Result);
         }
+        private void HandleThemSVDialog(DialogResult? result)
+        {
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                Console.WriteLine("Hekllllllllllllo");
+                chiTietCaThis?.Add((ChiTietCaThiDto)result.Data);
+            }
+        }
+
         private List<long> GetMaDeThis()
         {
             List<long> result = [];

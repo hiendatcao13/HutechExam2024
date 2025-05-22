@@ -26,6 +26,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public Task<object?> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau);
 
+        public Task<object?> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi);
+
         public Task<int> Remove(int ma_chi_tiet_ca_thi);
 
         public Task<int> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau);

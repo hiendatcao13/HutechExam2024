@@ -89,6 +89,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@tong_so_cau", SqlDbType.Int, tong_so_cau);
             return await sql.ExecuteScalarAsync();
         }
+        public async Task<object?> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
+        {
+            DatabaseReader sql = new("chi_tiet_ca_thi_ThemSVKhanCap");
+            sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien);
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@ma_de_thi", SqlDbType.BigInt, ma_de_thi);
+            return await sql.ExecuteScalarAsync();
+        }
         public async Task<int> Remove(int ma_chi_tiet_ca_thi)
         {
             DatabaseReader sql = new("chi_tiet_ca_thi_Remove");

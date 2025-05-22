@@ -2,6 +2,7 @@
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,24 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(await _chiTietCaThiService.Insert((int)chiTietCaThi.MaCaThi, (long)chiTietCaThi.MaSinhVien, (long)chiTietCaThi.MaDeThi, 0));
         }
 
+        [HttpPost("ThemSVKhanCap")]
+        public async Task<ActionResult<SinhVienDto>> ThemSVKhanCap([FromBody] SVKhanCapRequest request)
+        {
+            var ma_chi_tiet_ca_thi = await _chiTietCaThiService.ThemSVKhanCap(request.MaSoSinhVien, request.MaCaThi, request.MaDeThi);
+            if(ma_chi_tiet_ca_thi == -1)
+                return NotFound("Không tìm thấy sinh viên này trong hệ thống");
+            else
+                return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_ca_thi));
+        }
+
+
         [HttpGet("SelectBy_MSSVThi")]
         public async Task<ActionResult<ChiTietCaThiDto>> SelectBy_MSSVThi([FromQuery] long ma_sinh_vien)
         {
             return Ok(await _chiTietCaThiService.SelectBy_MaSinhVienThi(ma_sinh_vien));
         }
+
+
         [HttpPut("UpdateBatDauThi")]
         public async Task<ActionResult> UpdateBatDauThi([FromBody] ChiTietCaThiRequest chiTietCaThi)
         {
@@ -39,6 +53,8 @@ namespace Hutech.Exam.Server.Controllers
             await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, true, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }
+
+
         [HttpPut("UpdateKetThucThi")]
         public async Task<ActionResult> UpdateKetThucThi([FromBody] ChiTietCaThiRequest chiTietCaThi)
         {
@@ -47,13 +63,27 @@ namespace Hutech.Exam.Server.Controllers
             await NotifSVStatusThiToAdmin(chiTietCaThi.MaChiTietCaThi, false, chiTietCaThi.ThoiGianBatDau ?? DateTime.Now);
             return Ok();
         }
-        [HttpGet("SelectBy_MaCaThi")]
+
+
+        [HttpGet("SelectBy_MaCaThi_Paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<ChiTietCaThiDto>>> GetThongTinCTCaThiTheoMaCaThi([FromQuery] int ma_ca_thi)
+        public async Task<ActionResult<ChiTietCaThiPageResult>> SelectBy_MaCaThi_Paged([FromQuery] int ma_ca_thi, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
-            return Ok(await _chiTietCaThiService.SelectBy_ma_ca_thi(ma_ca_thi));
+            return Ok(await _chiTietCaThiService.SelectBy_MaCaThi_Paged(ma_ca_thi, pageNumber, pageSize));
         }
+
+
+        [HttpGet("SelectBy_MaCaThi_Search_Paged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ChiTietCaThiPageResult>> SelectBy_MaCaThi_Search_Paged([FromQuery] int ma_ca_thi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
+        {
+            // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
+            return Ok(await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(ma_ca_thi, keyword, pageNumber, pageSize));
+        }
+
+
+
         [HttpPut("CongGioSinhVien")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> CongGioSinhVien([FromBody] ChiTietCaThiDto chiTietCaThi)
@@ -63,6 +93,8 @@ namespace Hutech.Exam.Server.Controllers
             await NotifyCongGioSVToAdmin(chiTietCaThi.MaChiTietCaThi);
             return Ok(true);
         }
+
+
         [HttpGet("SelectBy_MaCaThi_MSSV")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> SelectBy_MaCaThi_MSSV([FromQuery] int ma_ca_thi)

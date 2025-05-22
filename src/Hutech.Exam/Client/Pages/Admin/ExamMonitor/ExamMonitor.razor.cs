@@ -24,10 +24,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
         [Inject] private IJSRuntime Js { get; set; } = default!;
         [Inject] private AdminHubService AdminHub { get; set; } = default!;
-        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
         private CaThiDto? caThi;
-        private List<ChiTietCaThiDto>? chiTietCaThis;
+        private List<ChiTietCaThiDto>? chiTietCaThis = [];
         private HubConnection? hubConnection;
 
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
@@ -36,10 +35,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private const string SUCCESS_NOPBAI = "Nộp bài của thí sinh thành công";
         private const string ERROR_NOPBAI = "Nộp bài của thí sinh thất bại";
         private const string ALERT_ADDSV = "Thêm thí sinh được dùng cho việc khẩn cấp. Hãy đảm bảo MSSV thí sinh đã tồn tại trong hệ thống";
-        private const string MISSINGINFO_RESETLOGIN = "Tính năng reset login không thể hoạt động khi thiếu thông tin mã lớp";
         private const string WAITING_DOWNLOADEXCEL = "Đang tải xuống file excel. Hãy chờ trong giây lát";
 
-        private const string FAILED_RESETLOGIN = "Không thể reset đăng nhập cho thí sinh khi thí sinên không đăng nhập vào hệ thống thi";
+        private const string FAILED_RESETLOGIN = "Không thể reset đăng nhập cho thí sinh khi thí sinh không đăng nhập vào hệ thống thi";
         private const string FAILED_CONGGIO = "Không thể cộng giờ cho thí sinh khi thí sinh chưa thi";
         private const string FAILED_NOPBAI = "Không thể bắt thí sinh nộp bài khi thí sinh chưa thi hoặc thí sinh không đăng nhập";
 
@@ -53,9 +51,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;
             if (!string.IsNullOrWhiteSpace(token))
             {
-                int maCaThi = -1;
                 caThi = await SessionStorage.GetItemAsync<CaThiDto>("CaThi");
-                bool isConvert = int.TryParse(ma_ca_thi, out maCaThi);
+                bool isConvert = int.TryParse(ma_ca_thi, out int maCaThi);
                 if (ma_ca_thi == null || caThi == null && !isConvert || (isConvert && caThi != null && caThi.MaCaThi != maCaThi))
                 {
                     Snackbar.Add(ERROR_PAGE, Severity.Error);
@@ -93,11 +90,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task HandleResetLogin(SinhVienDto sinhVien)
         {
-            if (sinhVien.MaLop == null)
-            {
-                Snackbar.Add(MISSINGINFO_RESETLOGIN, Severity.Error);
-                return;
-            }
             await ResetLoginAPI(sinhVien);
         }
         private async Task OnClickCongGioThem(ChiTietCaThiDto chiTietCaThi)
@@ -115,7 +107,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            await Dialog.ShowAsync<CongGioDialog>("Cộng giờ thi", parameters, options);
+            var dialog = await Dialog.ShowAsync<CongGioDialog>("Cộng giờ thi", parameters, options);
+            HandleAfterDialog(await dialog.Result);
         }
         private async Task OnClickNopBai(ChiTietCaThiDto chiTietCaThi)
         {
@@ -149,7 +142,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task Refresh()
         {
-            chiTietCaThis = await ChiTietCaThis_SelectBy_MaCaThiAPI(caThi?.MaCaThi ?? -1);
+            searchString = string.Empty;
+            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
         }
         private async Task OnClickDownloadExcel()
         {
@@ -170,9 +164,47 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task Start()
         {
-            chiTietCaThis = await ChiTietCaThis_SelectBy_MaCaThiAPI(caThi?.MaCaThi ?? -1);
+            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+            CreateFakeData();
+
+
             await CreateHubConnection();
         }
 
+
+        private void CreateFakeData()
+        {
+            if(chiTietCaThis != null && chiTietCaThis.Count != 0)
+            {
+                int count_fake = totalRecords - chiTietCaThis.Count;
+                bool isFake = totalRecords > chiTietCaThis.Count;
+                if(isFake)
+                {
+                    for (int i = 0; i < count_fake; i++)
+                        chiTietCaThis.Add(new ChiTietCaThiDto());
+                }    
+            }    
+        }
+        private void PadEmptyRows(List<ChiTietCaThiDto> newChiTietCaThi)
+        {
+            // tìm phần tử đầu tiên của trang đó
+            int startRow = currentPage * rowsPerPage;
+            if(chiTietCaThis != null && chiTietCaThis.Count != 0)
+            {
+                for (int i = 0; i < newChiTietCaThi.Count; i++)
+                {
+                    chiTietCaThis[startRow++] = newChiTietCaThi[i];
+                }
+            }
+            StateHasChanged();
+
+        }
+        private void HandleAfterDialog(DialogResult? result)
+        {
+            if(result != null && !result.Canceled && result.Data != null)
+            {
+                StateHasChanged();
+            }    
+        }
     }
 }

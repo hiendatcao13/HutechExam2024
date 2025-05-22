@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -7,17 +8,35 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor
     {
+        // curentPage mặc định của MudTable là 0, trang đầu là 0
         private async Task<CaThiDto?> CaThi_SelectOneAPI(int ma_ca_thi)
         {
             var response = await Http.GetAsync($"api/CaThi/SelectOne?ma_ca_thi={ma_ca_thi}");
             return await response.Content.ReadFromJsonAsync<CaThiDto?>();
         }
-        private async Task<List<ChiTietCaThiDto>?> ChiTietCaThis_SelectBy_MaCaThiAPI(int ma_ca_thi)
+        private async Task<(List<ChiTietCaThiDto>, int, int)?> ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(int ma_ca_thi, int pageNumber, int pageSize)
         {
-            var response = await Http.GetAsync($"api/ChiTietCaThi/SelectBy_MaCaThi?ma_ca_thi={ma_ca_thi}");
+            var response = await Http.GetAsync($"api/ChiTietCaThi/SelectBy_MaCaThi_Paged?ma_ca_thi={ma_ca_thi}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             if (response != null && response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<List<ChiTietCaThiDto>?>();
+                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPageResult>();
+                if (result != null)
+                {
+                    return (result.Data ?? [], result.TotalRecords, result.TotalPages);
+                }
+            }
+            return null;
+        }
+        private async Task<(List<ChiTietCaThiDto>, int, int)?> ChiTietCaThis_SelectBy_MaCaThi_Search_PagedAPI(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
+        {
+            var response = await Http.GetAsync($"api/ChiTietCaThi/SelectBy_MaCaThi_Search_Paged?ma_ca_thi={ma_ca_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
+            if (response != null && response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPageResult>();
+                if(result != null)
+                {
+                    return (result.Data ?? [], result.TotalRecords, result.TotalPages);
+                }
             }
             return null;
         }

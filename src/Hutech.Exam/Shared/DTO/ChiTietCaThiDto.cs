@@ -42,5 +42,25 @@ namespace Hutech.Exam.Shared.DTO
         public virtual CaThiDto? MaCaThiNavigation { get; set; }
 
         public virtual SinhVienDto? MaSinhVienNavigation { get; set; }
+
+        public ChiTietCaThiDto() { }
+
+        public ChiTietCaThiDto(ChiTietCaThiDto chiTietCaThiDto)
+        {
+            MaChiTietCaThi = chiTietCaThiDto.MaChiTietCaThi;
+            MaCaThi = chiTietCaThiDto.MaCaThi;
+            MaSinhVien = chiTietCaThiDto.MaSinhVien;
+            MaDeThi = chiTietCaThiDto.MaDeThi;
+            ThoiGianBatDau = chiTietCaThiDto.ThoiGianBatDau;
+            ThoiGianKetThuc = chiTietCaThiDto.ThoiGianKetThuc;
+            DaThi = chiTietCaThiDto.DaThi;
+            DaHoanThanh = chiTietCaThiDto.DaHoanThanh;
+            Diem = chiTietCaThiDto.Diem;
+            TongSoCau = chiTietCaThiDto.TongSoCau;
+            SoCauDung = chiTietCaThiDto.SoCauDung;
+            GioCongThem = chiTietCaThiDto.GioCongThem;
+            ThoiDiemCong = chiTietCaThiDto.ThoiDiemCong;
+            LyDoCong = chiTietCaThiDto.LyDoCong;
+        }
     }
 }

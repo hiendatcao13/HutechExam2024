@@ -7,106 +7,158 @@
 <PageTitle>Exam Monitor</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
-    <MudGrid Style="margin-top: 70px">
-        <MudItem xs="2">
-            <MudPaper Elevation="2" Class="pa-4">
-                <MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickThemSV()">Thêm SV</MudButton>
-                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await Refresh()">Refresh</MudButton>
-                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Print" Color="Color.Default">Check Điểm</MudButton>
-                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf"  Color="Color.Default">Export PDF</MudButton>
-                <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcel">Export EXCEL</MudButton>
-            </MudPaper>
-        </MudItem>
-        @if(chiTietCaThis != null)
-        {
-            <MudItem xs="10">
-                <MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" ServerData="LoadServerData" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Filter="new Func<ChiTietCaThiDto,bool>(Filter)" SortLabel="Sort By">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
-                        <MudSpacer />
-                        <MudTextField @bind-Value="searchString" Placeholder="Nhập mã số sinh viên" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>STT</MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.MaSoSinhVien ?? string.Empty)">MSSV</MudTableSortLabel></MudTh>
-                        <MudTh>Họ và Tên</MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaDeThi ?? -1)">Mã Đề</MudTableSortLabel></MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.DaHoanThanh)">Trạng Thái</MudTableSortLabel></MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.IsLoggedIn ?? false)">Đăng Nhập</MudTableSortLabel></MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.GioCongThem)">Phút Cộng</MudTableSortLabel></MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.Diem)">Điểm</MudTableSortLabel></MudTh>
-                        <MudTh>Chức năng</MudTh>
-                    </HeaderContent>
-                    <RowTemplate Context="item">
-                        <MudTd>@(chiTietCaThis.IndexOf(item) + 1)</MudTd>
-                        <MudTd>@item.MaSinhVienNavigation?.MaSoSinhVien</MudTd>
-                        <MudTd>@item.MaSinhVienNavigation?.HoVaTenLot @item.MaSinhVienNavigation?.TenSinhVien</MudTd>
-                        <MudTd>@item.MaDeThi</MudTd>
-                        <MudTd Style="@($"color: {GetTrangThai(item)}")">@(item.DaHoanThanh ? "Đã thi" : item.DaThi ? "Đang thi" : "Chưa thi")</MudTd>
-                        <MudTd Style="@($"color: {GetDangNhap(item)}")">@(item.MaSinhVienNavigation?.IsLoggedIn == true ? "Đã đăng nhập" : "Chưa đăng nhập")</MudTd>
-                        <MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "0" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
-                        <MudTd>@(item.Diem == -1 ? "∞" : item.Diem.ToString())</MudTd>
-                        <MudTd>
-                            <MudButtonGroup Style="zoom: 0.7">
-                                <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Success" OnClick="() => OnClickResetLogin(item?.MaSinhVienNavigation)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickCongGioThem(item)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Done" Color="Color.Info" OnClick="() => OnClickNopBai(item)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" />
-                            </MudButtonGroup>
-                        </MudTd>
-                    </RowTemplate>
-                    <PagerContent>
-                        <MudTablePager PageSizeOptions="new int[] {20}" AllItemsText="All" HideRowsPerPage="true"/>
-                    </PagerContent>
-                </MudTable>
-            </MudItem>
-        }
-    </MudGrid>
+	<MudGrid Style="margin-top: 70px">
+		<MudItem xs="2">
+			<MudPaper Elevation="2" Class="pa-4" Style="margin-bottom: 20px">
+				<MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickThemSV()">Thêm SV</MudButton>
+				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await Refresh()">Refresh</MudButton>
+                @* <MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Print" Color="Color.Default">Check Điểm</MudButton> *@
+				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Default">Export PDF</MudButton>
+				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcel">Export EXCEL</MudButton>
+			</MudPaper>
+
+
+			<MudPaper Elevation="2" Class="pa-4" Style="position: sticky; top: 15%">
+				<MudText Typo="Typo.body1" Inline="false"><b style="color: brown">THỜI GIAN BIỂU</b></MudText><br/>
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Tên thí sinh:</span><br />@ten_thi_sinh</MudText><br />
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Đăng nhập: </span>@tg_login</MudText><br />
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Đăng xuất: </span>@tg_logout</MudText><br />
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Bắt đầu thi:</span> @tg_start</MudText><br />
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Kết thúc thi: </span>@tg_end</MudText><br />
+				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Thời gian cộng: </span>@tg_cong</MudText><br />
+			</MudPaper>
+		</MudItem>
+		@if (chiTietCaThis != null)
+		{
+			<MudItem xs="10">
+				<MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" TotalItems="totalRecords"  RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)"
+				CurrentPage="currentPage" CurrentPageChanged="async (value) => await OnCurrentPageChange(value)" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true"
+				SortLabel="Sort By" OnRowClick="OnRowClick">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin ca thi</MudText>
+						<MudSpacer />
+						<MudTextField @bind-Value="searchString" Placeholder="Nhập họ tên hoặc mã số sinh viên" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>STT</MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.MaSoSinhVien ?? string.Empty)">MSSV</MudTableSortLabel></MudTh>
+						<MudTh>Họ và Tên</MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaDeThi ?? -1)">Mã Đề</MudTableSortLabel></MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.DaHoanThanh)">Trạng Thái</MudTableSortLabel></MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.IsLoggedIn ?? false)">Đăng Nhập</MudTableSortLabel></MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.GioCongThem)">Phút Cộng</MudTableSortLabel></MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.Diem)">Điểm</MudTableSortLabel></MudTh>
+						<MudTh>Chức năng</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd>@(chiTietCaThis.IndexOf(item) + 1)</MudTd>
+						<MudTd>@item.MaSinhVienNavigation?.MaSoSinhVien</MudTd>
+						<MudTd>@item.MaSinhVienNavigation?.HoVaTenLot @item.MaSinhVienNavigation?.TenSinhVien</MudTd>
+						<MudTd>@item.MaDeThi</MudTd>
+						<MudTd Style="@($"color: {GetTrangThai(item)}")">@(item.DaHoanThanh ? "Đã thi" : item.DaThi ? "Đang thi" : "Chưa thi")</MudTd>
+						<MudTd Style="@($"color: {GetDangNhap(item)}")">@(item.MaSinhVienNavigation?.IsLoggedIn == true ? "Đã đăng nhập" : "Chưa đăng nhập")</MudTd>
+						<MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "0" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
+						<MudTd>@(item.Diem == -1 ? "∞" : item.Diem.ToString())</MudTd>
+						<MudTd>
+							<MudButtonGroup Style="zoom: 0.7">
+								<MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Success" OnClick="() => OnClickResetLogin(item?.MaSinhVienNavigation)" />
+								<MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickCongGioThem(item)" />
+								<MudIconButton Icon="@Icons.Material.Filled.Done" Color="Color.Info" OnClick="() => OnClickNopBai(item)" />
+								<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" />
+							</MudButtonGroup>
+						</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All"/>
+					</PagerContent>
+				</MudTable>
+			</MudItem>
+		}
+	</MudGrid>
 </MudContainer>
 <style>
-    .button-side{
-    margin-top: 5%;
-    }
+	.button-side {
+	margin-top: 5%;
+	}
 </style>
 <script>
-    function downloadFile(fileName, base64Data) {
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = 'data:application/octet-stream;base64,' + base64Data;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    }
+	function downloadFile(fileName, base64Data) {
+	const link = document.createElement('a');
+	link.download = fileName;
+	link.href = 'data:application/octet-stream;base64,' + base64Data;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	}
 </script>
-@code{
-    private string GetTrangThai (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";
-    private string GetDangNhap (ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
-    
+@code {
+	private string GetTrangThai(ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";
+	private string GetDangNhap(ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
 
-    private string searchString = "";
+	private string ten_thi_sinh = "######", tg_login = "dd/mm/yyyy", tg_logout = "dd/mm/yyyy", tg_start = "dd/mm/yyyy", tg_end = "dd/mm/yyyy", tg_cong = "dd/mm/yyyy";
 
-    private bool Filter(ChiTietCaThiDto element)
-    {
-        // Nếu searchString rỗng hoặc null, không cần lọc, trả về true
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
+	private string searchString = "";
+	private int currentPage = 0;
+	private int rowsPerPage = 20;
+	private int totalRecords = 20;
+	private int totalPages = 1;
 
-        // Kiểm tra null an toàn trước khi truy cập thuộc tính con
-        return element.MaSinhVienNavigation?.MaSoSinhVien?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
-    }
+	private List<int> selectedPages = new() { 0 }; // luôn load có trang đầu tiên
 
-    private async Task<TableData<ChiTietCaThiDto>> LoadServerData(TableState state)
-    {
-        int page = state.Page;                   // Trang hiện tại (0-based)
-        int pageSize = state.PageSize;           // Số phần tử mỗi trang
 
-        // Lấy dữ liệu từ DB theo trang
-        var result = await GetPagedDataFromDbAsync(page, pageSize);
+	private async Task Filter()
+	{
+		if (!string.IsNullOrEmpty(searchString))
+		{
+			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_Search_PagedAPI(caThi?.MaCaThi ?? -1, searchString, currentPage, rowsPerPage) ?? ([], 0, 0);
+			CreateFakeData();
+		}
+		else
+		{
+			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+			CreateFakeData();
+		}
+		
+	}
 
-        return new TableData<ChiTietCaThiDto>()
-        {
-            TotalItems = result.TotalCount,
-            Items = result.Items
-        };
-    }
+	private void OnRowClick(TableRowClickEventArgs<ChiTietCaThiDto> args)
+	{
+		var clickedItem = args.Item;
+
+		if (clickedItem != null)
+		{
+			ten_thi_sinh = clickedItem.MaSinhVienNavigation?.HoVaTenLot + " " + clickedItem.MaSinhVienNavigation?.TenSinhVien;
+			tg_login = (clickedItem.MaSinhVienNavigation?.LastLoggedIn) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedIn.Value.ToString("dd/MM/yyyy HH:mm");
+			tg_logout = (clickedItem.MaSinhVienNavigation?.LastLoggedOut) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedOut.Value.ToString("dd/MM/yyyy HH:mm");
+			tg_start = (clickedItem.ThoiGianBatDau) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianBatDau.Value.ToString("dd/MM/yyyy HH:mm");
+			tg_end = (clickedItem.ThoiGianKetThuc) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy HH:mm");
+			tg_cong = (clickedItem.ThoiDiemCong) == null ? "dd/mm/yyyy" : clickedItem.ThoiDiemCong.Value.ToString("dd/MM/yyyy HH:mm");
+		}
+	}
+
+	private async Task OnRowsPerPageChange(int rows)
+	{
+		if (rows == rowsPerPage)
+			return;
+
+		this.rowsPerPage = rows;
+		currentPage = 0; // Reset về trang đầu tiên
+
+		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+		PadEmptyRows(newChiTietCaThis);
+	}
+	private async Task OnCurrentPageChange(int page)
+	{
+		if (page == currentPage)
+			return;
+
+		this.currentPage = page;
+		if (selectedPages.Contains(page))
+			return;
+
+		// chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+		PadEmptyRows(newChiTietCaThis);
+		selectedPages?.Add(currentPage);
+	}
 }

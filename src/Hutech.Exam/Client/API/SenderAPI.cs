@@ -31,7 +31,7 @@ namespace Hutech.Exam.Client.API
             {
                 return ResponseAPI<TResult?>.ErrorResponse(
                     message: $"Có lỗi xảy ra khi cố giải nén tệp JSON",
-                    errorDetails: content
+                    errorDetails: ex.Message
                 );
             }
             catch (TaskCanceledException ex) // timeout
