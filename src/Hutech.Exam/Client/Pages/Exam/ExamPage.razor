@@ -77,40 +77,14 @@
 						// Hiển thị nội dung câu trả lời
 						@if (item.CauTraLois != null)
 						{
-							// xử lí câu trả lời nhiều đáp án
-							if (item.KieuNoiDungCauHoi == 1)
-							{
-								<MudGrid>
-									@foreach (var noidung in item.CauTraLois)
-									{
-										<MudItem xs="12" sm="6" Style="padding-top: 15px">
-											<MudCheckBox Value=false><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudCheckBox>
-										</MudItem>
-									}
-								</MudGrid>
-							}
-
-							// xử lí câu trả lời ngắn
-							else if (item.KieuNoiDungCauHoi == 2)
-							{
-								<MudItem xs="10" sm="7">
-									<MudTextField Value=@("hello") Label="Điền vào chỗ trống" Variant="Variant.Outlined" />
-								</MudItem>
-							}
-
-							// xử lí câu trả lời truyền thống
-							else
-							{
-								<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi]" ValueChanged="async (value) => await OnClickDapAn(item, value)">
-									@foreach (var noidung in item.CauTraLois)
-									{
-										<MudItem xs="12" sm="6">
-											<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
-										</MudItem>
-									}
-								</MudRadioGroup>
-
-							}
+							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi]" ValueChanged="async (value) => await OnClickDapAn(item, value)">
+								@foreach (var noidung in item.CauTraLois)
+								{
+									<MudItem xs="12" sm="6">
+										<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
+									</MudItem>
+								}
+							</MudRadioGroup>
 						}
 					}
 				}

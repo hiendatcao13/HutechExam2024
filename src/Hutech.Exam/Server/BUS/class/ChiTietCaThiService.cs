@@ -50,6 +50,7 @@ namespace Hutech.Exam.Server.BUS
                 if (dataReader.Read())
                 {
                     chiTietCaThi = GetProperty(dataReader);
+                    chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
                 }
             }
             return chiTietCaThi;

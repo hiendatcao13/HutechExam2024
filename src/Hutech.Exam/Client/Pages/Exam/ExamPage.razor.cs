@@ -55,15 +55,6 @@ namespace Hutech.Exam.Client.Pages.Exam
 
 
 
-        private List<bool>? isDisableAudio { get; set; } = [];
-
-
-
-        static List<ChiTietBaiThiRequest>? chiTietBaiThis = [];
-        public static List<int>? listDapAn = [];// lưu vết các đáp án sinh viên chọn (public)
-
-
-
         const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
         const string ERROR_FETCH_DETHI = "Không thể lấy đề thi. Vui lòng kiểm tra SV đã có đề thi chưa hoặc hệ thống lỗi";
         const string ERROR_FETCH_BAILAM = "Không thể lấy bài làm trước hoặc hệ thống lỗi";
@@ -222,34 +213,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             //gửi bài cho server qua signalR
             await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
         }
-
-        //private async Task OnClickDapAnCheckBox(CustomDeThi deThi, int ma_cau_tra_loi, bool isChoose)
-        //{
-        //    ChiTietBaiThiRequest chiTietBai;
-        //    if(!isChoose)
-        //    {
-
-        //    }    
-
-
-        //    if (cau_tra_loi_da_chons.Contains(ma_cau_tra_loi))
-        //    {
-        //        //update câu trả lời
-        //        chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, DateTime.Now, null, QUY_DINH_CAP_NHAT_DAP_AN);
-        //    }
-        //    else
-        //    {
-        //        cau_tra_loi_da_chons.Add(ma_cau_tra_loi);
-        //        chiTietBai = new(-1, chiTietCaThi.MaChiTietCaThi, chiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++so_thu_tu_tra_loi);
-        //    }
-        //}
-        //private async Task OnClickNhapDapAnFieldText()
-        //{
-        //}
-
-
-
-
 
         public async ValueTask DisposeAsync()
         {

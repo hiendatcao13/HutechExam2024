@@ -29,7 +29,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         {
             if (result != null && !result.Canceled && result.Data != null)
             {
-                Console.WriteLine("Hekllllllllllllo");
                 chiTietCaThis?.Add((ChiTietCaThiDto)result.Data);
             }
         }
@@ -37,7 +36,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private List<long> GetMaDeThis()
         {
             List<long> result = [];
-            if(chiTietCaThis != null)
+            if (chiTietCaThis != null)
             {
                 foreach (var item in chiTietCaThis)
                 {
@@ -50,9 +49,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private List<string> GetMSSVs()
         {
             List<string> result = [];
-            if(chiTietCaThis != null)
+            if (chiTietCaThis != null)
             {
-                foreach(var item in chiTietCaThis)
+                foreach (var item in chiTietCaThis)
                 {
                     if (item.MaSinhVienNavigation != null && item.MaSinhVienNavigation.MaSoSinhVien != null)
                         result.Add((string)item.MaSinhVienNavigation.MaSoSinhVien);

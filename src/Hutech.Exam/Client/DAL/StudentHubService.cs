@@ -57,11 +57,11 @@ namespace Hutech.Exam.Client.DAL
             }
             return [];
         }
-        public async Task RequestSubmit(long ma_sinh_vien, int ma_chi_tiet_ca_thi, long de_thi_hoan_vi)
+        public async Task RequestSubmit(SubmitRequest request)
         {
             if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                await hubConnection.SendAsync("RequestSubmit", ma_sinh_vien, ma_chi_tiet_ca_thi, de_thi_hoan_vi);
+                await hubConnection.SendAsync("RequestSubmit", request);
             }
         }
         public async ValueTask DisposeAsync()

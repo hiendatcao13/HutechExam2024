@@ -5,39 +5,42 @@
 
 <MudDialog Style="max-width: 500px">
 	<DialogContent>
-
 		<MudGrid>
-			<MudItem xs="6">
-				<MudTextField Label="MSSV" @bind-Value="MSSV" />
-			</MudItem>
+			@if (findChiTietCaThi.MaSinhVienNavigation != null)
+			{
+				<MudItem xs="6">
+					<MudTextField Label="MSSV" T="string" @bind-Value="findChiTietCaThi.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
+				</MudItem>
 
-			<MudItem xs="3">
-				<MudSelect T="long" Label="Mã đề" @bind-Value="ma_de_thi">
-					@if (maDeHVs != null)
-					{
-						foreach (var item in maDeHVs)
+				<MudItem xs="3">
+					<MudSelect T="long" Label="Mã đề" @bind-Value="ma_de_thi">
+						@if (maDeHVs != null)
 						{
-							<MudSelectItem Value="item">@item</MudSelectItem>
+							foreach (var item in maDeHVs)
+							{
+								<MudSelectItem Value="item">@item</MudSelectItem>
+							}
 						}
-					}
-				</MudSelect>
-			</MudItem>
+					</MudSelect>
+				</MudItem>
 
-			<MudItem xs="6">
-				<MudText Typo="Typo.body1">Họ và lót: <strong>@sinhVien?.HoVaTenLot</strong></MudText>
-			</MudItem>
+				<MudItem xs="6">
+					<MudText Typo="Typo.body1">Họ và lót: <strong>@findChiTietCaThi.MaSinhVienNavigation.HoVaTenLot</strong></MudText>
+				</MudItem>
 
-			<MudItem xs="6">
-				<MudText Typo="Typo.body1">Tên sinh viên: <strong>@sinhVien?.TenSinhVien</strong></MudText>
-			</MudItem>
+				<MudItem xs="6">
+					<MudText Typo="Typo.body1">Tên sinh viên: <strong>@findChiTietCaThi.MaSinhVienNavigation.TenSinhVien</strong></MudText>
+				</MudItem>
 
-			<MudItem xs="6" Style="padding-top: 0">
-				<MudText Typo="Typo.body1">Phòng thi: <strong>@lop</strong></MudText>
-			</MudItem>
+				<MudItem xs="6" Style="padding-top: 0">
+					<MudText Typo="Typo.body1">Phòng thi: <strong>@lop</strong></MudText>
+				</MudItem>
 
-			<MudItem xs="6" Style="padding-top: 0">
-				<MudText Typo="Typo.body1">Giới tính: <strong>@(sinhVien?.GioiTinh == 0 ? "Nam" : "Nữ")</strong></MudText>
-			</MudItem>
+				<MudItem xs="6" Style="padding-top: 0">
+					<MudText Typo="Typo.body1">Giới tính: <strong>@(findChiTietCaThi.MaSinhVienNavigation.GioiTinh == 0 ? "Nam" : "Nữ")</strong></MudText>
+				</MudItem>
+			}
+
 		</MudGrid>
 
 
@@ -47,12 +50,19 @@
 	</DialogContent>
 	<DialogActions>
 		<MudButton OnClick="OnClickThoat" Color="Color.Secondary">Thoát</MudButton>
-		<MudButton OnClick="OnClickLuu" Color="Color.Success">Lưu</MudButton>
+		@if (!isExist)
+		{
+			<MudButton OnClick="async () => await OnClickKiemTra()" Color="Color.Info">Kiểm tra</MudButton>
+		}
+		else
+		{
+			<MudButton OnClick="OnClickLuu" Color="Color.Success">Lưu</MudButton>
+		}
 	</DialogActions>
 </MudDialog>
 <style>
 	.my-custom-class {
-	backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
 	}
 </style>
 
@@ -64,13 +74,14 @@
 	[Parameter] public string? lop { get; set; }
 	[Inject] private HttpClient Http { get; set; } = default!;
 
-	private string? MSSV;
-	private bool isMale = false;
-	private SinhVienDto? sinhVien = new();
 	private long ma_de_thi = -1;
 
 	private string? tenSinhVien;
 	private string? hoTenLot;
+	private bool isExist = false;
+	private bool isAlreadySave = false; // biến kiểm tra đã lưu vào database
+
+	private ChiTietCaThiDto findChiTietCaThi = new(); // biến temp để lưu
 
 	private const string NO_SV = "Không tìm thấy sinh viên nào với mã sinh viên này. Vui lòng kiểm tra lại";
 	private const string YES_SV = "Đã tìm thấy sinh viên trong dữ liệu. Vui lòng chọn lưu để thêm";
@@ -80,51 +91,101 @@
 	private const string INVALID_MADETHI = "Vui lòng chọn mã đề";
 	private const string INVALID_MSSV = "Vui lòng nhập mã sinh viên";
 
+
+	protected override async Task OnInitializedAsync()
+	{
+		findChiTietCaThi.MaSinhVienNavigation = new SinhVienDto(); // thêm thuộc tính sinh viên vào
+
+		await base.OnInitializedAsync();
+	}
+	private void HandleKeyDown(KeyboardEventArgs args)
+	{
+		isExist = false;
+		findChiTietCaThi.MaSinhVienNavigation = new SinhVienDto();
+	}
+
 	private void OnClickThoat()
 	{
-		MudDialog?.Close();
+		MudDialog?.Cancel();
 	}
 
 	private async Task OnClickLuu()
+	{
+		SinhVienDto sinhVien = findChiTietCaThi.MaSinhVienNavigation ?? new();
+
+		if (maDeHVs != null && ma_ca_thi != null)
+		{
+			await InsertChiTietCaThiAPI(findChiTietCaThi);
+		}
+		if (isAlreadySave)
+		{
+			Snackbar.Add(SUCCESS_ADDSV, Severity.Success);
+			MudDialog?.Close(findChiTietCaThi);
+		}
+	}
+	private async Task OnClickKiemTra()
 	{
 		if (ma_de_thi == -1)
 		{
 			Snackbar.Add(INVALID_MADETHI, Severity.Error);
 			return;
 		}
-		if (string.IsNullOrEmpty(MSSV) || MSSV == "0")
+		SinhVienDto sinhVien = findChiTietCaThi.MaSinhVienNavigation ?? new();
+		if (string.IsNullOrEmpty(sinhVien.MaSoSinhVien))
 		{
 			Snackbar.Add(INVALID_MSSV, Severity.Error);
 			return;
 		}
-		if (maMSSVs != null && maMSSVs.Contains(MSSV))
+		if (sinhVien.MaSoSinhVien != null && maMSSVs != null && maMSSVs.Contains(sinhVien.MaSoSinhVien))
 		{
 			Snackbar.Add(ALREADY_EXSIST_MSSV, Severity.Error);
 			return;
 		}
-
 		if (maDeHVs != null && ma_ca_thi != null)
 		{
-			await ThemSVKhanCapAPI(new SVKhanCapRequest { MaSoSinhVien = MSSV, MaCaThi = (int)ma_ca_thi, MaDeThi = ma_de_thi });
+			await KiemTraSinhVienAPI(sinhVien.MaSoSinhVien ?? string.Empty);
 		}
+
+
 	}
-	private async Task<bool> ThemSVKhanCapAPI(SVKhanCapRequest SVKhanCap)
+	private async Task InsertChiTietCaThiAPI(ChiTietCaThiDto chiTietCaThi)
 	{
-		var jsonString = System.Text.Json.JsonSerializer.Serialize(SVKhanCap);
-		var response = await Http.PostAsync($"api/ChiTietCaThi/ThemSVKhanCap", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+		// handle data
+		chiTietCaThi.MaCaThi = ma_ca_thi;
+		chiTietCaThi.MaSinhVien = findChiTietCaThi.MaSinhVienNavigation?.MaSinhVien ?? -1;
+		chiTietCaThi.MaDeThi = ma_de_thi;
+
+		var jsonString = System.Text.Json.JsonSerializer.Serialize(chiTietCaThi);
+		var response = await Http.PostAsync($"api/ChiTietCaThi/Insert", new StringContent(jsonString, Encoding.UTF8, "application/json"));
 		if (response.IsSuccessStatusCode)
 		{
 			Snackbar.Add(SUCCESS_ADDSV, MudBlazor.Severity.Success);
-			var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>();
-			MudDialog?.Close(result);
-			return true;
+			findChiTietCaThi = await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>() ?? new();
+			isAlreadySave = true;
+			return;
 		}
-		if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+		else
 		{
 			Snackbar.Add(FAILED_ADDSV, Severity.Error);
-			return false;
+			isAlreadySave = false;
 		}
-		return false;
+	}
+	private async Task KiemTraSinhVienAPI(string ma_so_sinh_vien)
+	{
+		var response = await Http.GetAsync($"api/SinhVien/SelectBy_MSSV?ma_so_sinh_vien={ma_so_sinh_vien}");
+		if (response.IsSuccessStatusCode)
+		{
+			SinhVienDto? tempSinhVien = await response.Content.ReadFromJsonAsync<SinhVienDto>();
+			if (tempSinhVien != null && tempSinhVien.MaSinhVien != 0)
+			{
+				Snackbar.Add(YES_SV, Severity.Success);
+				findChiTietCaThi.MaSinhVienNavigation = tempSinhVien;
+				isExist = true;
+				return;
+			}
+			Snackbar.Add(NO_SV, Severity.Error);
+			isExist = false;
+		}
 	}
 	private async Task<SinhVienDto?> GetSVByMSSV(string mssv)
 	{

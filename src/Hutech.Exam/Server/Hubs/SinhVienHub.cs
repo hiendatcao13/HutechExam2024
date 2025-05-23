@@ -43,9 +43,9 @@ namespace Hutech.Exam.Server.Hubs
             return await _redisService.GetDapAnKhoanhAsync(ma_chi_tiet_ca_thi);
         }
         // gửi thông điệp yêu cầu nộp bài, hãy cho biết bạn là ai (MSV), bạn thi ca nào (chi_tiet_ca_thi), đề thi nào (de_thi_hoan_vi)
-        public async Task RequestSubmit(long ma_sinh_vien, int ma_chi_tiet_ca_thi, long ma_de_thi_hoan_vi)
+        public async Task RequestSubmit(SubmitRequest request)
         {
-            byte[] message = MessagePackSerializer.Serialize((ma_sinh_vien, ma_chi_tiet_ca_thi, ma_de_thi_hoan_vi));
+            byte[] message = MessagePackSerializer.Serialize(request);
             await _submitQueueService.PublishMessageAsync(message);
         }
         public async Task DeliverDapAn(string connectionId, List<bool> dapAns, double diem)

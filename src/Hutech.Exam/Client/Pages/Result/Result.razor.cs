@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions;
 using Microsoft.AspNetCore.SignalR.Client;
-using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
@@ -43,6 +42,7 @@ namespace Hutech.Exam.Client.Pages.Result
         private double diem = 0;
         private int so_cau_dung;
         private HubConnection? hubConnection;
+        private bool isShow = false; // chỉ nhận kết quả cho lần đầu, tránh nhận thêm thông điệp từ server do gửi lỗi
 
         private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
@@ -135,15 +135,19 @@ namespace Hutech.Exam.Client.Pages.Result
 
             hubConnection.On<List<bool>, int, double>("DeliverDapAn", async (dapAns, so_cau_dung, diem) =>
             {
-                ketQuaDapAn = dapAns;
-                this.so_cau_dung = so_cau_dung;
-                this.diem = diem;
-                IsLoading = false;
-                Console.WriteLine("NHANNNNNNNNNNNNNNN" + IsLoading + "diem: " + diem + " ,,,," + ketQuaDapAn.Count);
+                if(!isShow) // chỉ nhận cho lần đầu
+                {
+                    ketQuaDapAn = dapAns;
+                    this.so_cau_dung = so_cau_dung;
+                    this.diem = diem;
+                    IsLoading = false;
 
-                // tính điểm
-                await HandleDiem();
-                StateHasChanged();
+                    // hiển thị điểm
+                    await HandleDiem();
+                    StateHasChanged();
+
+                    isShow = true;  
+                }    
             });
 
             //rời group ca thi

@@ -6,11 +6,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System.Net.Http.Headers;
 using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
-using OfficeOpenXml;
 using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Http.Connections;
 using Hutech.Exam.Client.DAL;
-using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
@@ -94,7 +91,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task OnClickCongGioThem(ChiTietCaThiDto chiTietCaThi)
         {
-            if(chiTietCaThi != null && chiTietCaThi.DaThi == false && chiTietCaThi.MaSinhVienNavigation != null && chiTietCaThi.MaSinhVienNavigation.IsLoggedIn == false)
+            if (chiTietCaThi != null && chiTietCaThi.DaThi == false && chiTietCaThi.MaSinhVienNavigation != null && chiTietCaThi.MaSinhVienNavigation.IsLoggedIn == false)
             {
                 Snackbar.Add(FAILED_CONGGIO, Severity.Error);
                 return;
@@ -112,6 +109,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task OnClickNopBai(ChiTietCaThiDto chiTietCaThi)
         {
+            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
+            if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || sinhVien == null || sinhVien.IsLoggedIn == false)
+            {
+                Snackbar.Add(FAILED_NOPBAI, Severity.Error);
+                return;
+            }
             var parameters = new DialogParameters<Simple_Dialog>
                 {
                     { x => x.ContentText, $"Nộp bài của thí sinh. Vui lòng chắc chắn thao tác này chỉ thực hiện khi thí sinh đang trong quá trình thi và đăng nhập. Nếu muốn tính điểm, chọn 'Check Điểm'" },
@@ -128,12 +131,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task HandleNopBai(ChiTietCaThiDto chiTietCaThi)
         {
             SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
-            if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || sinhVien == null || sinhVien.IsLoggedIn == false)
-            {
-                Snackbar.Add(FAILED_NOPBAI, Severity.Error);
-                return;
-            }   
-            bool result = await NopBaiAPI(sinhVien);
+            bool result = await NopBaiAPI(sinhVien ?? new());
             if (result)
                 Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
             else
@@ -164,6 +162,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task Start()
         {
+            IntializeThoiGianBieu();
             (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
             CreateFakeData();
 
@@ -174,22 +173,22 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private void CreateFakeData()
         {
-            if(chiTietCaThis != null && chiTietCaThis.Count != 0)
+            if (chiTietCaThis != null && chiTietCaThis.Count != 0)
             {
                 int count_fake = totalRecords - chiTietCaThis.Count;
                 bool isFake = totalRecords > chiTietCaThis.Count;
-                if(isFake)
+                if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
                         chiTietCaThis.Add(new ChiTietCaThiDto());
-                }    
-            }    
+                }
+            }
         }
         private void PadEmptyRows(List<ChiTietCaThiDto> newChiTietCaThi)
         {
             // tìm phần tử đầu tiên của trang đó
             int startRow = currentPage * rowsPerPage;
-            if(chiTietCaThis != null && chiTietCaThis.Count != 0)
+            if (chiTietCaThis != null && chiTietCaThis.Count != 0)
             {
                 for (int i = 0; i < newChiTietCaThi.Count; i++)
                 {
@@ -201,10 +200,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private void HandleAfterDialog(DialogResult? result)
         {
-            if(result != null && !result.Canceled && result.Data != null)
+            if (result != null && !result.Canceled && result.Data != null)
             {
                 StateHasChanged();
-            }    
+            }
         }
     }
 }

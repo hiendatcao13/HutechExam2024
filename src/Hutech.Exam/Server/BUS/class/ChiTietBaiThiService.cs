@@ -132,6 +132,31 @@ namespace Hutech.Exam.Server.BUS
         }
 
 
+        public (List<bool>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<int, int?> dapAnKhoanhs, Dictionary<int, int> dapAns)
+        {
+            var ketQuaList = new List<bool>(dapAns.Count);
+            int soCauDung = 0;
+
+            foreach (var (cauSo, dapAn) in dapAns)
+            {
+                bool ketQua = false;
+
+                if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet))
+                {
+                    ketQua = (dapAn == chiTiet);
+                }
+
+                if (ketQua)
+                    soCauDung++;
+
+                ketQuaList.Add(ketQua);
+            }
+
+            double diem = TinhDem(ketQuaList.Count, soCauDung);
+            return (ketQuaList, soCauDung, diem);
+        }
+
+
         private double TinhDem(int tong_so_cau, int so_cau_dung)
         {
             if (so_cau_dung == 0)

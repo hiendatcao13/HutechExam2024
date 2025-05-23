@@ -120,3 +120,7 @@
 22/5/2025 6PM
 - Đang hoàn thiện trang exam monitor, đã có phân trang, tìm kiếm phân trang
 - TODO: khắc phục thêm sinh viên khẩn cấp chưa ra real-time
+------------------------------------------------
+23/5/2025 6PM
+- Xử lí lại nghiệp vụ lưu bài thi ở background, thí sinh được hiển thị kết quả trước
+- TODO: tiếp tục xử lí trang ExamMonitor phần check điểm cũng như lưu trữ backup cho máy thí sinh

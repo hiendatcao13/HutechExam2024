@@ -1,13 +1,11 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using StackExchange.Redis;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -20,21 +18,10 @@ namespace Hutech.Exam.Server.Controllers
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
         [HttpPost("Insert")]
-        public async Task<ActionResult> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)
+        public async Task<ActionResult<ChiTietCaThiDto>> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
-            if (chiTietCaThi.MaCaThi == null || chiTietCaThi.MaSinhVien == null || chiTietCaThi.MaDeThi == null)
-                return BadRequest("Thông tin bị thiếu xót. Vui lòng kiểm tra");
-            return Ok(await _chiTietCaThiService.Insert((int)chiTietCaThi.MaCaThi, (long)chiTietCaThi.MaSinhVien, (long)chiTietCaThi.MaDeThi, 0));
-        }
-
-        [HttpPost("ThemSVKhanCap")]
-        public async Task<ActionResult<SinhVienDto>> ThemSVKhanCap([FromBody] SVKhanCapRequest request)
-        {
-            var ma_chi_tiet_ca_thi = await _chiTietCaThiService.ThemSVKhanCap(request.MaSoSinhVien, request.MaCaThi, request.MaDeThi);
-            if(ma_chi_tiet_ca_thi == -1)
-                return NotFound("Không tìm thấy sinh viên này trong hệ thống");
-            else
-                return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_ca_thi));
+            var ma_chi_tiet_chi = await _chiTietCaThiService.Insert(chiTietCaThi.MaCaThi ?? -1, chiTietCaThi.MaSinhVien ?? -1, chiTietCaThi.MaDeThi ?? -1, 0);
+            return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_chi));
         }
 
 
