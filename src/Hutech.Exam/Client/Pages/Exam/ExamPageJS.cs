@@ -34,7 +34,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         [JSInvokable]
         public async Task KetThucThoiGianLamBai()
         {
-            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = DSKhoanhDapAn, ThoiGianNopBai = DateTime.Now });
+            var DsKhoanh = DSKhoanhDapAn.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
+            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
 
             Nav?.NavigateTo("/result");
         }

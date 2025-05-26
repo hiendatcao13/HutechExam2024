@@ -9,10 +9,11 @@ using Hutech.Exam.Client.Components.Dialogs;
 using Microsoft.JSInterop;
 using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
+using System.Net.Http.Json;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
-    public partial class ExamMonitor
+    public partial class ExamMonitor : IAsyncDisposable
     {
         [Parameter][SupplyParameterFromQuery] public string? ma_ca_thi { get; set; }
         [Inject] private HttpClient Http { get; set; } = default!;
@@ -33,6 +34,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private const string ERROR_NOPBAI = "Nộp bài của thí sinh thất bại";
         private const string ALERT_ADDSV = "Thêm thí sinh được dùng cho việc khẩn cấp. Hãy đảm bảo MSSV thí sinh đã tồn tại trong hệ thống";
         private const string WAITING_DOWNLOADEXCEL = "Đang tải xuống file excel. Hãy chờ trong giây lát";
+        private const string ERROR_MOCKTEST = "Không thể xem bài của thí sinh khi thí sinh chưa nộp bài";
+
 
         private const string FAILED_RESETLOGIN = "Không thể reset đăng nhập cho thí sinh khi thí sinh không đăng nhập vào hệ thống thi";
         private const string FAILED_CONGGIO = "Không thể cộng giờ cho thí sinh khi thí sinh chưa thi";
@@ -137,6 +140,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             else
                 Snackbar.Add(ERROR_NOPBAI, Severity.Error);
         }
+        private async Task OnClickXemCTBaiThi(ChiTietCaThiDto chiTietCaThi)
+        {
+            if (chiTietCaThi.Diem == -1 || !chiTietCaThi.DaHoanThanh)
+            {
+                Snackbar.Add(ERROR_MOCKTEST, Severity.Error);
+                return;
+            }
+
+            await Js.InvokeVoidAsync("openInNewTab", $"/monitor/mocktest?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}");
+        }
 
         private async Task Refresh()
         {
@@ -204,6 +217,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 StateHasChanged();
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await AdminHub.DisposeAsync();
         }
     }
 }

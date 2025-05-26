@@ -91,7 +91,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
             await GetItemsInSessionStorage();
 
-            await CreateHubConnection();
+            //await CreateHubConnection();
         }
         private async Task OnClickShowDialog(CaThiDto caThi)
         {

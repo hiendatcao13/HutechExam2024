@@ -10,17 +10,17 @@
 		{
 			@if (segment.Contains("$$"))
 			{
-				<span style="color: @((isNoiDungCha) ?  "#2e7d32" : "")"><Hutech.Exam.Client.Pages.Latext.Equation Value="@segment.Substring(2)" /></span>
+				<span style="color: @((isNoiDungCha) ?  "#2e7d32" : ""); font-weight: @((IsBold) ? "bold" : "normal")"><Hutech.Exam.Client.Pages.Latext.Equation Value="@segment.Substring(2)" /></span>
 			}
 			else
 			{
-				<span style="color: @((isNoiDungCha) ?  "#2e7d32" : "")">@((MarkupString)segment)</span>
+				<span style="color: @((isNoiDungCha) ?  "#2e7d32" : ""); font-weight: @((IsBold) ? "bold" : "normal")">@((MarkupString)segment)</span>
 			}
 		}
 	}
 	else
 	{
-		<span style="color: @((isNoiDungCha) ?  "#2e7d32" : "")">@((MarkupString)(NoiDung))</span>
+		<span style="color: @((isNoiDungCha) ?  "#2e7d32" : ""); font-weight: @((IsBold) ? "bold" : "normal")">@((MarkupString)(NoiDung))</span>
 	}
 }
 
@@ -28,6 +28,7 @@
 @code {
 	[Parameter] public string NoiDung { get; set; } = string.Empty;
 	[Parameter] public bool isNoiDungCha { get; set; } = false;
+	[Parameter] public bool IsBold { get; set; } = false;
 
 
 	private static List<string> HandleLatex(string text)

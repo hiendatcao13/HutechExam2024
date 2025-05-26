@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Hutech.Exam.Client.DAL
 {
-    public class AdminHubService : IAsyncDisposable
+    public class AdminHubService
     {
         private readonly IServiceProvider _serviceProvider;
         private HubConnection? hubConnection;
@@ -36,12 +36,12 @@ namespace Hutech.Exam.Client.DAL
 
                 await hubConnection.StartAsync();
 
-                await hubConnection.InvokeAsync("JoinGroupAdmin");
+                await hubConnection.InvokeAsync("JoinGroupAdminMonitor");
             }
 
             return hubConnection;
         }
-        public async ValueTask DisposeAsync()
+        public async Task DisposeAsync()
         {
             if (hubConnection != null)
             {

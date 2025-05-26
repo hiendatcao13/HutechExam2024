@@ -12,10 +12,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> mainHub, RedisService redisService) : Controller
+    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> adminHub, RedisService redisService) : Controller
     {
         private readonly SinhVienService _sinhVienService = sinhVienService;
-        private readonly IHubContext<AdminHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly RedisService _redisService = redisService;
 
 
@@ -27,7 +27,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             var JwtAuthencationManager = new JwtAuthenticationManager(_sinhVienService);
             var userSession = await JwtAuthencationManager.GenerateJwtToken(ma_so_sinh_vien);
-            if (userSession != null && userSession.NavigateSinhVien != null && checkLogin(userSession.NavigateSinhVien))
+            if (userSession != null && userSession.NavigateSinhVien != null && CheckLogin(userSession.NavigateSinhVien))
             {
                 await UpdateLogin(userSession.NavigateSinhVien.MaSinhVien);
                 return Ok(userSession);
@@ -79,7 +79,7 @@ namespace Hutech.Exam.Server.Controllers
             await _sinhVienService.Login(ma_sinh_vien, current_time);
             await NotifyAuthenticationToAdmin(ma_sinh_vien, true, current_time);
         }
-        private bool checkLogin(SinhVienDto sinhVien)
+        private bool CheckLogin(SinhVienDto sinhVien)
         {
             // đã có máy đăng nhập trước đó
             if (sinhVien.IsLoggedIn == true)
@@ -102,14 +102,14 @@ namespace Hutech.Exam.Server.Controllers
         }
         private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien, bool isLogin, DateTime thoi_gian)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien, isLogin, thoi_gian);
+            await _adminHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien, isLogin, thoi_gian);
         }
         private async Task NotifyLogOutToSV(long ma_sinh_vien)
         {
             string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
             if(connectionId != null)
             {
-                await _mainHub.Clients.Client(connectionId).SendAsync("ResetLogin");
+                await _adminHub.Clients.Client(connectionId).SendAsync("ResetLogin");
             }    
         }
         private async Task NotifyNopBaiToSV(long ma_sinh_vien)
@@ -117,7 +117,7 @@ namespace Hutech.Exam.Server.Controllers
             string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
             if (connectionId != null)
             {
-                await _mainHub.Clients.Client(connectionId).SendAsync("SubmitExam");
+                await _adminHub.Clients.Client(connectionId).SendAsync("SubmitExam");
             }
         }
     }

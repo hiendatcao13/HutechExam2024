@@ -12,10 +12,11 @@ namespace Hutech.Exam.Client.Pages.Exam
             int ma_nhom = 0;
             if (CustomDeThis != null)
             {
+                int thu_tu_cau_hoi = 0;
                 foreach (var item in CustomDeThis)
                 {
                     // thêm các câu hỏi vào danh sách check đã khoanh hay chưa?
-                    DSKhoanhDapAn?.Add(item.MaCauHoi, null);
+                    DSKhoanhDapAn?.Add(item.MaCauHoi, (++thu_tu_cau_hoi, null));
 
                     // thêm các chữ A,B,C,D vào nội dung câu trả lời
                     if (item.CauTraLois != null)

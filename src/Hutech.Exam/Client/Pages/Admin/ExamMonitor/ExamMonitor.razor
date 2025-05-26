@@ -68,10 +68,10 @@
 									<MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickCongGioThem(item)" />
 								</MudTooltip>
 								<MudTooltip Text="Buộc nộp bài">
-									<MudIconButton Icon="@Icons.Material.Filled.Done" Color="Color.Info" OnClick="() => OnClickNopBai(item)" />
+									<MudIconButton Icon="@Icons.Material.Filled.Warning" Color="Color.Info" OnClick="() => OnClickNopBai(item)" />
 								</MudTooltip>
 								<MudTooltip Text="Xem chi tiết bài">
-									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" />
+									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" OnClick="async () => await OnClickXemCTBaiThi(item)" />
 								</MudTooltip>
 							</MudButtonGroup>
 						</MudTd>
@@ -98,6 +98,11 @@
 	link.click();
 	document.body.removeChild(link);
 	}
+
+	// chuyển trang sang tab mới
+	window.openInNewTab = function (url) {
+		window.open(url, '_blank');
+	};
 </script>
 @code {
 	private string GetTrangThai(ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";

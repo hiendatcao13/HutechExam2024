@@ -12,16 +12,23 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> mainHub) : Controller
+    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> adminHub) : Controller
     {
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
-        private readonly IHubContext<AdminHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _adminHub = adminHub;
 
+        [HttpGet("Select")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ChiTietCaThiDto>> SelectOne([FromQuery] int ma_chi_tiet_ca_thi)
+        {
+            return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_ca_thi));
+        }
         [HttpPost("Insert")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> Insert([FromBody] ChiTietCaThiDto chiTietCaThi)
         {
-            var ma_chi_tiet_chi = await _chiTietCaThiService.Insert(chiTietCaThi.MaCaThi ?? -1, chiTietCaThi.MaSinhVien ?? -1, chiTietCaThi.MaDeThi ?? -1, 0);
-            return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_chi));
+            var ma_chi_tiet_ca_thi = await _chiTietCaThiService.Insert(chiTietCaThi.MaCaThi ?? -1, chiTietCaThi.MaSinhVien ?? -1, chiTietCaThi.MaDeThi ?? -1, 0);
+            return Ok(await _chiTietCaThiService.SelectOne(ma_chi_tiet_ca_thi));
         }
 
 
@@ -95,11 +102,11 @@ namespace Hutech.Exam.Server.Controllers
         private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
         {
             // 0: bắt đầu thi, 1: kết thúc thi
-            await _mainHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
         }
         private async Task NotifyCongGioSVToAdmin(int ma_chi_tiet_ca_thi)
         {
-            await _mainHub.Clients.Group("admin").SendAsync("CongGioSV", ma_chi_tiet_ca_thi);
+            await _adminHub.Clients.Group("admin").SendAsync("CongGioSV", ma_chi_tiet_ca_thi);
         }
     }
 }

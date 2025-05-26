@@ -22,11 +22,12 @@ namespace Hutech.Exam.Server.Controllers
         {
             return Ok(await _chiTietBaiThiService.DaThi(ma_chi_tiet_ca_thi));
         }
-
-
-
-
-
+        [HttpGet("SelectBy_MaChiTietCaThi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<ChiTietBaiThiDto>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int ma_chi_tiet_ca_thi)
+        {
+            return Ok(await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(ma_chi_tiet_ca_thi));
+        }
 
     }
 }

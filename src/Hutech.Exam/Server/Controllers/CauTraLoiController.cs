@@ -9,9 +9,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CauTraLoiController(CauTraLoiService cauTraLoiService) : Controller
+    public class CauTraLoiController(CauTraLoiService cauTraLoiService, IResponseCacheService cacheService) : Controller
     {
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
+        private readonly IResponseCacheService _cacheService = cacheService;
 
         [HttpGet("SelectOne")]
         public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromQuery] int ma_cau_tra_loi)
@@ -36,6 +37,29 @@ namespace Hutech.Exam.Server.Controllers
         {
             await _cauTraLoiService.Remove(ma_cau_hoi);
             return Ok();
+        }
+
+
+        [HttpGet("GetDapAn")]
+        public async Task<Dictionary<int, int>> GetDapAn(long maDeHV)
+        {
+            var cacheKey = $"DapAn:{maDeHV}";
+
+            // Kiểm tra xem có dữ liệu trong cache không
+            var cachedData = await _cacheService.GetCacheResponseAsync<Dictionary<int, int>>(cacheKey);
+
+            if (cachedData != null && cachedData.Count != 0)
+            {
+                return cachedData;
+            }
+
+            // Nếu không có, thực hiện logic lấy dữ liệu từ database
+            Dictionary<int, int> listDapAn = await _cauTraLoiService.SelectBy_MaDeHV_DapAn(maDeHV);
+
+            // Lưu vào cache
+            await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(150));
+
+            return listDapAn;
         }
     }
 }

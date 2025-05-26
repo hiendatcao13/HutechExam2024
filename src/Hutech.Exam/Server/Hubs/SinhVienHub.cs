@@ -53,5 +53,7 @@ namespace Hutech.Exam.Server.Hubs
             await Clients.Client(connectionId).SendAsync("DeliverDapAn", dapAns, diem);
         }
         
+
+        ////////////////CÁC YÊU CẦU KHÁC TỪ SERVER XUỐNG - nó bị phân tán nên không control được//////////////
     }
 }

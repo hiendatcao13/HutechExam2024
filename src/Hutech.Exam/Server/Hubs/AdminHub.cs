@@ -8,11 +8,12 @@ namespace Hutech.Exam.Server.Hubs
     public class AdminHub : Hub
     {
         // hub cho admin tham gia và rời tham gia nhóm "admin"
-        public async Task JoinGroupAdmin()
+        // group này chỉ hoạt động ở trang monitor - giám sát ca thi cần real-time
+        public async Task JoinGroupAdminMonitor()
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, "admin");
         }
-        public async Task LeaveGroupAdmin()
+        public async Task LeaveGroupAdminMonitor()
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "admin");
         }

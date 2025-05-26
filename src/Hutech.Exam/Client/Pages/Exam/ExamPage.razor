@@ -8,14 +8,14 @@
 
 <MudPaper Elevation="4" Class="pa-4" Style="background-color: #f9f9f9;">
 	<!-- Header Section -->
-	<MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-4">
+	<MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-4" Style="position: sticky; top: 0">
 		<MudItem xs="12" md="4">
-			<MudImage Src="images/exam/Logo.svg" Width="150" />
-		</MudItem>
-		<MudItem xs="12" md="4" Class="d-flex justify-center">
-			<MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b class="time-clock">@DisplayTime</b></MudText>
+			@*<MudImage Src="images/exam/Logo.svg" Width="150" />*@
 		</MudItem>
 		<MudItem xs="12" md="4" Class="d-flex justify-end">
+		</MudItem>
+		<MudItem xs="12" md="4" Class="d-flex justify-end">
+			<MudText Typo="Typo.h5" Align=Align.Right Style="color: #333; margin-right: 10%">⏰: <b class="time-clock">@DisplayTime</b></MudText>
 			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Large" OnClick="async () => await OnClickNopBai()">Nộp Bài</MudButton>
 		</MudItem>
 	</MudGrid>
@@ -69,7 +69,7 @@
 						//Hiển thị nội dung câu hỏi
 						if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
 						{
-							<MudText Typo="Typo.body1" GutterBottom="true">
+							<MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
 								<b>Câu hỏi @(item.ThuTuCauHoi): <NoiDungFragment NoiDung="@item.NoiDungCauHoi" /></b>
 							</MudText>
 						}
@@ -77,7 +77,7 @@
 						// Hiển thị nội dung câu trả lời
 						@if (item.CauTraLois != null)
 						{
-							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi]" ValueChanged="async (value) => await OnClickDapAn(item, value)">
+							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi].Item2" ValueChanged="async (value) => await OnClickDapAn(item, value)">
 								@foreach (var noidung in item.CauTraLois)
 								{
 									<MudItem xs="12" sm="6">
@@ -101,16 +101,15 @@
 				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @CaThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
 				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @ChiTietCaThi?.MaDeThi?.ToString("D3")</MudText>
 			</MudPaper>
-			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 5%; max-height: 700px; overflow-y: auto">
+			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 10%; max-height: 500px; overflow-y: auto">
 				<MudText Typo="Typo.subtitle2" Class="mb-2"><b>Danh sách câu hỏi</b></MudText>
 				<MudGrid>
 					@{
-						int thu_tu_cau_hoi = 0;
 						foreach (var item in DSKhoanhDapAn)
 						{
 							<MudItem xs="2" md="3" Style="padding-left: 15px">
-								<MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value != null) ? Color.Success : Color.Default">
-									@(++thu_tu_cau_hoi)
+								<MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value.Item2 != null) ? Color.Success : Color.Default" OnClick="async () => await ScrollToQuestion(item.Key)">
+									@item.Value.Item1
 								</MudButton>
 							</MudItem>
 						}
@@ -133,7 +132,7 @@
 </style>
 
 <script>
-		window.focusWatcher = (function () {
+	window.focusWatcher = (function () {
 		let visibilityChangeHandler;
 		let blurHandler;
 		let dotNetHelperRef;
@@ -164,7 +163,7 @@
 					window.removeEventListener('blur', blurHandler);
 				}
 				if (dotNetHelperRef) {
-					dotNetHelperRef.dispose(); // rất quan trọng trong Blazor WASM
+					dotNetHelperRef.dispose();
 				}
 
 				// Dọn dẹp biến
@@ -175,8 +174,8 @@
 		};
 	})();
 
-		//Lắng nghe mọi sự kiện audio đều phải phát từ đầu
-		window.playAudioFromStart = (id) => {
+	// Lắng nghe mọi sự kiện audio đều phải phát từ đầu
+	window.playAudioFromStart = (id) => {
 		const audio = document.getElementById(id);
 		if (audio) {
 			audio.currentTime = 0;
@@ -184,10 +183,17 @@
 		}
 	};
 
-		function changeColorTime() {
+	// Sửa lỗi cú pháp ở đây
+	window.changeColorTime = () => {
 		const clockElement = document.getElementById("time-clock");
 		clockElement.style.color = "red";
 		clockElement.style.fontWeight = 600;
-	}
-</script>
+	};
 
+	window.scrollToElement = (elementId) => {
+		const el = document.getElementById(elementId);
+		if (el) {
+			el.scrollIntoView({ behavior: "smooth", block: "start" });
+		}
+	};
+</script>

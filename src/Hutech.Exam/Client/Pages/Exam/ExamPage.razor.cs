@@ -38,7 +38,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private string? DisplayTime { get; set; }
 
-        private Dictionary<int, int?> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
+        private Dictionary<int, (int, int?)> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
 
         private Dictionary<int, AudioInfo> DsAudioListened { get; set; } = []; // lưu vết các câu hỏi đã nghe audio của sinh viên (để hiển thị số lần nghe audio cho sinh viên)
 
@@ -53,6 +53,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private readonly string[] _alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
 
+        private bool _shouldRender = false; // tránh render vô tội vạ bị khựng khi onclick mặc dù UI không thay đổi gì
 
 
         const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
@@ -90,12 +91,27 @@ namespace Hutech.Exam.Client.Pages.Exam
             await CheckPage();
             await base.OnInitializedAsync();
         }
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        //protected override async Task OnAfterRenderAsync(bool firstRender)
+        //{
+        //    if (firstRender)
+        //    {
+        //        _objRef = DotNetObjectReference.Create(this);
+        //        await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
+        //    }
+        //}
+
+        protected override void OnParametersSet() => _shouldRender = true;
+
+        protected override bool ShouldRender()
         {
-            if (firstRender)
+            if (_shouldRender)
             {
-                _objRef = DotNetObjectReference.Create(this);
-                await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
+                _shouldRender = false;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -121,7 +137,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             // xử lí câu đáp án đã khoanh
             foreach (var item in _dsDapAnTiepTucThi)
             {
-                DSKhoanhDapAn[item.Key] = item.Value;
+                DSKhoanhDapAn[item.Key] = (DSKhoanhDapAn[item.Key].Item1,item.Value);
             }    
         }
 
@@ -154,7 +170,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 if (so_giay_hien_tai >= 0)
                 {
                     DisplayTime = FormatTime(so_giay_hien_tai);
-                    await InvokeAsync(StateHasChanged); // Cập nhật giao diện người dùng
+                    await TheSateHasChanged(); // Cập nhật giao diện người dùng
                 }
                 else
                 {
@@ -194,11 +210,15 @@ namespace Hutech.Exam.Client.Pages.Exam
 
             await Dialog.ShowAsync<Simple_Dialog>("Kết thúc bài làm", parameters, options);
         }
+        private async Task ScrollToQuestion(int questionIndex)
+        {
+            await Js.InvokeVoidAsync("scrollToElement", $"question-{questionIndex}");
+        }
 
         private async Task OnClickDapAn(CustomDeThi deThi, int? ma_cau_tra_loi)
         {
             // xanh phần tô
-            DSKhoanhDapAn[deThi.MaCauHoi] = ma_cau_tra_loi;
+            DSKhoanhDapAn[deThi.MaCauHoi] = (DSKhoanhDapAn[deThi.MaCauHoi].Item1,ma_cau_tra_loi);
 
             ChiTietBaiThiRequest chiTietBai;
             if (!_dsThiSinhDaKhoanh.ContainsKey(deThi.MaCauHoi))
@@ -212,6 +232,14 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             //gửi bài cho server qua signalR
             await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
+            await TheSateHasChanged();
+        }
+
+        private async Task TheSateHasChanged()
+        {
+            _shouldRender = true;
+            await InvokeAsync(StateHasChanged); // Hoặc StateHasChanged(); nếu bạn đang ở UI thread
+            _shouldRender = false; // Reset lại sau khi render nếu cần
         }
 
         public async ValueTask DisposeAsync()

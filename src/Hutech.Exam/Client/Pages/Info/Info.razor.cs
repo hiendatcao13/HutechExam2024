@@ -139,7 +139,10 @@ namespace Hutech.Exam.Client.Pages.Info
             Snackbar.Add(ENTER_EXAM, Severity.Success);
             if (selectedCTCaThi != null)
             {
-                await UpdateBatDauThiAPI(selectedCTCaThi);
+                if(!selectedCTCaThi.DaThi)
+                {
+                    await UpdateBatDauThiAPI(selectedCTCaThi);
+                }
                 MyData.ChiTietCaThi = selectedCTCaThi;
             }
             Nav.NavigateTo("/test");

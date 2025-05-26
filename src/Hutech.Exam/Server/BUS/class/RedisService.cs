@@ -1,14 +1,9 @@
 ﻿using AutoMapper;
-using Hutech.Exam.Client.Pages.Result;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
-using static MudBlazor.CategoryTypes;
 
 namespace Hutech.Exam.Server.BUS
 {
