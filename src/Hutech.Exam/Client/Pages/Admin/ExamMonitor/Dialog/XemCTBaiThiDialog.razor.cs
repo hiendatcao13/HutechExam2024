@@ -7,7 +7,6 @@ using Microsoft.JSInterop;
 using MudBlazor;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 {
@@ -130,17 +129,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
             DsDapAn = await GetDapAnAPI(ChiTietCaThi.MaDeThi ?? -1) ?? [];
         }
 
-        private async Task TheSateHasChanged()
-        {
-            _shouldRender = true;
-            await InvokeAsync(StateHasChanged); // Hoặc StateHasChanged(); nếu bạn đang ở UI thread
-            _shouldRender = false; // Reset lại sau khi render nếu cần
-        }
-
 
         private async Task<ChiTietCaThiDto> ChiTietCaThi_SelectOneAPI(int ma_chi_tiet_ca_thi)
         {
-            var response = await Http.GetAsync($"api/ChiTietCaThi/Select?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}");
+            var response = await Http.GetAsync($"api/chitietcathis/{ma_chi_tiet_ca_thi}");
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>() ?? new();
@@ -154,7 +146,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private async Task<List<ChiTietBaiThiDto>> ChiTietBaiThis_SelectBy_ma_chi_tiet_ca_thiAPI(int ma_chi_tiet_ca_thi)
         {
-            var response = await Http.GetAsync($"api/ChiTietBaiThi/SelectBy_MaChiTietCaThi?ma_chi_tiet_ca_thi={ma_chi_tiet_ca_thi}");
+            var response = await Http.GetAsync($"api/chitietbaithis/filter-chitietcathi?maChiTietCaThi={ma_chi_tiet_ca_thi}");
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<List<ChiTietBaiThiDto>>() ?? new();
@@ -168,7 +160,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private async Task<List<CustomDeThi>?> GetDeThiAPI(long? ma_de_hoan_vi)
         {
-            var response = await Http.GetAsync($"api/CustomDeThi/GetDeThi?ma_de_thi_hoan_vi={ma_de_hoan_vi}");
+            var response = await Http.GetAsync($"api/dethihoanvis/{ma_de_hoan_vi}");
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<List<CustomDeThi>?>();
@@ -182,7 +174,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private async Task<Dictionary<int, int>?> GetDapAnAPI(long maDeHV)
         {
-            var response = await Http.GetAsync($"api/CauTraLoi/GetDapAn?maDeHV={maDeHV}");
+            var response = await Http.GetAsync($"api/dethihoanvis/{maDeHV}/dap-an");
             if(response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<Dictionary<int, int>>();

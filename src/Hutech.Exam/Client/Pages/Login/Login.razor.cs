@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.DTO.Request.SinhVien;
 namespace Hutech.Exam.Client.Pages.Login
 {
 
@@ -57,7 +58,7 @@ namespace Hutech.Exam.Client.Pages.Login
                 return;
             }
 
-            _userSession = await LoginAPI(Username);
+            _userSession = await LoginAPI(new SinhVienAuthenticationRequest { Username = Username, Password = Password});
 
             if (_userSession == null)
             {

@@ -129,3 +129,7 @@
 - Tối ưu tương tác với giao diện test, nhanh hơn, độ chậm thấp hơn
 - Hiển thị chi tiết bài làm của thí sinh
 - TODO: sử dụng quy tắc chuẩn cho RESTful API
+--------------------------------------------------
+27/5/2025 4PM
+- Đã sửa lại quy tắc đặt tên chuẩn cho toàn bộ API
+- TODO: sử dụng APIReponse để trả về thay vì thuần data và HashId

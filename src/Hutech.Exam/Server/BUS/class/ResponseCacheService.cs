@@ -30,7 +30,7 @@ namespace Hutech.Exam.Server.BUS.@class
 
             if (cacheResponse == null || cacheResponse.Length == 0)
             {
-                Console.WriteLine($"[Redis] No data found for key: {cacheKey}");
+                //Console.WriteLine($"[Redis] No data found for key: {cacheKey}");
                 return default;
             }
 

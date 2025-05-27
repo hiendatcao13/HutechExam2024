@@ -7,9 +7,13 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository, IMapper mapper)
+    public class ChiTietDotThiService(IChiTietDotThiResposity chiTietDotThiRepository, LopAoService lopAoService, MonHocService monHocService, IMapper mapper)
     {
         private readonly IChiTietDotThiResposity _chiTietDotThiResposity = chiTietDotThiRepository;
+
+        private readonly LopAoService _lopAoService = lopAoService;
+        private readonly MonHocService _monHocService = monHocService;
+
         private readonly IMapper _mapper = mapper;
 
         public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng ChiTietDotThi
@@ -34,6 +38,8 @@ namespace Hutech.Exam.Server.BUS
                 while(dataReader.Read())
                 {
                     ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
+                    chiTietDotThi.MaLopAoNavigation = _lopAoService.GetProperty(dataReader, COLUMN_LENGTH);
+                    chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocService.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
                     list.Add(chiTietDotThi);
                 }
             }
@@ -75,6 +81,8 @@ namespace Hutech.Exam.Server.BUS
                 if (dataReader.Read())
                 {
                     chiTietDotThi = GetProperty(dataReader);
+                    chiTietDotThi.MaLopAoNavigation = _lopAoService.GetProperty(dataReader, COLUMN_LENGTH);
+                    chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocService.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
                 }
             }
             return chiTietDotThi;

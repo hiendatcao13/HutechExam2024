@@ -1,6 +1,7 @@
 ﻿@using Hutech.Exam.Shared.DTO
 @using System.Text
 @using Hutech.Exam.Shared.DTO.Request
+@using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
 @inject ISnackbar Snackbar
 
 <MudDialog Style="max-width: 500px">
@@ -113,9 +114,19 @@
 	{
 		SinhVienDto sinhVien = findChiTietCaThi.MaSinhVienNavigation ?? new();
 
-		if (maDeHVs != null && ma_ca_thi != null)
+		// handle data
+		findChiTietCaThi.MaCaThi = ma_ca_thi;
+		findChiTietCaThi.MaSinhVien = findChiTietCaThi.MaSinhVienNavigation?.MaSinhVien ?? -1;
+		findChiTietCaThi.MaDeThi = ma_de_thi;
+
+		if (maDeHVs != null && ma_ca_thi != null && findChiTietCaThi.MaCaThi != null && findChiTietCaThi.MaDeThi != null && findChiTietCaThi.MaSinhVien != null)
 		{
-			await InsertChiTietCaThiAPI(findChiTietCaThi);
+			await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
+				{
+					MaCaThi = (int)ma_ca_thi,
+					MaDeThi = (long)findChiTietCaThi.MaDeThi,
+					MaSinhVien = (long)findChiTietCaThi.MaSinhVien
+				});
 		}
 		if (isAlreadySave)
 		{
@@ -148,15 +159,10 @@
 
 
 	}
-	private async Task InsertChiTietCaThiAPI(ChiTietCaThiDto chiTietCaThi)
+	private async Task InsertChiTietCaThiAPI(ChiTietCaThiCreateRequest chiTietCaThi)
 	{
-		// handle data
-		chiTietCaThi.MaCaThi = ma_ca_thi;
-		chiTietCaThi.MaSinhVien = findChiTietCaThi.MaSinhVienNavigation?.MaSinhVien ?? -1;
-		chiTietCaThi.MaDeThi = ma_de_thi;
-
 		var jsonString = System.Text.Json.JsonSerializer.Serialize(chiTietCaThi);
-		var response = await Http.PostAsync($"api/ChiTietCaThi/Insert", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+		var response = await Http.PostAsync($"api/chitietcathis", new StringContent(jsonString, Encoding.UTF8, "application/json"));
 		if (response.IsSuccessStatusCode)
 		{
 			Snackbar.Add(SUCCESS_ADDSV, MudBlazor.Severity.Success);
@@ -172,7 +178,7 @@
 	}
 	private async Task KiemTraSinhVienAPI(string ma_so_sinh_vien)
 	{
-		var response = await Http.GetAsync($"api/SinhVien/SelectBy_MSSV?ma_so_sinh_vien={ma_so_sinh_vien}");
+		var response = await Http.GetAsync($"api/sinhviens/filter-by-mssv?maSoSinhVien={ma_so_sinh_vien}");
 		if (response.IsSuccessStatusCode)
 		{
 			SinhVienDto? tempSinhVien = await response.Content.ReadFromJsonAsync<SinhVienDto>();
@@ -186,15 +192,6 @@
 			Snackbar.Add(NO_SV, Severity.Error);
 			isExist = false;
 		}
-	}
-	private async Task<SinhVienDto?> GetSVByMSSV(string mssv)
-	{
-		var response = await Http.GetAsync($"api/SinhVien/SelectBy_MSSV?ma_so_sinh_vien={mssv}");
-		if (response.IsSuccessStatusCode)
-		{
-			return await response.Content.ReadFromJsonAsync<SinhVienDto?>();
-		}
-		return null;
 	}
 }
 

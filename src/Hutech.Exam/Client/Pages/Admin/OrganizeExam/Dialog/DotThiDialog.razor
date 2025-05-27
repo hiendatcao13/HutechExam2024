@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.DotThi
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
@@ -90,7 +91,14 @@
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        bool result = await AddDotThiAPI(CreateChiTietDotThi((string)ten_dot_thi, (DateTime)thoi_gian_bat_dau, (DateTime)thoi_gian_ket_thuc, selected_nam_hoc));
+        //CreateChiTietDotThi((string)ten_dot_thi, (DateTime)thoi_gian_bat_dau, (DateTime)thoi_gian_ket_thuc, selected_nam_hoc)
+        bool result = await AddDotThiAPI(new DotThiCreateRequest{ 
+            TenDotThi = ten_dot_thi, 
+            ThoiGianBatDau = (DateTime) thoi_gian_bat_dau, 
+            ThoiGianKetThuc = (DateTime) thoi_gian_ket_thuc, 
+            NamHoc = selected_nam_hoc
+        });
+
         if (result)
         {
             Snackbar.Add(SUCCESS_ADDDOTTHI, Severity.Success);
@@ -106,7 +114,14 @@
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        bool result = await EditDotThiAPI(CreateChiTietDotThi((string)ten_dot_thi, (DateTime)thoi_gian_bat_dau, (DateTime)thoi_gian_ket_thuc, selected_nam_hoc));
+        bool result = await EditDotThiAPI(DotThi?.MaDotThi ?? -1, new DotThiUpdateRequest
+            {
+                TenDotThi = ten_dot_thi,
+                ThoiGianBatDau = (DateTime)thoi_gian_bat_dau,
+                ThoiGianKetThuc = (DateTime)thoi_gian_ket_thuc,
+                NamHoc = selected_nam_hoc
+            });
+
         if (result)
         {
             Snackbar.Add(SUCCESS_EDITDOTTHI, Severity.Success);
@@ -131,16 +146,16 @@
     }
 
 
-    private async Task<bool> AddDotThiAPI(DotThiDto dotThi)
+    private async Task<bool> AddDotThiAPI(DotThiCreateRequest dotThi)
     {
         var jsonString = JsonSerializer.Serialize(dotThi);
-        var response = await Http.PostAsync($"api/DotThi/Insert", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+        var response = await Http.PostAsync($"api/dotthis", new StringContent(jsonString, Encoding.UTF8, "application/json"));
         return response.IsSuccessStatusCode;
     }
-    private async Task<bool> EditDotThiAPI(DotThiDto dotThi)
+    private async Task<bool> EditDotThiAPI(int ma_dot_thi, DotThiUpdateRequest dotThi)
     {
         var jsonString = JsonSerializer.Serialize(dotThi);
-        var response = await Http.PutAsync($"api/DotThi/Update", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/dotthis/{ma_dot_thi}", new StringContent(jsonString, Encoding.UTF8, "application/json"));
         return response.IsSuccessStatusCode;
     }
     private DotThiDto CreateChiTietDotThi(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)

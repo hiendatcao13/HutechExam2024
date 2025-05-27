@@ -30,7 +30,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private async Task HandleDangXuat()
         {
-            if (await UpdateLogoutAPI(MyData.SinhVien))
+            if (await UpdateLogoutAPI(MyData.SinhVien.MaSinhVien))
             {
                 var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
                 await customAuthStateProvider.UpdateAuthenticationState(null);

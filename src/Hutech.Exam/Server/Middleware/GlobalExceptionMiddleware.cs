@@ -53,7 +53,7 @@ namespace Hutech.Exam.Server.Middleware
             };
 
             // Trả về phản hồi lỗi theo cấu trúc ResponseAPI
-            var response = new ResponseAPI<object>(
+            var response = new APIResponse<object>(
                 success: false,
                 message: message,
                 data: null,

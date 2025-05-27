@@ -1,5 +1,5 @@
 ﻿using Hutech.Exam.Client.Pages.Exam.Dialog;
-using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.Custom;
 using Microsoft.JSInterop;
 using MudBlazor;
 

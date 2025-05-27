@@ -93,7 +93,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (deThi.GhiChu == "-1")
                 return;
             // tăng số lần nghe lên
-            deThi.GhiChu = await GetSoLanNgheAPI(ChiTietCaThi.MaChiTietCaThi, ma_nhom) + "";
+            deThi.GhiChu = await GetSoLanNgheAPI( new Shared.DTO.AudioListenedDto { MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaNhom = ma_nhom}) + "";
             await Js.InvokeVoidAsync("playAudioFromStart", ma_nhom);
         }
     }

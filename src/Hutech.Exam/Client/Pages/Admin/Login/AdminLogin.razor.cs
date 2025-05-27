@@ -55,7 +55,7 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
                 Snackbar.Add(EMPTY_MESSAGE, Severity.Error);
                 return;
             }
-            userSession = await LoginAPI(username, password);
+            userSession = await LoginAPI( new Shared.DTO.Request.User.UserAuthenticationRequest { Username = username, Password = password});
             if (userSession == null) 
             {
                 Snackbar.Add(FAILED_MESSSAGE, Severity.Error);

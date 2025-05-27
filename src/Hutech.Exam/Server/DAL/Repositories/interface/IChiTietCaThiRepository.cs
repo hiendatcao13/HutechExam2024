@@ -31,7 +31,5 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public Task<int> Remove(int ma_chi_tiet_ca_thi);
 
         public Task<int> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau);
-
-        public Task<IDataReader> SelectBy_ma_ca_thi_MSSV(int ma_ca_thi);
     }
 }

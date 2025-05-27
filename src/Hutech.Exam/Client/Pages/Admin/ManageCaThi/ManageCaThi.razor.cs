@@ -8,7 +8,7 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using System.Globalization;
 using System.Text;
-using Microsoft.AspNetCore.Http.Connections;
+using Hutech.Exam.Client.Pages.Admin.ManageCaThi.Dialog;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {

@@ -25,21 +25,6 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<DeThiHoanViDto>(deThiHoanVi);
         }
-        //public TblDeThiHoanVi SelectOne(long ma_de_hoan_vi)
-        //{
-        //    TblDeThiHoanVi deThiHoanVi = new TblDeThiHoanVi();
-        //    using(IDataReader dataReader = _deThiHoanViRepository.SelectOne(ma_de_hoan_vi))
-        //    {
-        //        if (dataReader.Read())
-        //        {
-        //            deThiHoanVi = getProperty(dataReader);
-        //        }
-        //        TblDeThi deThi = _deThiService.SelectOne(deThiHoanVi.MaDeThi);
-        //        // trường đặc biệt maDeThiNavigation - đối tượng là Đề thi
-        //        deThiHoanVi.MaDeThiNavigation = deThi;
-        //    }
-        //    return deThiHoanVi;
-        //}
         public async Task<List<DeThiHoanViDto>> SelectBy_MaDeThi(int ma_de_thi)
         {
             List<DeThiHoanViDto> deThiHoanVis = new();
@@ -54,6 +39,18 @@ namespace Hutech.Exam.Server.BUS
                 
             }
             return deThiHoanVis;
+        }
+        public async Task<Dictionary<int, int>> DapAn(long ma_de_hv)
+        {
+            Dictionary<int, int> result = [];
+            using (IDataReader dataReader = await _deThiHoanViRepository.DapAn(ma_de_hv))
+            {
+                while (dataReader.Read())
+                {
+                    result[dataReader.GetInt32(0)] = dataReader.GetInt32(1);
+                }
+            }
+            return result;
         }
     }
 }

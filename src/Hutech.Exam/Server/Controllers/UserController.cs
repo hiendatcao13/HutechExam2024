@@ -1,21 +1,28 @@
 ﻿using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared;
+using Hutech.Exam.Shared.DTO.Request.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hutech.Exam.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class UserController(UserService userService) : Controller
     {
         private readonly UserService _userService = userService;
 
-        [HttpPut("Login")]
+        //////////////////CRUD///////////////////////////
+
+        //////////////////FILTER///////////////////////////
+
+        //////////////////OTHERS///////////////////////////
+
+        [HttpPut("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserSession>> Login([FromBody] AccountRequest account)
+        public async Task<ActionResult<UserSession>> Login([FromBody] UserAuthenticationRequest account)
         {
             var JwtAuthencationManager = new JwtAuthenticationManager(_userService);
             var userSession = await JwtAuthencationManager.GenerateJwtToken(account.Username, account.Password);
@@ -25,7 +32,7 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return BadRequest("Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!");
                 }
-                if(userSession.NavigateUser.IsDeleted)
+                if (userSession.NavigateUser.IsDeleted)
                 {
                     return BadRequest("Tài khoản đã bị xóa. Vui lòng liên hệ quản trị viên!");
                 }
@@ -38,22 +45,16 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-
-
+        //////////////////PRIVATE///////////////////////////
 
         private async Task UpdateLoginSuccess(Guid userId)
         {
             await _userService.LoginSuccess(userId);
         }
+
         public async Task<int> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
         {
             return await _userService.UpdateLastActivity(userId, lastActivityDate);
         }
-    }
-
-    public class AccountRequest
-    {
-        public string Username { get; set; } = default!;
-        public string Password { get; set; } = default!;
     }
 }

@@ -1,26 +1,25 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hutech.Exam.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/audios")]
     [ApiController]
     [Authorize]
     public class AudioListenedController(AudioListenedService audioListenedService) : Controller
     {
         private readonly AudioListenedService _audioListenedService = audioListenedService;
 
-        //[HttpGet("GetSoLanNghe")]
-        //public async Task<ActionResult<int>> GetSoLanNghe([FromQuery] int ma_chi_tiet_ca_thi, [FromQuery] string filename)
-        //{
-        //    return Ok(await _audioListenedService.SelectOne(ma_chi_tiet_ca_thi, filename));
-        //}
-        [HttpPut("GetSoLanNghe")]
+        
+        [HttpPut] // vì là không biết update hay insert nên không dùng id ở đây được
         public async Task<ActionResult<int>> GetSoLanNghe([FromBody] AudioListenedDto audio)
         {
-            return Ok(await _audioListenedService.Save(audio.MaChiTietCaThi, audio.MaNhom));
+            // do nếu NotFound thì tự động tạo mới nên sẽ không có lỗi NotFound ở đây
+            var so_lan_nghe = await _audioListenedService.Save(audio.MaChiTietCaThi, audio.MaNhom);
+            return Ok(APIResponse<int>.SuccessResponse(so_lan_nghe));
         }
     }
 }

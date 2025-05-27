@@ -137,7 +137,8 @@
         selectedLopAo = lopAo;
         if (selectedDotThi != null && selectedMonHoc != null && selectedLopAo != null)
         {
-            lanThis = await LanThis_SelectBy_MaDotThi_MaLopAoAPI(selectedMonHoc.MaMonHoc, selectedLopAo.MaLopAo);
+            var chiTietDotThis = await ChiTietDotThis_SelectBy_MaDotThi_MaLopAoAPI(selectedMonHoc.MaMonHoc, selectedLopAo.MaLopAo);
+            lanThis = chiTietDotThis?.Select(p => p.LanThi).ToList();
         }
         else
         {

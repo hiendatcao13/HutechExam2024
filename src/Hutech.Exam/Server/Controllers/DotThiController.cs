@@ -1,56 +1,65 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.DotThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/dotthis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class DotThiController(DotThiService dotThiService, IHubContext<AdminHub> mainHub) : Controller
     {
         private readonly DotThiService _dotThiService = dotThiService;
+
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
-        [HttpGet("GetAll")]
+        //////////////////CRUD///////////////////////////
+
+        [HttpGet]
         public async Task<ActionResult<List<DotThiDto>>> GetAll()
         {
             return Ok(await _dotThiService.GetAll());
         }
-        [HttpGet("SelectOne")]
-        public async Task<ActionResult<DotThiDto>> SelectOne([FromQuery] int ma_dot_thi)
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<DotThiDto>> SelectOne([FromRoute] int id)
         {
-            return Ok(await _dotThiService.SelectOne(ma_dot_thi));
+            return Ok(await _dotThiService.SelectOne(id));
         }
-        [HttpPost("Insert")]
-        public async Task<ActionResult<int>> Insert([FromBody] DotThiDto dotThi)
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Insert([FromBody] DotThiCreateRequest dotThi)
         {
-            var id = -1;
-            if(dotThi.TenDotThi != null && dotThi.ThoiGianBatDau != null && dotThi.ThoiGianKetThuc != null && dotThi.NamHoc != null)
-                id = await _dotThiService.Insert(dotThi.TenDotThi, (DateTime)dotThi.ThoiGianBatDau, (DateTime)dotThi.ThoiGianKetThuc, (int)dotThi.NamHoc);
+            var id = await _dotThiService.Insert(dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc);
             await NotifyChangeDotThiToAdmin(id, 0);
             return Ok(id);
         }
-        [HttpPut("Update")]
-        public async Task<ActionResult> Update([FromBody] DotThiDto dotThi)
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
-            if (dotThi.TenDotThi != null && dotThi.ThoiGianBatDau != null && dotThi.ThoiGianKetThuc != null && dotThi.NamHoc != null)
-                await _dotThiService.Update(dotThi.MaDotThi, dotThi.TenDotThi, (DateTime)dotThi.ThoiGianBatDau, (DateTime)dotThi.ThoiGianKetThuc, (int)dotThi.NamHoc);
-            await NotifyChangeDotThiToAdmin(dotThi.MaDotThi, 1);
-            return Ok();
-        }
-        [HttpDelete("Remove")]
-        public async Task<ActionResult> Remove([FromQuery] int ma_dot_thi)
-        {
-            await _dotThiService.Remove(ma_dot_thi);
-            await NotifyChangeDotThiToAdmin(ma_dot_thi, 2);
+            await _dotThiService.Update(id, dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc);
+            await NotifyChangeDotThiToAdmin(id, 1);
             return Ok();
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Remove([FromRoute] int id)
+        {
+            await _dotThiService.Remove(id);
+            await NotifyChangeDotThiToAdmin(id, 2);
+            return Ok();
+        }
 
+        //////////////////FILTER///////////////////////////
+
+        //////////////////OTHERS///////////////////////////
+
+        //////////////////PRIVATE///////////////////////////
 
         private async Task NotifyChangeDotThiToAdmin(int ma_dot_thi, int function)
         {

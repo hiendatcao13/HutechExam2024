@@ -2,134 +2,147 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.MonHoc
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
-    <DialogContent>
-        <MudTextField Label="Mã số môn học" Required InputType="InputType.Text" @bind-Value="ma_so_mon_hoc" Placeholder="CMP123"/>
-        <MudTextField Label="Tên môn học" Required InputType="InputType.Text" @bind-Value="ten_mon_hoc" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
-        @if(!IsEdit)
-        {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
-        }
-        else
-        {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
-        }
+	<DialogContent>
+		<MudTextField Label="Mã số môn học" Required InputType="InputType.Text" @bind-Value="ma_so_mon_hoc" Placeholder="CMP123" />
+		<MudTextField Label="Tên môn học" Required InputType="InputType.Text" @bind-Value="ten_mon_hoc" />
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		@if (!IsEdit)
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+		}
+		else
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+		}
 
-    </DialogActions>
+	</DialogActions>
 </MudDialog>
 <style>
-    .my-custom-class {
-    backdrop-filter: blur(10px);
-    }
+	.my-custom-class {
+		backdrop-filter: blur(10px);
+	}
 </style>
 
-@code{
-    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-    [Inject] public HttpClient Http { get; set; } = default!;
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+	[Inject] public HttpClient Http { get; set; } = default!;
 
-    [Parameter] public MonHocDto? MonHoc { get; set; }
-    [Parameter] public bool IsEdit { get; set; } = false;
+	[Parameter] public MonHocDto? MonHoc { get; set; }
+	[Parameter] public bool IsEdit { get; set; } = false;
 
-    private string? ma_so_mon_hoc;
-    private string? ten_mon_hoc;
+	private string? ma_so_mon_hoc;
+	private string? ten_mon_hoc;
 
-    //kết quả id mới nhất được tạo ra
-    private int? result_id;
+	//kết quả id mới nhất được tạo ra
+	private int? result_id;
 
-    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
-    private const string SUCCESS_ADDMONTHI = "Thêm môn thi thành công";
-    private const string FAIL_ADDMONTHI = "Thêm môn thi thất bại";
-    private const string SUCCESS_EDITMONTHI = "Sửa môn thi thành công";
-    private const string FAIL_EDITMONTHI = "Sửa môn thi thất bại";
+	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+	private const string SUCCESS_ADDMONTHI = "Thêm môn thi thành công";
+	private const string FAIL_ADDMONTHI = "Thêm môn thi thất bại";
+	private const string SUCCESS_EDITMONTHI = "Sửa môn thi thành công";
+	private const string FAIL_EDITMONTHI = "Sửa môn thi thất bại";
 
-    protected override async Task OnInitializedAsync()
-    {
-        HandleInput();
-        await base.OnInitializedAsync();
-    }
-    private void HandleInput()
-    {
-        if (MonHoc != null && IsEdit)
-        {
-            ma_so_mon_hoc = MonHoc.MaSoMonHoc;
-            ten_mon_hoc = MonHoc.TenMonHoc;
-        }
-    }
-    private void OnClickThoat()
-    {
-        MudDialog?.Cancel();
-    }
-    private async Task OnClickThem()
-    {
-        if (string.IsNullOrEmpty(ma_so_mon_hoc) || string.IsNullOrEmpty(ten_mon_hoc))
-        {
-            Snackbar.Add(INVALID_FORM, Severity.Error);
-            return;
-        }
-        var result = await InsertMonHocAPI(CreateMonHoc(ma_so_mon_hoc, ten_mon_hoc));
-        if (result)
-        {
-            Snackbar.Add(SUCCESS_ADDMONTHI, Severity.Success);
-            // đóng dialog đồng thời truyền id của môn mới nhất về
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_ADDMONTHI, Severity.Error);
-        }
-    }
-    private async Task OnClickSua(){
-        if (string.IsNullOrEmpty(ma_so_mon_hoc) || string.IsNullOrEmpty(ten_mon_hoc))
-        {
-            Snackbar.Add(INVALID_FORM, Severity.Error);
-            return;
-        }
-        var result = await UpdateMonHocAPI(CreateMonHoc(ma_so_mon_hoc, ten_mon_hoc));
-        if (result)
-        {
-            Snackbar.Add(SUCCESS_EDITMONTHI, Severity.Success);
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_EDITMONTHI, Severity.Error);
-        }
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private void HandleInput()
+	{
+		if (MonHoc != null && IsEdit)
+		{
+			ma_so_mon_hoc = MonHoc.MaSoMonHoc;
+			ten_mon_hoc = MonHoc.TenMonHoc;
+		}
+	}
+	private void OnClickThoat()
+	{
+		MudDialog?.Cancel();
+	}
+	private async Task OnClickThem()
+	{
+		if (string.IsNullOrEmpty(ma_so_mon_hoc) || string.IsNullOrEmpty(ten_mon_hoc))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+		var result = await InsertMonHocAPI(new MonHocCreateRequest
+			{
+				MaSoMonHoc = ma_so_mon_hoc,
+				TenMonHoc = ten_mon_hoc
+			});
 
-    private async Task<bool> InsertMonHocAPI(MonHocDto monHoc)
-    {
-        var json = JsonSerializer.Serialize(monHoc);
-        var response = await Http.PostAsync("api/MonHoc/Insert", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = await response.Content.ReadFromJsonAsync<int?>();
-            return true;
-        }
-        return false;
-    }
-    private async Task<bool> UpdateMonHocAPI(MonHocDto monHoc)
-    {
-        var json = JsonSerializer.Serialize(monHoc);
-        var response = await Http.PutAsync("api/MonHoc/Update", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = monHoc.MaMonHoc;
-            return true;
-        }
-        return false;
-    }
-    private MonHocDto CreateMonHoc(string ma_so_mon_hoc, string ten_mon_hoc){
-        return new MonHocDto
-            {
-                MaMonHoc = MonHoc?.MaMonHoc ?? 0,
-                MaSoMonHoc = ma_so_mon_hoc,
-                TenMonHoc = ten_mon_hoc,
-            };
-    }
+		if (result)
+		{
+			Snackbar.Add(SUCCESS_ADDMONTHI, Severity.Success);
+			// đóng dialog đồng thời truyền id của môn mới nhất về
+			MudDialog?.Close(DialogResult.Ok(result_id));
+		}
+		else
+		{
+			Snackbar.Add(FAIL_ADDMONTHI, Severity.Error);
+		}
+	}
+	private async Task OnClickSua()
+	{
+		if (string.IsNullOrEmpty(ma_so_mon_hoc) || string.IsNullOrEmpty(ten_mon_hoc))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+		var result = await UpdateMonHocAPI(MonHoc?.MaMonHoc ?? -1, new MonHocUpdateRequest
+			{
+				MaSoMonHoc = ma_so_mon_hoc,
+				TenMonHoc = ten_mon_hoc
+			});
+
+		if (result)
+		{
+			Snackbar.Add(SUCCESS_EDITMONTHI, Severity.Success);
+			MudDialog?.Close(DialogResult.Ok(result_id));
+		}
+		else
+		{
+			Snackbar.Add(FAIL_EDITMONTHI, Severity.Error);
+		}
+	}
+
+	private async Task<bool> InsertMonHocAPI(MonHocCreateRequest monHoc)
+	{
+		var json = JsonSerializer.Serialize(monHoc);
+		var response = await Http.PostAsync("api/monhocs", new StringContent(json, Encoding.UTF8, "application/json"));
+		if (response.IsSuccessStatusCode)
+		{
+			result_id = await response.Content.ReadFromJsonAsync<int?>();
+			return true;
+		}
+		return false;
+	}
+	private async Task<bool> UpdateMonHocAPI(int ma_mon_hoc, MonHocUpdateRequest monHoc)
+	{
+		var json = JsonSerializer.Serialize(monHoc);
+		var response = await Http.PutAsync($"api/monhocs/{ma_mon_hoc}", new StringContent(json, Encoding.UTF8, "application/json"));
+		if (response.IsSuccessStatusCode)
+		{
+			result_id = ma_mon_hoc;
+			return true;
+		}
+		return false;
+	}
+	private MonHocDto CreateMonHoc(string ma_so_mon_hoc, string ten_mon_hoc)
+	{
+		return new MonHocDto
+			{
+				MaMonHoc = MonHoc?.MaMonHoc ?? 0,
+				MaSoMonHoc = ma_so_mon_hoc,
+				TenMonHoc = ten_mon_hoc,
+			};
+	}
 }

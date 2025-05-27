@@ -120,7 +120,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             Time(); // xử lí countdown
             await CreateHubConnection();
 
-            CustomDeThis = MyData.CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi) ?? [];
+            CustomDeThis = MyData.CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi ?? -1) ?? [];
             ModifyNhomCauHoi();
 
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
@@ -220,6 +220,8 @@ namespace Hutech.Exam.Client.Pages.Exam
             // xanh phần tô
             DSKhoanhDapAn[deThi.MaCauHoi] = (DSKhoanhDapAn[deThi.MaCauHoi].Item1,ma_cau_tra_loi);
 
+            await TheSateHasChanged();
+
             ChiTietBaiThiRequest chiTietBai;
             if (!_dsThiSinhDaKhoanh.ContainsKey(deThi.MaCauHoi))
             {
@@ -232,7 +234,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             //gửi bài cho server qua signalR
             await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
-            await TheSateHasChanged();
         }
 
         private async Task TheSateHasChanged()

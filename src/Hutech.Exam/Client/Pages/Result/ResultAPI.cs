@@ -6,10 +6,9 @@ namespace Hutech.Exam.Client.Pages.Result
 {
     public partial class Result
     {
-        private async Task<bool> UpdateLogoutAPI(SinhVienDto sinhVien)
+        private async Task<bool> UpdateLogoutAPI(long ma_sinh_vien)
         {
-            var jsonString = JsonSerializer.Serialize(sinhVien);
-            var response = await Http.PutAsync($"api/SinhVien/UpdateLogout", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+            var response = await Http.PutAsync($"api/sinhvien/{ma_sinh_vien}/logout", null);
             return response.IsSuccessStatusCode;
         }
     }

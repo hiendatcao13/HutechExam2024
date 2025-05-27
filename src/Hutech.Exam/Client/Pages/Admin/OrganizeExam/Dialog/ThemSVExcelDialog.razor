@@ -379,7 +379,8 @@
 
     private async Task<List<string>?> MSSVs_SelectBy_MaCaThiAPI(int maCaThi)
     {
-        var response = await Http.GetAsync($"api/ChiTietCaThi/SelectBy_MaCaThi_MSSV?ma_ca_thi={maCaThi}");
+        // TODO: coi lại hàm API này, tạm đã bị xóa sổ
+        var response = await Http.GetAsync($"api/chitietcathis/SelectBy_MaCaThi_MSSV?ma_ca_thi={maCaThi}");
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<List<string>?>();

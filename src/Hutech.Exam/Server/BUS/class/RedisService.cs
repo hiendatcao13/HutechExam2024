@@ -2,15 +2,16 @@
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.Custom;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, CauTraLoiService cauTraLoiService, ChiTietCaThiService chiTietCaThiService, IResponseCacheService cacheService, IHubContext<SinhVienHub> sinhVienHub, ILogger<RedisService> logger, IMapper mapper)
+    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, DeThiHoanViService deThiHoanViService, ChiTietCaThiService chiTietCaThiService, IResponseCacheService cacheService, IHubContext<SinhVienHub> sinhVienHub, ILogger<RedisService> logger, IMapper mapper)
     {
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
-        private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
+        private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
         private readonly IResponseCacheService _cacheService = cacheService;
@@ -144,12 +145,12 @@ namespace Hutech.Exam.Server.BUS
                 // lấy toàn bộ bài thi của sinh viên từ Redis
                 Dictionary<int, ChiTietBaiThiRequest> data = await GetChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
 
-
+                int length = submitRequest.DapAnKhoanhs.Count(p => p.Value != null);
                 // Kiểm tra xem số lượng bài trong Redis nhận đủ hay chưa, nếu chưa nhận đủ thì throw để vào hàng đợi lại (cơ chế FIFO, nó đứng cuối hàng đợi lại)
                 // Trường hợp may thì được xử lí ngay tại chỗ
-                if(data.Count != submitRequest.DapAnKhoanhs.Count)
+                if(data.Count != length)
                 {
-                    _logger.LogWarning("[Redis] Data count mismatch: {dataCount} vs {dapAnsCount} of maSV {maSV}", data.Count, submitRequest.DapAnKhoanhs.Count, submitRequest.MaSinhVien);
+                    _logger.LogWarning("[Redis] Data count mismatch: {dataCount} vs {dapAnsCount} of maSV {maSV}", data.Count, length, submitRequest.MaSinhVien);
                     throw new Exception();
                 }
 
@@ -209,7 +210,7 @@ namespace Hutech.Exam.Server.BUS
                 }
 
                 // Nếu không có, thực hiện logic lấy dữ liệu từ database
-                Dictionary<int, int> listDapAn = await _cauTraLoiService.SelectBy_MaDeHV_DapAn(maDeHV);
+                Dictionary<int, int> listDapAn = await _deThiHoanViService.DapAn(maDeHV);
 
                 // Lưu vào cache
                 await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(150));

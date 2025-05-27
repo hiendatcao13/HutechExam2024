@@ -144,25 +144,22 @@
     }
     private async Task<CaThiDto?> GetCaThiAPI(int ma_ca_thi)
     {
-        var response = await Http.GetAsync($"api/CaThi/SelectOne?ma_ca_thi={ma_ca_thi}");
+        var response = await Http.GetAsync($"api/cathis/{ma_ca_thi}");
         return await response.Content.ReadFromJsonAsync<CaThiDto?>();
     }
     private async Task<bool> KichHoatCaThiAPI(int ma_ca_thi)
     {
-        var json = JsonSerializer.Serialize(ma_ca_thi);
-        var response = await Http.PutAsync($"api/CaThi/KichHoatCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}/active", null);
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
     }
     private async Task<bool> HuyKichHoatCaThiAPI(int ma_ca_thi)
     {
-        var json = JsonSerializer.Serialize(ma_ca_thi);
-        var response = await Http.PutAsync($"api/CaThi/HuyKichHoatCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}/deactive", null);
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
     }
     private async Task<bool> DungCaThiAPI(int ma_ca_thi)
     {
-        var json = JsonSerializer.Serialize(ma_ca_thi);
-        var response = await Http.PutAsync($"api/CaThi/DungCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}/pause", null);
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
     }
     private async Task<bool> KetThucCaThiAPI(int ma_ca_thi)
@@ -173,8 +170,7 @@
             return false;
         }
         Snackbar.Add(ALERT_KETTHUCCATHI, Severity.Warning);
-        var json = JsonSerializer.Serialize(ma_ca_thi);
-        var response = await Http.PutAsync($"api/CaThi/KetThucCaThi", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}/finish", null);
         return await ShowSnackBarTTCaThi(response.IsSuccessStatusCode);
     }
     private async Task<bool> ShowSnackBarTTCaThi(bool result)

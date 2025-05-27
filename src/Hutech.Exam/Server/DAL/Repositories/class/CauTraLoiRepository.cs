@@ -45,12 +45,5 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaCauTraLoi", SqlDbType.Int, ma_cau_tra_loi);
             return await sql.ExecuteNonQueryAsync();
         }
-
-        public async Task<IDataReader> SelectBy_MaDeHV_DapAn(long ma_de_hv)
-        {
-            DatabaseReader sql = new("CauTraLoi_SelectBy_MaDeHV_DapAn");
-            sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hv);
-            return await sql.ExecuteReaderAsync();
-        }
     }
 }

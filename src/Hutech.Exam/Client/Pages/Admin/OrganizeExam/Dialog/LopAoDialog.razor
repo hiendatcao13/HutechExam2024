@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.LopAo
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
@@ -71,7 +72,12 @@
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        var result = await InsertLopAoAPI(CreateLopAo(ten_lop, (DateTime)ngay_bat_dau));
+        var result = await InsertLopAoAPI( new LopAoCreateRequest{ 
+            TenLopAo = ten_lop, 
+            NgayBatDau = (DateTime) ngay_bat_dau, 
+            MaMonHoc = MaMonHoc
+        });
+
         if (result)
         {
             Snackbar.Add(SUCCESS_ADDLOP, Severity.Success);
@@ -89,7 +95,13 @@
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        var result = await UpdateLopAoAPI(CreateLopAo(ten_lop, (DateTime)ngay_bat_dau));
+        var result = await UpdateLopAoAPI(LopAo?.MaLopAo ?? -1, new LopAoUpdateRequest
+            {
+                TenLopAo = ten_lop,
+                NgayBatDau = (DateTime)ngay_bat_dau,
+                MaMonHoc = MaMonHoc
+            });
+
         if (result)
         {
             Snackbar.Add(SUCCESS_EDITLOP, Severity.Success);
@@ -101,10 +113,10 @@
         }
     }
 
-    private async Task<bool> InsertLopAoAPI(LopAoDto lopAo)
+    private async Task<bool> InsertLopAoAPI(LopAoCreateRequest lopAo)
     {
         var json = JsonSerializer.Serialize(lopAo);
-        var response = await Http.PostAsync("api/LopAo/Insert", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PostAsync("api/lopaos", new StringContent(json, Encoding.UTF8, "application/json"));
         if (response.IsSuccessStatusCode)
         {
             result_id = await response.Content.ReadFromJsonAsync<int?>();
@@ -112,13 +124,13 @@
         }
         return false;
     }
-    private async Task<bool> UpdateLopAoAPI(LopAoDto lopAo)
+    private async Task<bool> UpdateLopAoAPI(int ma_lop_ao, LopAoUpdateRequest lopAo)
     {
         var json = JsonSerializer.Serialize(lopAo);
-        var response = await Http.PutAsync("api/LopAo/Update", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/lopaos/{ma_lop_ao}", new StringContent(json, Encoding.UTF8, "application/json"));
         if (response.IsSuccessStatusCode)
         {
-            result_id = lopAo.MaLopAo;
+            result_id = ma_lop_ao;
             return true;
         }
         return false;

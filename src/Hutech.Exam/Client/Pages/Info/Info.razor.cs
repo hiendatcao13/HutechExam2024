@@ -9,6 +9,7 @@ using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
 using AutoMapper;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
@@ -98,7 +99,7 @@ namespace Hutech.Exam.Client.Pages.Info
         }
         private async Task HandleDangXuat()
         {
-            if (await UpdateLogoutAPI(MyData.SinhVien))
+            if (await UpdateLogoutAPI(MyData.SinhVien.MaSinhVien))
             {
                 var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
                 await customAuthStateProvider.UpdateAuthenticationState(null);
@@ -141,7 +142,7 @@ namespace Hutech.Exam.Client.Pages.Info
             {
                 if(!selectedCTCaThi.DaThi)
                 {
-                    await UpdateBatDauThiAPI(selectedCTCaThi);
+                    await UpdateBatDauThiAPI(selectedCTCaThi.MaChiTietCaThi);
                 }
                 MyData.ChiTietCaThi = selectedCTCaThi;
             }

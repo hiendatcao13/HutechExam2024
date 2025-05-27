@@ -3,6 +3,7 @@
 @using System.Text
 @using System.Text.Json.Serialization
 @using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.CaThi
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
@@ -104,7 +105,14 @@
     private async Task OnClickCapNhat()
     {
         if(CaThi != null && MaChiTietDotThi != null && selectDeThi != null){
-            var result = await UpdateCaThiAPI(CreateCaThi(CaThi.TenCaThi ?? "", (int)MaChiTietDotThi, CaThi.ThoiGianBatDau, selectDeThi.MaDeThi, CaThi.ThoiGianThi));
+            var result = await UpdateCaThiAPI(CaThi.MaCaThi, new CaThiUpdateRequest { 
+                TenCaThi = CaThi.TenCaThi ?? String.Empty, 
+                MaChiTietDotThi = (int)MaChiTietDotThi, 
+                ThoiGianBatDau = CaThi.ThoiGianBatDau, 
+                MaDeThi = selectDeThi.MaDeThi, 
+                ThoiGianThi = CaThi.ThoiGianThi
+            });
+
             if(result){
                 Snackbar.Add(SUCCESS_UPDATE, Severity.Success);
                 MudDialog?.Close(DialogResult.Ok(CaThi.MaCaThi));
@@ -118,22 +126,22 @@
 
     private async Task<List<DeThiDto>?> GetAllDeThiAPI()
     {
-        var response = await Http.GetAsync("api/DeThi/GetAll");
+        var response = await Http.GetAsync("api/dethis");
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<List<DeThiDto>?>();
         }
         return null;
     }
-    private async Task<bool> UpdateCaThiAPI(CustomCaThi caThi)
+    private async Task<bool> UpdateCaThiAPI(int ma_ca_thi, CaThiUpdateRequest caThi)
     {
         var json = JsonSerializer.Serialize(caThi);
-        var response = await Http.PutAsync("api/CaThi/Update", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
         return response.IsSuccessStatusCode;
     }
     private async Task<DeThiDto?> SelectOneDeThiAPI(int ma_de_thi)
     {
-        var response = await Http.GetAsync($"api/DeThi/SelectOne?ma_de_thi={ma_de_thi}");
+        var response = await Http.GetAsync($"api/dethis/{ma_de_thi}");
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadFromJsonAsync<DeThiDto?>();

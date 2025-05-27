@@ -1,44 +1,59 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.MonHoc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hutech.Exam.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/monhocs")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class MonHocController(MonHocService monHocService) : Controller
     {
         private readonly MonHocService _monHocService = monHocService;
 
-        [HttpGet("SelectOne")]
-        public async Task<ActionResult<MonHocDto>> SelectOne([FromQuery] int ma_mon_hoc)
-        {
-            return Ok(await _monHocService.SelectOne(ma_mon_hoc));
-        }
-        [HttpGet("GetAll")]
+        //////////////////CRUD///////////////////////////
+
+        [HttpGet]
         public async Task<ActionResult<List<MonHocDto>>> GetAll()
         {
             return Ok(await _monHocService.GetAll());
         }
-        [HttpPost("Insert")]
-        public async Task<ActionResult<int>> Insert([FromBody] MonHocDto monHoc)
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MonHocDto>> SelectOne([FromRoute] int id)
         {
-            var result = await _monHocService.Insert(monHoc.MaSoMonHoc ?? "", monHoc.TenMonHoc ?? "");
+            return Ok(await _monHocService.SelectOne(id));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Insert([FromBody] MonHocCreateRequest monHoc)
+        {
+            var result = await _monHocService.Insert(monHoc.MaSoMonHoc, monHoc.TenMonHoc);
             return Ok(result);
         }
-        [HttpPut("Update")]
-        public async Task<ActionResult<bool>> Update([FromBody] MonHocDto monHoc)
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<bool>> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
         {
-            var result = await _monHocService.Update(monHoc.MaMonHoc, monHoc.MaSoMonHoc ?? "", monHoc.TenMonHoc ?? "");
+            var result = await _monHocService.Update(id, monHoc.MaSoMonHoc, monHoc.TenMonHoc);
             return Ok(result);
         }
-        [HttpDelete("Remove")]
-        public async Task<ActionResult<bool>> Remove([FromQuery] int ma_mon_hoc)
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<bool>> Delete([FromRoute] int id)
         {
-            var result = await _monHocService.Remove(ma_mon_hoc);
+            var result = await _monHocService.Remove(id);
             return Ok(result);
         }
+
+        //////////////////FILTER///////////////////////////
+
+        //////////////////OTHERS///////////////////////////
+
+        //////////////////PRIVATE///////////////////////////
+
+
     }
 }

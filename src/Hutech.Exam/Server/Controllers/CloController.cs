@@ -1,43 +1,59 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.Clo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hutech.Exam.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/clos")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class CloController(CloService cloService) : Controller
     {
         private readonly CloService _cloService = cloService;
 
-        [HttpGet("SelectOne")]
-        public async Task<ActionResult<CloDto>> SelectOne([FromQuery] int ma_clo)
+        //////////////////CRUD///////////////////////////
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
         {
-            return Ok(await _cloService.SelectOne(ma_clo));
+            return Ok(await _cloService.SelectOne(id));
         }
-        [HttpPost("Insert")]
-        public async Task<ActionResult<int>> Insert([FromBody] CloDto cloDto)
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Insert([FromBody] CloCreateRequest clo)
         {
-            return Ok(await _cloService.Insert(cloDto.MaMonHoc, cloDto.MaSoClo, cloDto.TieuDe ?? "", cloDto.NoiDung ?? "", cloDto.TieuChi, cloDto.SoCau));
+            return Ok(await _cloService.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau));
         }
-        [HttpPut("Update")]
-        public async Task<ActionResult> Update([FromBody] CloDto cloDto)
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
         {
-            await _cloService.Update(cloDto.MaClo, cloDto.MaMonHoc, cloDto.MaSoClo, cloDto.TieuDe ?? "", cloDto.NoiDung ?? "", cloDto.TieuChi, cloDto.SoCau);
+            await _cloService.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau);
             return Ok();
         }
-        [HttpDelete("Remove")]
-        public async Task<ActionResult<int>> Remove([FromQuery] int ma_clo)
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<int>> Delete([FromRoute] int id)
         {
-            await _cloService.Remove(ma_clo);
+            await _cloService.Remove(id);
             return Ok();
         }
-        [HttpGet("SelectBy_MaMonHoc")]
-        public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int ma_mon_hoc)
+
+        //////////////////FILTER///////////////////////////
+
+        [HttpGet("filter-by-monhoc")]
+        public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
         {
-            return Ok(await _cloService.SelectBy_MaMonHoc(ma_mon_hoc));
+            return Ok(await _cloService.SelectBy_MaMonHoc(maMonHoc));
         }
+
+        //////////////////OTHERS///////////////////////////
+
+        //////////////////PRIVATE///////////////////////////
+
+
+
     }
 }

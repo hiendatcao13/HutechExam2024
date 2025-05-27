@@ -18,5 +18,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             return await sql.ExecuteReaderAsync();
         }
+
+        public async Task<IDataReader> DapAn(long ma_de_hoan_vi)
+        {
+            DatabaseReader sql = new("DeThiHoanVi_DapAn");
+            sql.SqlParams("@MaDeHV", SqlDbType.BigInt, ma_de_hoan_vi);
+            return await sql.ExecuteReaderAsync();
+        }
     }
 }

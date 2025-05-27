@@ -90,7 +90,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task HandleResetLogin(SinhVienDto sinhVien)
         {
-            await ResetLoginAPI(sinhVien);
+            await ResetLoginAPI(sinhVien.MaSinhVien);
         }
         private async Task OnClickCongGioThem(ChiTietCaThiDto chiTietCaThi)
         {

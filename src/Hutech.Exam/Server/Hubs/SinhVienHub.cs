@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.BUS.RabbitServices;
 using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.Custom;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 

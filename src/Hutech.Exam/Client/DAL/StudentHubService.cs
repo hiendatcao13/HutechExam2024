@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text;
 using Hutech.Exam.Shared.DTO.Request;
 using AutoMapper;
+using Hutech.Exam.Shared.DTO.Request.Custom;
 
 namespace Hutech.Exam.Client.DAL
 {

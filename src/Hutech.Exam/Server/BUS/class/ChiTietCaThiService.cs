@@ -166,18 +166,6 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<List<string>> SelectBy_ma_ca_thi_MSSV(int ma_ca_thi)
-        {
-            List<string> result = [];
-            using (IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_ma_ca_thi_MSSV(ma_ca_thi))
-            {
-                while (dataReader.Read())
-                {
-                    result.Add(dataReader.GetString(0));
-                }
-            }
-            return result;
-        }
         public async Task<int> UpdateBatDau(int ma_chi_tiet_ca_thi, DateTime thoi_gian_bat_dau)
         {
             return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau);
