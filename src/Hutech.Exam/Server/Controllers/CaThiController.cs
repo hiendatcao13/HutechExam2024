@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request.CaThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,13 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CaThiDto>> SelectOne([FromRoute] int id)
         {
-            return Ok(await _caThiService.SelectOne(id));
+            var result = await _caThiService.SelectOne(id);
+            
+            if(result.MaCaThi == 0)
+            {
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(errorDetails: "Không tìm thấy ca thi"));
+            }
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(result, "Lấy thông tin ca thi thành công"));
         }
 
         [HttpPost]

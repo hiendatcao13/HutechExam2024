@@ -4,6 +4,7 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
+using Hutech.Exam.Shared.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -14,9 +15,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/chitietcathis")]
     [ApiController]
     [Authorize]
-    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> adminHub) : Controller
+    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, HashIdHelper hashIdHelper, IHubContext<AdminHub> adminHub) : Controller
     {
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
+        private readonly HashIdHelper _hashIdHelper = hashIdHelper;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
 
@@ -75,9 +77,10 @@ namespace Hutech.Exam.Server.Controllers
         //////////////////FILTER///////////////////////////
 
         [HttpGet("filter-by-sinhvien")]
-        public async Task<ActionResult<ChiTietCaThiDto>> SelectBy_MSSVThi([FromQuery] long maSinhVien)
+        public async Task<ActionResult<ChiTietCaThiDto>> SelectBy_MSSVThi([FromQuery] string maSinhVien)
         {
-            return Ok(await _chiTietCaThiService.SelectBy_MaSinhVienThi(maSinhVien));
+            long id = _hashIdHelper.DecodeLongId(maSinhVien);
+            return Ok(await _chiTietCaThiService.SelectBy_MaSinhVienThi(id));
         }
 
         [HttpGet("filter-by-cathi-paged")]

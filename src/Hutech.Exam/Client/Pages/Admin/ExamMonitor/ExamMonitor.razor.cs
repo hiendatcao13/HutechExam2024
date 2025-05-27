@@ -134,7 +134,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task HandleNopBai(ChiTietCaThiDto chiTietCaThi)
         {
             SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
-            bool result = await NopBaiAPI(sinhVien ?? new());
+            bool result = await NopBaiAPI(sinhVien?.MaSinhVien ?? -1);
             if (result)
                 Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
             else

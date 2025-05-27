@@ -10,6 +10,7 @@ using Hutech.Exam.Client.Components.Dialogs;
 using AutoMapper;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
+using Hutech.Exam.Shared.Helper;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
@@ -31,9 +32,7 @@ namespace Hutech.Exam.Client.Pages.Info
 
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
-        [Inject] private IMapper Mapper { get; set; } = default!;
-
-        [Inject] private ISenderAPI SendAPI { get; set; } = default!;
+        [Inject] private IHashIdHelper HashIdHelper { get; set; } = default!;
 
         // biến binding UI
         private SinhVienDto? SinhVien { get; set; }

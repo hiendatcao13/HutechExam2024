@@ -133,3 +133,7 @@
 27/5/2025 4PM
 - Đã sửa lại quy tắc đặt tên chuẩn cho toàn bộ API
 - TODO: sử dụng APIReponse để trả về thay vì thuần data và HashId
+-------------------------------------------------
+28/5/2025 6PM
+- Chưa tìm được giải pháp phù hợp để encode các id trong API
+- Đang trong quá trình thay đổi từ thuần data sang các APIReponse<TData>

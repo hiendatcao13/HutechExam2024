@@ -15,7 +15,7 @@ namespace Hutech.Exam.Server.Controllers
 
         
         [HttpPut] // vì là không biết update hay insert nên không dùng id ở đây được
-        public async Task<ActionResult<int>> GetSoLanNghe([FromBody] AudioListenedDto audio)
+        public async Task<IActionResult> GetSoLanNghe([FromBody] AudioListenedDto audio)
         {
             // do nếu NotFound thì tự động tạo mới nên sẽ không có lỗi NotFound ở đây
             var so_lan_nghe = await _audioListenedService.Save(audio.MaChiTietCaThi, audio.MaNhom);
