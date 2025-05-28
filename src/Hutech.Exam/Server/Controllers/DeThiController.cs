@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,28 +13,40 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly DeThiService _deThiService = deThiService;
 
-        //////////////////CRUD///////////////////////////
+
+        //////////////////CREATE//////////////////////////
+
+        //////////////////READ////////////////////////////
 
         [HttpGet]
         public async Task<ActionResult<List<DeThiDto>>> GetAll()
         {
-            return Ok(await _deThiService.GetAll());
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.GetAll(), message: "Lấy danh sách đề thi thành công"));
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DeThiDto>> SelectOne([FromRoute] int id)
         {
-            return Ok(await _deThiService.SelectOne(id));
+            var result = await _deThiService.SelectOne(id);
+            if(result.MaDeThi == 0)
+            {
+                return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi"));
+            }    
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(data: result, message: "Lấy đề thi thành công"));
         }
-
-
-        //////////////////FILTER///////////////////////////
 
         [HttpGet("filter-by-monhoc")]
         public async Task<ActionResult<List<DeThiDto>>> SelectByMonHoc([FromQuery] int maMonHoc)
         {
-            return Ok(await _deThiService.SelectByMonHoc(maMonHoc));
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy đề thi thành công"));
         }
+
+        //////////////////UDATE///////////////////////////
+
+        //////////////////PATCH///////////////////////////
+
+        //////////////////DELETE//////////////////////////
+
 
         //////////////////OTHERS///////////////////////////
 

@@ -1,9 +1,12 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.CauTraLoi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data.SqlClient;
 using System.Text.Json;
 
 namespace Hutech.Exam.Server.Controllers
@@ -11,43 +14,101 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/cautralois")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CauTraLoiController(CauTraLoiService cauTraLoiService, IResponseCacheService cacheService) : Controller
+    public class CauTraLoiController(CauTraLoiService cauTraLoiService) : Controller
     {
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
 
-        private readonly IResponseCacheService _cacheService = cacheService;
-
         //////////////////CRUD///////////////////////////
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromRoute] int id)
         {
-            return Ok(await _cauTraLoiService.SelectBy_MaCauHoi(id));
+            var result = await _cauTraLoiService.SelectOne(id);
+            if(result.MaCauTraLoi == 0)
+            {
+                return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời"));
+            }
+            return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: result, message: "Lấy câu trả lời thành công"));
         }
+
+        //////////////////CREATE//////////////////////////
 
         [HttpPost]
-        public async Task<ActionResult<int>> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
+        public async Task<ActionResult<CauTraLoiDto>> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
         {
-            int id = await _cauTraLoiService.Insert(cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
-            return Ok(id);
+            try
+            {
+                int id = await _cauTraLoiService.Insert(cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
+                return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: await _cauTraLoiService.SelectOne(id), message: "Thêm câu trả lời thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CauTraLoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CauTraLoiDto>.ErrorResponse(message: "Thêm câu trả lời không thành công", errorDetails: ex.Message));
+            }
         }
+
+        //////////////////READ////////////////////////////
+
+        [HttpGet("filter-by-cauhoi")]
+        public async Task<ActionResult<List<CauTraLoiDto>>> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
+        {
+            var result = _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi);
+            return Ok(APIResponse<List<CauTraLoiDto>>.SuccessResponse(data: await _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi), message: "Lấy danh sách câu trả lời thành công"));
+        }
+
+        //////////////////UDATE///////////////////////////
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
+        public async Task<ActionResult<CauTraLoiDto>> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
         {
-            await _cauTraLoiService.Update(id, cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
-            return Ok();
+            try
+            {
+                var result = await _cauTraLoiService.Update(id, cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
+                if(!result)
+                {
+                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần cập nhật"));
+                }    
+                return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: await _cauTraLoiService.SelectOne(id), message: "Cập nhật câu trả lời thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CauTraLoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CauTraLoiDto>.ErrorResponse(message: "Cập nhật câu trả lời không thành công", errorDetails: ex.Message));
+            }
         }
+
+        //////////////////PATCH///////////////////////////
+
+        //////////////////DELETE//////////////////////////
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<ActionResult<CauTraLoiDto>> Delete([FromRoute] int id)
         {
-            await _cauTraLoiService.Remove(id);
-            return Ok();
+            try
+            {
+                var result = await _cauTraLoiService.Remove(id);
+                if(!result)
+                {
+                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời"));
+                }    
+                return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(message: "Xóa câu trả lời thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CauTraLoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CauTraLoiDto>.ErrorResponse(message: "Xóa câu trả lời không thành công", errorDetails: ex.Message));
+            }
         }
-
-        //////////////////FILTER///////////////////////////
-        
-        //////////////////OTHERS///////////////////////////
 
         //////////////////PRIVATE//////////////////////////
     }

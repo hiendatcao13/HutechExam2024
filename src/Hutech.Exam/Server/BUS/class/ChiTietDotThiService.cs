@@ -104,13 +104,13 @@ namespace Hutech.Exam.Server.BUS
         {
             return Convert.ToInt32(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
         }
-        public async Task<int> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
+        public async Task<bool> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
-            return await _chiTietDotThiResposity.Update(ma_chi_tiet_dot_thi, ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi);
+            return await _chiTietDotThiResposity.Update(ma_chi_tiet_dot_thi, ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) != 0;
         }
-        public async Task<int> Remove(int ma_chi_tiet_dot_thi)
+        public async Task<bool> Remove(int ma_chi_tiet_dot_thi)
         {
-            return await _chiTietDotThiResposity.Remove(ma_chi_tiet_dot_thi);
+            return await _chiTietDotThiResposity.Remove(ma_chi_tiet_dot_thi) != 0;
         }
     }
 }

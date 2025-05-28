@@ -43,13 +43,13 @@ namespace Hutech.Exam.Server.BUS
         {
             return Convert.ToInt32(await _cloRepository.Insert(ma_mon_hoc, ma_so_clo, tieu_de, noi_dung, tieu_chi, so_cau));
         }
-        public async Task<int> Update(int ma_clo, int ma_mon_hoc, string ma_so_clo, string tieu_de, string noi_dung, int tieu_chi, int so_cau)
+        public async Task<bool> Update(int ma_clo, int ma_mon_hoc, string ma_so_clo, string tieu_de, string noi_dung, int tieu_chi, int so_cau)
         {
-            return await _cloRepository.Update(ma_clo, ma_mon_hoc, ma_so_clo, tieu_de, noi_dung, tieu_chi, so_cau);
+            return await _cloRepository.Update(ma_clo, ma_mon_hoc, ma_so_clo, tieu_de, noi_dung, tieu_chi, so_cau) != 0;
         }
-        public async Task<int> Remove(int ma_clo)
+        public async Task<bool> Remove(int ma_clo)
         {
-            return await _cloRepository.Remove(ma_clo);
+            return await _cloRepository.Remove(ma_clo) != 0;
         }
         public async Task<List<CloDto>> SelectBy_MaMonHoc(int ma_mon_hoc)
         {

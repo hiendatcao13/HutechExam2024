@@ -84,29 +84,29 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated)
         {
-            return await _caThiRepository.Activate(ma_ca_thi, IsActivated);
+            return await _caThiRepository.Activate(ma_ca_thi, IsActivated) != 0;
         }
-        public async Task<int> HuyKichHoat(int ma_ca_thi)
+        public async Task<bool> HuyKichHoat(int ma_ca_thi)
         {
-            return await _caThiRepository.HuyKichHoat(ma_ca_thi);
+            return await _caThiRepository.HuyKichHoat(ma_ca_thi) != 0;
         }
-        public async Task<int> Ketthuc(int ma_ca_thi)
+        public async Task<bool> Ketthuc(int ma_ca_thi)
         {
-            return await _caThiRepository.Ketthuc(ma_ca_thi);
+            return await _caThiRepository.Ketthuc(ma_ca_thi) != 0;
         }
         public async Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
         {
             return Convert.ToInt32(await _caThiRepository.Insert(ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) ?? -1);
         }
-        public async Task<int> Remove(int ma_ca_thi)
+        public async Task<bool> Remove(int ma_ca_thi)
         {
-            return await _caThiRepository.Remove(ma_ca_thi);
+            return await _caThiRepository.Remove(ma_ca_thi) != 0;
         }
-        public async Task<int> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
         {
-            return await _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi);
+            return await _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) != 0;
         }
     }
 }

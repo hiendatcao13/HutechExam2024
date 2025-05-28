@@ -1,4 +1,5 @@
 ﻿
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.Helper;
 
 namespace Hutech.Exam.Server.Installers

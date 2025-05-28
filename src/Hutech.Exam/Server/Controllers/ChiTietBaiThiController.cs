@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +21,10 @@ namespace Hutech.Exam.Server.Controllers
         
         [HttpGet("filter-by-chitietcathi")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<ChiTietBaiThiDto>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
+        public async Task<ActionResult<APIResponse<List<ChiTietBaiThiDto>>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
         {
-            return Ok(await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(maChiTietCaThi));
+            var result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(maChiTietCaThi);
+            return Ok(APIResponse<List<ChiTietBaiThiDto>>.SuccessResponse(data: result, message: "Lấy chi tiết bài thi thành công"));
         }
 
         //////////////////OTHERS///////////////////////////

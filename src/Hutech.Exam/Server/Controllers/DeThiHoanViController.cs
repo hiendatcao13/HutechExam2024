@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Custom;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////CRUD///////////////////////////
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}")]//-------------API cho thí sinh----------------------
         public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromRoute] int id)
         {
             var cacheKey = $"DeThi:{id}";
@@ -36,13 +37,14 @@ namespace Hutech.Exam.Server.Controllers
             // Lưu vào cache
             await _cacheService.SetCacheResponseAsync(cacheKey, cachedData, TimeSpan.FromMinutes(150));
 
-            return Ok(cachedData);
+            return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: cachedData, message: "Lấy đề thi thành công"));
         }
 
         [HttpGet("{id}/dap-an")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Dictionary<int, int>>> SelectByMaDeHV_DapAn([FromRoute] long id)
         {
-            return Ok(await _deThiHoanViService.DapAn(id));
+            return Ok(APIResponse<Dictionary<int, int>>.SuccessResponse(data: await _deThiHoanViService.DapAn(id), message: "Lấy danh sách đáp án thành công"));
         }
 
         //////////////////FILTER///////////////////////////

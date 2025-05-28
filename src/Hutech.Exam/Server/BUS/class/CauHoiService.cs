@@ -33,13 +33,13 @@ namespace Hutech.Exam.Server.BUS
         {
             return Convert.ToInt32(await _cauHoiRepository.Insert(ma_clo, ma_nhom, tieu_de, kieu_noi_dung, noi_dung, ghi_chu, hoan_vi) ?? -1);
         }
-        public async Task<int> Update(int ma_cau_hoi, int ma_nhom, int ma_clo, string tieu_de, int kieu_noi_dung, string noi_dung, string ghi_chu, bool hoan_vi)
+        public async Task<bool> Update(int ma_cau_hoi, int ma_nhom, int ma_clo, string tieu_de, int kieu_noi_dung, string noi_dung, string ghi_chu, bool hoan_vi)
         {
-            return await _cauHoiRepository.Update(ma_cau_hoi, ma_nhom, ma_clo, tieu_de, kieu_noi_dung, noi_dung, ghi_chu, hoan_vi);
+            return await _cauHoiRepository.Update(ma_cau_hoi, ma_nhom, ma_clo, tieu_de, kieu_noi_dung, noi_dung, ghi_chu, hoan_vi) != 0;
         }
-        public async Task<int> Remove(int ma_cau_hoi)
+        public async Task<bool> Remove(int ma_cau_hoi)
         {
-            return await _cauHoiRepository.Remove(ma_cau_hoi);
+            return await _cauHoiRepository.Remove(ma_cau_hoi) != 0;
         }
 
         public async Task<CauHoiDto> SelectOne(int ma_cau_hoi)

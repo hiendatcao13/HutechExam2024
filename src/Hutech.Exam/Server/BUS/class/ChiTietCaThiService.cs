@@ -166,34 +166,34 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> UpdateBatDau(int ma_chi_tiet_ca_thi, DateTime thoi_gian_bat_dau)
+        public async Task<bool> UpdateBatDau(int ma_chi_tiet_ca_thi, DateTime thoi_gian_bat_dau)
         {
-            return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau);
+            return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau) != 0;
         }
-        public async Task<int> UpdateKetThuc(int ma_chi_tiet_ca_thi, DateTime thoi_gian_ket_thuc, double diem, int so_cau_dung, int tong_so_cau)
+        public async Task<bool> UpdateKetThuc(int ma_chi_tiet_ca_thi, DateTime thoi_gian_ket_thuc, double diem, int so_cau_dung, int tong_so_cau)
         {
-            return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau);
+            return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau) != 0;
         }
-        public async Task<int> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime thoi_diem_cong, string ly_do_cong)
+        public async Task<bool> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime thoi_diem_cong, string ly_do_cong)
         {
-            return await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong);
+            return await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong) != 0;
         }
         public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
         {
             return Convert.ToInt32(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
         }
 
-        public async Task<int> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
+        public async Task<bool> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
         {
-            return Convert.ToInt32(await _chiTietCaThiRepository.ThemSVKhanCap(ma_so_sinh_vien, ma_ca_thi, ma_de_thi));
+            return Convert.ToInt32(await _chiTietCaThiRepository.ThemSVKhanCap(ma_so_sinh_vien, ma_ca_thi, ma_de_thi)) != 0;
         }
         public async Task<int> Remove(int ma_chi_tiet_ca_thi)
         {
             return await _chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi);
         }
-        public async Task<int> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
+        public async Task<bool> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
         {
-            return await _chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau);
+            return await _chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) != 0;
         }
     }
 }

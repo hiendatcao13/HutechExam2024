@@ -51,7 +51,11 @@ namespace Hutech.Exam.Shared.DTO.API.Response
         {
             return new APIResponse<TData>(true, message, data, HttpStatusCode.OK);
         }
-
+        // hàm overloading dùng cho việc delete thành công mà không trả về data
+        public static APIResponse<TData> SuccessResponse(string message = "Delete successful")
+        {
+            return new APIResponse<TData>(true, message, default, HttpStatusCode.OK);
+        }
         public static APIResponse<TData> ErrorResponse(string message, HttpStatusCode statusCode = HttpStatusCode.BadRequest, string? errorCode = null, string? errorDetails = null)
         {
             return new APIResponse<TData>(false, message, default, statusCode, errorCode, errorDetails);

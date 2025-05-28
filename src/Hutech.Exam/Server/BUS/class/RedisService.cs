@@ -3,17 +3,19 @@ using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.Custom;
+using Hutech.Exam.Shared.Models;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, DeThiHoanViService deThiHoanViService, ChiTietCaThiService chiTietCaThiService, IResponseCacheService cacheService, IHubContext<SinhVienHub> sinhVienHub, ILogger<RedisService> logger, IMapper mapper)
+    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, DeThiHoanViService deThiHoanViService, ChiTietCaThiService chiTietCaThiService, IResponseCacheService cacheService, IHubContext<SinhVienHub> sinhVienHub, IHubContext<AdminHub> adminHub, ILogger<RedisService> logger, IMapper mapper)
     {
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
+        private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly IResponseCacheService _cacheService = cacheService;
         private readonly IMapper _mapper = mapper;
 
@@ -140,6 +142,9 @@ namespace Hutech.Exam.Server.BUS
                 // tiến hành lưu đáp án vào database
                 await _chiTietCaThiService.UpdateKetThuc(submitRequest.MaChiTietCaThi, submitRequest.ThoiGianNopBai, diem, so_cau_dung, listDungSai.Count);
 
+                // thông báo cho người giám sát thí sinh đã nộp bài
+                await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai);
+
                 //////////////////////////////////Xử lí cho background nền lưu bài\\\\\\\\\\\\\\\\\\\\\\\
 
                 // lấy toàn bộ bài thi của sinh viên từ Redis
@@ -222,6 +227,13 @@ namespace Hutech.Exam.Server.BUS
                 _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
                 return [];
             }
+        }
+
+
+        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
+        {
+            // 0: bắt đầu thi, 1: kết thúc thi
+            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
         }
     }
 }

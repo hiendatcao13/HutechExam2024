@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,15 +13,23 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly KhoaService _khoaService = khoaService;
 
-        //////////////////CRUD///////////////////////////
+        //////////////////CREATE//////////////////////////
+
+        //////////////////READ////////////////////////////
+
 
         [HttpGet]
         public async Task<ActionResult<List<KhoaDto>>> GetAllKhoa()
         {
-            return Ok(await _khoaService.GetAll());
+            return Ok(APIResponse<List<KhoaDto>>.SuccessResponse(data: await _khoaService.GetAll(), message: "Lấy danh sách khoa thành công"));
         }
 
-        //////////////////FILTER///////////////////////////
+        //////////////////UDATE///////////////////////////
+
+        //////////////////PATCH///////////////////////////
+
+        //////////////////DELETE//////////////////////////
+
 
         //////////////////OTHERS///////////////////////////
 

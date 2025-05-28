@@ -1,6 +1,9 @@
-﻿using Hutech.Exam.Server.BUS;
+﻿using System.Data.SqlClient;
+using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request.ChiTietDotThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,51 +20,102 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
+        //////////////////CREATE//////////////////////////
 
-        //////////////////CRUD///////////////////////////
+        [HttpPost]
+        public async Task<ActionResult<ChiTietDotThiDto>> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
+        {
+            try
+            {
+                var id = await _chiTietDotThiService.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+                await NotifyChangeChiTietDotThiToAdmin(id, 0);
+                return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectOne(id), message: "Thêm chi tiết đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietDotThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Thêm chi tiết ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        //////////////////READ////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromRoute] int id)
         {
-            return Ok( await _chiTietDotThiService.SelectOne(id));
+            var result = await _chiTietDotThiService.SelectOne(id);
+            if(result.MaChiTietDotThi == 0)
+            {
+                return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợ thi"));
+            }
+            return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: result, message: "Lấy chi tiết đợt thi thành công"));
         }
-
-        [HttpPost]
-        public async Task<ActionResult<int>> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
-        {
-            var id = await _chiTietDotThiService.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
-            await NotifyChangeChiTietDotThiToAdmin(id, 0);
-            return Ok(id);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
-        {
-            await _chiTietDotThiService.Update(id, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
-            await NotifyChangeChiTietDotThiToAdmin(id, 1);
-            return Ok();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
-        {
-            await _chiTietDotThiService.Remove(id);
-            await NotifyChangeChiTietDotThiToAdmin(id, 2);
-            return Ok();
-        }
-
-        //////////////////FILTER///////////////////////////
 
         [HttpGet("filter-by-dotthi")]
-        public async Task<ActionResult<List<string>>> SelectBy_MaDotThi([FromQuery] int maDotThi)
+        public async Task<ActionResult<List<ChiTietDotThiDto>>> SelectBy_MaDotThi([FromQuery] int maDotThi)
         {
-            return Ok( await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi));
+            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi), message: "Lấy chi tiết đợt thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao")]
         public async Task<ActionResult<List<ChiTietDotThiDto>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo)
         {
-            return Ok(await SelectBy_MaDotThiMaLopAo(maDotThi, maLopAo));
+            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await SelectBy_MaDotThiMaLopAo(maDotThi, maLopAo), message: "Lấy chi tiết đợt thi thành công"));
+        }
+
+        //////////////////UDATE///////////////////////////
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ChiTietDotThiDto>> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
+        {
+            try
+            {
+                var result = await _chiTietDotThiService.Update(id, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+                if(!result)
+                {
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần cập nhật"));
+                }    
+                await NotifyChangeChiTietDotThiToAdmin(id, 1);
+                return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectOne(id), message: "Cập nhật chi tiết đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietDotThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Cập nhật chi tiết đợt thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        //////////////////PATCH///////////////////////////
+
+        //////////////////DELETE//////////////////////////
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ChiTietDotThiDto>> Delete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _chiTietDotThiService.Remove(id);
+                if(!result)
+                {
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi"));
+                }    
+                await NotifyChangeChiTietDotThiToAdmin(id, 2);
+                return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietDotThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công", errorDetails: ex.Message));
+            }
         }
 
         //////////////////OTHERS///////////////////////////
