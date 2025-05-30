@@ -11,14 +11,8 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
     {
         private async Task<UserSession?> LoginAPI(UserAuthenticationRequest account)
         {
-            var json = JsonSerializer.Serialize(account);
-            var response = await Http.PutAsync($"api/users/login", new StringContent(json, Encoding.UTF8, "application/json"));
-            Snackbar.Add(LOADING_MESSAGE, Severity.Info);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<UserSession>();
-            }
-            return null;
+            var response = await SenderAPI.PostAsync<UserSession>($"api/users/login", account);
+            return (response.Success) ? response.Data : null;
         }
     }
 }

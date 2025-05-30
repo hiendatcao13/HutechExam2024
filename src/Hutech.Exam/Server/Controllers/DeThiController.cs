@@ -14,9 +14,9 @@ namespace Hutech.Exam.Server.Controllers
         private readonly DeThiService _deThiService = deThiService;
 
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet]
         public async Task<ActionResult<List<DeThiDto>>> GetAll()
@@ -38,10 +38,10 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("filter-by-monhoc")]
         public async Task<ActionResult<List<DeThiDto>>> SelectByMonHoc([FromQuery] int maMonHoc)
         {
-            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy đề thi thành công"));
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////POST///////////////////////////
 
         //////////////////PATCH///////////////////////////
 

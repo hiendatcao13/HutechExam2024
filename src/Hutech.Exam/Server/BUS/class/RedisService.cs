@@ -2,6 +2,7 @@
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 using Hutech.Exam.Shared.DTO.Request.Custom;
 using Hutech.Exam.Shared.Models;
 using MessagePack;
@@ -67,9 +68,6 @@ namespace Hutech.Exam.Server.BUS
                     throw new Exception("Error deserializing message.");
                 }
 
-                // cập nhật kết quả
-                var dapAns = await GetDapAnAsync(chiTietBaiThi.MaDeHv);
-                chiTietBaiThi.KetQua = (dapAns[chiTietBaiThi.MaCauHoi] == chiTietBaiThi.CauTraLoi);
 
                 var cacheKey = $"ChiTietBaiThi:{chiTietBaiThi.MaChiTietCaThi}";
 
@@ -121,29 +119,34 @@ namespace Hutech.Exam.Server.BUS
 
                 Dictionary<int, int> dapAns = await GetDapAnAsync(submitRequest.MaDeThiHoanVi);
 
-                // xử lí chỉ trả ds đúng sai và gửi đáp án cho sinh viên về ngay
-                (List<bool> listDungSai, int so_cau_dung, double diem) = _chiTietBaiThiService.GetDungSai_SelectBy_DapAnKhoanh(submitRequest.DapAnKhoanhs, dapAns);
-
-                _logger.LogInformation("SVma: {ma_sinh_vien} has score {diem}, total right answers {so_cau_dung} on {tong_so_cau}", submitRequest.MaSinhVien, diem, so_cau_dung, dapAns.Count);
-
-                // gửi thông điệp cho thí sinh
-                var connectionId = await GetConnectionIdAsync(submitRequest.MaSinhVien);
-
-                if (!string.IsNullOrEmpty(connectionId))
+                if(submitRequest.IsLanDau) // chỉ thực hiện cho lần đầu
                 {
-                    await _sinhVienHub.Clients.Client(connectionId).SendAsync("DeliverDapAn", listDungSai, so_cau_dung, diem);
-                }
-                else
-                {
-                    _logger.LogWarning("[Redis] No connectionId found for ma_sinh_vien: {ma_sinh_vien}", submitRequest.MaSinhVien);
-                }
+                    // xử lí chỉ trả ds đúng sai và gửi đáp án cho sinh viên về ngay
+                    (List<bool> listDungSai, int so_cau_dung, double diem) = _chiTietBaiThiService.GetDungSai_SelectBy_DapAnKhoanh(submitRequest.DapAnKhoanhs, dapAns);
 
+                    _logger.LogInformation("SVma: {ma_sinh_vien} has score {diem}, total right answers {so_cau_dung} on {tong_so_cau}", submitRequest.MaSinhVien, diem, so_cau_dung, dapAns.Count);
 
-                // tiến hành lưu đáp án vào database
-                await _chiTietCaThiService.UpdateKetThuc(submitRequest.MaChiTietCaThi, submitRequest.ThoiGianNopBai, diem, so_cau_dung, listDungSai.Count);
+                    // gửi thông điệp cho thí sinh
+                    var connectionId = await GetConnectionIdAsync(submitRequest.MaSinhVien);
 
-                // thông báo cho người giám sát thí sinh đã nộp bài
-                await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai);
+                    if (!string.IsNullOrEmpty(connectionId))
+                    {
+                        await _sinhVienHub.Clients.Client(connectionId).SendAsync("DeliverDapAn", listDungSai, so_cau_dung, diem);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[Redis] No connectionId found for ma_sinh_vien: {ma_sinh_vien}", submitRequest.MaSinhVien);
+                    }
+
+                    // tiến hành lưu đáp án vào database
+                    var chiTietCaThiUpdateKTThiRequest = new ChiTietCaThiUpdateKTThiRequest { ThoiGianKetThuc = submitRequest.ThoiGianNopBai, Diem = diem, SoCauDung = so_cau_dung, TongSoCau = listDungSai.Count };
+                    await _chiTietCaThiService.UpdateKetThuc(submitRequest.MaChiTietCaThi, chiTietCaThiUpdateKTThiRequest);
+
+                    // thông báo cho người giám sát thí sinh đã nộp bài
+                    await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai);
+
+                    submitRequest.IsLanDau = false;
+                }    
 
                 //////////////////////////////////Xử lí cho background nền lưu bài\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -153,18 +156,22 @@ namespace Hutech.Exam.Server.BUS
                 int length = submitRequest.DapAnKhoanhs.Count(p => p.Value != null);
                 // Kiểm tra xem số lượng bài trong Redis nhận đủ hay chưa, nếu chưa nhận đủ thì throw để vào hàng đợi lại (cơ chế FIFO, nó đứng cuối hàng đợi lại)
                 // Trường hợp may thì được xử lí ngay tại chỗ
-                if(data.Count != length)
+                if (data.Count != length)
                 {
+                    submitRequest.SoLanFail++; // tăng số lần bị fail
                     _logger.LogWarning("[Redis] Data count mismatch: {dataCount} vs {dapAnsCount} of maSV {maSV}", data.Count, length, submitRequest.MaSinhVien);
                     throw new Exception();
                 }
+
+                //cập nhật đúng sai cho từng câu
+                _chiTietBaiThiService.UpdateDungSai_SelectByListCTBT_DapAn(data, dapAns);
 
                 // tiến hành lưu vào database TVP chiTietBaiThi
                 await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(data.Values.ToList()));
 
                 // xóa dữ liệu khi đã lưu xong thành công
                 await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{submitRequest.MaChiTietCaThi}");
-                
+
             }
             catch (Exception ex) // có thể catch SqlException ở đây
             {

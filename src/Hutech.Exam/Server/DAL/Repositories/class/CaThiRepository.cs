@@ -32,7 +32,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         }
         public async Task<int> HuyKichHoat(int ma_ca_thi)
         {
-            DatabaseReader sql = new("ca_thi_InActive");
+            DatabaseReader sql = new("ca_thi_HuyKichHoat");
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             return await sql.ExecuteNonQueryAsync();
         }

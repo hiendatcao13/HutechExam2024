@@ -65,6 +65,16 @@ namespace Hutech.Exam.Client.DAL
                 await hubConnection.SendAsync("RequestSubmit", request);
             }
         }
+
+        // hàm được thực hiện khi phía server không thể lấy đủ số bài của thí sinh sau 3 lần thất bại
+        public async Task SendMessageListChiTietBaiThi(Dictionary<int, ChiTietBaiThiRequest> listBaiThis)
+        {
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("SendListBaiThi", listBaiThis);
+            }
+        }
+
         public async ValueTask DisposeAsync()
         {
             if (hubConnection != null)

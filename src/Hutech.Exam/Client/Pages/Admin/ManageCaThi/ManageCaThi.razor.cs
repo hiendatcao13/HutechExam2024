@@ -3,29 +3,39 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using System.Globalization;
 using System.Text;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi.Dialog;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {
     public partial class ManageCaThi
     {
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        [Inject] private AdminHubService AdminHub { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
 
         private List<CaThiDto>? caThis;
+
         private List<DotThiDto>? dotThis; // combobox
+
         private List<MonHocDto>? monHocs; // combobox
+
         private List<LopAoDto>? lopAos; // combobox
-        private HubConnection? hubConnection;
+
+        private readonly List<int> lanThis = [1, 2, 3, 4, 5];
 
 
         protected override async Task OnInitializedAsync()
@@ -93,18 +103,28 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
             //await CreateHubConnection();
         }
-        private async Task OnClickShowDialog(CaThiDto caThi)
+        private async Task<DialogResult?> OpenTinhTrangCaThiDialog(CaThiDto caThi)
         {
-            selectedCaThi = caThi;
-            string[] content_texts = [caThi.ThoiGianBatDau.ToString() ?? "", caThi.TenCaThi ?? "", caThi.ThoiGianThi.ToString() ?? "", caThi.ActivatedDate.ToString() ?? ""];
             var parameters = new DialogParameters<TinhTrangCaThiDialog>
             {
-                { x => x.caThi, caThi },
+                { x => x.CaThi, caThi },
             };
 
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraExtraLarge, BackgroundClass = "my-custom-class" };
+            var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.ExtraExtraLarge, BackgroundClass = "my-custom-class" };
 
-            await Dialog.ShowAsync<TinhTrangCaThiDialog>("THÔNG TIN CA THI", parameters, options);
+            var dialog = await Dialog.ShowAsync<TinhTrangCaThiDialog>("THÔNG TIN CA THI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task OnClickSuaCaThi(CaThiDto caThi)
+        {
+            var result = await OpenTinhTrangCaThiDialog(caThi);
+
+
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                UpdateListCaThi((CaThiDto)result.Data);
+            }
         }
 
         private async Task OnClickChiTietCaThi(CaThiDto caThi)
@@ -114,6 +134,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
             Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
 
         }
+
+        private void UpdateListCaThi(CaThiDto caThi)
+        {
+            if (caThi == null || caThis == null) return;
+
+            var index = caThis.FindIndex(p => p.MaCaThi == caThi.MaCaThi);
+            if (index != -1)
+            {
+                caThis[index] = caThi;
+            }
+        }
+
         private async Task OnClickXoaCaThi(int ma_ca_thi)
         {
             await Http.DeleteAsync($"api/Admin/DeleteCaThi?ma_ca_thi={ma_ca_thi}");

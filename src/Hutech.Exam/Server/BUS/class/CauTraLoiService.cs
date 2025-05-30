@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.CauTraLoi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -38,13 +39,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return cauTraLoi;
         }
-        public async Task<int> Insert(int ma_cau_hoi, int thu_tu, string noi_dung, bool la_dap_an, bool hoan_vi)
+        public async Task<int> Insert(CauTraLoiCreateRequest cauTraLoi)
         {
-            return Convert.ToInt32(await _cauTraLoiRepository.Insert(ma_cau_hoi, thu_tu, noi_dung, la_dap_an, hoan_vi) ?? -1);
+            return Convert.ToInt32(await _cauTraLoiRepository.Insert(cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi) ?? -1);
         }
-        public async Task<bool> Update(int ma_cau_tra_loi, int ma_cau_hoi, int thu_tu, string noi_dung, bool la_dap_an, bool hoan_vi)
+        public async Task<bool> Update(int id, CauTraLoiUpdateRequest cauTraLoi)
         {
-            return await _cauTraLoiRepository.Update(ma_cau_tra_loi, ma_cau_hoi, thu_tu, noi_dung, la_dap_an, hoan_vi) != 0;
+            return await _cauTraLoiRepository.Update(id, cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi) != 0;
         }
         public async Task<bool> Remove(int ma_cau_tra_loi)
         {

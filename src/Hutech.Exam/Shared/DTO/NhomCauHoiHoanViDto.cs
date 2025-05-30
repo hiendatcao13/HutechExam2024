@@ -9,6 +9,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class NhomCauHoiHoanViDto
     {
+        public NhomCauHoiHoanViDto()
+        {
+        }
+
         public long MaDeHv { get; set; }
 
         public int MaNhom { get; set; }
@@ -18,5 +22,23 @@ namespace Hutech.Exam.Shared.DTO
         public virtual DeThiHoanViDto MaDeHvNavigation { get; set; } = null!;
 
         public virtual ICollection<ChiTietDeThiHoanViDto> ChiTietDeThiHoanVis { get; set; } = new List<ChiTietDeThiHoanViDto>();
+
+        public NhomCauHoiHoanViDto(long maDeHv, int maNhom, int thuTu, DeThiHoanViDto maDeHvNavigation, ICollection<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis)
+        {
+            MaDeHv = maDeHv;
+            MaNhom = maNhom;
+            ThuTu = thuTu;
+            MaDeHvNavigation = maDeHvNavigation;
+            ChiTietDeThiHoanVis = chiTietDeThiHoanVis;
+        }
+
+        public NhomCauHoiHoanViDto(NhomCauHoiHoanViDto other)
+        {
+            MaDeHv = other.MaDeHv;
+            MaNhom = other.MaNhom;
+            ThuTu = other.ThuTu;
+            MaDeHvNavigation = other.MaDeHvNavigation;
+            ChiTietDeThiHoanVis = other.ChiTietDeThiHoanVis;
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO.Page;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -19,7 +19,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var response = await Http.GetAsync($"api/chitietcathis/filter-by-cathi-paged?maCaThi={ma_ca_thi}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             if (response != null && response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPageResult>();
+                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPage>();
                 if (result != null)
                 {
                     return (result.Data ?? [], result.TotalRecords, result.TotalPages);
@@ -32,7 +32,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var response = await Http.GetAsync($"api/chitietcathis/filter-by-cathi-search-paged?maCaThi={ma_ca_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             if (response != null && response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPageResult>();
+                var result = await response.Content.ReadFromJsonAsync<ChiTietCaThiPage>();
                 if(result != null)
                 {
                     return (result.Data ?? [], result.TotalRecords, result.TotalPages);

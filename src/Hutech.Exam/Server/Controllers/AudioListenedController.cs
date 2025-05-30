@@ -18,8 +18,8 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<IActionResult> GetSoLanNghe([FromBody] AudioListenedDto audio)
         {
             // do nếu NotFound thì tự động tạo mới nên sẽ không có lỗi NotFound ở đây
-            var so_lan_nghe = await _audioListenedService.Save(audio.MaChiTietCaThi, audio.MaNhom);
-            return Ok(APIResponse<int>.SuccessResponse(so_lan_nghe));
+            var so_lan_nghe = await _audioListenedService.Save(audio);
+            return Ok(APIResponse<int>.SuccessResponse(data: so_lan_nghe, message: ""));
         }
     }
 }

@@ -6,9 +6,11 @@ namespace Hutech.Exam.Client.API
     {
         Task<APIResponse<TResult?>> GetAsync<TResult>(string requestUri); //GET
 
-        Task<APIResponse<TResult?>> PostAsync<TResult>(string requestUri, object data); //POST
+        Task<APIResponse<TResult?>> PostAsync<TResult>(string requestUri, object? data); //POST
 
-        Task<APIResponse<TResult?>> PutAsync<TResult>(string requestUri, object data); //PUT
+        Task<APIResponse<TResult?>> PatchAsync<TResult>(string requestUri, object? data); //PATCH
+
+        Task<APIResponse<TResult?>> PutAsync<TResult>(string requestUri, object? data); //PUT
 
         Task<APIResponse<TResult?>> DeleteAsync<TResult>(string requestUri); //DELETE
     }

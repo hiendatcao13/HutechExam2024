@@ -20,14 +20,14 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<ChiTietDotThiDto>> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
         {
             try
             {
-                var id = await _chiTietDotThiService.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+                var id = await _chiTietDotThiService.Insert(chiTietDotThi);
                 await NotifyChangeChiTietDotThiToAdmin(id, 0);
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectOne(id), message: "Thêm chi tiết đợt thi thành công"));
             }
@@ -37,11 +37,11 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Thêm chi tiết ca thi không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Thêm chi tiết đợt thi không thành công", errorDetails: ex.Message));
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromRoute] int id)
@@ -49,7 +49,7 @@ namespace Hutech.Exam.Server.Controllers
             var result = await _chiTietDotThiService.SelectOne(id);
             if(result.MaChiTietDotThi == 0)
             {
-                return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợ thi"));
+                return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi"));
             }
             return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: result, message: "Lấy chi tiết đợt thi thành công"));
         }
@@ -57,23 +57,29 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("filter-by-dotthi")]
         public async Task<ActionResult<List<ChiTietDotThiDto>>> SelectBy_MaDotThi([FromQuery] int maDotThi)
         {
-            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi), message: "Lấy chi tiết đợt thi thành công"));
+            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao")]
         public async Task<ActionResult<List<ChiTietDotThiDto>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo)
         {
-            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await SelectBy_MaDotThiMaLopAo(maDotThi, maLopAo), message: "Lấy chi tiết đợt thi thành công"));
+            return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo(maDotThi, maLopAo), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        [HttpGet("filter-by-dotthi-lopao-lanthi")]
+        public async Task<ActionResult<ChiTietDotThiDto>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
+        {
+            return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo_LanThi(maDotThi, maLopAo, lanThi), message: "Lấy tiết đợt thi thành công"));
+        }
+
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<ChiTietDotThiDto>> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
         {
             try
             {
-                var result = await _chiTietDotThiService.Update(id, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi);
+                var result = await _chiTietDotThiService.Update(id, chiTietDotThi);
                 if(!result)
                 {
                     return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần cập nhật"));
@@ -103,7 +109,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _chiTietDotThiService.Remove(id);
                 if(!result)
                 {
-                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi"));
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
                 }    
                 await NotifyChangeChiTietDotThiToAdmin(id, 2);
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
@@ -121,11 +127,6 @@ namespace Hutech.Exam.Server.Controllers
         //////////////////OTHERS///////////////////////////
 
         //////////////////PRIVATE///////////////////////////
-
-        private async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThiMaLopAo(int ma_dot_thi, int ma_lop_ao)
-        {
-            return await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo(ma_dot_thi, ma_lop_ao);
-        }
 
 
         private async Task NotifyChangeChiTietDotThiToAdmin(int ma_chi_tiet_dot_thi, int function)

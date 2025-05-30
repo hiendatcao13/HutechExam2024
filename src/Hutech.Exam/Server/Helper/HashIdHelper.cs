@@ -1,6 +1,6 @@
 ﻿using HashidsNet;
 
-namespace Hutech.Exam.Shared.Helper
+namespace Hutech.Exam.Server.Helper
 {
     public class HashIdHelper : IHashIdHelper
     {

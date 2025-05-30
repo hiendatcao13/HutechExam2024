@@ -4,10 +4,9 @@ using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
-using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
-using Hutech.Exam.Shared.Helper;
 using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +18,13 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/chitietcathis")]
     [ApiController]
     [Authorize]
-    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, HashIdHelper hashIdHelper, IHubContext<AdminHub> adminHub) : Controller
+    public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> adminHub) : Controller
     {
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
-        
-        private readonly HashIdHelper _hashIdHelper = hashIdHelper;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -35,7 +32,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             try
             {
-                var id = await _chiTietCaThiService.Insert(chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1);
+                var id = await _chiTietCaThiService.Insert(chiTietCaThi);
                 return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Thêm chi tiết ca thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -48,7 +45,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
@@ -70,22 +67,22 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-cathi-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiPageResult>> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
+        public async Task<ActionResult<ChiTietCaThiPage>> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
-            return Ok(APIResponse<ChiTietCaThiPageResult>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Paged(maCaThi, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
+            return Ok(APIResponse<ChiTietCaThiPage>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Paged(maCaThi, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
         }
 
 
         [HttpGet("filter-by-cathi-search-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiPageResult>> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keywork, [FromQuery] int pageNumber, int pageSize)
+        public async Task<ActionResult<ChiTietCaThiPage>> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keywork, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
-            return Ok(APIResponse<ChiTietCaThiPageResult>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keywork, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
+            return Ok(APIResponse<ChiTietCaThiPage>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keywork, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
@@ -93,10 +90,10 @@ namespace Hutech.Exam.Server.Controllers
         {
             try
             {
-                var result = await _chiTietCaThiService.Update(id, chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1);
+                var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
                 if(!result)
                 {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi"));
+                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cập nhật"));
                 }    
                 return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cập nhật chi tiết ca thi thành công"));
             }
@@ -119,7 +116,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             try
             {
-                var result = await _chiTietCaThiService.CongGio(id, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong, chiTietCaThi.LyDoCong);
+                var result = await _chiTietCaThiService.CongGio(id, chiTietCaThi);
                 if(!result)
                 {
                     return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));
@@ -145,15 +142,6 @@ namespace Hutech.Exam.Server.Controllers
             await _chiTietCaThiService.UpdateBatDau(id, DateTime.Now);
             await NotifSVStatusThiToAdmin(id, true, DateTime.Now);
             return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Cập nhật trạng thái bắt đầu thi cho thí sinh thành công"));
-        }
-
-
-        [HttpPatch("{id}/ket-thuc-thi")]//------------------API cho thí sinh----------------------
-        public async Task<ActionResult> UpdateKetThucThi([FromRoute] int id, [FromBody] ChiTietCaThiUpdateKTThiRequest chiTietCaThi)
-        {
-            await _chiTietCaThiService.UpdateKetThuc(id, chiTietCaThi.ThoiGianKetThuc, chiTietCaThi.Diem, chiTietCaThi.SoCauDung, chiTietCaThi.TongSoCau);
-            await NotifSVStatusThiToAdmin(id, false, chiTietCaThi.ThoiGianKetThuc);
-            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Cập nhật trạng thái kết thúc thi cho thí sinh thành công"));
         }
 
 

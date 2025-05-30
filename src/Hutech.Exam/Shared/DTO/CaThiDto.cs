@@ -9,6 +9,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class CaThiDto
     {
+        public CaThiDto()
+        {
+        }
+
         // loại bỏ ApprovedComments, ApprovedDate
         public int MaCaThi { get; set; }
 
@@ -41,6 +45,42 @@ namespace Hutech.Exam.Shared.DTO
         public override string ToString()
         {
             return TenCaThi ?? "Không tồn tại tên ca thi";
+        }
+
+        public CaThiDto(int maCaThi, string? tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, bool isActivated, DateTime? activatedDate, int thoiGianThi, bool ketThuc, DateTime? thoiDiemKetThuc, string? matMa, bool approved, ICollection<ChiTietCaThiDto> chiTietCaThis, ChiTietDotThiDto maChiTietDotThiNavigation)
+        {
+            MaCaThi = maCaThi;
+            TenCaThi = tenCaThi;
+            MaChiTietDotThi = maChiTietDotThi;
+            ThoiGianBatDau = thoiGianBatDau;
+            MaDeThi = maDeThi;
+            IsActivated = isActivated;
+            ActivatedDate = activatedDate;
+            ThoiGianThi = thoiGianThi;
+            KetThuc = ketThuc;
+            ThoiDiemKetThuc = thoiDiemKetThuc;
+            MatMa = matMa;
+            Approved = approved;
+            ChiTietCaThis = chiTietCaThis;
+            MaChiTietDotThiNavigation = maChiTietDotThiNavigation;
+        }
+
+        public CaThiDto(CaThiDto other)
+        {
+            MaCaThi = other.MaCaThi;
+            TenCaThi = other.TenCaThi;
+            MaChiTietDotThi = other.MaChiTietDotThi;
+            ThoiGianBatDau = other.ThoiGianBatDau;
+            MaDeThi = other.MaDeThi;
+            IsActivated= other.IsActivated;
+            ActivatedDate = other.ActivatedDate;
+            ThoiGianThi = other.ThoiGianThi;
+            KetThuc = other.KetThuc;
+            ThoiDiemKetThuc = other.ThoiDiemKetThuc;
+            MatMa = other.MatMa;
+            Approved = other.Approved;
+            ChiTietCaThis = other.ChiTietCaThis;
+            MaChiTietDotThiNavigation = other.MaChiTietDotThiNavigation;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<APIResponse<List<ChiTietBaiThiDto>>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
         {
             var result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(maChiTietCaThi);
-            return Ok(APIResponse<List<ChiTietBaiThiDto>>.SuccessResponse(data: result, message: "Lấy chi tiết bài thi thành công"));
+            return Ok(APIResponse<List<ChiTietBaiThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách chi tiết bài thi thành công"));
         }
 
         //////////////////OTHERS///////////////////////////

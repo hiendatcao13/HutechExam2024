@@ -66,9 +66,9 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _sinhVienRepository.Login(ma_sinh_vien, last_log_in);
         }
-        public async Task<int> Logout(long ma_sinh_vien, DateTime last_log_out)
+        public async Task<bool> Logout(long ma_sinh_vien, DateTime last_log_out)
         {
-            return await _sinhVienRepository.Logout(ma_sinh_vien, last_log_out);
+            return await _sinhVienRepository.Logout(ma_sinh_vien, last_log_out) != 0;
             
         }
         //lấy thông tin của 1 sinh viên từ mã số sinh viên

@@ -16,15 +16,15 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly LopAoService _lopAoService = lopAoService;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<LopAoDto>> Insert([FromBody] LopAoCreateRequest lopAo)
         {
             try
             {
-                var id = await _lopAoService.Insert(lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc);
-                return Ok(APIResponse<LopAoDto>.SuccessResponse(data: await _lopAoService.SelectOne(id), message: "Thêm lớp ảo thành công"))
+                var id = await _lopAoService.Insert(lopAo);
+                return Ok(APIResponse<LopAoDto>.SuccessResponse(data: await _lopAoService.SelectOne(id), message: "Thêm phòng thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -32,12 +32,12 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Thêm lớp ảo không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Thêm phòng thi không thành công", errorDetails: ex.Message));
             }
         }
 
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<LopAoDto>> SelectOne([FromRoute] int id)
@@ -45,30 +45,30 @@ namespace Hutech.Exam.Server.Controllers
             var result = await _lopAoService.SelectOne(id);
             if(result.MaLopAo == 0)
             {
-                return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy lớp ảo"));
+                return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi"));
             }    
-            return Ok(APIResponse<LopAoDto>.SuccessResponse(data: result, message: "Lấy lớp ảo thành công"));
+            return Ok(APIResponse<LopAoDto>.SuccessResponse(data: result, message: "Lấy phòng thi thành công"));
         }
 
         [HttpGet("filter-by-monhoc")]
         public async Task<ActionResult<List<LopAoDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
         {
-            return Ok(APIResponse<List<LopAoDto>>.SuccessResponse(data: await _lopAoService.SelectBy_ma_mon_hoc(maMonHoc), message: "Lấy danh sách môn học thành công"));
+            return Ok(APIResponse<List<LopAoDto>>.SuccessResponse(data: await _lopAoService.SelectBy_ma_mon_hoc(maMonHoc), message: "Lấy danh sách phòng thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<LopAoDto>> Update([FromRoute] int id, [FromBody] LopAoUpdateRequest lopAo)
         {
             try
             {
-                var result = await _lopAoService.Update(id, lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc);
+                var result = await _lopAoService.Update(id, lopAo);
                 if(!result)
                 {
-                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy lớp ảo"));
+                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi"));
                 }
-                return Ok(APIResponse<LopAoDto>.SuccessResponse(data: await _lopAoService.SelectOne(id), message: "Cập nhật lớp ảo thành công"))
+                return Ok(APIResponse<LopAoDto>.SuccessResponse(data: await _lopAoService.SelectOne(id), message: "Cập nhật phòng thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -76,7 +76,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Cập nhật lớp ảo không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Cập nhật phòng thi không thành công", errorDetails: ex.Message));
             }
         }
 
@@ -92,9 +92,9 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _lopAoService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy lớp ảo cần xóa"));
+                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi cần xóa"));
                 }
-                return Ok(APIResponse<LopAoDto>.SuccessResponse("Xóa lớp ảo thành công"));
+                return Ok(APIResponse<LopAoDto>.SuccessResponse("Xóa phòng thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -102,7 +102,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Xóa lớp ảo không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Xóa phòng thi không thành công", errorDetails: ex.Message));
             }
         }
 

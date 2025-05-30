@@ -10,7 +10,6 @@ using Hutech.Exam.Client.Components.Dialogs;
 using AutoMapper;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
-using Hutech.Exam.Shared.Helper;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
@@ -30,9 +29,9 @@ namespace Hutech.Exam.Client.Pages.Info
 
         [Inject] private IDialogService Dialog { get; set; } = default!;
 
-        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        [Inject] private IHashIdHelper HashIdHelper { get; set; } = default!;
+        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
         // biến binding UI
         private SinhVienDto? SinhVien { get; set; }
@@ -62,16 +61,23 @@ namespace Hutech.Exam.Client.Pages.Info
         private const string HAS_NO_MADETHI = "Thí sinh tạm thời chưa có đề thi được phân công. Vui lòng liên hệ với quản trị viên";
         protected override async Task OnInitializedAsync()
         {
-            //xác thực người dùng
-            var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-            var token = await customAuthStateProvider.GetToken();
-            if (!string.IsNullOrWhiteSpace(token))
-                Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-            else
-                Nav.NavigateTo("/");
-            await Start();
-            Time();
-            await base.OnInitializedAsync();
+            try
+            {
+                //xác thực người dùng
+                var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+                var token = await customAuthStateProvider.GetToken();
+                if (!string.IsNullOrWhiteSpace(token))
+                    Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                else
+                    Nav.NavigateTo("/");
+                await Start();
+                Time();
+                await base.OnInitializedAsync();
+            }
+            catch(Exception)
+            {
+                Snackbar.Add("Hệ thống server đang gặp sự cố. Vui lòng liên hệ người giám sát", Severity.Error);
+            }
         }
         private async Task GetThongTinChiTietCaThi(long ma_sinh_vien)
         {
@@ -162,6 +168,7 @@ namespace Hutech.Exam.Client.Pages.Info
             // chuyển đổi string thành long
             if (authState != null && authState.User.Identity != null)
                 long.TryParse(authState.User.Identity.Name, out ma_sinh_vien);
+
             await GetThongTinChiTietCaThi(ma_sinh_vien);
         }
         private void Time()

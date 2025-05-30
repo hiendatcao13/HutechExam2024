@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hutech.Exam.Shared.Helper
+namespace Hutech.Exam.Server.Helper
 {
     public interface IHashIdHelper
     {

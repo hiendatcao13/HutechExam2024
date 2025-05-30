@@ -3,6 +3,7 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request.SinhVien;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,20 +24,18 @@ namespace Hutech.Exam.Server.Controllers
 
         private const int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
 
-        //////////////////CRUD///////////////////////////
-
-        //////////////////FILTER///////////////////////////
+        //////////////////GET///////////////////////////
 
         [HttpGet("filter-by-mssv")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string maSoSinhVien)
         {
-            return Ok(await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien));
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien), message: "Lấy sinh viên thành công"));
         }
 
-        //////////////////OTHERS///////////////////////////
+        //////////////////POST///////////////////////////
 
-        [HttpPut("login")]
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Verify([FromBody] SinhVienAuthenticationRequest account)
         {
@@ -45,37 +44,51 @@ namespace Hutech.Exam.Server.Controllers
             if (userSession != null && userSession.NavigateSinhVien != null && CheckLogin(userSession.NavigateSinhVien))
             {
                 await UpdateLogin(userSession.NavigateSinhVien.MaSinhVien);
-                return Ok(userSession);
+                return Ok(APIResponse<UserSession>.SuccessResponse(data: userSession, message: "Xác thực thành công"));
             }
             else
             {
-                return Unauthorized();
+                return Unauthorized(APIResponse<UserSession>.UnauthorizedResponse(message: "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết"));
             }
         }
 
-        [HttpPut("{id}/logout")]
+        [HttpPost("{id}/logout")]
         public async Task<ActionResult> UpdateLogout([FromRoute] int id)
         {
             await _sinhVienService.Logout(id, DateTime.Now);
             await NotifyAuthenticationToAdmin(id, false, DateTime.Now);
-            return Ok();
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản thí sinh thành công"));
         }
 
-        [HttpPut("{id}/reset-login")]
+        //////////////////PUT///////////////////////////
+
+        //////////////////PATCH///////////////////////////
+
+        [HttpPatch("{id}/reset-login")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> ResetLogin([FromRoute] int id)
         {
             await NotifyLogOutToSV(id);
-            return Ok();
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
         }
 
-        [HttpPut("{id}/submit-exam")]
+        [HttpPatch("{id}/submit-exam")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SubmitExam([FromRoute] int id)
         {
             await NotifyNopBaiToSV(id);
-            return Ok();
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
         }
+
+        //////////////////DELTE///////////////////////////
+
+
+
+        //////////////////OTHERS///////////////////////////
+
+
+
+
 
         //////////////////PRIVATE///////////////////////////
 

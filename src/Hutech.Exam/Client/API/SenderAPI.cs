@@ -1,16 +1,21 @@
 ﻿using System.Text.Json;
 using System.Net.Http.Json;
 using Hutech.Exam.Shared.DTO.API.Response;
+using MudBlazor;
+using Microsoft.AspNetCore.Components;
 
 namespace Hutech.Exam.Client.API
 {
     public class SenderAPI : ISenderAPI
     {
         private readonly HttpClient _http;
-        public SenderAPI(HttpClient http)
+
+        private readonly ISnackbar _snackbar;
+        public SenderAPI(HttpClient http, ISnackbar snackbar)
         {
             _http = http;
             _http.Timeout = TimeSpan.FromSeconds(30); // đặt thời gian chờ cho mỗi yêu cầu
+            _snackbar = snackbar;
         }
 
         private async Task<APIResponse<TResult?>> HandleResponseAsync<TResult>(HttpResponseMessage response, string requestUri)
@@ -24,8 +29,16 @@ namespace Hutech.Exam.Client.API
                     PropertyNameCaseInsensitive = true
                 });
 
+                // hiện ra thông điệp message và trả về APIResponse
                 if (apiResponse != null)
+                {
+                    if(!string.IsNullOrEmpty(apiResponse.Message))
+                    {   
+                        _snackbar.Add(apiResponse.Message, (apiResponse.Success) ? Severity.Success : Severity.Error);
+                    }    
                     return apiResponse;
+                }    
+
             }
             catch (JsonException ex) // có lỗi khi giải nén file JSON
             {
@@ -60,13 +73,18 @@ namespace Hutech.Exam.Client.API
             return await HandleResponseAsync<TResult>(response, requestUri);
         }
 
-        public async Task<APIResponse<TResult?>> PostAsync<TResult>(string requestUri, object data)
+        public async Task<APIResponse<TResult?>> PostAsync<TResult>(string requestUri, object? data)
         {
             var response = await _http.PostAsJsonAsync(requestUri, data);
             return await HandleResponseAsync<TResult>(response, requestUri);
         }
+        public async Task<APIResponse<TResult?>> PatchAsync<TResult>(string requestUri, object? data)
+        {
+            var response = await _http.PatchAsJsonAsync(requestUri, data);
+            return await HandleResponseAsync<TResult>(response, requestUri);
+        }
 
-        public async Task<APIResponse<TResult?>> PutAsync<TResult>(string requestUri, object data)
+        public async Task<APIResponse<TResult?>> PutAsync<TResult>(string requestUri, object? data)
         {
             var response = await _http.PutAsJsonAsync(requestUri, data);
             return await HandleResponseAsync<TResult>(response, requestUri);

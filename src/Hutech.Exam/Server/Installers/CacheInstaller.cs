@@ -22,8 +22,11 @@ namespace Hutech.Exam.Server.Installers
             services.AddStackExchangeRedisCache(option => option.Configuration = redisConfiguarion.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
 
-            //cấu hình RabbitMQ trong appsettings.json
-            services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQConfiguration"));
+            //sử dụng Redis
+            services.AddScoped<RedisService>();
+
+            //cấu hình HashId trong appsetting.json
+            services.Configure<HashIdConfiguration>(configuration.GetSection("HashIdConfiguration"));
         }
     }
 }

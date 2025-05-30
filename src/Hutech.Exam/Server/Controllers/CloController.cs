@@ -16,17 +16,15 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly CloService _cloService = cloService;
 
-        private const string NOT_FOUND = "Không tìm thấy CLO";
-        private const string SUCCESS = "Lấy CLO thành công";
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<CloDto>> Insert([FromBody] CloCreateRequest clo)
         {
             try
             {
-                var id = await _cloService.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau);
+                var id = await _cloService.Insert(clo);
                 return Ok(APIResponse<CloDto>.SuccessResponse(data: await _cloService.SelectOne(id), message: "Thêm CLO thành công"));
             }
             catch (SqlException sqlEx)
@@ -39,7 +37,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
@@ -47,28 +45,28 @@ namespace Hutech.Exam.Server.Controllers
             var result = await _cloService.SelectOne(id);
             if(result.MaClo == 0)
             {
-                return NotFound(APIResponse<CloDto>.NotFoundResponse(message: NOT_FOUND));
+                return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO"));
             }    
-            return Ok(APIResponse<CloDto>.SuccessResponse(data: result, message: SUCCESS));
+            return Ok(APIResponse<CloDto>.SuccessResponse(data: result, message: "Lấy CLO thành công"));
         }
 
         [HttpGet("filter-by-monhoc")]
         public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
         {
-            return Ok(APIResponse<List<CloDto>>.SuccessResponse(data: await _cloService.SelectBy_MaMonHoc(maMonHoc), message: SUCCESS));
+            return Ok(APIResponse<List<CloDto>>.SuccessResponse(data: await _cloService.SelectBy_MaMonHoc(maMonHoc), message: "Lấy danh sách CLO thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CloDto>> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
         {
             try
             {
-                var result = await _cloService.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau);
+                var result = await _cloService.Update(id, clo);
                 if(!result)
                 {
-                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: NOT_FOUND));
+                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần cập nhật"));
                 }
                 return Ok(APIResponse<CloDto>.SuccessResponse(data: await _cloService.SelectOne(id), message: "Cập nhật CLO thành công"));
             }
@@ -94,7 +92,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _cloService.Remove(id);
                 if(!result)
                 {
-                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: NOT_FOUND));
+                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần xóa"));
                 }    
                 return Ok();
             }

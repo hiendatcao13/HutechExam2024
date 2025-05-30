@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.NhomCauHoi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -31,17 +32,17 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
-        public async Task<int> Insert(int ma_de_thi, string ten_nhom, int kieu_noi_dung, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom)
+        public async Task<int> Insert(NhomCauHoiCreateRequest nhomCauHoi)
         {
-            return Convert.ToInt32(await _nhomCauHoiRepository.Insert(ma_de_thi, ten_nhom, kieu_noi_dung, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha, so_cau_lay, la_cau_hoi_nhom) ?? -1);
+            return Convert.ToInt32(await _nhomCauHoiRepository.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha, nhomCauHoi.SoCauLay, nhomCauHoi.LaCauHoiNhom) ?? -1);
         }
-        public async Task<int> Update(int ma_nhom, int ma_de_thi, string ten_nhom, int kieu_noi_dung, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha)
+        public async Task<bool> Update(int id, NhomCauHoiUpdateRequest nhomCauHoi)
         {
-            return await _nhomCauHoiRepository.Update(ma_nhom, ma_de_thi, ten_nhom, kieu_noi_dung, noi_dung, so_cau_hoi, hoan_vi, thu_tu, ma_nhom_cha);
+            return await _nhomCauHoiRepository.Update(id, nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha) != 0;
         }
-        public async Task<int> Remove(int ma_nhom)
+        public async Task<bool> Remove(int ma_nhom)
         {
-            return await _nhomCauHoiRepository.Remove(ma_nhom);
+            return await _nhomCauHoiRepository.Remove(ma_nhom) != 0;
         }
         public async Task<List<NhomCauHoiDto>> SelectAllBy_MaDeThi(int ma_de_thi)
         {

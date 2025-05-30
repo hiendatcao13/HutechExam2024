@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.DotThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -50,13 +51,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return dotThi;
         }
-        public async Task<int> Insert(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
+        public async Task<int> Insert(DotThiCreateRequest dotThi)
         {
-            return Convert.ToInt32(await _dotThiRepository.Insert(ten_dot_thi, thoi_gian_bat_dau, thoi_gian_ket_thuc, nam_hoc) ?? -1);
+            return Convert.ToInt32(await _dotThiRepository.Insert(dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc) ?? -1);
         }
-        public async Task<bool> Update(int ma_dot_thi, string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
+        public async Task<bool> Update(int id, DotThiUpdateRequest dotThi)
         {
-            return await _dotThiRepository.Update(ma_dot_thi, ten_dot_thi, thoi_gian_bat_dau, thoi_gian_ket_thuc, nam_hoc) != 0;
+            return await _dotThiRepository.Update(id, dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc) != 0;
         }
         public async Task<bool> Remove(int ma_dot_thi)
         {

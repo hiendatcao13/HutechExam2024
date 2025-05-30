@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.CauHoi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -29,13 +30,13 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CauHoiDto>(cauHoi);
         }
-        public async Task<int> Insert(int ma_clo, int ma_nhom, string tieu_de, int kieu_noi_dung, string noi_dung, string ghi_chu, bool hoan_vi)
+        public async Task<int> Insert(CauHoiCreateRequest cauHoi)
         {
-            return Convert.ToInt32(await _cauHoiRepository.Insert(ma_clo, ma_nhom, tieu_de, kieu_noi_dung, noi_dung, ghi_chu, hoan_vi) ?? -1);
+            return Convert.ToInt32(await _cauHoiRepository.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi) ?? -1);
         }
-        public async Task<bool> Update(int ma_cau_hoi, int ma_nhom, int ma_clo, string tieu_de, int kieu_noi_dung, string noi_dung, string ghi_chu, bool hoan_vi)
+        public async Task<bool> Update(int id, CauHoiUpdateRequest cauHoi)
         {
-            return await _cauHoiRepository.Update(ma_cau_hoi, ma_nhom, ma_clo, tieu_de, kieu_noi_dung, noi_dung, ghi_chu, hoan_vi) != 0;
+            return await _cauHoiRepository.Update(id, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi) != 0;
         }
         public async Task<bool> Remove(int ma_cau_hoi)
         {

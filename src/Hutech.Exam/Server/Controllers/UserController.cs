@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////OTHERS///////////////////////////
 
-        [HttpPut("login")]
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Login([FromBody] UserAuthenticationRequest account)
         {
@@ -30,18 +31,18 @@ namespace Hutech.Exam.Server.Controllers
             {
                 if (userSession.NavigateUser.IsLockedOut)
                 {
-                    return BadRequest("Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!");
+                    return BadRequest(APIResponse<UserSession>.ErrorResponse( message: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!"));
                 }
                 if (userSession.NavigateUser.IsDeleted)
                 {
-                    return BadRequest("Tài khoản đã bị xóa. Vui lòng liên hệ quản trị viên!");
+                    return BadRequest(APIResponse<UserSession>.ErrorResponse(message: "Tài khoản đã bị xóa. Vui lòng liên hệ quản trị viên!"));
                 }
                 await UpdateLoginSuccess(userSession.NavigateUser.UserId);
-                return userSession;
+                return Ok(APIResponse<UserSession>.SuccessResponse(data: userSession, message: "Xác thực danh tính thành công"));
             }
             else
             {
-                return Unauthorized();
+                return Unauthorized(APIResponse<UserSession>.ErrorResponse(message: "Tài khoản không tồn tại"));
             }
         }
 

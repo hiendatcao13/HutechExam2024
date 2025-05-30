@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.LopAo;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 using System.Data.Common;
@@ -77,13 +78,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> Insert(string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
+        public async Task<int> Insert(LopAoCreateRequest lopAo)
         {
-            return Convert.ToInt32(await _lopAoRepository.Insert(ten_lop_ao, ngay_bat_dau, ma_mon_hoc) ?? -1);
+            return Convert.ToInt32(await _lopAoRepository.Insert(lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc) ?? -1);
         }
-        public async Task<bool> Update(int ma_lop_ao, string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc)
+        public async Task<bool> Update(int id, LopAoUpdateRequest lopAo)
         {
-            return await _lopAoRepository.Update(ma_lop_ao, ten_lop_ao, ngay_bat_dau, ma_mon_hoc) != 0;
+            return await _lopAoRepository.Update(id, lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc) != 0;
         }
         public async Task<bool> Remove(int ma_lop_ao)
         {

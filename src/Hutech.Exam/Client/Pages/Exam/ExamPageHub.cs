@@ -36,6 +36,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 await customAuthStateProvider.UpdateAuthenticationState(null);
                 Nav?.NavigateTo("/", true);
             }
+            Snackbar.Add("Có lỗi xảy ra khi đăng xuất tài khoản", MudBlazor.Severity.Error);
         }
         private void CallLoadThayDoiTinhTrangCaThi()
         {

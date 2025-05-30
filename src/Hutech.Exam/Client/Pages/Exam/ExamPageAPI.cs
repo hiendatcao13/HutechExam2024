@@ -13,29 +13,19 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task<List<CustomDeThi>?> GetDeThiAPI(long ma_de_hoan_vi)
         {
-            var response = await Http.GetAsync($"api/dethihoanvis/{ma_de_hoan_vi}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<List<CustomDeThi>?>();
-            }
-            else
-            {
-                Snackbar.Add(ERROR_FETCH_DETHI, Severity.Error);
-                return null;
-            }
+            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
+            return (response.Success) ? response.Data : null;
         }
 
         private async Task<int> GetSoLanNgheAPI(AudioListenedDto audio)
         {
-            var jsonString = JsonSerializer.Serialize(audio);
-            var response = await Http.PutAsync($"api/audios", new StringContent(jsonString, Encoding.UTF8, "application/json"));
-
-            return await response.Content.ReadFromJsonAsync<int>();
+            var response = await SenderAPI.PutAsync<int>($"api/audios", audio);
+            return (response.Success) ? response.Data : -1;
         }
         private async Task<bool> UpdateLogoutAPI(long ma_sinh_vien)
         {
-            var response = await Http.PutAsync($"api/sinhviens/{ma_sinh_vien}/logout", null);
-            return response.IsSuccessStatusCode;
+            var response = await SenderAPI.PostAsync<SinhVienDto>($"api/sinhviens/{ma_sinh_vien}/logout", null);
+            return response.Success;
         }
     }
 }

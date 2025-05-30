@@ -9,6 +9,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class SinhVienDto
     {
+        public SinhVienDto()
+        {
+        }
+
         public long MaSinhVien { get; set; }
 
         public string? HoVaTenLot { get; set; }
@@ -44,6 +48,46 @@ namespace Hutech.Exam.Shared.DTO
         public override string ToString()
         {
             return $"{MaSinhVien} - {HoVaTenLot} {TenSinhVien}";
+        }
+
+        public SinhVienDto(long maSinhVien, string? hoVaTenLot, string? tenSinhVien, short? gioiTinh, DateTime? ngaySinh, int? maLop, string? diaChi, string? email, string? dienThoai, string? maSoSinhVien, Guid? studentId, bool? isLoggedIn, DateTime? lastLoggedIn, DateTime? lastLoggedOut, byte[]? photo, ICollection<ChiTietCaThiDto> chiTietCaThis)
+        {
+            MaSinhVien = maSinhVien;
+            HoVaTenLot = hoVaTenLot;
+            TenSinhVien = tenSinhVien;
+            GioiTinh = gioiTinh;
+            NgaySinh = ngaySinh;
+            MaLop = maLop;
+            DiaChi = diaChi;
+            Email = email;
+            DienThoai = dienThoai;
+            MaSoSinhVien = maSoSinhVien;
+            StudentId = studentId;
+            IsLoggedIn = isLoggedIn;
+            LastLoggedIn = lastLoggedIn;
+            LastLoggedOut = lastLoggedOut;
+            Photo = photo;
+            ChiTietCaThis = chiTietCaThis;
+        }
+
+        public SinhVienDto(SinhVienDto other)
+        {
+            MaSinhVien = other.MaSinhVien;
+            HoVaTenLot = other.HoVaTenLot;
+            TenSinhVien = other.TenSinhVien;
+            GioiTinh = other.GioiTinh;
+            NgaySinh = other.NgaySinh;
+            MaLop = other.MaLop;
+            DiaChi = other.DiaChi;
+            Email = other.Email;
+            DienThoai = other.DienThoai;
+            MaSoSinhVien = other.MaSoSinhVien;
+            StudentId = other.StudentId;
+            IsLoggedIn = other.IsLoggedIn;
+            LastLoggedIn = other.LastLoggedIn;
+            LastLoggedOut = other.LastLoggedOut;
+            Photo = other.Photo;
+            ChiTietCaThis = other.ChiTietCaThis;
         }
     }
 }

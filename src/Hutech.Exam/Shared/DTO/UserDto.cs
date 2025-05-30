@@ -8,6 +8,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class UserDto
     {
+        public UserDto()
+        {
+        }
+
         // loại bỏ Comment, PasswordSalt, DateCreated, FailedPwdAttemptCount, FailedPwdAttemptWindowStart, FailedPwdAnswerCount
         // FailedPwdAnswerWindowStart, IsBuildInUser, Password
         public Guid UserId { get; set; }
@@ -40,5 +44,36 @@ namespace Hutech.Exam.Shared.DTO
             return Name;
         }
 
+        public UserDto(Guid userId, string loginName, string email, string name, int maRole, bool isDeleted, bool isLockedOut, DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastPasswordChangedDate, DateTime? lastLockoutDate, RoleDto maRoleNavigation)
+        {
+            UserId = userId;
+            LoginName = loginName;
+            Email = email;
+            Name = name;
+            MaRole = maRole;
+            IsDeleted = isDeleted;
+            IsLockedOut = isLockedOut;
+            LastActivityDate = lastActivityDate;
+            LastLoginDate = lastLoginDate;
+            LastPasswordChangedDate = lastPasswordChangedDate;
+            LastLockoutDate = lastLockoutDate;
+            MaRoleNavigation = maRoleNavigation;
+        }
+
+        public UserDto(UserDto other)
+        {
+            UserId = other.UserId;
+            LoginName = other.LoginName;
+            Email = other.Email;
+            Name = other.Name;
+            MaRole = other.MaRole;
+            IsDeleted = other.IsDeleted;
+            IsLockedOut = other.IsLockedOut;
+            LastActivityDate = other.LastActivityDate;
+            LastLoginDate = other.LastLoginDate;
+            LastPasswordChangedDate = other.LastPasswordChangedDate;
+            LastLockoutDate = other.LastLockoutDate;
+            MaRoleNavigation = other.MaRoleNavigation;
+        }
     }
 }

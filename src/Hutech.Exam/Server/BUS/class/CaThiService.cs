@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.CaThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -96,17 +97,17 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.Ketthuc(ma_ca_thi) != 0;
         }
-        public async Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task<int> Insert(CaThiCreateRequest caThi)
         {
-            return Convert.ToInt32(await _caThiRepository.Insert(ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) ?? -1);
+            return Convert.ToInt32(await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi) ?? -1);
         }
         public async Task<bool> Remove(int ma_ca_thi)
         {
             return await _caThiRepository.Remove(ma_ca_thi) != 0;
         }
-        public async Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task<bool> Update(int id, CaThiUpdateRequest caThi)
         {
-            return await _caThiRepository.Update(ma_ca_thi, ten_ca_thi, ma_chi_tiet_dot_thi, thoi_gian_bat_dau, ma_de_thi, thoi_gian_thi) != 0;
+            return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi) != 0;
         }
     }
 }

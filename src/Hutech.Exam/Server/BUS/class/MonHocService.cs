@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.MonHoc;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 using System.Data.Common;
@@ -48,13 +49,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> Insert(string ma_so_mon_hoc, string ten_mon_hoc)
+        public async Task<int> Insert(MonHocCreateRequest monHoc)
         {
-            return Convert.ToInt32(await _monHocRepository.Insert(ma_so_mon_hoc, ten_mon_hoc) ?? -1);
+            return Convert.ToInt32(await _monHocRepository.Insert(monHoc.MaSoMonHoc, monHoc.TenMonHoc) ?? -1);
         }
-        public async Task<bool> Update(int ma_mon_hoc, string ma_so_mon_hoc, string ten_mon_hoc)
+        public async Task<bool> Update(int id, MonHocUpdateRequest monHoc)
         {
-            return await _monHocRepository.Update(ma_mon_hoc, ma_so_mon_hoc, ten_mon_hoc) != 0;
+            return await _monHocRepository.Update(id, monHoc.MaSoMonHoc, monHoc.TenMonHoc) != 0;
         }
         public async Task<bool> Remove(int ma_mon_hoc)
         {

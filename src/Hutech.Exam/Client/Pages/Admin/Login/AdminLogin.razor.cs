@@ -5,16 +5,24 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Admin.Login
 {
     public partial class AdminLogin
     {
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
 
         private UserSession? userSession;
         private string username = "";
@@ -55,6 +63,8 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
                 Snackbar.Add(EMPTY_MESSAGE, Severity.Error);
                 return;
             }
+            Snackbar.Add(LOADING_MESSAGE, Severity.Info);
+
             userSession = await LoginAPI( new Shared.DTO.Request.User.UserAuthenticationRequest { Username = username, Password = password});
             if (userSession == null) 
             {

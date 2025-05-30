@@ -16,15 +16,15 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly CauHoiService _cauHoiService = cauHoiService;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<CauHoiDto>> Insert([FromBody] CauHoiCreateRequest cauHoi)
         {
             try
             {
-                var id = await _cauHoiService.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi);
-                return Ok(APIResponse<CauHoiDto>.SuccessResponse(data: await _cauHoiService.SelectOne(id), message: "Thêm ca thi thành công"));
+                var id = await _cauHoiService.Insert(cauHoi);
+                return Ok(APIResponse<CauHoiDto>.SuccessResponse(data: await _cauHoiService.SelectOne(id), message: "Thêm câu hỏi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -36,7 +36,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CauHoiDto>> SelectOne([FromRoute] int id)
@@ -53,17 +53,17 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<List<CauHoiDto>>> SelectBy_MaNhom([FromQuery] int maNhomCauHoi)
         {
             var result = await _cauHoiService.SelectBy_MaNhom(maNhomCauHoi);
-            return Ok(APIResponse<List<CauHoiDto>>.SuccessResponse(data: result, message: "Lấy câu hỏi thành công");
+            return Ok(APIResponse<List<CauHoiDto>>.SuccessResponse(data: result, message: "Lấy danh sách câu hỏi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CauHoiUpdateRequest cauHoi)
         {
             try
             {
-                var result = await _cauHoiService.Update(id, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi);
+                var result = await _cauHoiService.Update(id, cauHoi);
                 if (!result)
                 {
                     return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Không tìm thấy câu hỏi cần cập nhật"));

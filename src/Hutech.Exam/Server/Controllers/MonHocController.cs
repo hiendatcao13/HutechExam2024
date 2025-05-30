@@ -16,15 +16,15 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly MonHocService _monHocService = monHocService;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<MonHocDto>> Insert([FromBody] MonHocCreateRequest monHoc)
         {
             try
             {
-                var id = await _monHocService.Insert(monHoc.MaSoMonHoc, monHoc.TenMonHoc);
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"))
+                var id = await _monHocService.Insert(monHoc);
+                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -36,7 +36,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet]
         public async Task<ActionResult<List<MonHocDto>>> GetAll()
@@ -55,19 +55,19 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<MonHocDto>.SuccessResponse(data: result, message: "Lấy môn học thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<MonHocDto>> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
         {
             try
             {
-                var result = await _monHocService.Update(id, monHoc.MaSoMonHoc, monHoc.TenMonHoc);
+                var result = await _monHocService.Update(id, monHoc);
                 if(!result)
                 {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học"));
-                }    
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Cập nhật môn học thành công"))
+                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần cập nhật"));
+                }
+                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Cập nhật môn học thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -92,7 +92,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _monHocService.Remove(id);
                 if(!result)
                 {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học"));
+                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
                 }
                 return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
             }

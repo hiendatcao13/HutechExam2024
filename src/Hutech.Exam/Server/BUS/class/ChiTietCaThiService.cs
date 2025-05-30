@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -70,7 +71,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<ChiTietCaThiPageResult> SelectBy_MaCaThi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
+        public async Task<ChiTietCaThiPage> SelectBy_MaCaThi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
         {
             List<ChiTietCaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -93,10 +94,10 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new ChiTietCaThiPageResult() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+            return new ChiTietCaThiPage() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
 
-        public async Task<ChiTietCaThiPageResult> SelectBy_MaCaThi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
+        public async Task<ChiTietCaThiPage> SelectBy_MaCaThi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
         {
             List<ChiTietCaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -119,7 +120,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new ChiTietCaThiPageResult() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+            return new ChiTietCaThiPage() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
         public async Task<ChiTietCaThiDto> SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)
@@ -170,17 +171,17 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _chiTietCaThiRepository.UpdateBatDau(ma_chi_tiet_ca_thi, thoi_gian_bat_dau) != 0;
         }
-        public async Task<bool> UpdateKetThuc(int ma_chi_tiet_ca_thi, DateTime thoi_gian_ket_thuc, double diem, int so_cau_dung, int tong_so_cau)
+        public async Task<bool> UpdateKetThuc(int id, ChiTietCaThiUpdateKTThiRequest chiTietCaThi)
         {
-            return await _chiTietCaThiRepository.UpdateKetThuc(ma_chi_tiet_ca_thi, thoi_gian_ket_thuc, diem, so_cau_dung, tong_so_cau) != 0;
+            return await _chiTietCaThiRepository.UpdateKetThuc(id, chiTietCaThi.ThoiGianKetThuc, chiTietCaThi.Diem, chiTietCaThi.SoCauDung, chiTietCaThi.TongSoCau) != 0;
         }
-        public async Task<bool> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime thoi_diem_cong, string ly_do_cong)
+        public async Task<bool> CongGio(int id, ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
         {
-            return await _chiTietCaThiRepository.CongGio(ma_chi_tiet_ca_thi, gio_cong_them, thoi_diem_cong, ly_do_cong) != 0;
+            return await _chiTietCaThiRepository.CongGio(id, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong, chiTietCaThi.LyDoCong) != 0;
         }
-        public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
+        public async Task<int> Insert(ChiTietCaThiCreateRequest chiTietCaThi)
         {
-            return Convert.ToInt32(await _chiTietCaThiRepository.Insert(ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) ?? -1);
+            return Convert.ToInt32(await _chiTietCaThiRepository.Insert(chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1) ?? -1);
         }
 
         public async Task<bool> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
@@ -191,9 +192,9 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi);
         }
-        public async Task<bool> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
+        public async Task<bool> Update(int id, ChiTietCaThiUpdateRequest chiTietCaThi)
         {
-            return await _chiTietCaThiRepository.Update(ma_chi_tiet_ca_thi, ma_ca_thi, ma_sinh_vien, ma_de_thi, tong_so_cau) != 0;
+            return await _chiTietCaThiRepository.Update(id, chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1) != 0;
         }
     }
 }

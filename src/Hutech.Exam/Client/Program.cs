@@ -4,10 +4,10 @@ using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Client.BUS;
 using Hutech.Exam.Client.DAL;
-using Hutech.Exam.Shared.Helper;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -28,10 +28,13 @@ builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
 builder.Services.AddSingleton<AdminHubService>();
 builder.Services.AddSingleton<StudentHubService>();
-builder.Services.AddSingleton<IHashIdHelper, HashIdHelper>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 // them MudBlazor
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+});
 
 builder.Services.AddScoped<ApiService>();
 await builder.Build().RunAsync();

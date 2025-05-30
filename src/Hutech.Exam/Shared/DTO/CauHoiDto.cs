@@ -39,21 +39,36 @@ namespace Hutech.Exam.Shared.DTO
 
         public CauHoiDto() { }
 
-        public CauHoiDto(CauHoiDto cauHoi)
+        public CauHoiDto(CauHoiDto other)
         {
-            MaCauHoi = cauHoi.MaCauHoi;
-            MaNhom = cauHoi.MaNhom;
-            MaClo = cauHoi.MaClo;
-            TieuDe = cauHoi.TieuDe;
-            KieuNoiDung = cauHoi.KieuNoiDung;
-            NoiDung = cauHoi.NoiDung;
-            GhiChu = cauHoi.GhiChu;
-            HoanVi = cauHoi.HoanVi;
-            CauTraLois = cauHoi.CauTraLois;
-            ChiTietDeThiHoanVis = cauHoi.ChiTietDeThiHoanVis;
-            MaCloNavigation = cauHoi.MaCloNavigation;
-            MaNhomNavigation = cauHoi.MaNhomNavigation;
+            MaCauHoi = other.MaCauHoi;
+            MaNhom = other.MaNhom;
+            MaClo = other.MaClo;
+            TieuDe = other.TieuDe;
+            KieuNoiDung = other.KieuNoiDung;
+            NoiDung = other.NoiDung;
+            GhiChu = other.GhiChu;
+            HoanVi = other.HoanVi;
+            CauTraLois = other.CauTraLois;
+            ChiTietDeThiHoanVis = other.ChiTietDeThiHoanVis;
+            MaCloNavigation = other.MaCloNavigation;
+            MaNhomNavigation = other.MaNhomNavigation;
         }
 
+        public CauHoiDto(int maCauHoi, int maNhom, int maClo, string? tieuDe, int kieuNoiDung, string? noiDung, string? ghiChu, bool? hoanVi, ICollection<CauTraLoiDto> cauTraLois, ICollection<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis, CloDto maCloNavigation, NhomCauHoiDto maNhomNavigation)
+        {
+            MaCauHoi = maCauHoi;
+            MaNhom = maNhom;
+            MaClo = maClo;
+            TieuDe = tieuDe;
+            KieuNoiDung = kieuNoiDung;
+            NoiDung = noiDung;
+            GhiChu = ghiChu;
+            HoanVi = hoanVi;
+            CauTraLois = cauTraLois;
+            ChiTietDeThiHoanVis = chiTietDeThiHoanVis;
+            MaCloNavigation = maCloNavigation;
+            MaNhomNavigation = maNhomNavigation;
+        }
     }
 }

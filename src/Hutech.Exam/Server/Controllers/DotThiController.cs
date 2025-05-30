@@ -20,14 +20,14 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<DotThiDto>> Insert([FromBody] DotThiCreateRequest dotThi)
         {
             try
             {
-                var id = await _dotThiService.Insert(dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc);
+                var id = await _dotThiService.Insert(dotThi);
                 await NotifyChangeDotThiToAdmin(id, 0);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
             }
@@ -41,7 +41,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet]
         public async Task<ActionResult<List<DotThiDto>>> GetAll()
@@ -55,17 +55,17 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Lấy đợt thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<DotThiDto>> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
             try
             {
-                var result = await _dotThiService.Update(id, dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc);
+                var result = await _dotThiService.Update(id, dotThi);
                 if(!result)
                 {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi"));
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần cập nhật"));
                 }    
                 await NotifyChangeDotThiToAdmin(id, 1);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Cập nhật đợt thi thành công"));
@@ -92,7 +92,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _dotThiService.Remove(id);
                 if(!result)
                 {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi"));
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
                 }    
                 await NotifyChangeDotThiToAdmin(id, 2);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));

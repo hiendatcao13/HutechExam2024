@@ -9,6 +9,7 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class ChiTietCaThiDto
     {
+        public ChiTietCaThiDto() {  }
         public int MaChiTietCaThi { get; set; }
 
         public int? MaCaThi { get; set; }
@@ -43,24 +44,43 @@ namespace Hutech.Exam.Shared.DTO
 
         public virtual SinhVienDto? MaSinhVienNavigation { get; set; }
 
-        public ChiTietCaThiDto() { }
-
-        public ChiTietCaThiDto(ChiTietCaThiDto chiTietCaThiDto)
+        public ChiTietCaThiDto(ChiTietCaThiDto other)
         {
-            MaChiTietCaThi = chiTietCaThiDto.MaChiTietCaThi;
-            MaCaThi = chiTietCaThiDto.MaCaThi;
-            MaSinhVien = chiTietCaThiDto.MaSinhVien;
-            MaDeThi = chiTietCaThiDto.MaDeThi;
-            ThoiGianBatDau = chiTietCaThiDto.ThoiGianBatDau;
-            ThoiGianKetThuc = chiTietCaThiDto.ThoiGianKetThuc;
-            DaThi = chiTietCaThiDto.DaThi;
-            DaHoanThanh = chiTietCaThiDto.DaHoanThanh;
-            Diem = chiTietCaThiDto.Diem;
-            TongSoCau = chiTietCaThiDto.TongSoCau;
-            SoCauDung = chiTietCaThiDto.SoCauDung;
-            GioCongThem = chiTietCaThiDto.GioCongThem;
-            ThoiDiemCong = chiTietCaThiDto.ThoiDiemCong;
-            LyDoCong = chiTietCaThiDto.LyDoCong;
+            MaChiTietCaThi = other.MaChiTietCaThi;
+            MaCaThi = other.MaCaThi;
+            MaSinhVien = other.MaSinhVien;
+            MaDeThi = other.MaDeThi;
+            ThoiGianBatDau = other.ThoiGianBatDau;
+            ThoiGianKetThuc = other.ThoiGianKetThuc;
+            DaThi = other.DaThi;
+            DaHoanThanh = other.DaHoanThanh;
+            Diem = other.Diem;
+            TongSoCau = other.TongSoCau;
+            SoCauDung = other.SoCauDung;
+            GioCongThem = other.GioCongThem;
+            ThoiDiemCong = other.ThoiDiemCong;
+            LyDoCong = other.LyDoCong;
+        }
+
+        public ChiTietCaThiDto(int maChiTietCaThi, int? maCaThi, long? maSinhVien, long? maDeThi, DateTime? thoiGianBatDau, DateTime? thoiGianKetThuc, bool daThi, bool daHoanThanh, double diem, int? tongSoCau, int? soCauDung, int gioCongThem, DateTime? thoiDiemCong, string? lyDoCong, ICollection<ChiTietBaiThiDto> chiTietBaiThis, CaThiDto? maCaThiNavigation, SinhVienDto? maSinhVienNavigation)
+        {
+            MaChiTietCaThi = maChiTietCaThi;
+            MaCaThi = maCaThi;
+            MaSinhVien = maSinhVien;
+            MaDeThi = maDeThi;
+            ThoiGianBatDau = thoiGianBatDau;
+            ThoiGianKetThuc = thoiGianKetThuc;
+            DaThi = daThi;
+            DaHoanThanh = daHoanThanh;
+            Diem = diem;
+            TongSoCau = tongSoCau;
+            SoCauDung = soCauDung;
+            GioCongThem = gioCongThem;
+            ThoiDiemCong = thoiDiemCong;
+            LyDoCong = lyDoCong;
+            ChiTietBaiThis = chiTietBaiThis;
+            MaCaThiNavigation = maCaThiNavigation;
+            MaSinhVienNavigation = maSinhVienNavigation;
         }
     }
 }

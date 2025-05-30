@@ -16,14 +16,14 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly NhomCauHoiService _nhomCauHoiService = nhomCauHoiService;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<NhomCauHoiDto>> Insert([FromBody] NhomCauHoiCreateRequest nhomCauHoi)
         {
             try
             {
-                var id = await _nhomCauHoiService.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha, nhomCauHoi.SoCauLay, nhomCauHoi.LaCauHoiNhom);
+                var id = await _nhomCauHoiService.Insert(nhomCauHoi);
                 return Ok(APIResponse<NhomCauHoiDto>.SuccessResponse(data: await _nhomCauHoiService.SelectOne(id), message: "Thêm nhóm câu hỏi thành công"));
             }
             catch (SqlException sqlEx)
@@ -36,7 +36,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////CREATE////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<NhomCauHoiDto>> SelectOne([FromRoute] int id)
@@ -55,17 +55,29 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<NhomCauHoiDto>>.SuccessResponse(data: await _nhomCauHoiService.SelectAllBy_MaDeThi(maDeThi), message: "Lấy danh sách nhóm câu hỏi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] NhomCauHoiUpdateRequest nhomCauHoi)
+        public async Task<ActionResult<NhomCauHoiDto>> Update([FromRoute] int id, [FromBody] NhomCauHoiUpdateRequest nhomCauHoi)
         {
-            //try
-            //{
-            //    var result = await _nhomCauHoiService.Update(id, nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha);
-            //    return Ok();
-            //}
-            
+            try
+            {
+                var result = await _nhomCauHoiService.Update(id, nhomCauHoi);
+                if(!result)
+                {
+                    return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi cần cập nhật"));
+                }
+                return Ok(APIResponse<NhomCauHoiDto>.SuccessResponse(data: await _nhomCauHoiService.SelectOne(id), message: "Cập nhật nhóm câu hỏi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<NhomCauHoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<NhomCauHoiDto>.ErrorResponse(message: "Cập nhật nhóm câu hỏi không thành công", errorDetails: ex.Message));
+            }
+
         }
 
         //////////////////PATCH///////////////////////////
@@ -75,8 +87,23 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            await _nhomCauHoiService.Remove(id);
-            return Ok();
+            try
+            {
+                var result = await _nhomCauHoiService.Remove(id);
+                if(!result)
+                {
+                    return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi cần xóa"));
+                }
+                return Ok(APIResponse<NhomCauHoiDto>.SuccessResponse(message: "Xóa nhóm câu hỏi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<NhomCauHoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<NhomCauHoiDto>.ErrorResponse(message: "Xóa nhóm câu hỏi không thành công", errorDetails: ex.Message));
+            }
         }
 
         //////////////////OTHERS///////////////////////////

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.Clo;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -39,13 +40,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return clo;
         }
-        public async Task<int> Insert(int ma_mon_hoc, string ma_so_clo, string tieu_de, string noi_dung, int tieu_chi, int so_cau)
+        public async Task<int> Insert(CloCreateRequest clo)
         {
-            return Convert.ToInt32(await _cloRepository.Insert(ma_mon_hoc, ma_so_clo, tieu_de, noi_dung, tieu_chi, so_cau));
+            return Convert.ToInt32(await _cloRepository.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau));
         }
-        public async Task<bool> Update(int ma_clo, int ma_mon_hoc, string ma_so_clo, string tieu_de, string noi_dung, int tieu_chi, int so_cau)
+        public async Task<bool> Update(int id, CloUpdateRequest clo)
         {
-            return await _cloRepository.Update(ma_clo, ma_mon_hoc, ma_so_clo, tieu_de, noi_dung, tieu_chi, so_cau) != 0;
+            return await _cloRepository.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau) != 0;
         }
         public async Task<bool> Remove(int ma_clo)
         {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.ChiTietDotThi;
 using Hutech.Exam.Shared.Models;
 using System.Collections.Generic;
 using System.Data;
@@ -100,13 +101,13 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<int> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
+        public async Task<int> Insert(ChiTietDotThiCreateRequest chiTietDotThi)
         {
-            return Convert.ToInt32(await _chiTietDotThiResposity.Insert(ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) ?? -1);
+            return Convert.ToInt32(await _chiTietDotThiResposity.Insert(chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi) ?? -1);
         }
-        public async Task<bool> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
+        public async Task<bool> Update(int id, ChiTietDotThiUpdateRequest chiTietDotThi)
         {
-            return await _chiTietDotThiResposity.Update(ma_chi_tiet_dot_thi, ten_chi_tiet_dot_thi, ma_lop_ao, ma_dot_thi, lan_thi) != 0;
+            return await _chiTietDotThiResposity.Update(id, chiTietDotThi.TenChiTietDotThi, chiTietDotThi.MaLopAo, chiTietDotThi.MaDotThi, chiTietDotThi.LanThi) != 0;
         }
         public async Task<bool> Remove(int ma_chi_tiet_dot_thi)
         {

@@ -11,17 +11,24 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using AutoMapper;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Result
 {
     public partial class Result
     {
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private ApplicationDataService MyData { get; set; } = default!;
+
         [Inject] private StudentHubService StudentHub { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
-        [Inject] private IMapper Mapper { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
 
         // biến binding với UI
         private Canvas2DContext? Context { get; set; }

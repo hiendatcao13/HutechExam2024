@@ -38,9 +38,9 @@ namespace Hutech.Exam.Server.BUS
             }
             return listenedCount;
         }
-        public async Task<int> Save(int ma_chi_tiet_ca_thi, int ma_nhom)
+        public async Task<int> Save(AudioListenedDto audio)
         {
-            return Convert.ToInt32(await _audioListenedRepository.Save(ma_chi_tiet_ca_thi, ma_nhom));
+            return Convert.ToInt32(await _audioListenedRepository.Save(audio.MaChiTietCaThi, audio.MaNhom));
         }
     }
 }

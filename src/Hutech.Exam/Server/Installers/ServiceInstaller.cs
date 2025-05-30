@@ -34,14 +34,6 @@ namespace Hutech.Exam.Server.Installers
             // sử dụng custom lại đề
             services.AddScoped<CustomDeThiService>();
 
-
-            //sử dụng RabbitMQ
-            services.AddScoped<AnswerQueueService>();
-            services.AddScoped<SubmitQueueService>();
-
-            //sử dụng Redis
-            services.AddScoped<RedisService>();
-
         }
     }
 }

@@ -13,9 +13,13 @@ namespace Hutech.Exam.Client.Pages.Login
     public partial class Login
     {
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
         // biến binding với UI
@@ -57,12 +61,12 @@ namespace Hutech.Exam.Client.Pages.Login
                 Snackbar.Add(ERROR_MESSAGE, Severity.Error);
                 return;
             }
+            Snackbar.Add(LOADING_MESSAGE, Severity.Info);
 
             _userSession = await LoginAPI(new SinhVienAuthenticationRequest { Username = Username, Password = Password});
 
             if (_userSession == null)
             {
-                Snackbar.Add(FAILED_MESSSAGE, Severity.Error);
                 return;
             }
 

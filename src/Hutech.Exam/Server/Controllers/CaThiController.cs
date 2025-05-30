@@ -20,14 +20,14 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<CaThiDto>> Insert([FromBody] CaThiCreateRequest caThi)
         {
             try
             {
-                var id = await _caThiService.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+                var id = await _caThiService.Insert(caThi);
                 await NotifyChangeCaThiToAdmin(id, 0);
                 return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), "Thêm ca thi thành công"));
             }
@@ -43,7 +43,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CaThiDto>> SelectOne([FromRoute] int id)
@@ -62,14 +62,14 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<bool>> IsActiveCaThi([FromRoute] int id)
         {
             CaThiDto caThi = await _caThiService.SelectOne(id);
-            return Ok(APIResponse<bool>.SuccessResponse(data: caThi.IsActivated, message: "Lấy ca thi thành công"));
+            return Ok(APIResponse<bool>.SuccessResponse(data: caThi.IsActivated, message: "Lấy thông tin ca thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao-lanthi")]
         public async Task<ActionResult<List<CaThiDto>>> SelectBy_MaDotThi_MaLopAo_LanThi([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
         {
             var result = await _caThiService.SelectBy_MaDotThi_MaLop_LanThi(maDotThi, maLopAo, lanThi);
-            return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy ca thi thành công"));
+            return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
 
         }
 
@@ -77,17 +77,17 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<List<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi([FromQuery] int maChiTietDotThi)
         {
             var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi(maChiTietDotThi);
-            return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy ca thi thành công"));
+            return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CaThiDto>> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
         {
             try
             {
-                var result = await _caThiService.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+                var result = await _caThiService.Update(id, caThi);
                 if (!result)
                 {
                     return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));

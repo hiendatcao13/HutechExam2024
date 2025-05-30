@@ -8,6 +8,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class MonHocDto
     {
+        public MonHocDto()
+        {
+        }
+
         public int MaMonHoc { get; set; }
 
         public string? MaSoMonHoc { get; set; }
@@ -20,6 +24,24 @@ namespace Hutech.Exam.Shared.DTO
         public override string ToString()
         {
             return TenMonHoc ?? "Không tồn tại tên môn học";
+        }
+
+        public MonHocDto(int maMonHoc, string? maSoMonHoc, string? tenMonHoc, ICollection<LopAoDto> lopAos, ICollection<CloDto> clos)
+        {
+            MaMonHoc = maMonHoc;
+            MaSoMonHoc = maSoMonHoc;
+            TenMonHoc = tenMonHoc;
+            LopAos = lopAos;
+            Clos = clos;
+        }
+
+        public MonHocDto(MonHocDto other)
+        {
+            MaMonHoc = other.MaMonHoc;
+            MaSoMonHoc = other.MaSoMonHoc;
+            TenMonHoc = other.TenMonHoc;
+            LopAos = other.LopAos;
+            Clos = other.Clos;
         }
     }
 }

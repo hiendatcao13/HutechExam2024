@@ -46,6 +46,8 @@ namespace Hutech.Exam.Shared.DTO.API.Response
                 throw new ArgumentException("Error responses must have a status code in the 4xx or 5xx range.");
         }
 
+        public APIResponse() { }
+
         // Factory methods to generate common responses
         public static APIResponse<TData> SuccessResponse(TData data, string message = "Operation successful")
         {

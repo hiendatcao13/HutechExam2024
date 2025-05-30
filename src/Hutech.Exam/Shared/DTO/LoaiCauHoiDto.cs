@@ -8,6 +8,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public partial class LoaiCauHoiDto
     {
+        public LoaiCauHoiDto()
+        {
+        }
+
         public int MaLoaiCauHoi { get; set; }
 
         public int KieuNoiDung { get; set; }
@@ -15,5 +19,21 @@ namespace Hutech.Exam.Shared.DTO
         public string? NoiDung { get; set; }
 
         public string? GhiChu { get; set; }
+
+        public LoaiCauHoiDto(int maLoaiCauHoi, int kieuNoiDung, string? noiDung, string? ghiChu)
+        {
+            MaLoaiCauHoi = maLoaiCauHoi;
+            KieuNoiDung = kieuNoiDung;
+            NoiDung = noiDung;
+            GhiChu = ghiChu;
+        }
+
+        public LoaiCauHoiDto(LoaiCauHoiDto other)
+        {
+            MaLoaiCauHoi = other.MaLoaiCauHoi;
+            KieuNoiDung = other.KieuNoiDung;
+            NoiDung = other.NoiDung;
+            GhiChu = other.GhiChu;
+        }
     }
 }

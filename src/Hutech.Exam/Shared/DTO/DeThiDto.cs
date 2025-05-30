@@ -9,6 +9,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class DeThiDto
     {
+        public DeThiDto()
+        {
+        }
+
         public int MaDeThi { get; set; }
 
         public int MaMonHoc { get; set; }
@@ -36,6 +40,38 @@ namespace Hutech.Exam.Shared.DTO
         public override string ToString()
         {
             return TenDeThi;
+        }
+
+        public DeThiDto(int maDeThi, int maMonHoc, string tenDeThi, DateTime ngayTao, int nguoiTao, string? ghiChu, bool? luuTam, bool daDuyet, int? tongSoDeHoanVi, bool boChuongPhan, ICollection<DeThiHoanViDto> deThiHoanVis, ICollection<NhomCauHoiDto> nhomCauHois)
+        {
+            MaDeThi = maDeThi;
+            MaMonHoc = maMonHoc;
+            TenDeThi = tenDeThi;
+            NgayTao = ngayTao;
+            NguoiTao = nguoiTao;
+            GhiChu = ghiChu;
+            LuuTam = luuTam;
+            DaDuyet = daDuyet;
+            TongSoDeHoanVi = tongSoDeHoanVi;
+            BoChuongPhan = boChuongPhan;
+            DeThiHoanVis = deThiHoanVis;
+            NhomCauHois = nhomCauHois;
+        }
+
+        public DeThiDto(DeThiDto other)
+        {
+            MaDeThi = other.MaDeThi;
+            MaMonHoc = other.MaMonHoc;
+            TenDeThi = other.TenDeThi;
+            NgayTao = other.NgayTao;
+            NguoiTao = other.NguoiTao;
+            GhiChu = other.GhiChu;
+            LuuTam = other.LuuTam;
+            DaDuyet = other.DaDuyet;
+            TongSoDeHoanVi = other.TongSoDeHoanVi;
+            BoChuongPhan = other.BoChuongPhan;
+            DeThiHoanVis = other.DeThiHoanVis;
+            NhomCauHois = other.NhomCauHois;
         }
     }
 }

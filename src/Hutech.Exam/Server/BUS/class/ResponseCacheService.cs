@@ -138,6 +138,11 @@ namespace Hutech.Exam.Server.BUS.@class
 
             var db = _connectionMultiplexer.GetDatabase();
             var hashEntries = await db.HashGetAllAsync(hashKey);
+
+
+            if (hashEntries == null || hashEntries.Length == 0)
+                return [];
+
             var result = new Dictionary<Tkey, Tdata>();
 
             foreach (var entry in hashEntries)

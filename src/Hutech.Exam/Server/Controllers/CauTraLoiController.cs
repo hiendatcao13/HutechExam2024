@@ -18,7 +18,7 @@ namespace Hutech.Exam.Server.Controllers
     {
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
 
-        //////////////////CRUD///////////////////////////
+        //////////////////GET///////////////////////////
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromRoute] int id)
@@ -31,14 +31,14 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: result, message: "Lấy câu trả lời thành công"));
         }
 
-        //////////////////CREATE//////////////////////////
+        //////////////////POST//////////////////////////
 
         [HttpPost]
         public async Task<ActionResult<CauTraLoiDto>> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
         {
             try
             {
-                int id = await _cauTraLoiService.Insert(cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
+                int id = await _cauTraLoiService.Insert(cauTraLoi);
                 return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: await _cauTraLoiService.SelectOne(id), message: "Thêm câu trả lời thành công"));
             }
             catch (SqlException sqlEx)
@@ -51,7 +51,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////READ////////////////////////////
+        //////////////////GET////////////////////////////
 
         [HttpGet("filter-by-cauhoi")]
         public async Task<ActionResult<List<CauTraLoiDto>>> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
@@ -60,14 +60,14 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<CauTraLoiDto>>.SuccessResponse(data: await _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi), message: "Lấy danh sách câu trả lời thành công"));
         }
 
-        //////////////////UDATE///////////////////////////
+        //////////////////PUT///////////////////////////
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
         {
             try
             {
-                var result = await _cauTraLoiService.Update(id, cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi);
+                var result = await _cauTraLoiService.Update(id, cauTraLoi);
                 if(!result)
                 {
                     return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần cập nhật"));
@@ -96,7 +96,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _cauTraLoiService.Remove(id);
                 if(!result)
                 {
-                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời"));
+                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần xóa"));
                 }    
                 return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(message: "Xóa câu trả lời thành công"));
             }

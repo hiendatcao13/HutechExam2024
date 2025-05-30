@@ -11,17 +11,25 @@ using MudBlazor;
 using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
 using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage : IAsyncDisposable
     {
-        [Inject] HttpClient Http { get; set; } = default!;
-        [Inject] ApplicationDataService MyData { get; set; } = default!;
-        [Inject] StudentHubService StudentHub { get; set; } = default!;
-        [Inject] AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-        [Inject] NavigationManager Nav { get; set; } = default!;
-        [Inject] IJSRuntime Js { get; set; } = default!;
+        [Inject] private HttpClient Http { get; set; } = default!;
+
+        [Inject] private ApplicationDataService MyData { get; set; } = default!;
+
+        [Inject] private StudentHubService StudentHub { get; set; } = default!;
+
+        [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+        [Inject] private NavigationManager Nav { get; set; } = default!;
+
+        [Inject] private IJSRuntime Js { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
 
 
@@ -81,24 +89,32 @@ namespace Hutech.Exam.Client.Pages.Exam
         }
         protected override async Task OnInitializedAsync()
         {
-            //xác thực người dùng
-            var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-            var token = await customAuthStateProvider.GetToken();
-            if (!string.IsNullOrWhiteSpace(token))
-                Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-            else
-                Nav?.NavigateTo("/");
-            await CheckPage();
-            await base.OnInitializedAsync();
+            try
+            {
+                //xác thực người dùng
+                var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+                var token = await customAuthStateProvider.GetToken();
+                if (!string.IsNullOrWhiteSpace(token))
+                    Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                else
+                    Nav?.NavigateTo("/");
+                await CheckPage();
+                await base.OnInitializedAsync();
+            }
+            catch(Exception)
+            {
+                Snackbar.Add("Hệ thống server đang gặp sự cố. Vui lòng liên hệ người giám sát", Severity.Error);
+            }
         }
-        //protected override async Task OnAfterRenderAsync(bool firstRender)
-        //{
-        //    if (firstRender)
-        //    {
-        //        _objRef = DotNetObjectReference.Create(this);
-        //        await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
-        //    }
-        //}
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                _objRef = DotNetObjectReference.Create(this);
+                await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
+            }
+        }
 
         protected override void OnParametersSet() => _shouldRender = true;
 

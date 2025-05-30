@@ -9,6 +9,10 @@ namespace Hutech.Exam.Shared.DTO
 {
     public class LopAoDto
     {
+        public LopAoDto()
+        {
+        }
+
         public int MaLopAo { get; set; }
 
         public string? TenLopAo { get; set; }
@@ -23,7 +27,27 @@ namespace Hutech.Exam.Shared.DTO
 
         public override string ToString()
         {
-            return TenLopAo ?? "Không tồn tại tên lớp ảo";
+            return TenLopAo ?? "Không tồn tại tên phòng thi";
+        }
+
+        public LopAoDto(int maLopAo, string? tenLopAo, DateTime? ngayBatDau, int? maMonHoc, ICollection<ChiTietDotThiDto> chiTietDotThis, MonHocDto? maMonHocNavigation)
+        {
+            MaLopAo = maLopAo;
+            TenLopAo = tenLopAo;
+            NgayBatDau = ngayBatDau;
+            MaMonHoc = maMonHoc;
+            ChiTietDotThis = chiTietDotThis;
+            MaMonHocNavigation = maMonHocNavigation;
+        }
+
+        public LopAoDto(LopAoDto other)
+        {
+            MaLopAo = other.MaLopAo;
+            TenLopAo = other.TenLopAo;
+            NgayBatDau = other.NgayBatDau;
+            MaMonHoc = other.MaMonHoc;
+            ChiTietDotThis = other.ChiTietDotThis;
+            MaMonHocNavigation = other.MaMonHocNavigation;
         }
     }
 }

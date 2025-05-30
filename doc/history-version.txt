@@ -138,6 +138,10 @@
 - Chưa tìm được giải pháp phù hợp để encode các id trong API (chưa xóa IHashHelper --- cần xử lí lại)
 - Đang trong quá trình thay đổi từ thuần data sang các APIReponse<TData>
 -------------------------------------------------
-28/5/2025 ^6PM
+28/5/2025 6PM
 - Đang xử lí chuyển đổi thuần data sang các APIResponse<TData>
 - TODO: tiếp tục xử lí cho xong chuyển đổi cả server lẫn client
+---------------------------------------------------
+30/5/2025 6PM
+- Đã hoàn thành chuyển đổi từ thuần data sang các APIResponse<TData> cho client với ISenderAPI
+- TODO: tiếp tục viết các store procedure phân trang cho các trang admin

@@ -106,29 +106,17 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public (List<bool>,int, double) GetDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
+        public void UpdateDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
         {
-            var ketQuaList = new List<bool>(dapAns.Count);
-            int soCauDung = 0;
 
             foreach (var (cauSo, dapAn) in dapAns)
             {
-                bool ketQua = false;
 
                 if (chiTietBaiThis.TryGetValue(cauSo, out var chiTiet))
                 {
-                    ketQua = (dapAn == chiTiet.CauTraLoi);
-                    chiTiet.KetQua = ketQua;
+                    chiTiet.KetQua = (dapAn == chiTiet.CauTraLoi);
                 }
-
-                if (ketQua)
-                    soCauDung++;
-
-                ketQuaList.Add(ketQua);
             }
-
-            double diem = TinhDem(ketQuaList.Count, soCauDung);
-            return (ketQuaList, soCauDung, diem);
         }
 
 
@@ -147,7 +135,9 @@ namespace Hutech.Exam.Server.BUS
                 }
 
                 if (ketQua)
+                {
                     soCauDung++;
+                }    
 
                 ketQuaList.Add(ketQua);
             }
