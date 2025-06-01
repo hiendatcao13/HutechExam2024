@@ -31,6 +31,8 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
 
 
         // các biến binding cho UI
@@ -55,7 +57,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private System.Timers.Timer? _timer;
 
-        private Dictionary<int, ChiTietBaiThiUpdate> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
+        private Dictionary<int, ChiTietBaiThiRequest> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
 
         private int _thuTuTraLoi = 0; // thứ tự trả lời câu hỏi cho sv
 
@@ -65,8 +67,6 @@ namespace Hutech.Exam.Client.Pages.Exam
 
 
         const string SUBMIT_MESSAGE = "Bạn có chắc chắn muốn nộp bài?";
-        const string ERROR_FETCH_DETHI = "Không thể lấy đề thi. Vui lòng kiểm tra SV đã có đề thi chưa hoặc hệ thống lỗi";
-        const string ERROR_FETCH_BAILAM = "Không thể lấy bài làm trước hoặc hệ thống lỗi";
         const string DONG_BANG_CA_THI = "Quản trị viên đang tạm thời dừng ca thi này. Thí sinh vui lòng chờ trong giây lát";
         const string RESET_LOGIN = "Quản trị viên đã tạm thời đăng xuất bạn khỏi ca thi này. Vui lòng đăng nhập lại để tiếp tục thi";
         const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
@@ -242,12 +242,13 @@ namespace Hutech.Exam.Client.Pages.Exam
             if (!_dsThiSinhDaKhoanh.ContainsKey(deThi.MaCauHoi))
             {
                 chiTietBai = new(-1, ChiTietCaThi.MaChiTietCaThi, ChiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++_thuTuTraLoi);
-                _dsThiSinhDaKhoanh[deThi.MaCauHoi] = new(ma_cau_tra_loi ?? -1, _thuTuTraLoi, DateTime.Now);
             }
             else
             {
                 chiTietBai = new(-1, ChiTietCaThi.MaChiTietCaThi, ChiTietCaThi.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, _dsThiSinhDaKhoanh[deThi.MaCauHoi].NgayTao, DateTime.Now, null, _dsThiSinhDaKhoanh[deThi.MaCauHoi].ThuTu);
             }
+
+            _dsThiSinhDaKhoanh[deThi.MaCauHoi] = chiTietBai;
             //gửi bài cho server qua signalR
             await StudentHub.SendMessageChiTietBaiThi(chiTietBai);
         }
@@ -263,20 +264,6 @@ namespace Hutech.Exam.Client.Pages.Exam
         {
             await Js.InvokeVoidAsync("window.focusWatcher.dispose");
             _timer?.Dispose();
-        }
-    }
-    //TODO: Nên xét theo dictionary cho nhanh thay vì List đổi lại DIctionary<mã câu hỏi, ChiTietBaiThiUpdate>
-    public class ChiTietBaiThiUpdate
-    {
-        public int CauTraLoi { get; set; }
-        public int ThuTu { get; set; }
-        public DateTime NgayTao { get; set; }
-
-        public ChiTietBaiThiUpdate(int cauTraLoi, int thuTu, DateTime ngayTao)
-        {
-            CauTraLoi = cauTraLoi;
-            ThuTu = thuTu;
-            NgayTao = ngayTao;
         }
     }
 

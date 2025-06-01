@@ -4,6 +4,7 @@ using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.CaThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -73,11 +74,18 @@ namespace Hutech.Exam.Server.Controllers
 
         }
 
-        [HttpGet("filter-by-chitietdotthi")]
-        public async Task<ActionResult<List<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi([FromQuery] int maChiTietDotThi)
+        [HttpGet("filter-by-chitietdotthi-paged")]
+        public async Task<ActionResult<CaThiPage>> SelectBy_ma_chi_tiet_dot_thi_Paged([FromQuery] int maChiTietDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi(maChiTietDotThi);
-            return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
+            var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Paged(maChiTietDotThi, pageNumber, pageSize);
+            return Ok(APIResponse<CaThiPage>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
+        }
+
+        [HttpGet("filter-by-chitietdotthi-search-paged")]
+        public async Task<ActionResult<CaThiPage>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged([FromQuery] int maChiTietDotThi, [FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Search_Paged(maChiTietDotThi, keyword, pageNumber, pageSize);
+            return Ok(APIResponse<CaThiPage>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
         //////////////////PUT///////////////////////////

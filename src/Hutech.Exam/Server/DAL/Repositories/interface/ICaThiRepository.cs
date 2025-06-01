@@ -6,6 +6,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi);
 
+        public Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize);
+
+        public Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize);
+
         public Task<IDataReader> SelectOne(int ma_ca_thi);
 
         public Task<IDataReader> GetAll();

@@ -37,7 +37,15 @@ namespace Hutech.Exam.Client.Pages.Exam
             var DsKhoanh = DSKhoanhDapAn.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
             await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
 
+            // lưu dự phòng ở đây
+            await SaveData(DsKhoanh);
             Nav?.NavigateTo("/result");
+        }
+
+        public async Task SaveData(Dictionary<int, int?> dsKhoanh)
+        {
+            var selectData = new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh };
+            await SessionStorage.SetItemAsync("SubmitRequest", selectData);
         }
     }
 }

@@ -145,3 +145,7 @@
 30/5/2025 6PM
 - Đã hoàn thành chuyển đổi từ thuần data sang các APIResponse<TData> cho client với ISenderAPI
 - TODO: tiếp tục viết các store procedure phân trang cho các trang admin
+--------------------------------------------------
+01/06/2025 11PM
+- Đã hoàn thiện lại trang manage ca thi (phân trang, tinhtrangcathidialog)
+- TODO: tiếp tục xử lí nghiệp vụ tệ nhất trong TH thí sinh mất bài trong redis

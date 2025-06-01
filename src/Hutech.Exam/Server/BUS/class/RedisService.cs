@@ -159,6 +159,17 @@ namespace Hutech.Exam.Server.BUS
                 if (data.Count != length)
                 {
                     submitRequest.SoLanFail++; // tăng số lần bị fail
+
+                    if(submitRequest.SoLanFail == 3)
+                    {
+                        await NotifySVFailedCacheRedis(submitRequest.MaSinhVien);
+
+                        // xóa dữ liệu khi đã lưu xong thành công
+                        await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{submitRequest.MaChiTietCaThi}");
+                        return;
+                    }    
+
+
                     _logger.LogWarning("[Redis] Data count mismatch: {dataCount} vs {dapAnsCount} of maSV {maSV}", data.Count, length, submitRequest.MaSinhVien);
                     throw new Exception();
                 }
@@ -234,6 +245,13 @@ namespace Hutech.Exam.Server.BUS
                 _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
                 return [];
             }
+        }
+
+        // hàm hỗ trợ cho việc redis cache dữ liệu bị thiếu sót hoặc có vấn đề xảy ra khi vượt quá số lần bị fail
+        private async Task NotifySVFailedCacheRedis(long ma_sinh_vien)
+        {
+            var connectionId = await GetConnectionIdAsync(ma_sinh_vien);
+            await _sinhVienHub.Clients.Client(connectionId).SendAsync("FailCacheRedis");
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.CaThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
@@ -36,6 +37,7 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CaThiDto>(caThi);
         }
+
         public async Task<List<CaThiDto>> SelectBy_MaDotThi_MaLop_LanThi(int ma_dot_thi, int ma_lop, int lan_thi)
         {
             List<CaThiDto> result = [];
@@ -48,18 +50,55 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<List<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
+
+        public async Task<CaThiPage> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize)
         {
             List<CaThiDto> result = [];
-            using (IDataReader dataReader = await _caThiRepository.SelectBy_ma_chi_tiet_dot_thi(ma_chi_tiet_dot_thi))
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _caThiRepository.SelectBy_ma_chi_tiet_dot_thi_Paged(ma_chi_tiet_dot_thi, pageNumber, pageSize))
             {
                 while (dataReader.Read())
                 {
                     result.Add(GetProperty(dataReader));
                 }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
             }
-            return result;
+            return new CaThiPage { Data = result, TotalPages= tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
+
+        public async Task<CaThiPage> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize)
+        {
+            List<CaThiDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _caThiRepository.SelectBy_ma_chi_tiet_dot_thi_Search_Paged(ma_chi_tiet_dot_thi, keyword, pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    result.Add(GetProperty(dataReader));
+                }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new CaThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+        }
+
         public async Task<CaThiDto> SelectOne(int ma_ca_thi)
         {
             CaThiDto caThi = new();

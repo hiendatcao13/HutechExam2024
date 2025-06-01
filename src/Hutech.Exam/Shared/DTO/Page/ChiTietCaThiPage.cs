@@ -8,7 +8,7 @@ namespace Hutech.Exam.Shared.DTO.Page
 {
     public class ChiTietCaThiPage
     {
-        public List<ChiTietCaThiDto>? Data { get; set; }
+        public List<ChiTietCaThiDto> Data { get; set; } = default!;
         public int TotalRecords { get; set; }
         public int TotalPages { get; set; }
     }

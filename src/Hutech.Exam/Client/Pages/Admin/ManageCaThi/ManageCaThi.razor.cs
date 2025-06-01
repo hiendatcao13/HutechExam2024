@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi.Dialog;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.Models;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 {
@@ -26,6 +27,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+        private ChiTietDotThiDto? chiTietDotThi;
 
         private List<CaThiDto>? caThis;
 
@@ -36,6 +38,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
         private List<LopAoDto>? lopAos; // combobox
 
         private readonly List<int> lanThis = [1, 2, 3, 4, 5];
+
+        private bool isFristRender = false; // biến để tạo fake data
 
 
         protected override async Task OnInitializedAsync()
@@ -55,32 +59,34 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
             await base.OnInitializedAsync();
         }
 
-        private bool Filter(CaThiDto element)
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.TenCaThi != null && RemoveDiacritics(element.TenCaThi).Contains(RemoveDiacritics(searchString), StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (element.MaCaThi.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }
-        // loại bỏ dấu
-        public static string RemoveDiacritics(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return text;
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
 
-            foreach (var c in normalizedString)
+        private async Task FetchAllCaThi()
+        {
+            if (selectedDotThi != null && selectedLopAo != null && selectedLanThi != 0 && selectedMonHoc != null)
             {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                chiTietDotThi = await ChiTietDotThis_SelectBy_MaDotThi_MaLopAo_LanThiAPI(selectedDotThi.MaDotThi, selectedLopAo.MaLopAo, selectedLanThi);
+                if (chiTietDotThi != null)
                 {
-                    stringBuilder.Append(c);
+                    (caThis, totalPages, totalRecords) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(chiTietDotThi.MaChiTietDotThi, currentPage, rowsPerPage);
+                    CreateFakeData();
+
+                    await SetItemsInSessionStorage();
                 }
             }
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+            else
+                caThis = [];
+        }
+
+        private async Task SetItemsInSessionStorage()
+        {
+            var selectedData = new StoredDataMC
+            {
+                DotThi = selectedDotThi,
+                MonHoc = selectedMonHoc,
+                LopAo = selectedLopAo,
+                LanThi = selectedLanThi
+            };
+            await SessionStorage.SetItemAsync("storedDataMC", selectedData);
         }
         private async Task GetItemsInSessionStorage()
         {
@@ -144,6 +150,38 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
             {
                 caThis[index] = caThi;
             }
+        }
+
+        private void CreateFakeData()
+        {
+            if (caThis != null && caThis.Count != 0)
+            {
+                int count_fake = totalRecords - caThis.Count;
+                bool isFake = totalRecords > caThis.Count;
+                if (isFake)
+                {
+                    for (int i = 0; i < count_fake; i++)
+                        caThis.Add(new CaThiDto());
+                }
+            }
+        }
+
+        private void PadEmptyRows(List<CaThiDto>? newCaThi)
+        {
+            if (newCaThi == null || newCaThi.Count == 0)
+                return;
+            // tìm phần tử đầu tiên của trang đó
+            int startRow = currentPage * rowsPerPage;
+            if (caThis != null && caThis.Count != 0)
+            {
+                for (int i = 0; i < newCaThi.Count; i++)
+                {
+
+                    caThis[startRow++] = newCaThi[i];
+                }
+            }
+            StateHasChanged();
+
         }
 
         private async Task OnClickXoaCaThi(int ma_ca_thi)

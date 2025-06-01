@@ -8,21 +8,42 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         public async Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi(int ma_chi_tiet_dot_thi)
         {
-            DatabaseReader sql = new("ca_thi_SelectBy_ma_chi_tiet_dot_thi");
+            DatabaseReader sql = new("ca_thi_SelectBy_ma_chi_tiet_dot_thi_Paged");
             sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
             return await sql.ExecuteReaderAsync();
         }
+        public async Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("ca_thi_SelectBy_ma_chi_tiet_dot_thi_Paged");
+            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
+
+        public async Task<IDataReader> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("ca_thi_SelectBy_ma_chi_tiet_dot_thi_Search_Paged");
+            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
+
         public async Task<IDataReader> SelectOne(int ma_ca_thi)
         {
             DatabaseReader sql = new("ca_thi_SelectOne");
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             return await sql.ExecuteReaderAsync();
         }
+
         public async Task<IDataReader> GetAll()
         {
             DatabaseReader sql = new("ca_thi_GetAll");
             return await sql.ExecuteReaderAsync();
         }
+
         public async Task<int> Activate(int ma_ca_thi, bool IsActivated)
         {
             DatabaseReader sql = new("ca_thi_Activate");
@@ -30,6 +51,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@IsActivated", SqlDbType.Bit, IsActivated);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> HuyKichHoat(int ma_ca_thi)
         {
             DatabaseReader sql = new("ca_thi_HuyKichHoat");

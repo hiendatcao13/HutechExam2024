@@ -131,12 +131,12 @@
 	{
 		if (!string.IsNullOrEmpty(searchString))
 		{
-			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_Search_PagedAPI(caThi?.MaCaThi ?? -1, searchString, currentPage, rowsPerPage) ?? ([], 0, 0);
+			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_Search_PagedAPI(caThi?.MaCaThi ?? -1, searchString, currentPage, rowsPerPage);
 			CreateFakeData();
 		}
 		else
 		{
-			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+			(chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
 			CreateFakeData();
 		}
 		IntializeThoiGianBieu();
@@ -165,7 +165,7 @@
 		this.rowsPerPage = rows;
 		currentPage = 0; // Reset về trang đầu tiên
 
-		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
 		PadEmptyRows(newChiTietCaThis);
 	}
 	private async Task OnCurrentPageChange(int page)
@@ -178,7 +178,7 @@
 			return;
 
 		// chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+		(var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
 		PadEmptyRows(newChiTietCaThis);
 		selectedPages?.Add(currentPage);
 	}

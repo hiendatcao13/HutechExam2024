@@ -10,18 +10,27 @@ using Microsoft.JSInterop;
 using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
 using System.Net.Http.Json;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor : IAsyncDisposable
     {
         [Parameter][SupplyParameterFromQuery] public string? ma_ca_thi { get; set; }
+
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
         [Inject] private IJSRuntime Js { get; set; } = default!;
+
         [Inject] private AdminHubService AdminHub { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
         private CaThiDto? caThi;
         private List<ChiTietCaThiDto>? chiTietCaThis = [];
@@ -154,7 +163,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task Refresh()
         {
             searchString = string.Empty;
-            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
         }
         private async Task OnClickDownloadExcel()
         {
@@ -176,7 +185,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task Start()
         {
             IntializeThoiGianBieu();
-            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage) ?? ([], 0, 0);
+            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
             CreateFakeData();
 
 

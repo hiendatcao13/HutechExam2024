@@ -68,16 +68,31 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> ResetLogin([FromRoute] int id)
         {
-            await NotifyLogOutToSV(id);
-            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
+            // liên quan redis nên tốt nhất là try catch
+            try
+            {
+                await NotifyLogOutToSV(id);
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Cố lỗi khi cố gắng truy cập redis", errorDetails: ex.Message));
+            }
         }
 
         [HttpPatch("{id}/submit-exam")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SubmitExam([FromRoute] int id)
         {
-            await NotifyNopBaiToSV(id);
-            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
+            try
+            {
+                await NotifyNopBaiToSV(id);
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Có lỗi khi cố gắng truy cập vào redis", errorDetails: ex.Message));
+            }
         }
 
         //////////////////DELTE///////////////////////////
