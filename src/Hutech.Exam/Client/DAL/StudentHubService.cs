@@ -50,19 +50,27 @@ namespace Hutech.Exam.Client.DAL
                 await hubConnection.SendAsync("SelectDapAn", chiTietBaiThi);
             }
         }
-        public async Task<Dictionary<int, int>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<int, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                return await hubConnection.InvokeAsync<Dictionary<int, int>>("RequestTiepTucThi", ma_chi_tiet_ca_thi);
+                return await hubConnection.InvokeAsync<Dictionary<int, ChiTietBaiThiRequest>>("RequestTiepTucThi", ma_chi_tiet_ca_thi);
             }
             return [];
         }
         public async Task RequestSubmit(SubmitRequest request)
         {
-            if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
                 await hubConnection.SendAsync("RequestSubmit", request);
+            }
+        }
+
+        public async Task RecoverySubmit(SubmitRequest request)
+        {
+            if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("RecoverySubmit", request);
             }
         }
 
@@ -72,6 +80,14 @@ namespace Hutech.Exam.Client.DAL
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
                 await hubConnection.SendAsync("SendListBaiThi", listBaiThis);
+            }
+        }
+
+        public async Task LeaveGroup(int ma_ca_thi)
+        {
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("LeaveGroupMaCaThi", ma_ca_thi);
             }
         }
 

@@ -37,8 +37,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private HubConnection? hubConnection;
 
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
-        private const string SUCCESS_RESETLOGIN = "Reset đăng nhập cho thí sinh thành công";
-        private const string ERROR_RESETLOGIN = "Reset đăng nhập cho thí sinh thất bại";
         private const string SUCCESS_NOPBAI = "Nộp bài của thí sinh thành công";
         private const string ERROR_NOPBAI = "Nộp bài của thí sinh thất bại";
         private const string ALERT_ADDSV = "Thêm thí sinh được dùng cho việc khẩn cấp. Hãy đảm bảo MSSV thí sinh đã tồn tại trong hệ thống";
@@ -228,9 +226,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
         }
 
+
         public async ValueTask DisposeAsync()
         {
-            await AdminHub.DisposeAsync();
+            await AdminHub.DisconnectionAsync();
         }
     }
 }

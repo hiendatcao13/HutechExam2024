@@ -19,7 +19,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             // do nếu NotFound thì tự động tạo mới nên sẽ không có lỗi NotFound ở đây
             var so_lan_nghe = await _audioListenedService.Save(audio);
-            return Ok(APIResponse<int>.SuccessResponse(data: so_lan_nghe, message: ""));
+            return Ok(APIResponse<int?>.SuccessResponse(data: so_lan_nghe, message: ""));
         }
     }
 }

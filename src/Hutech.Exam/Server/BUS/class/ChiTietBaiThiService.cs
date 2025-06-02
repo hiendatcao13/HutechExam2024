@@ -120,21 +120,21 @@ namespace Hutech.Exam.Server.BUS
         }
 
 
-        public (List<bool>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<int, int?> dapAnKhoanhs, Dictionary<int, int> dapAns)
+        public (List<bool?>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<int, int?> dapAnKhoanhs, Dictionary<int, int> dapAns)
         {
-            var ketQuaList = new List<bool>(dapAns.Count);
+            var ketQuaList = new List<bool?>(dapAns.Count);
             int soCauDung = 0;
 
             foreach (var (cauSo, dapAn) in dapAns)
             {
-                bool ketQua = false;
+                bool? ketQua = null;
 
                 if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet))
                 {
                     ketQua = (dapAn == chiTiet);
                 }
 
-                if (ketQua)
+                if (ketQua == true)
                 {
                     soCauDung++;
                 }    

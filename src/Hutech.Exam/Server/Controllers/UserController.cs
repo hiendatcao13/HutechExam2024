@@ -11,9 +11,11 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/users")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class UserController(UserService userService) : Controller
+    public class UserController(UserService userService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
         private readonly UserService _userService = userService;
+
+        private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
         //////////////////CRUD///////////////////////////
 
@@ -25,8 +27,7 @@ namespace Hutech.Exam.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Login([FromBody] UserAuthenticationRequest account)
         {
-            var JwtAuthencationManager = new JwtAuthenticationManager(_userService);
-            var userSession = await JwtAuthencationManager.GenerateJwtToken(account.Username, account.Password);
+            var userSession = await _jwtAuthenticationManager.GenerateJwtTokenAdmin(account.Username, account.Password);
             if (userSession != null && userSession.NavigateUser != null)
             {
                 if (userSession.NavigateUser.IsLockedOut)

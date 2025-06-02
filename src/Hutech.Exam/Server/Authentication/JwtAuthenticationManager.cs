@@ -1,40 +1,25 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared;
-using Hutech.Exam.Shared.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Components;
+using Hutech.Exam.Server.Configurations;
+using Microsoft.Extensions.Options;
 
 namespace Hutech.Exam.Server.Authentication
 {
-    public class JwtAuthenticationManager
+    public class JwtAuthenticationManager(IOptions<JwtConfiguration> jwtConfig, SinhVienService sinhVienService, UserService userService)
     {
 
-        public const string JWT_SECURITY_KEY = "yPkCqn4kSWLtaJwXvN4jGzQRyTZ3gdXkt7FeBJPLLD";
-        public const int JWT_TOKEN_VALIDITY_MINS_SV = 150; // thời gian cho sinh viên giữ token là 2 tiếng rưỡi
-        public const int JWT_TOKEN_VALIDITY_MINS_ADMIN = 1440; // thời gian cho admin giữ token là 1 ngày
+        private readonly JwtConfiguration _jwtConfig = jwtConfig.Value;
 
-        private readonly SinhVienService _sinhVienService;
-        private readonly UserService _userService;
+        private readonly SinhVienService _sinhVienService = sinhVienService;
+        private readonly UserService _userService = userService;
 
-        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-
-        public JwtAuthenticationManager(SinhVienService sinhVienService)
-        {
-            _sinhVienService = sinhVienService;
-            _userService = null!;
-        }
-        //Overloading for admin, monitor
-        public JwtAuthenticationManager(UserService userService)
-        {
-            _userService = userService;
-            _sinhVienService = null!;
-        }
-        public async Task<UserSession?> GenerateJwtToken(string username)
+        public async Task<UserSession?> GenerateJwtTokenSinhVien(string username)
         {
             //username chính là ma_so_sinh_vien
             if (string.IsNullOrEmpty(username))
@@ -48,8 +33,8 @@ namespace Hutech.Exam.Server.Authentication
                 return null;
             }
             /*Tạo JWT token*/
-            var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(JWT_TOKEN_VALIDITY_MINS_SV);
-            var tokenKey = Encoding.ASCII.GetBytes(JWT_SECURITY_KEY);
+            var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(_jwtConfig.TokenValidityMinutes_Student);
+            var tokenKey = Encoding.ASCII.GetBytes(_jwtConfig.SecurityKey);
             var claimsIdentity = new ClaimsIdentity(new List<Claim>
             {
                 // claim lưu là mã sinh viên
@@ -85,7 +70,7 @@ namespace Hutech.Exam.Server.Authentication
             return userSession;
         }
         // Overloading for monitor, admin
-        public async Task<UserSession?> GenerateJwtToken(string username, string password)
+        public async Task<UserSession?> GenerateJwtTokenAdmin(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -110,8 +95,8 @@ namespace Hutech.Exam.Server.Authentication
             //    return null;
             //}
             /*Tạo JWT token*/
-            var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(JWT_TOKEN_VALIDITY_MINS_ADMIN);
-            var tokenKey = Encoding.ASCII.GetBytes(JWT_SECURITY_KEY);
+            var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(_jwtConfig.TokenValidityMinutes_Admin);
+            var tokenKey = Encoding.ASCII.GetBytes(_jwtConfig.SecurityKey);
             var claimsIdentity = new ClaimsIdentity(new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user[0]), // lưu id

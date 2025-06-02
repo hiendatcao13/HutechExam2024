@@ -4,6 +4,7 @@ using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.DotThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,13 @@ namespace Hutech.Exam.Server.Controllers
         {
             return Ok(APIResponse<List<DotThiDto>>.SuccessResponse(data: await _dotThiService.GetAll(), message: "Lấy danh sách đợt thi thành công"));
         }
+
+        [HttpGet]
+        public async Task<ActionResult<DotThiPage>> GetAll_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            return Ok(APIResponse<DotThiPage>.SuccessResponse(data: await _dotThiService.GetAll_Paged(pageNumber, pageSize), message: "Lấy danh sách đợt thi thành công"));
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DotThiDto>> SelectOne([FromRoute] int id)

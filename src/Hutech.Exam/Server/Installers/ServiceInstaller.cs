@@ -33,6 +33,10 @@ namespace Hutech.Exam.Server.Installers
 
             // sử dụng custom lại đề
             services.AddScoped<CustomDeThiService>();
+            services.AddScoped<SubmitService>();
+            services.AddScoped<SelectAnswerService>();
+            services.AddScoped<ExamRecoveryService>();
+            services.AddScoped<RedisService>();
 
         }
     }

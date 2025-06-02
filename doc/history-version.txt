@@ -149,3 +149,7 @@
 01/06/2025 11PM
 - Đã hoàn thiện lại trang manage ca thi (phân trang, tinhtrangcathidialog)
 - TODO: tiếp tục xử lí nghiệp vụ tệ nhất trong TH thí sinh mất bài trong redis
+----------------------------------------------------
+02/06/2025 6PM
+- Đã hoàn thiện quy trình nộp bài và lấy bài thi của sinh viên (đã làm ra trường hợp xấu nhất)
+- TODO: tiếp tục xử lí nghiệp vụ cho trang Organize Exam (đã viết store procedure phân trang)

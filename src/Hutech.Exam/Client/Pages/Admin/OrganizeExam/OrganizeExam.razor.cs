@@ -7,11 +7,9 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.Pages.Admin.OrganizeExam.Dialog;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.Http.Connections;
 using Hutech.Exam.Client.Components.Dialogs;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
-using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Client.API;
 
 namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 {
@@ -23,6 +21,8 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
         [Inject] private AdminHubService AdminHub { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
         private List<DotThiDto>? dotThis = [];
         private List<ChiTietDotThiDto>? chiTietDotThis = [];

@@ -16,7 +16,7 @@ namespace Hutech.Exam.Shared.DTO.API.Response
         public string? Message { get; set; }
 
         [JsonPropertyName("data")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public TData? Data { get; set; }
 
         [JsonPropertyName("statusCode")]

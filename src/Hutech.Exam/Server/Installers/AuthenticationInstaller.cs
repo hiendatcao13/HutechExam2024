@@ -1,5 +1,6 @@
 ﻿
 using Hutech.Exam.Server.Authentication;
+using Hutech.Exam.Server.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -10,6 +11,14 @@ namespace Hutech.Exam.Server.Installers
     {
         public void InstallService(IServiceCollection services, IConfiguration configuration)
         {
+            // Đăng ký cấu hình JWT từ appsettings.json
+            var jwtConfig = configuration.GetSection("JwtConfiguration").Get<JwtConfiguration>();
+
+            services.Configure<JwtConfiguration>(configuration.GetSection("JwtConfiguration"));
+
+            services.AddScoped<JwtAuthenticationManager>();
+
+
             services.AddAuthentication(o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -21,7 +30,7 @@ namespace Hutech.Exam.Server.Installers
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(JwtAuthenticationManager.JWT_SECURITY_KEY)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtConfig?.SecurityKey ?? "")),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

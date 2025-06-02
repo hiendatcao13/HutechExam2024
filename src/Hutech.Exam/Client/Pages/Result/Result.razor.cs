@@ -12,6 +12,8 @@ using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using AutoMapper;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.Custom;
 
 namespace Hutech.Exam.Client.Pages.Result
 {
@@ -29,6 +31,8 @@ namespace Hutech.Exam.Client.Pages.Result
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
 
         // biến binding với UI
         private Canvas2DContext? Context { get; set; }
@@ -45,7 +49,7 @@ namespace Hutech.Exam.Client.Pages.Result
 
         // biến cục bộ
 
-        private List<bool> ketQuaDapAn = [];
+        private List<bool?> ketQuaDapAn = [];
         private double diem = 0;
         private int so_cau_dung;
         private HubConnection? hubConnection;
@@ -140,7 +144,17 @@ namespace Hutech.Exam.Client.Pages.Result
                 await HandleDangXuat();
             });
 
-            hubConnection.On<List<bool>, int, double>("DeliverDapAn", async (dapAns, so_cau_dung, diem) =>
+            hubConnection.On("RequestRecoverySubmit", async () =>
+            {
+                Console.Write("Recoverrrrrrrrrrrrrrry here");
+                var storedData = await GetData();
+                if(storedData != null)
+                {
+                    await StudentHub.RecoverySubmit(storedData);
+                }    
+            });
+
+            hubConnection.On<List<bool?>, int, double>("DeliverDapAn", async (dapAns, so_cau_dung, diem) =>
             {
                 if(!isShow) // chỉ nhận cho lần đầu
                 {
@@ -170,6 +184,11 @@ namespace Hutech.Exam.Client.Pages.Result
             }
             string text = diem + ".0";
             await Context.FillTextAsync(text.ToString(), 5, 35);
+        }
+
+        private async Task<SubmitRequest?> GetData()
+        {
+            return await SessionStorage.GetItemAsync<SubmitRequest?>("SubmitRequest");
         }
     }
 }

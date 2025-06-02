@@ -14,7 +14,7 @@ namespace Hutech.Exam.Shared.DTO.Request.Custom
         {
         }
 
-        public SubmitRequest(long maSinhVien, int maChiTietCaThi, long maDeThiHoanVi, Dictionary<int, int?> dapAnKhoanhs, DateTime thoiGianNopBai, bool isLanDau = false, int soLanFail = 0, Dictionary<int, ChiTietBaiThiRequest>? dsDapAnDuPhong = null)
+        public SubmitRequest(long maSinhVien, int maChiTietCaThi, long maDeThiHoanVi, Dictionary<int, int?> dapAnKhoanhs, DateTime thoiGianNopBai, bool isLanDau = true, bool isRecoverySubmit = false, Dictionary<int, ChiTietBaiThiRequest>? dsDapAnDuPhong = null)
         {
             MaSinhVien = maSinhVien;
             MaChiTietCaThi = maChiTietCaThi;
@@ -22,8 +22,8 @@ namespace Hutech.Exam.Shared.DTO.Request.Custom
             DapAnKhoanhs = dapAnKhoanhs;
             ThoiGianNopBai = thoiGianNopBai;
             IsLanDau = isLanDau;
-            SoLanFail = soLanFail;
             DsDapAnDuPhong = dsDapAnDuPhong;
+            IsRecoverySubmit = isRecoverySubmit;
         }
 
         [Key(0)] 
@@ -42,13 +42,12 @@ namespace Hutech.Exam.Shared.DTO.Request.Custom
         public DateTime ThoiGianNopBai { get; set; } = DateTime.Now;
 
         [Key(5)]
-        public bool IsLanDau { get; set; } = false; // đánh dấu là đã gửi kết quả cho sinh viên rồi
+        public bool IsLanDau { get; set; } = true; // đánh dấu là đã gửi kết quả cho sinh viên rồi
 
         [Key(6)]
-        public int SoLanFail { get; set; } = 0; // số lần bị đẩy vào hàng đợi lại
-
-        [Key(7)]
         public Dictionary<int, ChiTietBaiThiRequest>? DsDapAnDuPhong { get; set; } = null; // chỉ có mặt khi số lần gửi thất bại của thí sinh quá nhiều
 
+        [Key(7)]
+        public bool IsRecoverySubmit { get; set; } = false; // đánh dấu là lần gửi này là có data dữ liệu sinh viên khoanh trước đó
     }
 }

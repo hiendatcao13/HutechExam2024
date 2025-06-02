@@ -37,7 +37,7 @@ namespace Hutech.Exam.Server.Controllers
             // Lưu vào cache
             await _cacheService.SetCacheResponseAsync(cacheKey, cachedData, TimeSpan.FromMinutes(150));
 
-            return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: cachedData, message: "Lấy đề thi thành công"));
+            return Ok(await _customDeThiService.GetDeThi(id));
         }
 
         [HttpGet("{id}/dap-an")]

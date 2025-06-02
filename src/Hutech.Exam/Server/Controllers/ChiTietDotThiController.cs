@@ -4,6 +4,7 @@ using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.ChiTietDotThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +60,13 @@ namespace Hutech.Exam.Server.Controllers
         {
             return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
+
+        [HttpGet("filter-by-dotthi-paged")]
+        public async Task<ActionResult<ChiTietDotThiPage>> SelectBy_MaDotThi_Paged([FromQuery] int maDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            return Ok(APIResponse<ChiTietDotThiPage>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_Paged(maDotThi, pageNumber, pageSize), message: "Lấy danh sách chi tiết đợt thi thành công"));
+        }
+
 
         [HttpGet("filter-by-dotthi-lopao")]
         public async Task<ActionResult<List<ChiTietDotThiDto>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo)

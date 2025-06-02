@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.ChiTietDotThi;
 using Hutech.Exam.Shared.Models;
 using System.Collections.Generic;
@@ -46,6 +47,34 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
+
+        public async Task<ChiTietDotThiPage> SelectBy_MaDotThi_Paged(int ma_dot_thi, int pageNumber, int pageSize)
+        {
+            List<ChiTietDotThiDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi))
+            {
+                while (dataReader.Read())
+                {
+                    ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
+                    chiTietDotThi.MaLopAoNavigation = _lopAoService.GetProperty(dataReader, COLUMN_LENGTH);
+                    chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocService.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
+                    result.Add(chiTietDotThi);
+                }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new ChiTietDotThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+        }
+
         public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
         {
             List<ChiTietDotThiDto> list = [];
@@ -60,6 +89,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
+
         public async Task<ChiTietDotThiDto> SelectBy_MaDotThi_MaLopAo_LanThi(int ma_dot_thi, int ma_lop_ao, int lan_thi)
         {
             ChiTietDotThiDto chiTietDotThi = new();

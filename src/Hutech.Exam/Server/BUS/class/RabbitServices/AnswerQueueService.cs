@@ -4,9 +4,9 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 namespace Hutech.Exam.Server.BUS.RabbitServices
 {
-    public class AnswerQueueService(IOptions<RabbitMQConfiguration> config, RedisService redisService) : RabbitMQService(config.Value.UserName, config.Value.Password, config.Value.HostName, config.Value.QueueName)
+    public class AnswerQueueService(IOptions<RabbitMQConfiguration> config, SelectAnswerService selectAnswerService) : RabbitMQService(config.Value.UserName, config.Value.Password, config.Value.HostName, config.Value.QueueName)
     {
-        private readonly RedisService _redisService = redisService;
+        private readonly SelectAnswerService _selectAnswerService = selectAnswerService;
 
         // Publish a message to the queue
         public override async Task PublishMessageAsync(byte[] message)
@@ -93,7 +93,7 @@ namespace Hutech.Exam.Server.BUS.RabbitServices
         {
             try
             {
-                await _redisService.SetChiTietBaiLamAsync(message);
+                await _selectAnswerService.SetChiTietBaiLamAsync(message);
             }
             catch(Exception ex)
             {

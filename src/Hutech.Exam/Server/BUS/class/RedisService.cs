@@ -1,24 +1,15 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.Hubs;
-using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request;
-using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
-using Hutech.Exam.Shared.DTO.Request.Custom;
-using Hutech.Exam.Shared.Models;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(ChiTietBaiThiService chiTietBaiThiService, DeThiHoanViService deThiHoanViService, ChiTietCaThiService chiTietCaThiService, IResponseCacheService cacheService, IHubContext<SinhVienHub> sinhVienHub, IHubContext<AdminHub> adminHub, ILogger<RedisService> logger, IMapper mapper)
+    public class RedisService(DeThiHoanViService deThiHoanViService, IResponseCacheService cacheService, ILogger<RedisService> logger)
     {
-        private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
-        private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
-        private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
-        private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly IResponseCacheService _cacheService = cacheService;
-        private readonly IMapper _mapper = mapper;
 
         private readonly ILogger _logger = logger;
         public async Task SetConnectionIdAsync(long ma_sinh_vien, string connectionId)
@@ -33,6 +24,7 @@ namespace Hutech.Exam.Server.BUS
                 _logger.LogError("[Redis] Error setting connectionId: {message}", ex.Message);
             }
         }
+
         public async Task<string> GetConnectionIdAsync(long ma_sinh_vien)
         {
             try
@@ -48,148 +40,78 @@ namespace Hutech.Exam.Server.BUS
                 return string.Empty;
             }
         }
-        // lấy bài thi từ RabbitMQ và lưu vào Redis
-        public async Task SetChiTietBaiLamAsync(byte[] message)
+
+        public async Task SetFailSubmitAsync(int ma_chi_tiet_ca_thi, int so_lan_fail)
         {
             try
             {
-                if (message == null || message.Length == 0)
-                {
-                    _logger.LogError("[Redis] Received empty or null message.");
-                    throw new ArgumentException("Message cannot be null or empty.");
-                }
-
-                // Deserialize vào đối tượng chiTietBaiThi
-                var chiTietBaiThi = MessagePackSerializer.Deserialize<ChiTietBaiThiRequest>(message);
-
-                if (chiTietBaiThi == null)
-                {
-                    _logger.LogError("[Redis] Error deserializing message: {Message}", message);
-                    throw new Exception("Error deserializing message.");
-                }
-
-
-                var cacheKey = $"ChiTietBaiThi:{chiTietBaiThi.MaChiTietCaThi}";
-
-                // Lưu chuỗi JSON vào Redis với TTL 180 phút
-                await _cacheService.SetHashAsync(cacheKey, chiTietBaiThi.MaCauHoi + "", chiTietBaiThi, TimeSpan.FromMinutes(180));
+                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
+                await _cacheService.SetCacheResponseAsync(cacheKey, so_lan_fail, TimeSpan.FromMinutes(150));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while processing the message.");
-                throw; // ném ngoại lệ để rabbitMQ bắt và đẩy thông điệp vào hàng đợi
+                _logger.LogError("[Redis] Error setting failsubmit: {message}", ex.Message);
             }
         }
-        // dành cho thí sinh tiếp tục thi khi bị treo máy
-        public async Task<Dictionary<int, int>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
+
+        public async Task<int> GetFailSubmitAsync(int ma_chi_tiet_ca_thi)
         {
             try
             {
-                var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
-                var cacheData = await _cacheService.GetAllFieldsFromHashAsync<int, ChiTietBaiThiRequest>(cacheKey); // key: field, value: byte[]
+                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
+                var cacheData = await _cacheService.GetCacheResponseAsync<int>(cacheKey);
 
-                if (cacheData == null || cacheData.Count == 0)
-                {
-                    _logger.LogWarning("[Redis] No data found for key: {Key}", cacheKey);
-                    return [];
-                }
-
-                var data = cacheData.Values.ToList();
-
-                if (data.Count == 0)
-                {
-                    _logger.LogWarning("[Redis] No data.");
-                    return [];
-                }
-
-                return _chiTietBaiThiService.GetDapAnKhoanh_SelectByListCTBT(data);
+                return cacheData;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving ChiTietBaiThi.");
-                return [];
+                _logger.LogError("[Redis] Error retrieving failsubmit: {message}", ex.Message);
+                return 0;
             }
         }
-        // dành cho thí sinh lúc nộp bài thi
-        public async Task HandleSubmit(byte[] message)
+        public async Task RemoveSubmitAsync(int ma_chi_tiet_ca_thi)
         {
             try
             {
-                SubmitRequest submitRequest = MessagePackSerializer.Deserialize<SubmitRequest>(message);
-
-                Dictionary<int, int> dapAns = await GetDapAnAsync(submitRequest.MaDeThiHoanVi);
-
-                if(submitRequest.IsLanDau) // chỉ thực hiện cho lần đầu
-                {
-                    // xử lí chỉ trả ds đúng sai và gửi đáp án cho sinh viên về ngay
-                    (List<bool> listDungSai, int so_cau_dung, double diem) = _chiTietBaiThiService.GetDungSai_SelectBy_DapAnKhoanh(submitRequest.DapAnKhoanhs, dapAns);
-
-                    _logger.LogInformation("SVma: {ma_sinh_vien} has score {diem}, total right answers {so_cau_dung} on {tong_so_cau}", submitRequest.MaSinhVien, diem, so_cau_dung, dapAns.Count);
-
-                    // gửi thông điệp cho thí sinh
-                    var connectionId = await GetConnectionIdAsync(submitRequest.MaSinhVien);
-
-                    if (!string.IsNullOrEmpty(connectionId))
-                    {
-                        await _sinhVienHub.Clients.Client(connectionId).SendAsync("DeliverDapAn", listDungSai, so_cau_dung, diem);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("[Redis] No connectionId found for ma_sinh_vien: {ma_sinh_vien}", submitRequest.MaSinhVien);
-                    }
-
-                    // tiến hành lưu đáp án vào database
-                    var chiTietCaThiUpdateKTThiRequest = new ChiTietCaThiUpdateKTThiRequest { ThoiGianKetThuc = submitRequest.ThoiGianNopBai, Diem = diem, SoCauDung = so_cau_dung, TongSoCau = listDungSai.Count };
-                    await _chiTietCaThiService.UpdateKetThuc(submitRequest.MaChiTietCaThi, chiTietCaThiUpdateKTThiRequest);
-
-                    // thông báo cho người giám sát thí sinh đã nộp bài
-                    await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai);
-
-                    submitRequest.IsLanDau = false;
-                }    
-
-                //////////////////////////////////Xử lí cho background nền lưu bài\\\\\\\\\\\\\\\\\\\\\\\
-
-                // lấy toàn bộ bài thi của sinh viên từ Redis
-                Dictionary<int, ChiTietBaiThiRequest> data = await GetChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
-
-                int length = submitRequest.DapAnKhoanhs.Count(p => p.Value != null);
-                // Kiểm tra xem số lượng bài trong Redis nhận đủ hay chưa, nếu chưa nhận đủ thì throw để vào hàng đợi lại (cơ chế FIFO, nó đứng cuối hàng đợi lại)
-                // Trường hợp may thì được xử lí ngay tại chỗ
-                if (data.Count != length)
-                {
-                    submitRequest.SoLanFail++; // tăng số lần bị fail
-
-                    if(submitRequest.SoLanFail == 3)
-                    {
-                        await NotifySVFailedCacheRedis(submitRequest.MaSinhVien);
-
-                        // xóa dữ liệu khi đã lưu xong thành công
-                        await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{submitRequest.MaChiTietCaThi}");
-                        return;
-                    }    
-
-
-                    _logger.LogWarning("[Redis] Data count mismatch: {dataCount} vs {dapAnsCount} of maSV {maSV}", data.Count, length, submitRequest.MaSinhVien);
-                    throw new Exception();
-                }
-
-                //cập nhật đúng sai cho từng câu
-                _chiTietBaiThiService.UpdateDungSai_SelectByListCTBT_DapAn(data, dapAns);
-
-                // tiến hành lưu vào database TVP chiTietBaiThi
-                await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(data.Values.ToList()));
-
-                // xóa dữ liệu khi đã lưu xong thành công
-                await _cacheService.RemoveCacheResponseAsync($"ChiTietBaiThi:{submitRequest.MaChiTietCaThi}");
-
+                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
+                await _cacheService.RemoveCacheResponseAsync(cacheKey);
             }
-            catch (Exception ex) // có thể catch SqlException ở đây
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving ChiTietBaiThi.");
-                throw; // ném ra để rabbitMQ đẩy lại vào hàng đợi, xử lí lại
+                _logger.LogError("[Redis] Error removing failsubmit: {message}", ex.Message);
             }
         }
+
+        public async Task RemoveCacheAsync(string key)
+        {
+            await _cacheService.RemoveCacheResponseAsync(key);
+        }
+
+        public async Task SetHashAsync(string key, string field, object value, TimeSpan? expiration = null)
+        {
+            try
+            {
+                await _cacheService.SetHashAsync(key, field, value, expiration);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("[Redis] Error setting hash: {message}", ex.Message);
+            }
+        }
+
+        public async Task<Dictionary<int, TData>?> GetHashAsync<TData>(string key)
+        {
+            try
+            {
+                return await _cacheService.GetAllFieldsFromHashAsync<int,TData>(key);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("[Redis] Error getting hash: {message}", ex.Message);
+                return default;
+            }
+        }
+
         public async Task<Dictionary<int, ChiTietBaiThiRequest>> GetChiTietBaiThiAsync(int ma_chi_tiet_ca_thi)
         {
             try
@@ -218,6 +140,33 @@ namespace Hutech.Exam.Server.BUS
                 return [];
             }
         }
+
+        public async Task SetChiTietBaiThi(int key, ChiTietBaiThiRequest value, int ma_chi_tiet_ca_thi)
+        {
+            try
+            {
+                var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
+                await _cacheService.SetHashAsync(cacheKey, key.ToString(), value, TimeSpan.FromMinutes(180));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[Redis] An error occurred while setting ChiTietBaiThi.");
+            }
+        }
+
+        public async Task RemoveChiTietBaiThiAsync(int ma_chi_tiet_tiet_ca_thi)
+        {
+            try
+            {
+                var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_tiet_ca_thi}";
+                await _cacheService.RemoveCacheResponseAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[Redis] An error occurred while removing ChiTietBaiThi.");
+            }
+        }
+
         public async Task<Dictionary<int, int>> GetDapAnAsync(long maDeHV)
         {
             try
@@ -245,20 +194,6 @@ namespace Hutech.Exam.Server.BUS
                 _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
                 return [];
             }
-        }
-
-        // hàm hỗ trợ cho việc redis cache dữ liệu bị thiếu sót hoặc có vấn đề xảy ra khi vượt quá số lần bị fail
-        private async Task NotifySVFailedCacheRedis(long ma_sinh_vien)
-        {
-            var connectionId = await GetConnectionIdAsync(ma_sinh_vien);
-            await _sinhVienHub.Clients.Client(connectionId).SendAsync("FailCacheRedis");
-        }
-
-
-        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
-        {
-            // 0: bắt đầu thi, 1: kết thúc thi
-            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
         }
     }
 }

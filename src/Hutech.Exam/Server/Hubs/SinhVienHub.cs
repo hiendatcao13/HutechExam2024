@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.Hubs
 {
-    public class SinhVienHub(RedisService redisService, AnswerQueueService answerQueueService, SubmitQueueService submitQueueService) : Hub
+    public class SinhVienHub(RedisService redisService, ExamRecoveryService examRecoveryService, AnswerQueueService answerQueueService, SubmitQueueService submitQueueService) : Hub
     {
         private readonly RedisService _redisService = redisService;
+        private readonly ExamRecoveryService _examRecoveryService = examRecoveryService;
         private readonly RabbitMQService _answerQueueService = answerQueueService;
         private readonly RabbitMQService _submitQueueService = submitQueueService;
 
@@ -39,19 +40,28 @@ namespace Hutech.Exam.Server.Hubs
         }
 
         // gửi thông điệp yêu cầu chi tiết bài thi từ Redis
-        public async Task<Dictionary<int, int>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<int, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
         {
-            return await _redisService.GetDapAnKhoanhAsync(ma_chi_tiet_ca_thi);
+            return await _examRecoveryService.GetDapAnKhoanhAsync(ma_chi_tiet_ca_thi);
         }
+
         // gửi thông điệp yêu cầu nộp bài, hãy cho biết bạn là ai (MSV), bạn thi ca nào (chi_tiet_ca_thi), đề thi nào (de_thi_hoan_vi)
         public async Task RequestSubmit(SubmitRequest request)
         {
             byte[] message = MessagePackSerializer.Serialize(request);
+          
             await _submitQueueService.PublishMessageAsync(message);
         }
         public async Task DeliverDapAn(string connectionId, List<bool> dapAns, double diem)
         {
             await Clients.Client(connectionId).SendAsync("DeliverDapAn", dapAns, diem);
+        }
+
+        public async Task RecoverySubmit(SubmitRequest request)
+        {
+            byte[] message = MessagePackSerializer.Serialize(request);
+
+            await _submitQueueService.PublishMessageAsync(message);
         }
         
 

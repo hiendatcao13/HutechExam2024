@@ -20,7 +20,7 @@
 		</MudItem>
 	</MudGrid>
 
-	<MudGrid>
+	<MudGrid Class="noselect">
 		<MudItem xs="12" md="9">
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
 				@if (CustomDeThis != null)
@@ -123,11 +123,21 @@
 <script src="js/exam.js" type="text/javascript"></script>
 
 <style>
+	.mud-main-content {
+		padding: 0;
+	}
 	.nhomCauHoiCha {
 		border: 1px solid;
 		background-color: antiquewhite;
 		border-radius: 5px;
 		padding: 5px;
+	}
+	/*Chống bôi đen văn bản copy*/
+	.noselect {
+		-webkit-user-select: none; /* Safari */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* IE10+/Edge */
+		user-select: none; /* Standard */
 	}
 </style>
 
@@ -183,7 +193,7 @@
 		}
 	};
 
-	// Sửa lỗi cú pháp ở đây
+	// Đổi màu khi thời gian dưới 1 phút
 	window.changeColorTime = () => {
 		const clockElement = document.getElementById("time-clock");
 		clockElement.style.color = "red";
@@ -194,6 +204,28 @@
 		const el = document.getElementById(elementId);
 		if (el) {
 			el.scrollIntoView({ behavior: "smooth", block: "start" });
+		}
+	};
+
+	// Chặn copy văn bản
+	window.antiCopy = {
+		enable: function () {
+			// Chặn chuột phải
+			document.addEventListener('contextmenu', e => e.preventDefault());
+
+			// Chặn tổ hợp phím Ctrl+C, Ctrl+U, PrintScreen...
+			document.addEventListener('keydown', function (e) {
+				if ((e.ctrlKey && ['c', 'u', 's', 'x'].includes(e.key.toLowerCase())) ||
+					e.key === 'PrintScreen') {
+					e.preventDefault();
+				}
+			});
+
+			// Chặn copy
+			document.addEventListener('copy', function (e) {
+				e.preventDefault();
+				alert("Không được phép sao chép nội dung!");
+			});
 		}
 	};
 </script>

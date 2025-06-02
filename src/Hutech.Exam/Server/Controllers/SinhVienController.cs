@@ -14,15 +14,18 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/sinhviens")]
     [ApiController]
     [Authorize]
-    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> adminHub, RedisService redisService) : Controller
+    public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub, RedisService redisService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
         private readonly SinhVienService _sinhVienService = sinhVienService;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
+        private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
 
         private readonly RedisService _redisService = redisService;
 
         private const int SO_PHUT_TOI_THIEU = 150; // số phút tối thiểu sinh viên có thể đăng nhập lần kế tiếp nếu sv quên đăng xuất
+
+        private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
         //////////////////GET///////////////////////////
 
@@ -39,8 +42,7 @@ namespace Hutech.Exam.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserSession>> Verify([FromBody] SinhVienAuthenticationRequest account)
         {
-            var JwtAuthencationManager = new JwtAuthenticationManager(_sinhVienService);
-            var userSession = await JwtAuthencationManager.GenerateJwtToken(account.Username);
+            var userSession = await _jwtAuthenticationManager.GenerateJwtTokenSinhVien(account.Username);
             if (userSession != null && userSession.NavigateSinhVien != null && CheckLogin(userSession.NavigateSinhVien))
             {
                 await UpdateLogin(userSession.NavigateSinhVien.MaSinhVien);
@@ -144,7 +146,7 @@ namespace Hutech.Exam.Server.Controllers
             string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
             if(connectionId != null)
             {
-                await _adminHub.Clients.Client(connectionId).SendAsync("ResetLogin");
+                await _sinhVienHub.Clients.Client(connectionId).SendAsync("ResetLogin");
             }    
         }
 
@@ -153,7 +155,7 @@ namespace Hutech.Exam.Server.Controllers
             string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
             if (connectionId != null)
             {
-                await _adminHub.Clients.Client(connectionId).SendAsync("SubmitExam");
+                await _sinhVienHub.Clients.Client(connectionId).SendAsync("SubmitExam");
             }
         }
     }

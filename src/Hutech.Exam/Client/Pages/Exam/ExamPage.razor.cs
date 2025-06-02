@@ -113,6 +113,8 @@ namespace Hutech.Exam.Client.Pages.Exam
             {
                 _objRef = DotNetObjectReference.Create(this);
                 await Js.InvokeVoidAsync("window.focusWatcher.init", _objRef);
+
+                //await Js.InvokeVoidAsync("window.antiCopy.enable");
             }
         }
 
@@ -136,7 +138,8 @@ namespace Hutech.Exam.Client.Pages.Exam
             Time(); // xử lí countdown
             await CreateHubConnection();
 
-            CustomDeThis = MyData.CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi ?? -1) ?? [];
+            CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi ?? -1) ?? [];
+            Console.WriteLine("Số lượng câu hỏi" + CustomDeThis.Count);
             ModifyNhomCauHoi();
 
             // Nếu đã vào thi trước đó và treo máy tiếp tục thi thì chỉ lấy lại chi tiet bài thi, ko insert
@@ -153,7 +156,8 @@ namespace Hutech.Exam.Client.Pages.Exam
             // xử lí câu đáp án đã khoanh
             foreach (var item in _dsDapAnTiepTucThi)
             {
-                DSKhoanhDapAn[item.Key] = (DSKhoanhDapAn[item.Key].Item1,item.Value);
+                _dsThiSinhDaKhoanh.Add(item.Key, item.Value);
+                DSKhoanhDapAn[item.Key] = (DSKhoanhDapAn[item.Key].Item1,item.Value.CauTraLoi);
             }    
         }
 
@@ -263,6 +267,8 @@ namespace Hutech.Exam.Client.Pages.Exam
         public async ValueTask DisposeAsync()
         {
             await Js.InvokeVoidAsync("window.focusWatcher.dispose");
+
+            await StudentHub.LeaveGroup(CaThi.MaCaThi); // rời khỏi nhóm thi
             _timer?.Dispose();
         }
     }

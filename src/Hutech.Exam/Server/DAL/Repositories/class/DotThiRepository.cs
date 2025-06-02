@@ -10,12 +10,22 @@ namespace Hutech.Exam.Server.DAL.Repositories
             DatabaseReader sql = new("dot_thi_GetAll");
             return await sql.ExecuteReaderAsync();
         }
+
+        public async Task<IDataReader> GetAll_Paged(int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("dot_thi_GetAll_Paged");
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
+
         public async Task<IDataReader> SelectOne(int ma_dot_thi)
         {
             DatabaseReader sql = new("dot_thi_SelectOne");
             sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
             return await sql.ExecuteReaderAsync();
         }
+
         public async Task<object?> Insert(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {
             DatabaseReader sql = new("dot_thi_Insert");
@@ -25,6 +35,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@NamHoc", SqlDbType.Int, nam_hoc);
             return await sql.ExecuteScalarAsync();
         }
+
         public async Task<int> Update(int ma_dot_thi, string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {
             DatabaseReader sql = new("dot_thi_Update");
@@ -35,6 +46,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@NamHoc", SqlDbType.Int, nam_hoc);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> Remove(int ma_dot_thi)
         {
             DatabaseReader sql = new("dot_thi_Remove");

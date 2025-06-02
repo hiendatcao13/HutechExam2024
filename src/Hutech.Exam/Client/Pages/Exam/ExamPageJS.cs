@@ -39,12 +39,14 @@ namespace Hutech.Exam.Client.Pages.Exam
 
             // lưu dự phòng ở đây
             await SaveData(DsKhoanh);
+
             Nav?.NavigateTo("/result");
         }
 
+        // save data cho trường hợp lỗi nặng
         public async Task SaveData(Dictionary<int, int?> dsKhoanh)
         {
-            var selectData = new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh };
+            var selectData = new SubmitRequest { IsLanDau = false, MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh, IsRecoverySubmit = true };
             await SessionStorage.SetItemAsync("SubmitRequest", selectData);
         }
     }

@@ -35,19 +35,22 @@
             </MudNavMenu>
         </MudDrawer>
     }
-    <ErrorBoundary @ref=_errorBoundary Context="errorContent">
-        <ChildContent>
-            <MainLayoutConent>
-                @Body
-            </MainLayoutConent>
-        </ChildContent>
-        <ErrorContent>
-            <MainLayoutConent>
-                @Body
-            </MainLayoutConent>
-            <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
-        </ErrorContent>
-    </ErrorBoundary>
+    <MudMainContent>
+        <ErrorBoundary @ref=_errorBoundary Context="errorContent">
+            <ChildContent>
+                <MainLayoutConent>
+                    @Body
+                </MainLayoutConent>
+            </ChildContent>
+            <ErrorContent>
+                <MainLayoutConent>
+                    @Body
+                </MainLayoutConent>
+                <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
+            </ErrorContent>
+        </ErrorBoundary>
+    </MudMainContent>
+
 </MudLayout>
 
 @code {

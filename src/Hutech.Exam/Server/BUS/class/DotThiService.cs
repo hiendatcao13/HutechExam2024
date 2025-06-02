@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.DotThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
@@ -10,6 +11,7 @@ namespace Hutech.Exam.Server.BUS
     public class DotThiService(IDotThiRepository dotThiRepository, IMapper mapper)
     {
         private readonly IDotThiRepository _dotThiRepository = dotThiRepository;
+
         private readonly IMapper _mapper = mapper;
 
         public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng DotThi
@@ -26,6 +28,7 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<DotThiDto>(dotThi);
         }
+
         public async Task<List<DotThiDto>> GetAll()
         {
             List<DotThiDto> result = [];
@@ -39,6 +42,32 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
+
+        public async Task<DotThiPage> GetAll_Paged(int pageNumber, int pageSize)
+        {
+            List<DotThiDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _dotThiRepository.GetAll_Paged(pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    DotThiDto dotThi = GetProperty(dataReader);
+                    result.Add(dotThi);
+                }
+
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new DotThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+        }
+
         public async Task<DotThiDto> SelectOne(int ma_dot_thi)
         {
             DotThiDto dotThi = new();
@@ -51,14 +80,17 @@ namespace Hutech.Exam.Server.BUS
             }
             return dotThi;
         }
+
         public async Task<int> Insert(DotThiCreateRequest dotThi)
         {
             return Convert.ToInt32(await _dotThiRepository.Insert(dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc) ?? -1);
         }
+
         public async Task<bool> Update(int id, DotThiUpdateRequest dotThi)
         {
             return await _dotThiRepository.Update(id, dotThi.TenDotThi, dotThi.ThoiGianBatDau, dotThi.ThoiGianKetThuc, dotThi.NamHoc) != 0;
         }
+
         public async Task<bool> Remove(int ma_dot_thi)
         {
             return await _dotThiRepository.Remove(ma_dot_thi) != 0;

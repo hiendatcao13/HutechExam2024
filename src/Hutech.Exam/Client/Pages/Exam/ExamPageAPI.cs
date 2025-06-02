@@ -13,8 +13,8 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task<List<CustomDeThi>?> GetDeThiAPI(long ma_de_hoan_vi)
         {
-            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
-            return (response.Success) ? response.Data : null;
+            var response = await Http.GetAsync($"api/dethihoanvis/{ma_de_hoan_vi}");
+            return (response.IsSuccessStatusCode) ? await response.Content.ReadFromJsonAsync<List<CustomDeThi>>() : null;
         }
 
         private async Task<int> GetSoLanNgheAPI(AudioListenedDto audio)

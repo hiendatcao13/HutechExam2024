@@ -15,11 +15,12 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/cathis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> mainHub) : Controller
+    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub ) : Controller
     {
         private readonly CaThiService _caThiService = caThiService;
 
-        private readonly IHubContext<AdminHub> _mainHub = mainHub;
+        private readonly IHubContext<AdminHub> _adminHub = adminHub;
+        private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
 
         //////////////////POST//////////////////////////
 
@@ -240,7 +241,7 @@ namespace Hutech.Exam.Server.Controllers
         //////////////////PRIVATE///////////////////////////
         private async Task NotifyChangeStatusCaThiToSV(int ma_ca_thi)
         {
-            await _mainHub.Clients.Group(ma_ca_thi + "").SendAsync("ChangeStatusCaThi");
+            await _sinhVienHub.Clients.Group(ma_ca_thi + "").SendAsync("ChangeStatusCaThi");
         }
 
         // các admin khác cũng nhận được sự thay đổi của TT ca thi
@@ -248,7 +249,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             // 0: Insert, 1: Update, 2:Delete
             string message = (function == 0) ? "InsertCaThi" : (function == 1) ? "UpdateCaThi" : "DeleteCaThi";
-            await _mainHub.Clients.Group("admin").SendAsync(message, ma_ca_thi);
+            await _adminHub.Clients.Group("admin").SendAsync(message, ma_ca_thi);
         }
     }
 }
