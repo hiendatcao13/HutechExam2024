@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
@@ -37,7 +38,7 @@
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
             <MudItem xs="8">
-                <MudSelect T="DeThiDto" @bind-Value="selectDeThi" Label="Đề thi" Required ReadOnly="true">
+                <MudSelect T="DeThiDto" @bind-Value="selectDeThi" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
                     @if (deThis != null)
                     {
                         foreach (var item in deThis)
@@ -72,14 +73,13 @@
 
     .title-text{
     font-weight: bold;
-    color: darkslateblue;
     }
 </style>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-    [Inject] public HttpClient Http { get; set; } = default!;
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
     [Parameter] public int? MaChiTietDotThi { get; set; }
 
@@ -111,14 +111,6 @@
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
 
-    private const string SUCCESS_ADDCATHI = "Thêm ca thi thành công";
-
-    private const string FAIL_ADDCATHI = "Thêm ca thi thất bại";
-
-    private const string SUCCESS_EDITCATHI = "Sửa ca thi thành công";
-
-    private const string FAIL_EDITCATHI = "Sửa ca thi thất bại";
-
     protected override async Task OnInitializedAsync()
     {
         await HandleInput();
@@ -127,10 +119,10 @@
 
     private async Task HandleInput()
     {
-        deThis = await GetAllDeThiAPI();
+        deThis = new();
         // thêm 1 trường null
-        deThis?.Add(new DeThiDto() {MaDeThi = -1, TenDeThi = "Chưa có mã đề"});
-        selectDeThi = deThis?.FirstOrDefault(p => p.MaDeThi == -1);
+        deThis?.Insert(0, new DeThiDto() {MaDeThi = -1, TenDeThi = "Chưa có mã đề"});
+        selectDeThi = deThis?[0];
         if(IsEdit && CaThi != null){
             ten_ca_thi = CaThi.TenCaThi;
             ngay_thi = CaThi.ThoiGianBatDau;
@@ -161,14 +153,9 @@
             MaDeThi = selectDeThi.MaDeThi, 
             ThoiGianThi = (int)thoi_luong_thi});
         
-        if (result)
+        if (result != null && result.MaCaThi != 0)
         {
-            Snackbar.Add(SUCCESS_ADDCATHI, Severity.Success);
-            MudDialog?.Close();
-        }
-        else
-        {
-            Snackbar.Add(FAIL_ADDCATHI, Severity.Error);
+			MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
@@ -188,60 +175,27 @@
                 MaDeThi = selectDeThi.MaDeThi,
                 ThoiGianThi = (int)thoi_luong_thi
             });
-        if (result)
+        if (result != null && result.MaCaThi != 0)
         {
-            Snackbar.Add(SUCCESS_EDITCATHI, Severity.Success);
-            MudDialog?.Close();
-        }
-        else
-        {
-            Snackbar.Add(FAIL_EDITCATHI, Severity.Error);
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
 
-    private async Task<bool> InsertCaThiAPI(CaThiCreateRequest caThi){
-        var json = JsonSerializer.Serialize(caThi);
-        var response = await Http.PostAsync("api/cathis", new StringContent(json, Encoding.UTF8, "application/json"));
-        return response.IsSuccessStatusCode;
+    private async Task<CaThiDto?> InsertCaThiAPI(CaThiCreateRequest caThi){
+        var response = await SenderAPI.PostAsync<CaThiDto>("api/cathis", caThi);
+        return (response.Success) ? response.Data : null;
     }
 
-    private async Task<bool> UpdateCaThiAPI(int ma_ca_thi, CaThiUpdateRequest caThi){
-        var json = JsonSerializer.Serialize(caThi);
-        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
-        return response.IsSuccessStatusCode;
+    private async Task<CaThiDto?> UpdateCaThiAPI(int ma_ca_thi, CaThiUpdateRequest caThi){
+        var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}", caThi);
+        return (response.Success) ? response.Data : null;
     }
 
     private async Task<DeThiDto?> SelectOneDeThiAPI(int ma_de_thi)
     {
-        var response = await Http.GetAsync($"api/dethis/{ma_de_thi}");
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<DeThiDto?>();
-        }
-        return null;
+        var response = await SenderAPI.GetAsync<DeThiDto>($"api/dethis/{ma_de_thi}");
+        return (response.Success) ? response.Data : null;
     }
 
-    private async Task<List<DeThiDto>?> GetAllDeThiAPI(){
-        var response = await Http.GetAsync("api/dethis");
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<List<DeThiDto>?>();
-        }
-        return null;
-    }
-
-    private CustomCaThi CreateCaThi(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int? ma_de_hv, int thoi_luong_thi)
-    {
-        //(caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
-        return new CustomCaThi
-            {
-                MaCaThi = CaThi?.MaCaThi ?? -1,
-                TenCaThi = ten_ca_thi,
-                MaChiTietDotThi = ma_chi_tiet_dot_thi,
-                ThoiGianBatDau = thoi_gian_bat_dau,
-                MaDeThi = ma_de_hv ?? -1,
-                ThoiGianThi = thoi_luong_thi,
-            };
-    }
 }

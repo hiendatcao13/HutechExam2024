@@ -17,7 +17,7 @@
         </Microsoft.AspNetCore.Components.Forms.InputFile>
         <MudText Color="Color.Success">Số dòng được ghi nhận: @so_dong_ghi_nhan</MudText>
 
-        <MudTextField Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="isMSSVNumber" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number"/>
+        <MudTextField Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="isMSSVNumber" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" />
 
         <MudCheckBox T="bool" Label="MSSV chỉ chứa số" Value="isMMSSVAllNumber" Color="Color.Dark" ValueChanged="OnClickCheckboxAllMSSV" />
         <MudCheckBox T="bool" Label="Bỏ qua lớp" Color="Color.Dark" Value="canNullLop" ValueChanged="OnClickCheckboxNullLop" />
@@ -39,14 +39,14 @@
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
 </style>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
     [Parameter, EditorRequired] public CaThiDto CaThi { get; set; } = default!; // thông tin ca thi
 
@@ -154,12 +154,13 @@
             bool check = MSSVs?.Contains(sinhVien.MaSoSinhVien ?? "") ?? false;
             if (check)
             {
-                if (!isSkipSinhVien){
+                if (!isSkipSinhVien)
+                {
                     flag = false;
                     error_exists.Add($"[{sinhVien.MaSinhVien}]");
                 }
             }
-            if(flag)
+            if (flag)
                 sinhViens.Add(sinhVien);
         }
     }
@@ -355,7 +356,7 @@
         isReadyToSave = false;
         isSkipSinhVien = checkbox;
         // thực chất các dữ liệu đã skip trước đó nhưng nếu không bật thì vẫn là lỗi
-        if(isSkipSinhVien)
+        if (isSkipSinhVien)
         {
             error_exists.Clear();
             error_doubles.Clear();
@@ -369,7 +370,7 @@
         error_length_mssv.Clear();
         error_allnumber_mssv.Clear();
         isReadyToSave = false;
-        if(!isUpload)
+        if (!isUpload)
         {
             return;
         }
@@ -380,8 +381,8 @@
 
     private async Task<List<string>?> MSSVs_SelectBy_MaCaThiAPI(int maCaThi)
     {
-        var response = await SenderAPI.GetAsync<List<SinhVienDto>>($"api/chitietcathis/filter-by-cathi-paged?ma_ca_thi={maCaThi}&pageNumber=1&pageSize=100");
-		return (response.Success) ? response.Data?.Select(x => x.MaSoSinhVien ?? "").ToList() : null;
+        var response = await SenderAPI.GetAsync<List<SinhVienDto>>($"api/chitietcathis/filter-by-cathi-paged?ma_ca_thi={maCaThi}&pageNumber=1&pageSize=200");
+        return (response.Success) ? response.Data?.Select(x => x.MaSoSinhVien ?? "").ToList() : null;
     }
 }
 

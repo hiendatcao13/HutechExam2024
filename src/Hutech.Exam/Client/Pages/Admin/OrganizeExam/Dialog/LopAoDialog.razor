@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
@@ -8,8 +9,8 @@
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
-        <MudTextField Label="Tên phòng thi" Required InputType="InputType.Text" @bind-Value="ten_lop" Placeholder="E1.08-09" />
-        <MudDatePicker Editable="true" Label="Ngày bắt đầu" @bind-Date="ngay_bat_dau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+        <MudTextField Label="Tên phòng thi" Required InputType="InputType.Text" @bind-Value="tempLopAo.TenLopAo" Placeholder="E1.08-09" />
+        <MudDatePicker Editable="true" Label="Ngày bắt đầu" @bind-Date="tempLopAo.NgayBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
@@ -31,22 +32,18 @@
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-    [Inject] public HttpClient Http { get; set; } = default!;
-    [Parameter] public int MaMonHoc { get; set; } = 0;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter][EditorRequired] public int MaMonHoc { get; set; } = 0;
+
     [Parameter] public LopAoDto? LopAo { get; set; }
+
     [Parameter] public bool IsEdit { get; set; } = false;
 
-    private string? ten_lop;
-    private DateTime? ngay_bat_dau;
-
-    // kết quả id mới nhất được tạo ra
-    private int? result_id;
+    private LopAoDto tempLopAo = default!;
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
-    private const string SUCCESS_ADDLOP = "Thêm phòng thi thành công";
-    private const string FAIL_ADDLOP = "Thêm phòng thi thất bại";
-    private const string SUCCESS_EDITLOP = "Sửa phòng thi thành công";
-    private const string FAIL_EDITLOP = "Sửa phòng thi thất bại";
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,9 +54,9 @@
     {
         if (LopAo != null && IsEdit)
         {
-            ten_lop = LopAo.TenLopAo;
-            ngay_bat_dau = LopAo.NgayBatDau;
+            tempLopAo = new LopAoDto(LopAo);
         }
+        tempLopAo = new();
     }
     private void OnClickThoat()
     {
@@ -67,82 +64,52 @@
     }
     private async Task OnClickThem()
     {
-        if (string.IsNullOrEmpty(ten_lop) || ngay_bat_dau == null)
+        if (string.IsNullOrEmpty(tempLopAo.TenLopAo) || tempLopAo.NgayBatDau == null)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
         var result = await InsertLopAoAPI( new LopAoCreateRequest{ 
-            TenLopAo = ten_lop, 
-            NgayBatDau = (DateTime) ngay_bat_dau, 
+                TenLopAo = tempLopAo.TenLopAo,
+                NgayBatDau = (DateTime)tempLopAo.NgayBatDau,
             MaMonHoc = MaMonHoc
         });
 
-        if (result)
+        if (result != null && result.MaLopAo != 0)
         {
-            Snackbar.Add(SUCCESS_ADDLOP, Severity.Success);
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_ADDLOP, Severity.Error);
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
     private async Task OnClickSua()
     {
-        if (string.IsNullOrEmpty(ten_lop) || ngay_bat_dau == null)
+        if (string.IsNullOrEmpty(tempLopAo.TenLopAo) || tempLopAo.NgayBatDau == null)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
         var result = await UpdateLopAoAPI(LopAo?.MaLopAo ?? -1, new LopAoUpdateRequest
             {
-                TenLopAo = ten_lop,
-                NgayBatDau = (DateTime)ngay_bat_dau,
+                TenLopAo = tempLopAo.TenLopAo,
+                NgayBatDau = (DateTime)tempLopAo.NgayBatDau,
                 MaMonHoc = MaMonHoc
             });
 
-        if (result)
+        if (result != null && result.MaLopAo != 0)
         {
-            Snackbar.Add(SUCCESS_EDITLOP, Severity.Success);
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_EDITLOP, Severity.Error);
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
-    private async Task<bool> InsertLopAoAPI(LopAoCreateRequest lopAo)
+    private async Task<LopAoDto?> InsertLopAoAPI(LopAoCreateRequest lopAo)
     {
-        var json = JsonSerializer.Serialize(lopAo);
-        var response = await Http.PostAsync("api/lopaos", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = await response.Content.ReadFromJsonAsync<int?>();
-            return true;
-        }
-        return false;
+        var response = await SenderAPI.PostAsync<LopAoDto>("api/lopaos", lopAo);
+        return (response.Success) ? response.Data : null;
     }
-    private async Task<bool> UpdateLopAoAPI(int ma_lop_ao, LopAoUpdateRequest lopAo)
+
+    private async Task<LopAoDto?> UpdateLopAoAPI(int ma_lop_ao, LopAoUpdateRequest lopAo)
     {
-        var json = JsonSerializer.Serialize(lopAo);
-        var response = await Http.PutAsync($"api/lopaos/{ma_lop_ao}", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = ma_lop_ao;
-            return true;
-        }
-        return false;
+        var response = await SenderAPI.PutAsync<LopAoDto>($"api/lopaos/{ma_lop_ao}", lopAo);
+		return (response.Success) ? response.Data : null;
     }
-    private LopAoDto CreateLopAo(string ten_lop, DateTime ngay_bat_dau)
-    {
-        return new LopAoDto
-            {
-                MaLopAo = LopAo?.MaLopAo ?? 0,
-                TenLopAo = ten_lop,
-                NgayBatDau = ngay_bat_dau,
-                MaMonHoc = MaMonHoc
-            };
-    }
+
 }

@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
@@ -28,7 +29,7 @@
                 </MudButtonGroup>
             </MudItem>
         </MudGrid>
-        
+
         <MudGrid>
             <MudItem xs="9">
                 <MudSelect T="LopAoDto" Label="Phòng thi (theo môn thi)" @bind-Value="selectedLopAo" Clearable="true">
@@ -48,11 +49,11 @@
                 </MudButtonGroup>
             </MudItem>
         </MudGrid>
-        
+
         <MudSelect T="int" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
             @foreach (var item in lanThis)
             {
-                <MudSelectItem Value="item">Lần @item</MudSelectItem>
+                <MudSelectItem Value="item">Lần @item</MudSelectItem>
             }
         </MudSelect>
     </DialogContent>
@@ -74,19 +75,18 @@
     backdrop-filter: blur(10px);
     }
     .tools{
-        align-content: end;
+    align-content: end;
     }
 
     .title-text {
-        font-weight: bold;
-        color: darkslateblue;
+    font-weight: bold;
     }
 </style>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-    [Inject] public HttpClient Http { get; set; } = default!;
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
     [Parameter] public string? TenDotThi { get; set; }
 
@@ -101,25 +101,15 @@
 
     private LopAoDto? selectedLopAo;
 
-    private int selectedLanThi = 0;
+    private int selectedLanThi = 1;
 
     private List<MonHocDto>? monHocs;
 
     private List<LopAoDto>? lopAos;
 
-    private static readonly string[] lanThis = ["1", "2", "3", "4", "5"];
-
-    //trả về id vừa mới được tạo
-    int? result_id;
+    private List<int> lanThis = [1, 2, 3, 4, 5];
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
-
-    private const string SUCCESS_ADDCTDOTTHI = "Thêm chi tiết đợt thi thành công";
-
-    private const string FAIL_ADDCTDOTTHI = "Thêm chi tiết đợt thi thất bại";
-    private const string SUCCESS_EDITCTDOTTHI = "Sửa chi tiết đợt thi thành công";
-
-    private const string FAIL_EDITCTDOTTHI = "Sửa chi tiết đợt thi thất bại";
 
     public void OnClickThoat()
     {
@@ -148,7 +138,7 @@
             selectedMonHoc = ChiTietDotThi?.MaLopAoNavigation.MaMonHocNavigation;
             lopAos = await LopAo_SelectedByMonHocAPI(selectedMonHoc?.MaMonHoc ?? -1);
             selectedLopAo = ChiTietDotThi?.MaLopAoNavigation;
-            selectedLanThi = ChiTietDotThi?.LanThi ?? 0;
+            selectedLanThi = ChiTietDotThi?.LanThi ?? 1;
         }
     }
 
@@ -159,21 +149,16 @@
             return;
         }
 
-        bool result = await InsertCTDTAPI( new ChiTietDotThiCreateRequest { 
+        var result = await InsertCTDTAPI( new ChiTietDotThiCreateRequest { 
             MaDotThi = MaDotThi ?? -1, 
             TenChiTietDotThi = TenDotThi ?? string.Empty, 
             MaLopAo = selectedLopAo.MaLopAo, 
             LanThi = selectedLanThi
         });
 
-        if (result)
+        if (result != null && result.MaChiTietDotThi != 0)
         {
-            Snackbar.Add(SUCCESS_ADDCTDOTTHI, Severity.Success);
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_ADDCTDOTTHI, Severity.Error);
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
@@ -184,7 +169,7 @@
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        bool result = await UpdateCTDTAPI(ChiTietDotThi?.MaChiTietDotThi ?? -1, new ChiTietDotThiUpdateRequest
+        var result = await UpdateCTDTAPI(ChiTietDotThi?.MaChiTietDotThi ?? -1, new ChiTietDotThiUpdateRequest
             {
                 MaDotThi = MaDotThi ?? -1,
                 TenChiTietDotThi = TenDotThi ?? string.Empty,
@@ -192,14 +177,9 @@
                 LanThi = selectedLanThi
             });
 
-        if (result)
+        if (result != null && result.MaChiTietDotThi != 0)
         {
-            Snackbar.Add(SUCCESS_EDITCTDOTTHI, Severity.Success);
-            MudDialog?.Close(DialogResult.Ok(result_id));
-        }
-        else
-        {
-            Snackbar.Add(FAIL_EDITCTDOTTHI, Severity.Error);
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
@@ -208,7 +188,7 @@
         var result = await OpenMonHocDialog(false);
         if(result != null && !result.Canceled && monHocs != null && result.Data != null)
         {
-            var monHoc = await GetMonHocAPI(Convert.ToInt32(result.Data));
+            var monHoc = (MonHocDto)result.Data;
             if(monHoc != null){
                 monHocs.Add(monHoc);
                 selectedMonHoc = monHoc;
@@ -221,12 +201,15 @@
         var result = await OpenMonHocDialog(true);
         if (result != null && !result.Canceled && monHocs != null && result.Data != null)
         {
-            var monHoc = await GetMonHocAPI(Convert.ToInt32(result.Data));
+            var monHoc = (MonHocDto)result.Data;
             if (monHoc != null && selectedMonHoc != null)
             {
-                monHocs.Remove(selectedMonHoc);
-                monHocs.Add(monHoc);
-                selectedMonHoc = monHoc;
+                int index = monHocs.FindIndex(m => m.MaMonHoc == selectedMonHoc.MaMonHoc);
+                if(index != -1)
+                {
+                    monHocs[index] = monHoc;
+                    selectedMonHoc = monHoc;
+                }
             }
         }
     }
@@ -240,7 +223,7 @@
         }
         var result = await OpenLopAoDialog(false);
         if(result != null && result.Data != null && lopAos != null && !result.Canceled){
-            var lopAo = await GetLopAoAPI(Convert.ToInt32(result.Data));
+            var lopAo = (LopAoDto)result.Data;
             if (lopAo != null)
             {
                 lopAos.Add(lopAo);
@@ -259,12 +242,15 @@
         var result = await OpenLopAoDialog(true);
         if (result != null && result.Data != null && lopAos != null && !result.Canceled)
         {
-            var lopAo = await GetLopAoAPI(Convert.ToInt32(result.Data));
+            var lopAo = (LopAoDto)result.Data;
             if (lopAo != null && selectedLopAo != null)
             {
-                lopAos.Remove(selectedLopAo);
-                lopAos.Add(lopAo);
-                selectedLopAo = lopAo;
+                int index = lopAos.FindIndex(l => l.MaLopAo == selectedLopAo.MaLopAo);
+                if(index != -1)
+                {
+                    lopAos[index] = lopAo;
+                    selectedLopAo = lopAo;
+                }
             }
         }
     }
@@ -276,7 +262,7 @@
             { x => x.MonHoc, selectedMonHoc }
         };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-        var dialog = await Dialog.ShowAsync<MonHocDialog>("THÊM MÔN HỌC", parameters, options);
+        var dialog = await Dialog.ShowAsync<MonHocDialog>((isEdit) ? "SỬA MÔN HỌC" : "THÊM MÔN HỌC", parameters, options);
         return await dialog.Result;
     }
 
@@ -289,7 +275,7 @@
             { x => x.MaMonHoc, selectedMonHoc?.MaMonHoc ?? -1 }
         };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-        var dialog = await Dialog.ShowAsync<LopAoDialog>("THÊM PHÒNG THI", parameters, options);
+        var dialog = await Dialog.ShowAsync<LopAoDialog>((isEdit) ? "SỬA PHÒNG THI" : "THÊM PHÒNG THI", parameters, options);
         return await dialog.Result;
     }
 
@@ -297,60 +283,23 @@
 
     private async Task<List<MonHocDto>?> GetAllMonHocAPI()
     {
-        var response = await Http.GetAsync("api/monhocs");
-        return await response.Content.ReadFromJsonAsync<List<MonHocDto>?>();
+        var response = await SenderAPI.GetAsync<List<MonHocDto>>("api/monhocs");
+        return (response.Success) ? response.Data : null;
     }
 
     private async Task<List<LopAoDto>?> LopAo_SelectedByMonHocAPI(int ma_mon_hoc)
     {
-        var response = await Http.GetAsync($"api/lopaos/filter-monhoc?maMonHoc={ma_mon_hoc}");
-        return await response.Content.ReadFromJsonAsync<List<LopAoDto>?>();
+        var response = await SenderAPI.GetAsync<List<LopAoDto>>($"api/lopaos/filter-by-monhoc?maMonHoc={ma_mon_hoc}");
+        return (response.Success) ? response.Data : null;
     }
 
-    private async Task<MonHocDto?> GetMonHocAPI(int ma_mon_hoc)
-    {
-        var response = await Http.GetAsync($"api/monhocs/{ma_mon_hoc}");
-        return await response.Content.ReadFromJsonAsync<MonHocDto?>();
+    private async Task<ChiTietDotThiDto?> InsertCTDTAPI(ChiTietDotThiCreateRequest chiTietDotThi){
+        var response = await SenderAPI.PostAsync<ChiTietDotThiDto>("api/chitietdotthis", chiTietDotThi);
+        return (response.Success) ? response.Data : null;
     }
 
-    private async Task<LopAoDto?> GetLopAoAPI(int ma_lop_ao)
-    {
-        var response = await Http.GetAsync($"api/lopaos/{ma_lop_ao}");
-        return await response.Content.ReadFromJsonAsync<LopAoDto?>();
-    }
-
-    private async Task<bool> InsertCTDTAPI(ChiTietDotThiCreateRequest chiTietDotThi){
-        var json = JsonSerializer.Serialize(chiTietDotThi);
-        var response = await Http.PostAsync("api/chitietdotthis", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = await response.Content.ReadFromJsonAsync<int?>();
-            return true;
-        }
-        return false;
-    }
-
-    private async Task<bool> UpdateCTDTAPI(int ma_chi_tiet_dot_thi, ChiTietDotThiUpdateRequest chiTietDotThi){
-        var json = JsonSerializer.Serialize(chiTietDotThi);
-        var response = await Http.PutAsync($"api/chitietdotthis/{ma_chi_tiet_dot_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
-        if (response.IsSuccessStatusCode)
-        {
-            result_id = ma_chi_tiet_dot_thi;
-            return true;
-        }
-        return false;
-    }
-
-    private ChiTietDotThiDto CreateChiTietDotThi(int ma_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int lan_thi){
-        return new ChiTietDotThiDto
-            {
-                MaChiTietDotThi = ChiTietDotThi?.MaChiTietDotThi ?? -1,
-                MaDotThi = ma_dot_thi,
-                TenChiTietDotThi = ten_chi_tiet_dot_thi,
-                MaLopAo = ma_lop_ao,
-                LanThi = lan_thi,
-                MaLopAoNavigation = new(),
-                MaDotThiNavigation = new(),
-            };
+    private async Task<ChiTietDotThiDto?> UpdateCTDTAPI(int ma_chi_tiet_dot_thi, ChiTietDotThiUpdateRequest chiTietDotThi){
+        var response = await SenderAPI.PutAsync<ChiTietDotThiDto>($"api/chitietdotthis/{ma_chi_tiet_dot_thi}", chiTietDotThi);
+        return (response.Success) ? response.Data : null;
     }
 }

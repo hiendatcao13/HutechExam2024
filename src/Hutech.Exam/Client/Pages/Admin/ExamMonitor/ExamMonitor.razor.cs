@@ -11,6 +11,8 @@ using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
 using System.Net.Http.Json;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Client.Pages.Result;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
@@ -101,21 +103,31 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task OnClickCongGioThem(ChiTietCaThiDto chiTietCaThi)
         {
+            var result = await OpenCongGioThemDialog(chiTietCaThi);
+            if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
+            {
+                var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
+                int index = chiTietCaThis.FindIndex(p => p.MaChiTietCaThi == newChiTietCaThi.MaChiTietCaThi);
+                chiTietCaThis[index] = newChiTietCaThi;
+            }    
+        }
+
+        private async Task<DialogResult?> OpenCongGioThemDialog(ChiTietCaThiDto chiTietCaThi)
+        {
             if (chiTietCaThi != null && chiTietCaThi.DaThi == false && chiTietCaThi.MaSinhVienNavigation != null && chiTietCaThi.MaSinhVienNavigation.IsLoggedIn == false)
             {
                 Snackbar.Add(FAILED_CONGGIO, Severity.Error);
-                return;
+                return null;
             }
             var parameters = new DialogParameters<CongGioDialog>
             {
                 { x => x.chiTietCaThi, chiTietCaThi },
                 { x => x.caThi, caThi }
             };
-
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
             var dialog = await Dialog.ShowAsync<CongGioDialog>("Cộng giờ thi", parameters, options);
-            HandleAfterDialog(await dialog.Result);
+            return await dialog.Result;
         }
         private async Task OnClickNopBai(ChiTietCaThiDto chiTietCaThi)
         {
@@ -217,13 +229,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             StateHasChanged();
 
-        }
-        private void HandleAfterDialog(DialogResult? result)
-        {
-            if (result != null && !result.Canceled && result.Data != null)
-            {
-                StateHasChanged();
-            }
         }
 
 

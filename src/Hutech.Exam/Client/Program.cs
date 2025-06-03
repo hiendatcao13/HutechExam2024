@@ -34,6 +34,9 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+
+    //Gi?i h?n s? l??ng Snackbar
+    config.SnackbarConfiguration.MaxDisplayedSnackbars = 3;
 });
 
 builder.Services.AddScoped<ApiService>();

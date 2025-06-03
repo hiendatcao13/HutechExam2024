@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text
 @using Hutech.Exam.Shared.DTO.Request
 @using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
@@ -7,10 +8,10 @@
 <MudDialog Style="max-width: 500px">
 	<DialogContent>
 		<MudGrid>
-			@if (findChiTietCaThi.MaSinhVienNavigation != null)
+			@if (tempChiTietCaThi.MaSinhVienNavigation != null)
 			{
 				<MudItem xs="6">
-					<MudTextField Label="MSSV" T="string" @bind-Value="findChiTietCaThi.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
+					<MudTextField Label="MSSV" T="string" @bind-Value="tempChiTietCaThi.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
 				</MudItem>
 
 				<MudItem xs="3">
@@ -26,11 +27,11 @@
 				</MudItem>
 
 				<MudItem xs="6">
-					<MudText Typo="Typo.body1">Họ và lót: <strong>@findChiTietCaThi.MaSinhVienNavigation.HoVaTenLot</strong></MudText>
+					<MudText Typo="Typo.body1">Họ và lót: <strong>@tempChiTietCaThi.MaSinhVienNavigation.HoVaTenLot</strong></MudText>
 				</MudItem>
 
 				<MudItem xs="6">
-					<MudText Typo="Typo.body1">Tên sinh viên: <strong>@findChiTietCaThi.MaSinhVienNavigation.TenSinhVien</strong></MudText>
+					<MudText Typo="Typo.body1">Tên sinh viên: <strong>@tempChiTietCaThi.MaSinhVienNavigation.TenSinhVien</strong></MudText>
 				</MudItem>
 
 				<MudItem xs="6" Style="padding-top: 0">
@@ -38,7 +39,7 @@
 				</MudItem>
 
 				<MudItem xs="6" Style="padding-top: 0">
-					<MudText Typo="Typo.body1">Giới tính: <strong>@(findChiTietCaThi.MaSinhVienNavigation.GioiTinh == 0 ? "Nam" : "Nữ")</strong></MudText>
+					<MudText Typo="Typo.body1">Giới tính: <strong>@(tempChiTietCaThi.MaSinhVienNavigation.GioiTinh == 0 ? "Nam" : "Nữ")</strong></MudText>
 				</MudItem>
 			}
 
@@ -63,26 +64,32 @@
 </MudDialog>
 <style>
 	.my-custom-class {
-		backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
 	}
 </style>
 
 @code {
 	[CascadingParameter] public IMudDialogInstance? MudDialog { get; set; }
-	[Parameter] public List<long>? maDeHVs { get; set; }
-	[Parameter] public List<string>? maMSSVs { get; set; }
-	[Parameter] public int? ma_ca_thi { get; set; }
-	[Parameter] public string? lop { get; set; }
+
+	[Parameter][EditorRequired] public List<long>? maDeHVs { get; set; }
+
+	[Parameter][EditorRequired] public List<string>? maMSSVs { get; set; }
+
+	[Parameter][EditorRequired] public int? ma_ca_thi { get; set; }
+
+	[Parameter][EditorRequired] public string? lop { get; set; }
+
 	[Inject] private HttpClient Http { get; set; } = default!;
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
 	private long ma_de_thi = -1;
 
 	private string? tenSinhVien;
 	private string? hoTenLot;
 	private bool isExist = false;
-	private bool isAlreadySave = false; // biến kiểm tra đã lưu vào database
 
-	private ChiTietCaThiDto findChiTietCaThi = new(); // biến temp để lưu
+	private ChiTietCaThiDto tempChiTietCaThi = new(); // biến temp để lưu
 
 	private const string NO_SV = "Không tìm thấy sinh viên nào với mã sinh viên này. Vui lòng kiểm tra lại";
 	private const string YES_SV = "Đã tìm thấy sinh viên trong dữ liệu. Vui lòng chọn lưu để thêm";
@@ -95,14 +102,14 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		findChiTietCaThi.MaSinhVienNavigation = new SinhVienDto(); // thêm thuộc tính sinh viên vào
+		tempChiTietCaThi.MaSinhVienNavigation = new SinhVienDto(); // thêm thuộc tính sinh viên vào
 
 		await base.OnInitializedAsync();
 	}
 	private void HandleKeyDown(KeyboardEventArgs args)
 	{
 		isExist = false;
-		findChiTietCaThi.MaSinhVienNavigation = new SinhVienDto();
+		tempChiTietCaThi.MaSinhVienNavigation = new SinhVienDto();
 	}
 
 	private void OnClickThoat()
@@ -112,26 +119,25 @@
 
 	private async Task OnClickLuu()
 	{
-		SinhVienDto sinhVien = findChiTietCaThi.MaSinhVienNavigation ?? new();
+		SinhVienDto sinhVien = tempChiTietCaThi.MaSinhVienNavigation ?? new();
 
 		// handle data
-		findChiTietCaThi.MaCaThi = ma_ca_thi;
-		findChiTietCaThi.MaSinhVien = findChiTietCaThi.MaSinhVienNavigation?.MaSinhVien ?? -1;
-		findChiTietCaThi.MaDeThi = ma_de_thi;
+		tempChiTietCaThi.MaCaThi = ma_ca_thi;
+		tempChiTietCaThi.MaDeThi = ma_de_thi;
 
-		if (maDeHVs != null && ma_ca_thi != null && findChiTietCaThi.MaCaThi != null && findChiTietCaThi.MaDeThi != null && findChiTietCaThi.MaSinhVien != null)
+		if (maDeHVs != null && ma_ca_thi != null && tempChiTietCaThi.MaCaThi != null && tempChiTietCaThi.MaDeThi != null && tempChiTietCaThi.MaSinhVien != null)
 		{
-			await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
+			var result = await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
 				{
 					MaCaThi = (int)ma_ca_thi,
-					MaDeThi = (long)findChiTietCaThi.MaDeThi,
-					MaSinhVien = (long)findChiTietCaThi.MaSinhVien
+					MaDeThi = (long)tempChiTietCaThi.MaDeThi,
+					MaSinhVien = (long)tempChiTietCaThi.MaSinhVien
 				});
-		}
-		if (isAlreadySave)
-		{
-			Snackbar.Add(SUCCESS_ADDSV, Severity.Success);
-			MudDialog?.Close(findChiTietCaThi);
+
+			if(result != null)
+			{
+				MudDialog?.Close(DialogResult.Ok(result));
+			}
 		}
 	}
 	private async Task OnClickKiemTra()
@@ -141,7 +147,7 @@
 			Snackbar.Add(INVALID_MADETHI, Severity.Error);
 			return;
 		}
-		SinhVienDto sinhVien = findChiTietCaThi.MaSinhVienNavigation ?? new();
+		SinhVienDto sinhVien = tempChiTietCaThi.MaSinhVienNavigation ?? new();
 		if (string.IsNullOrEmpty(sinhVien.MaSoSinhVien))
 		{
 			Snackbar.Add(INVALID_MSSV, Severity.Error);
@@ -154,44 +160,29 @@
 		}
 		if (maDeHVs != null && ma_ca_thi != null)
 		{
-			await KiemTraSinhVienAPI(sinhVien.MaSoSinhVien ?? string.Empty);
-		}
-
-
-	}
-	private async Task InsertChiTietCaThiAPI(ChiTietCaThiCreateRequest chiTietCaThi)
-	{
-		var jsonString = System.Text.Json.JsonSerializer.Serialize(chiTietCaThi);
-		var response = await Http.PostAsync($"api/chitietcathis", new StringContent(jsonString, Encoding.UTF8, "application/json"));
-		if (response.IsSuccessStatusCode)
-		{
-			Snackbar.Add(SUCCESS_ADDSV, MudBlazor.Severity.Success);
-			findChiTietCaThi = await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>() ?? new();
-			isAlreadySave = true;
-			return;
-		}
-		else
-		{
-			Snackbar.Add(FAILED_ADDSV, Severity.Error);
-			isAlreadySave = false;
-		}
-	}
-	private async Task KiemTraSinhVienAPI(string ma_so_sinh_vien)
-	{
-		var response = await Http.GetAsync($"api/sinhviens/filter-by-mssv?maSoSinhVien={ma_so_sinh_vien}");
-		if (response.IsSuccessStatusCode)
-		{
-			SinhVienDto? tempSinhVien = await response.Content.ReadFromJsonAsync<SinhVienDto>();
-			if (tempSinhVien != null && tempSinhVien.MaSinhVien != 0)
+			var result = await KiemTraSinhVienAPI(sinhVien.MaSoSinhVien ?? string.Empty);
+			if(result == null)
 			{
-				Snackbar.Add(YES_SV, Severity.Success);
-				findChiTietCaThi.MaSinhVienNavigation = tempSinhVien;
-				isExist = true;
+				isExist = false;
 				return;
 			}
-			Snackbar.Add(NO_SV, Severity.Error);
-			isExist = false;
+
+			isExist = true;
+			tempChiTietCaThi.MaSinhVienNavigation = result;
+			tempChiTietCaThi.MaSinhVien = result.MaSinhVien;
 		}
+
+
+	}
+	private async Task<ChiTietCaThiDto?> InsertChiTietCaThiAPI(ChiTietCaThiCreateRequest chiTietCaThi)
+	{
+		var response = await SenderAPI.PostAsync<ChiTietCaThiDto>($"api/chitietcathis", chiTietCaThi);
+		return (response.Success) ? response.Data : null;
+	}
+	private async Task<SinhVienDto?> KiemTraSinhVienAPI(string ma_so_sinh_vien)
+	{
+		var response = await SenderAPI.GetAsync<SinhVienDto>($"api/sinhviens/filter-by-mssv?maSoSinhVien={ma_so_sinh_vien}");
+		return (response.Success) ? response.Data : null;
 	}
 }
 

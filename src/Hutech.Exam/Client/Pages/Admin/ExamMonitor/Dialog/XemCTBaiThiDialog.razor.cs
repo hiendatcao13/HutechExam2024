@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Client.Authentication;
+﻿using Hutech.Exam.Client.API;
+using Hutech.Exam.Client.Authentication;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
 using Microsoft.AspNetCore.Components;
@@ -17,6 +18,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
         [Inject] public HttpClient Http { get; set; } = default!;
+
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
         [Inject] private IJSRuntime Js { get; set; } = default!;
 
@@ -37,11 +40,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
 
         private bool _shouldRender = false;
-        
-        private const string ERROR_GET_CTBT = "Lấy chi tiết bài thi của thí sinh thất bại";
-        private const string ERROR_GET_CTCT = "Lấy chi tiết ca thi thất bại";
-        private const string ERROR_FETCH_DETHI = "Không thể lấy đề thi. Vui lòng kiểm tra SV đã có đề thi chưa hoặc hệ thống lỗi";
-        private const string ERROR_GET_DAPAN = "Lấy đề không thành công";
 
         private const string ERROR_PAGE = "Cách hoạt động trang không bình thường. Vui lòng quay lại";
 
@@ -65,7 +63,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
                 Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
 
                 // lấy thông tin cho thí sinh
-                ChiTietCaThi = await ChiTietCaThi_SelectOneAPI(maChiTietCaThi);
+                ChiTietCaThi = await ChiTietCaThi_SelectOneAPI(maChiTietCaThi) ?? new();
                 SinhVien = ChiTietCaThi.MaSinhVienNavigation ?? new();
                 CaThi = ChiTietCaThi.MaCaThiNavigation ?? new();
             }
@@ -74,7 +72,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
             CustomDeThis = await GetDeThiAPI(ChiTietCaThi.MaDeThi);
 
             // lấy bài thi của thí sinh
-            chiTietBaiThis = await ChiTietBaiThis_SelectBy_ma_chi_tiet_ca_thiAPI(ChiTietCaThi.MaChiTietCaThi);
+            chiTietBaiThis = await ChiTietBaiThis_SelectBy_ma_chi_tiet_ca_thiAPI(ChiTietCaThi.MaChiTietCaThi) ?? new();
 
             // xử lí dữ liệu đưa ra màn hình
             HandleDsKhoanh(chiTietBaiThis);
@@ -130,60 +128,28 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
         }
 
 
-        private async Task<ChiTietCaThiDto> ChiTietCaThi_SelectOneAPI(int ma_chi_tiet_ca_thi)
+        private async Task<ChiTietCaThiDto?> ChiTietCaThi_SelectOneAPI(int ma_chi_tiet_ca_thi)
         {
-            var response = await Http.GetAsync($"api/chitietcathis/{ma_chi_tiet_ca_thi}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<ChiTietCaThiDto>() ?? new();
-            }
-            else
-            {
-                Snackbar.Add(ERROR_GET_CTCT, Severity.Error);
-                return new();
-            }
+            var response = await SenderAPI.GetAsync<ChiTietCaThiDto>($"api/chitietcathis/{ma_chi_tiet_ca_thi}");
+            return (response.Success) ? response.Data : null;
         }
 
-        private async Task<List<ChiTietBaiThiDto>> ChiTietBaiThis_SelectBy_ma_chi_tiet_ca_thiAPI(int ma_chi_tiet_ca_thi)
+        private async Task<List<ChiTietBaiThiDto>?> ChiTietBaiThis_SelectBy_ma_chi_tiet_ca_thiAPI(int ma_chi_tiet_ca_thi)
         {
-            var response = await Http.GetAsync($"api/chitietbaithis/filter-chitietcathi?maChiTietCaThi={ma_chi_tiet_ca_thi}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<List<ChiTietBaiThiDto>>() ?? new();
-            }
-            else
-            {
-                Snackbar.Add(ERROR_GET_CTBT, Severity.Error);
-                return new();
-            }
+            var response = await SenderAPI.GetAsync<List<ChiTietBaiThiDto>>($"api/chitietbaithis/filter-by-chitietcathi?maChiTietCaThi={ma_chi_tiet_ca_thi}");
+            return (response.Success) ? response.Data : null;
         }
 
         private async Task<List<CustomDeThi>?> GetDeThiAPI(long? ma_de_hoan_vi)
         {
-            var response = await Http.GetAsync($"api/dethihoanvis/{ma_de_hoan_vi}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<List<CustomDeThi>?>();
-            }
-            else
-            {
-                Snackbar.Add(ERROR_FETCH_DETHI, Severity.Error);
-                return null;
-            }
+            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
+            return (response.Success) ? response.Data : null;
         }
 
         private async Task<Dictionary<int, int>?> GetDapAnAPI(long maDeHV)
         {
-            var response = await Http.GetAsync($"api/dethihoanvis/{maDeHV}/dap-an");
-            if(response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<Dictionary<int, int>>();
-            }
-            else
-            {
-                Snackbar.Add(ERROR_GET_DAPAN, Severity.Error);
-                return null;
-            }
+            var response = await SenderAPI.GetAsync<Dictionary<int, int>>($"api/dethihoanvis/{maDeHV}/dap-an");
+            return (response.Success) ? response.Data : null; 
         }
     }
 }

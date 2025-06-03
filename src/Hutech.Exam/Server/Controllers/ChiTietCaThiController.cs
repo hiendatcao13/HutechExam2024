@@ -5,9 +5,7 @@ using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Page;
-using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
-using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -112,7 +110,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPatch("{id}/cong-gio")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+        public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
         {
             try
             {
@@ -121,8 +119,6 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));
                 }    
-                // báo cho tất cả admin
-                await NotifyCongGioSVToAdmin(id);
                 return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cộng giờ cho thí sinh thành công"));
             }
             catch (SqlException sqlEx)
@@ -198,10 +194,6 @@ namespace Hutech.Exam.Server.Controllers
         {
             // 0: bắt đầu thi, 1: kết thúc thi
             await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
-        }
-        private async Task NotifyCongGioSVToAdmin(int ma_chi_tiet_ca_thi)
-        {
-            await _adminHub.Clients.Group("admin").SendAsync("CongGioSV", ma_chi_tiet_ca_thi);
         }
     }
 }

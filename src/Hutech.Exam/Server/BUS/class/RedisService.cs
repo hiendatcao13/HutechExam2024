@@ -1,14 +1,19 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.Hubs;
+using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Request;
 using MessagePack;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(DeThiHoanViService deThiHoanViService, IResponseCacheService cacheService, ILogger<RedisService> logger)
+    public class RedisService(DeThiHoanViService deThiHoanViService, CustomDeThiService customDeThiService, IResponseCacheService cacheService, ILogger<RedisService> logger)
     {
         private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
+        private readonly CustomDeThiService _customDeThiService = customDeThiService;
+
         private readonly IResponseCacheService _cacheService = cacheService;
 
         private readonly ILogger _logger = logger;
@@ -192,7 +197,37 @@ namespace Hutech.Exam.Server.BUS
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
-                return [];
+                return await _deThiHoanViService.DapAn(maDeHV);
+            }
+
+        }
+
+        public async Task<List<CustomDeThi>> GetDeThi([FromRoute] int id)
+        {
+            try
+            {
+                var cacheKey = $"DeThi:{id}";
+
+                // Kiểm tra xem có dữ liệu trong cache không
+                var cachedData = await _cacheService.GetCacheResponseAsync<List<CustomDeThi>>(cacheKey);
+
+                if (cachedData != null && cachedData.Count != 0)
+                {
+                    return cachedData;
+                }
+
+                // Nếu không có, thực hiện logic lấy dữ liệu từ database
+                List<CustomDeThi> result = await _customDeThiService.GetDeThi(id);
+
+                // Lưu vào cache
+                await _cacheService.SetCacheResponseAsync(cacheKey, result, TimeSpan.FromMinutes(150));
+
+                return result;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "[Redis] An error occurred while retrieving DeThi.");
+                return await _customDeThiService.GetDeThi(id);
             }
         }
     }

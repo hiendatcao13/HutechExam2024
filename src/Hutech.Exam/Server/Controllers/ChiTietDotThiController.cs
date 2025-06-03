@@ -29,7 +29,6 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var id = await _chiTietDotThiService.Insert(chiTietDotThi);
-                await NotifyChangeChiTietDotThiToAdmin(id, 0);
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectOne(id), message: "Thêm chi tiết đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -92,7 +91,6 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần cập nhật"));
                 }    
-                await NotifyChangeChiTietDotThiToAdmin(id, 1);
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectOne(id), message: "Cập nhật chi tiết đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -119,7 +117,6 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
                 }    
-                await NotifyChangeChiTietDotThiToAdmin(id, 2);
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
             }
             catch (SqlException sqlEx)

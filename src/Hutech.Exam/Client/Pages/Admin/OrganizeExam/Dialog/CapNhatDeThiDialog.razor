@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
@@ -50,6 +51,9 @@
     </DialogActions>
 </MudDialog>
 <style>
+    .title-text {
+        font-weight: bold;
+    }
     .my-custom-class {
     backdrop-filter: blur(10px);
     }
@@ -58,20 +62,27 @@
 
 @code{
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-    [Inject] public HttpClient Http { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
     [Parameter] public int? MaChiTietDotThi { get; set; }
+
     [Parameter] public string? TenDotThi { get; set; }
+
     [Parameter] public string? TenLopAo { get; set; }
+
     [Parameter] public string? TenMonThi { get; set; }
+
     [Parameter] public int? LanThi { get; set; }
+
     [Parameter] public CaThiDto? CaThi { get; set; }
 
     private const string ALERT_TITLE = "Lưu ý: nếu các thí sinh trong ca thi đã được gắn đề, việc cập nhật đề thi lại cho ca thi sẽ xảy ra lỗi không mong muốn. Vui lòng reset toàn bộ đề thi của thí sinh về mặc định và cập nhật lại đề cho thí sinh.";
-    private const string SUCCESS_UPDATE = "Cập nhật đề thi thành công";
-    private const string FAIL_UPDATE = "Cập nhật đề thi thất bại";
 
     private DeThiDto? selectDeThi;
+
     private List<DeThiDto>? deThis;
+
     private bool isSame = true; // nếu người dùng không cập nhật đề mới
 
     private void OnClickThoat()
@@ -87,7 +98,8 @@
     {
         deThis = await GetAllDeThiAPI();
         // thêm 1 trường null
-        deThis?.Add(new DeThiDto() { MaDeThi = -1, TenDeThi = "Chưa có mã đề" });
+        deThis?.Insert(0, new DeThiDto() { MaDeThi = -1, TenDeThi = "Chưa có mã đề" });
+
         if(CaThi != null && CaThi.MaDeThi == -1){
             selectDeThi = deThis?.FirstOrDefault(x => x.MaDeThi == -1);
         }
@@ -113,52 +125,26 @@
                 ThoiGianThi = CaThi.ThoiGianThi
             });
 
-            if(result){
-                Snackbar.Add(SUCCESS_UPDATE, Severity.Success);
-                MudDialog?.Close(DialogResult.Ok(CaThi.MaCaThi));
-            }
-            else
-            {
-                Snackbar.Add(FAIL_UPDATE, Severity.Error);
+            if(result != null && result.MaCaThi != 0){
+                MudDialog?.Close(DialogResult.Ok(result));
             }
         }
     }
 
     private async Task<List<DeThiDto>?> GetAllDeThiAPI()
     {
-        var response = await Http.GetAsync("api/dethis");
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<List<DeThiDto>?>();
-        }
-        return null;
+        var response = await SenderAPI.GetAsync<List<DeThiDto>>("api/dethis");
+        return (response.Success) ? response.Data : null;
     }
-    private async Task<bool> UpdateCaThiAPI(int ma_ca_thi, CaThiUpdateRequest caThi)
+    private async Task<CaThiDto?> UpdateCaThiAPI(int ma_ca_thi, CaThiUpdateRequest caThi)
     {
         var json = JsonSerializer.Serialize(caThi);
-        var response = await Http.PutAsync($"api/cathis/{ma_ca_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
-        return response.IsSuccessStatusCode;
+        var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
+        return (response.Success) ? response.Data : null;
     }
     private async Task<DeThiDto?> SelectOneDeThiAPI(int ma_de_thi)
     {
-        var response = await Http.GetAsync($"api/dethis/{ma_de_thi}");
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<DeThiDto?>();
-        }
-        return null;
-    }
-    private CustomCaThi CreateCaThi(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int? ma_de_hv, int thoi_luong_thi)
-    {
-        //(caThi.TenCaThi ?? "", caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
-        return new CustomCaThi
-            {
-                MaCaThi = CaThi?.MaCaThi ?? -1,
-                TenCaThi = ten_ca_thi,
-                MaChiTietDotThi = ma_chi_tiet_dot_thi,
-                ThoiGianBatDau = thoi_gian_bat_dau,
-                MaDeThi = ma_de_hv ?? -1,
-                ThoiGianThi = thoi_luong_thi,
-            };
+        var response = await SenderAPI.GetAsync<DeThiDto>($"api/dethis/{ma_de_thi}");
+        return (response.Success) ? response.Data : null;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
 using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
+using Hutech.Exam.Client.Pages.Result;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.Models;
 using MudBlazor;
 
 
@@ -10,6 +12,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
     {
         private async Task OnClickThemSV()
         {
+            var result = await OpenThemSVDialog();
+            if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
+            {
+                var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
+                chiTietCaThis.Add(newChiTietCaThi);
+            }
+        }
+        private async Task<DialogResult?> OpenThemSVDialog()
+        {
+            
             Snackbar.Add(ALERT_ADDSV, Severity.Info);
             string?[] content_texts = [caThi?.TenCaThi ?? "", caThi?.ThoiGianBatDau.ToString() ?? "", caThi?.ThoiGianThi.ToString() ?? ""];
             var parameters = new DialogParameters<ThemSVDialog>
@@ -22,15 +34,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            var result = await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
-            HandleThemSVDialog(await result.Result);
-        }
-        private void HandleThemSVDialog(DialogResult? result)
-        {
-            if (result != null && !result.Canceled && result.Data != null)
-            {
-                chiTietCaThis?.Add((ChiTietCaThiDto)result.Data);
-            }
+            var dialog = await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
+            return await dialog.Result;
         }
 
         private List<long> GetMaDeThis()

@@ -8,14 +8,13 @@
 <PageTitle>Organize Exam</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
-	<MudGrid Style="margin-top: 70px">
+	<MudGrid Style="margin-top: 70px; margin-left: 5px">
 		<MudGrid>
 			<MudItem xs="6">
-
 				@if (dotThis != null)
 				{
-					<MudTable T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
-							  TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" RowsPerPageChanged="async (value) => await OnRowsPerPageChange_DT(value)" CurrentPage="currentPage_DT" CurrentPageChanged="async (value) => await OnCurrentPageChange_DT(value)">
+					<MudTable Elevation="24" T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
+							  TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
 						<ToolBarContent>
 							<MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
 							<MudSpacer />
@@ -46,7 +45,8 @@
 			<MudItem xs="6">
 				@if (chiTietDotThis != null)
 				{
-					<MudTable T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc">
+					<MudTable Elevation="24" T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc"
+							  TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
 						<ToolBarContent>
 							<MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
 							<MudSpacer />
@@ -75,13 +75,14 @@
 		</MudGrid>
 		@if (caThis != null)
 		{
-			<MudTable T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%">
+			<MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%"
+					  TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
 				<ToolBarContent>
 					<MudText Typo="Typo.h6">Thông tin ca thi</MudText>
 					<MudSpacer />
 					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
 					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Cập nhật đề thi</MudButton>
-					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Streetview" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên ca thi</MudButton>
+					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
 				</ToolBarContent>
 				<HeaderContent>
 					<MudTh>ID</MudTh>
@@ -107,10 +108,18 @@
 					<MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
 					<MudTd>
 						<MudButtonGroup Style="zoom: 0.7">
-							<MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)" />
-							<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)" />
-							<MudIconButton Icon="@Icons.Material.Filled.Announcement" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
-							<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)" />
+							<MudTooltip Text="Xem chi tiết">
+								<MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)" />
+							</MudTooltip>
+							<MudTooltip Text="Sửa ca thi">
+								<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)" />
+							</MudTooltip>
+							<MudTooltip Text="Cập nhật đề thi">
+								<MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
+							</MudTooltip>
+							<MudTooltip Text="Xóa ca thi">
+								<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)" />
+							</MudTooltip>
 						</MudButtonGroup>
 					</MudTd>
 				</RowTemplate>
@@ -163,83 +172,87 @@
 	private ChiTietDotThiDto? selectedChiTietDotThi;
 	private CaThiDto? selectedCaThi;
 
+	private List<int> selectedPages_DT = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_CTDT = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_CT = new() { 0 }; // luôn load có trang đầu tiên
 
 	private async Task OnRowsPerPageChange_DT(int rows)
 	{
-		// if (rows == rowsPerPage)
-		// 	return;
+		if (rows == rowsPerPage_DT)
+			return;
 
-		// this.rowsPerPage = rows;
-		// currentPage = 0; Reset về trang đầu tiên
+		this.rowsPerPage_DT = rows;
+		currentPage_DT = 0; //Reset về trang đầu tiên
 
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
+		(var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+		PadEmptyRows(newDotThis);
 	}
 	private async Task OnCurrentPageChange_DT(int page)
 	{
-		// if (page == currentPage)
-		// 	return;
+		if (page == currentPage_DT)
+			return;
 
-		// this.currentPage = page;
-		// if (selectedPages.Contains(page))
-		// 	return;
+		this.currentPage_DT = page;
+		if (selectedPages_DT.Contains(page))
+			return;
 
-		// chỉ thực hiện load data khi người dùng chọn trang mới
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
-		// selectedPages?.Add(currentPage);
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+		PadEmptyRows(newDotThis);
+		selectedPages_DT?.Add(currentPage_DT);
 	}
+
 
 	private async Task OnRowsPerPageChange_CTDT(int rows)
 	{
-		// if (rows == rowsPerPage)
-		// 	return;
+		if (rows == rowsPerPage_CTDT || selectedDotThi == null)
+			return;
 
-		// this.rowsPerPage = rows;
-		// currentPage = 0; Reset về trang đầu tiên
+		this.rowsPerPage_CTDT = rows;
+		currentPage_CTDT = 0; //Reset về trang đầu tiên
 
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
+		(var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+		PadEmptyRows(newChiTietDotThis);
 	}
 	private async Task OnCurrentPageChange_CTDT(int page)
 	{
-		// if (page == currentPage)
-		// 	return;
+		if (page == currentPage_CTDT || selectedDotThi == null)
+			return;
 
-		// this.currentPage = page;
-		// if (selectedPages.Contains(page))
-		// 	return;
+		this.currentPage_CTDT = page;
+		if (selectedPages_CTDT.Contains(page))
+			return;
 
-		// chỉ thực hiện load data khi người dùng chọn trang mới
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
-		// selectedPages?.Add(currentPage);
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+		PadEmptyRows(newChiTietDotThis);
+		selectedPages_CTDT?.Add(currentPage_CTDT);
 	}
 
 	private async Task OnRowsPerPageChange_CT(int rows)
 	{
-		// if (rows == rowsPerPage)
-		// 	return;
+		if (rows == rowsPerPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+			return;
 
-		// this.rowsPerPage = rows;
-		// currentPage = 0; Reset về trang đầu tiên
+		this.rowsPerPage_CT = rows;
+		currentPage_CT = 0; //Reset về trang đầu tiên
 
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
+		(var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+		PadEmptyRows(newCaThis);
 	}
 	private async Task OnCurrentPageChange_CT(int page)
 	{
-		// if (page == currentPage)
-		// 	return;
+		if (page == currentPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+			return;
 
-		// this.currentPage = page;
-		// if (selectedPages.Contains(page))
-		// 	return;
+		this.currentPage_CT = page;
+		if (selectedPages_CT.Contains(page))
+			return;
 
-		// chỉ thực hiện load data khi người dùng chọn trang mới
-		// (var newChiTietCaThis, _, _) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-		// PadEmptyRows(newChiTietCaThis);
-		// selectedPages?.Add(currentPage);
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+		PadEmptyRows(newCaThis);
+		selectedPages_CT?.Add(currentPage_CT);
 	}
 
 
@@ -253,7 +266,8 @@
 		caThis = [];
 		if (selectedDotThi != null)
 		{
-			chiTietDotThis = await ChiTietDotThis_SelectBy_MaDotThiAPI(selectedDotThi.MaDotThi);
+			(chiTietDotThis, totalPages_CTDT, totalRecords_CTDT) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+			CreateFakeData_CTDT();
 		}
 	}
 	private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
@@ -269,7 +283,8 @@
 		caThis = [];
 		if (selectedChiTietDotThi != null)
 		{
-			caThis = await CaThis_SelectBy_MaChiTietDotThiAPI(selectedChiTietDotThi.MaChiTietDotThi);
+			(caThis, totalPages_CT, totalRecords_CT) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+			CreateFakeData_CT();
 		}
 	}
 	private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)

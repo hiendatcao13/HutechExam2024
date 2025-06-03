@@ -29,7 +29,6 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var id = await _dotThiService.Insert(dotThi);
-                await NotifyChangeDotThiToAdmin(id, 0);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -45,15 +44,18 @@ namespace Hutech.Exam.Server.Controllers
         //////////////////GET////////////////////////////
 
         [HttpGet]
-        public async Task<ActionResult<List<DotThiDto>>> GetAll()
+        public async Task<ActionResult> Get([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            return Ok(APIResponse<List<DotThiDto>>.SuccessResponse(data: await _dotThiService.GetAll(), message: "Lấy danh sách đợt thi thành công"));
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<DotThiPage>> GetAll_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            return Ok(APIResponse<DotThiPage>.SuccessResponse(data: await _dotThiService.GetAll_Paged(pageNumber, pageSize), message: "Lấy danh sách đợt thi thành công"));
+            if (pageNumber.HasValue && pageSize.HasValue)
+            {
+                var pagedResult = await _dotThiService.GetAll_Paged(pageNumber.Value, pageSize.Value);
+                return Ok(APIResponse<DotThiPage>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
+            }
+            else
+            {
+                var list = await _dotThiService.GetAll();
+                return Ok(APIResponse<List<DotThiDto>>.SuccessResponse(list, "Lấy danh sách đợt thi thành công"));
+            }
         }
 
 
@@ -75,7 +77,6 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần cập nhật"));
                 }    
-                await NotifyChangeDotThiToAdmin(id, 1);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Cập nhật đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -102,7 +103,6 @@ namespace Hutech.Exam.Server.Controllers
                 {
                     return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
                 }    
-                await NotifyChangeDotThiToAdmin(id, 2);
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -119,11 +119,5 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////PRIVATE///////////////////////////
 
-        private async Task NotifyChangeDotThiToAdmin(int ma_dot_thi, int function)
-        {
-            // 0: Insert, 1: Update, 2:Delete
-            string message = (function == 0) ? "InsertDotThi" : (function == 1) ? "UpdateDotThi" : "DeleteDotThi";
-            await _mainHub.Clients.Group("admin").SendAsync(message, ma_dot_thi);
-        }
     }
 }

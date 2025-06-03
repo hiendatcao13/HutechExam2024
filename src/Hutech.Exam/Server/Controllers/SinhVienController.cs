@@ -33,7 +33,12 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string maSoSinhVien)
         {
-            return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien), message: "Lấy sinh viên thành công"));
+            var result = await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien);
+            if(result == null || string.IsNullOrEmpty(result.MaSoSinhVien))
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên với mã số sinh viên đã cung cấp."));
+            }    
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: result, message: "Đã tìm thấy sinh viên thành công"));
         }
 
         //////////////////POST///////////////////////////

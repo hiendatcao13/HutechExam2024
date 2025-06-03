@@ -1,4 +1,5 @@
-﻿@using Hutech.Exam.Shared.DTO
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
@@ -8,14 +9,14 @@
 
 <MudDialog Style="max-width: 500px">
 	<DialogContent>
-		@if (chiTietCaThi != null && caThi != null)
+		@if (tempCaThi != null && tempChiTietCaThi != null)
 		{
-			string ten = chiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + chiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
+			string ten = tempChiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + tempChiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
 			<MudText>Sinh viên: <strong>@ten</strong></MudText>
-			<MudText>MSSV: <strong>@chiTietCaThi.MaSinhVienNavigation?.MaSoSinhVien</strong></MudText>
-			<MudText>Ca Thi: <strong>@caThi?.TenCaThi</strong></MudText>
-			<MudText>Ngày thi: <strong>@caThi?.ThoiGianBatDau phút</strong></MudText>
-			<MudText>Thời lượng thi: <strong> @caThi?.ThoiGianThi</strong></MudText>
+			<MudText>MSSV: <strong>@tempChiTietCaThi.MaSinhVienNavigation?.MaSoSinhVien</strong></MudText>
+			<MudText>Ca Thi: <strong>@tempCaThi?.TenCaThi</strong></MudText>
+			<MudText>Ngày thi: <strong>@tempCaThi?.ThoiGianBatDau phút</strong></MudText>
+			<MudText>Thời lượng thi: <strong> @tempCaThi?.ThoiGianThi</strong></MudText>
 			<MudTextField Label="Thời gian cộng (phút)" InputType="InputType.Number" Required @bind-Value="tempChiTietCaThi.GioCongThem" Variant="Variant.Outlined" />
 			<MudTextField Label="Lý do cộng" Required InputType="InputType.Text" Placeholder="treo máy" @bind-Value="tempChiTietCaThi.LyDoCong" Variant="Variant.Outlined" />
 		}
@@ -27,27 +28,34 @@
 </MudDialog>
 <style>
 	.my-custom-class {
-		backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
 	}
 </style>
 
 @code {
 	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-	[Inject] public HttpClient Http { get; set; } = default!;
-	[Parameter] public ChiTietCaThiDto chiTietCaThi { get; set; } = default!;
-	[Parameter] public CaThiDto? caThi { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	[Parameter] [EditorRequired] public ChiTietCaThiDto chiTietCaThi { get; set; } = default!;
+
+	[Parameter] [EditorRequired] public CaThiDto caThi { get; set; } = default!;
+
 
 	private ChiTietCaThiDto tempChiTietCaThi = default!;
 
+	private CaThiDto tempCaThi = default!;
+
 
 	private const string ALERT_CONGGIO = "Cộng giờ thêm được dùng trong trường hợp thí sinh bị treo máy hoặc nguyên nhân thích đáng khác";
-	private const string SUCCESS_CONGGIO = "Cộng giờ cho thí sinh thành công";
-	private const string ERROR_CONGGIO = "Cộng giờ cho thí sinh thất bại";
 
 
 	protected override async Task OnInitializedAsync()
 	{
+		tempCaThi = new CaThiDto(caThi);
+
 		tempChiTietCaThi = new ChiTietCaThiDto(chiTietCaThi);
+
 		await base.OnInitializedAsync();
 	}
 	public void OnClickThoat()
@@ -57,43 +65,30 @@
 	public async Task OnClickLuu()
 	{
 		Snackbar.Add(ALERT_CONGGIO, Severity.Info);
-		if (chiTietCaThi != null)
+		if (tempChiTietCaThi != null)
 		{
-			tempChiTietCaThi.ThoiDiemCong = DateTime.Now;
-			if (await CongGioSinhVienAPI(new ChiTietCaThiUpdateCongGioRequest
+			var result = await CongGioSinhVienAPI(tempChiTietCaThi.MaChiTietCaThi, new ChiTietCaThiUpdateCongGioRequest
 				{
 					GioCongThem = tempChiTietCaThi.GioCongThem,
-					ThoiDiemCong = (DateTime)tempChiTietCaThi.ThoiDiemCong,
+					ThoiDiemCong = DateTime.Now,
 					LyDoCong = tempChiTietCaThi.LyDoCong ?? string.Empty
-				}))
+				});
 
-				MudDialog?.Close();
+			if(result != null)
+			{
+				MudDialog?.Close(DialogResult.Ok(result));
+			}
+			return;
 		}
 	}
 
 
 
 
-	private async Task<bool> CongGioSinhVienAPI(ChiTietCaThiUpdateCongGioRequest chiTietCaThiDto)
+	private async Task<ChiTietCaThiDto?> CongGioSinhVienAPI(int maChiTietCaThi, ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
 	{
-		var jsonString = JsonSerializer.Serialize(chiTietCaThiDto);
-		var response = await Http.PutAsync($"api/chitietcathis/{chiTietCaThi.MaChiTietCaThi}", new StringContent(jsonString, Encoding.UTF8, "application/json"));
-		if (response.IsSuccessStatusCode)
-		{
-			Snackbar.Add(SUCCESS_CONGGIO, MudBlazor.Severity.Success);
+		var response = await SenderAPI.PatchAsync<ChiTietCaThiDto>($"api/chitietcathis/{maChiTietCaThi}/cong-gio", chiTietCaThi);
+		return (response.Success) ? response.Data : null;
 
-			//thay đổi những thuộc tính cần thiết
-			CopyProps(tempChiTietCaThi, chiTietCaThi);
-			return true;
-		}
-		Snackbar.Add(ERROR_CONGGIO, MudBlazor.Severity.Error);
-		return false;
-	}
-
-	private void CopyProps(ChiTietCaThiDto source, ChiTietCaThiDto target)
-	{
-		target.GioCongThem = source.GioCongThem;
-		target.LyDoCong = source.LyDoCong;
-		target.ThoiDiemCong = source.ThoiDiemCong;
 	}
 }

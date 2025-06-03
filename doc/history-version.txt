@@ -153,3 +153,7 @@
 02/06/2025 6PM
 - Đã hoàn thiện quy trình nộp bài và lấy bài thi của sinh viên (đã làm ra trường hợp xấu nhất)
 - TODO: tiếp tục xử lí nghiệp vụ cho trang Organize Exam (đã viết store procedure phân trang)
+---------------------------------------------------
+03/06/2025 6PM
+- Đã hoàn thiện nhiều phần giám sát ca thi
+- TODO: xếp ma trận đề thi, thêm sinh viên vào ca thi

@@ -7,57 +7,57 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
     {
         private async Task CreateHubConnection()
         {
-            hubConnection = await AdminHub.GetConnectionAsync();
-            // thao tác với đợt thi
-            hubConnection.On<int>("InsertDotThi", async (ma_dot_thi) =>
-            {
-                await CallLoadInsertDotThi(ma_dot_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("UpdateDotThi", async (ma_dot_thi) =>
-            {
-                await CallLoadUpdateDotThi(ma_dot_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("DeleteDotThi", (ma_dot_thi) =>
-            {
-                CallLoadDeleteDotThi(ma_dot_thi);
-                StateHasChanged();
-            });
+            //hubConnection = await AdminHub.GetConnectionAsync();
+            //// thao tác với đợt thi
+            //hubConnection.On<int>("InsertDotThi", async (ma_dot_thi) =>
+            //{
+            //    await CallLoadInsertDotThi(ma_dot_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("UpdateDotThi", async (ma_dot_thi) =>
+            //{
+            //    await CallLoadUpdateDotThi(ma_dot_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("DeleteDotThi", (ma_dot_thi) =>
+            //{
+            //    CallLoadDeleteDotThi(ma_dot_thi);
+            //    StateHasChanged();
+            //});
 
-            // Thao tác với chi tiết đợt thi
-            hubConnection.On<int>("InsertCTDotThi", async (ma_chi_tiet_dot_thi) =>
-            {
-                await CallLoadInserCTDotThi(ma_chi_tiet_dot_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("UpdateCTDotThi", async (ma_chi_tiet_dot_thi) =>
-            {
-                await CallLoadUpdateCTDotThi(ma_chi_tiet_dot_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("DeleteCTDotThi", (ma_chi_tiet_dot_thi) =>
-            {
-                CallLoadDeleteCTDotThi(ma_chi_tiet_dot_thi);
-                StateHasChanged();
-            });
+            //// Thao tác với chi tiết đợt thi
+            //hubConnection.On<int>("InsertCTDotThi", async (ma_chi_tiet_dot_thi) =>
+            //{
+            //    await CallLoadInserCTDotThi(ma_chi_tiet_dot_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("UpdateCTDotThi", async (ma_chi_tiet_dot_thi) =>
+            //{
+            //    await CallLoadUpdateCTDotThi(ma_chi_tiet_dot_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("DeleteCTDotThi", (ma_chi_tiet_dot_thi) =>
+            //{
+            //    CallLoadDeleteCTDotThi(ma_chi_tiet_dot_thi);
+            //    StateHasChanged();
+            //});
 
-            // Thao tác với ca thi
-            hubConnection.On<int>("InsertCaThi", async (ma_ca_thi) =>
-            {
-                await CallLoadInsertCaThi(ma_ca_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("UpdateCaThi", async (ma_ca_thi) =>
-            {
-                await CallLoadUpdateCaThi(ma_ca_thi);
-                StateHasChanged();
-            });
-            hubConnection.On<int>("DeleteCaThi", (ma_ca_thi) =>
-            {
-                CallLoadDeleteCaThi(ma_ca_thi);
-                StateHasChanged();
-            });
+            //// Thao tác với ca thi
+            //hubConnection.On<int>("InsertCaThi", async (ma_ca_thi) =>
+            //{
+            //    await CallLoadInsertCaThi(ma_ca_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("UpdateCaThi", async (ma_ca_thi) =>
+            //{
+            //    await CallLoadUpdateCaThi(ma_ca_thi);
+            //    StateHasChanged();
+            //});
+            //hubConnection.On<int>("DeleteCaThi", (ma_ca_thi) =>
+            //{
+            //    CallLoadDeleteCaThi(ma_ca_thi);
+            //    StateHasChanged();
+            //});
 
             //1 số thành phần khác không thuộc ở trang này
         }

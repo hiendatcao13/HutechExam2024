@@ -5,12 +5,12 @@
 
 @{
     var currentPath = new Uri(navManager.Uri).AbsolutePath;
-    var isLoginPage = currentPath == "/" || currentPath == "/admin" || currentPath == "/test";
+    var isLoginPage = currentPath == "/" || currentPath == "/admin";
 }
 
 
     @* Required *@
-    <MudThemeProvider />
+<MudThemeProvider/>
     <MudPopoverProvider />
 
     @* Needed for dialogs *@
@@ -42,4 +42,5 @@
 @code {
     [Parameter, EditorRequired]
     public RenderFragment? ChildContent { get; set; }
+
 }
