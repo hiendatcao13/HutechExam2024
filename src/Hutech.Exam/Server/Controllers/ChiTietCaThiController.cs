@@ -65,19 +65,19 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-cathi-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiPage>> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
+        public async Task<ActionResult<Paged<ChiTietCaThiDto>>> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
-            return Ok(APIResponse<ChiTietCaThiPage>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Paged(maCaThi, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
+            return Ok(APIResponse<Paged<ChiTietCaThiDto>>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Paged(maCaThi, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
         }
 
 
         [HttpGet("filter-by-cathi-search-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiPage>> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
+        public async Task<ActionResult<Paged<ChiTietCaThiDto>>> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
-            return Ok(APIResponse<ChiTietCaThiPage>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keyword, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
+            return Ok(APIResponse<Paged<ChiTietCaThiDto>>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keyword, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
         }
 
         //////////////////PUT///////////////////////////

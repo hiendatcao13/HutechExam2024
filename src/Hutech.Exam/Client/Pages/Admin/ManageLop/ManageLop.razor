@@ -1,0 +1,300 @@
+﻿@page "/admin/students"
+@using Hutech.Exam.Shared.DTO
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Manage Student</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+	<MudGrid Style="margin-top: 5px; margin-left: 5px">
+		<MudItem xs="12" md="6" lg="6">
+			@if (Khoas != null)
+			{
+				<MudTable Elevation="24" T="KhoaDto" Items="@Khoas" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedKhoa(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassKhoaFunc"
+						  TotalItems="totalRecords_Khoa" RowsPerPage="rowsPerPage_Khoa" CurrentPageChanged="OnCurrentPageChange_Khoa" RowsPerPageChanged="OnRowsPerPageChange_Khoa">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin khoa</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await Start()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemKhoa()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaKhoa()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaKhoa()">Xóa</MudButton>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>Tên khoa</MudTh>
+						<MudTh>Ngày thành lập</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item?.MaKhoa</MudTd>
+						<MudTd DataLabel="Tên khoa">@item?.TenKhoa</MudTd>
+						<MudTd DataLabel="Ngày thành lập">@(item?.NgayThanhLap.HasValue == true ? @item.NgayThanhLap.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+		<MudItem xs="12" md="6" lg="6">
+			@if (Lops != null)
+			{
+				<MudTable Elevation="24" T="LopDto" Items="@Lops" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedLop(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassLopFunc"
+						  TotalItems="totalRecords_Lop" RowsPerPage="rowsPerPage_Lop" CurrentPageChanged="OnCurrentPageChange_Lop" RowsPerPageChanged="OnRowsPerPageChange_Lop">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin lớp học</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchLops()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemLop()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaLop()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaLop()">Xóa</MudButton>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>Tên lớp</MudTh>
+						<MudTh>Ngày bắt đầu</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item?.MaLop</MudTd>
+						<MudTd DataLabel="Tên lớp">@item?.TenLop</MudTd>
+						<MudTd DataLabel="Ngày bắt đầu">@(item?.NgayBatDau.HasValue == true ? @item.NgayBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+		<MudItem xs="12" md="12" lg="12">
+			@if (SinhViens != null)
+			{
+				<MudTable Elevation="24" T="SinhVienDto" Items="@SinhViens" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="(value) => OnRowClickedSinhVien(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSinhVienFunc"
+						  TotalItems="totalRecords_SinhVien" RowsPerPage="rowsPerPage_SinhVien" CurrentPageChanged="OnCurrentPageChange_SinhVien" RowsPerPageChanged="OnRowsPerPageChange_SinhVien">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin sinh viên</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchSinhViens()">Sync</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemSinhVien()">Thêm</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaSinhVien()">Sửa</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaSinhVien()">Xóa</MudButton>
+						<MudTextField @bind-Value="searchString" Placeholder="Nhập họ tên hoặc mã số sinh viên" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>MSSV</MudTh>
+						<MudTh>Họ lót</MudTh>
+						<MudTh>Tên</MudTh>
+						<MudTh>Giới tính</MudTh>
+						<MudTh>Ngày sinh</MudTh>
+						<MudTh>Email</MudTh>
+						<MudTh>Địa chỉ</MudTh>
+						<MudTh>Điện thoại</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item?.MaSinhVien</MudTd>
+						<MudTd DataLabel="MSSV">@item?.MaSoSinhVien</MudTd>
+						<MudTd DataLabel="Họ lót">@item?.HoVaTenLot</MudTd>
+						<MudTd DataLabel="Tên">@item?.TenSinhVien</MudTd>
+						<MudTd DataLabel="Giới tính">@(item?.GioiTinh == 1 ? "Nam" : "Nữ")</MudTd>
+						<MudTd DataLabel="Ngày sinh">@(item?.NgaySinh.HasValue == true ? @item.NgaySinh.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+						<MudTd DataLabel="Email">@item?.Email</MudTd>
+						<MudTd DataLabel="Địa chỉ">@item?.DiaChi</MudTd>
+						<MudTd DataLabel="Điện thoại">@item?.DienThoai</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {30, 60, 80, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+	</MudGrid>
+</MudContainer>
+
+<style>
+	.add-button {
+		transform: scale(0.85);
+		margin-bottom: 2%;
+	}
+
+	.final-table-button{
+		margin-top: 1%;
+	}
+
+	.checkbox {
+		transform: scale(0.85);
+	}
+
+	.selected-row {
+		background-color: lightgray !important;
+	}
+</style>
+
+
+@code {
+	private string searchString = string.Empty;
+
+	private KhoaDto? selectedKhoa;
+
+	private LopDto? selectedLop;
+
+	private SinhVienDto? selectedSinhVien;
+
+	// thông số cho bảng khoa
+	private int currentPage_Khoa = 0;
+	private int rowsPerPage_Khoa = 20;
+	private int totalRecords_Khoa = 20;
+	private int totalPages_Khoa = 1;
+
+
+	// thông số cho bảng lop
+	private int currentPage_Lop = 0;
+	private int rowsPerPage_Lop = 20;
+	private int totalRecords_Lop = 20;
+	private int totalPages_Lop = 1;
+
+	// thông số cho bảng sinh viên
+	private int currentPage_SinhVien = 0;
+	private int rowsPerPage_SinhVien = 20;
+	private int totalRecords_SinhVien = 20;
+	private int totalPages_SinhVien = 1;
+
+	private List<int> selectedPages_Khoa = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_Lop = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_SinhVien = new() { 0 }; // luôn load có trang đầu tiên
+
+
+	private async Task OnRowsPerPageChange_Khoa(int rows)
+	{
+		if (rows == rowsPerPage_Khoa)
+			return;
+
+		this.rowsPerPage_Khoa = rows;
+		currentPage_Khoa = 0; //Reset về trang đầu tiên
+
+		(var newKhoas, _, _) = await Khoas_GetAll_PagedAPI(currentPage_Khoa, rowsPerPage_Khoa);
+		PadEmptyRows(newKhoas);
+	}
+	private async Task OnCurrentPageChange_Khoa(int page)
+	{
+		if (page == currentPage_Khoa)
+			return;
+
+		this.currentPage_Khoa = page;
+		if (selectedPages_Khoa.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newLops, _, _) = await Lops_SelectBy_ma_khoa_PagedAPI(selectedKhoa?.MaKhoa ?? -1, currentPage_Khoa, rowsPerPage_Khoa);
+		PadEmptyRows(newLops);
+		selectedPages_Khoa?.Add(currentPage_Khoa);
+	}
+
+	private async Task OnRowsPerPageChange_Lop(int rows)
+	{
+		if (rows == rowsPerPage_Lop)
+			return;
+
+		this.rowsPerPage_Lop = rows;
+		currentPage_Lop = 0; //Reset về trang đầu tiên
+
+		(var newLops, _, _) = await Lops_SelectBy_ma_khoa_PagedAPI(selectedKhoa?.MaKhoa ?? -1, currentPage_Lop, rowsPerPage_Lop);
+		PadEmptyRows(newLops);
+	}
+	private async Task OnCurrentPageChange_Lop(int page)
+	{
+		if (page == currentPage_Lop)
+			return;
+
+		this.currentPage_Lop = page;
+		if (selectedPages_Lop.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newLops, _, _) = await Lops_SelectBy_ma_khoa_PagedAPI(selectedKhoa?.MaKhoa ?? -1, currentPage_Lop, rowsPerPage_Lop);
+		PadEmptyRows(newLops);
+		selectedPages_Lop?.Add(currentPage_Lop);
+	}
+
+	private async Task OnRowsPerPageChange_SinhVien(int rows)
+	{
+		if (rows == rowsPerPage_SinhVien)
+			return;
+
+		this.rowsPerPage_SinhVien = rows;
+		currentPage_SinhVien = 0; //Reset về trang đầu tiên
+
+		(var newSinhViens, _, _) = await SinhViens_SelectBy_MaLop_PagedAPI(selectedLop?.MaLop ?? -1, currentPage_SinhVien, rowsPerPage_SinhVien);
+		PadEmptyRows(newSinhViens);
+	}
+	private async Task OnCurrentPageChange_SinhVien(int page)
+	{
+		if (page == currentPage_SinhVien)
+			return;
+
+		this.currentPage_SinhVien = page;
+		if (selectedPages_SinhVien.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newSinhViens, _, _) = await SinhViens_SelectBy_MaLop_PagedAPI(selectedLop?.MaLop ?? -1, currentPage_SinhVien, rowsPerPage_SinhVien);
+		PadEmptyRows(newSinhViens);
+		selectedPages_SinhVien?.Add(currentPage_SinhVien);
+	}
+
+
+
+	private async Task OnRowClickedKhoa(TableRowClickEventArgs<KhoaDto> args)
+	{
+		if (args.Item == selectedKhoa)
+			return;
+
+		selectedKhoa = args.Item;
+		selectedLop = null;
+		selectedSinhVien = null;
+		await SaveData();
+		Lops = [];
+		SinhViens = [];
+
+		await FetchLops();
+	}
+
+	private async Task OnRowClickedLop(TableRowClickEventArgs<LopDto> args)
+	{
+		if (args.Item == selectedLop)
+			return;
+
+		selectedLop = args.Item;
+		selectedSinhVien = null;
+		await SaveData();
+
+		SinhViens = [];
+
+		await FetchSinhViens();
+	}
+
+	private void OnRowClickedSinhVien(TableRowClickEventArgs<SinhVienDto> args)
+	{
+		if (args.Item == selectedSinhVien)
+			return;
+
+		selectedSinhVien = args.Item;
+	}
+
+	private string SelectedRowClassKhoaFunc(KhoaDto item, int rowNumber)
+	{
+		return item == selectedKhoa ? "selected-row" : string.Empty;
+	}
+
+	private string SelectedRowClassLopFunc(LopDto item, int rowNumber)
+	{
+		return item == selectedLop ? "selected-row" : string.Empty;
+	}
+
+	private string SelectedRowClassSinhVienFunc(SinhVienDto item, int rowNumber)
+	{
+		return item == selectedSinhVien ? "selected-row" : string.Empty;
+	}
+
+
+}

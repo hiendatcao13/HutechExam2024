@@ -51,7 +51,7 @@ namespace Hutech.Exam.Server.BUS
             return result;
         }
 
-        public async Task<CaThiPage> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize)
+        public async Task<Paged<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize)
         {
             List<CaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -72,10 +72,10 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new CaThiPage { Data = result, TotalPages= tong_so_trang, TotalRecords = tong_so_ban_ghi};
+            return new Paged<CaThiDto> { Data = result, TotalPages= tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
 
-        public async Task<CaThiPage> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize)
+        public async Task<Paged<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize)
         {
             List<CaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -96,7 +96,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new CaThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+            return new Paged<CaThiDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
         public async Task<CaThiDto> SelectOne(int ma_ca_thi)
@@ -128,22 +128,32 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.Activate(ma_ca_thi, IsActivated) != 0;
         }
+
         public async Task<bool> HuyKichHoat(int ma_ca_thi)
         {
             return await _caThiRepository.HuyKichHoat(ma_ca_thi) != 0;
         }
+
         public async Task<bool> Ketthuc(int ma_ca_thi)
         {
             return await _caThiRepository.Ketthuc(ma_ca_thi) != 0;
         }
+
         public async Task<int> Insert(CaThiCreateRequest caThi)
         {
             return Convert.ToInt32(await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi) ?? -1);
         }
+
         public async Task<bool> Remove(int ma_ca_thi)
         {
             return await _caThiRepository.Remove(ma_ca_thi) != 0;
         }
+
+        public async Task<bool> ForceRemove(int ma_ca_thi)
+        {
+            return await _caThiRepository.ForceRemove(ma_ca_thi) != 0;
+        }
+
         public async Task<bool> Update(int id, CaThiUpdateRequest caThi)
         {
             return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi) != 0;

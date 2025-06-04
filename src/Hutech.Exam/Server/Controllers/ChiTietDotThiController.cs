@@ -61,9 +61,9 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-dotthi-paged")]
-        public async Task<ActionResult<ChiTietDotThiPage>> SelectBy_MaDotThi_Paged([FromQuery] int maDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<ActionResult<Paged<ChiTietDotThiDto>>> SelectBy_MaDotThi_Paged([FromQuery] int maDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            return Ok(APIResponse<ChiTietDotThiPage>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_Paged(maDotThi, pageNumber, pageSize), message: "Lấy danh sách chi tiết đợt thi thành công"));
+            return Ok(APIResponse<Paged<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_Paged(maDotThi, pageNumber, pageSize), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
 
@@ -107,16 +107,38 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////DELETE//////////////////////////
 
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<ChiTietDotThiDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _chiTietDotThiService.ForceRemove(id);
+                if(!result)
+                {
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
+                }    
+                return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietDotThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<ChiTietDotThiDto>> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _chiTietDotThiService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
-                }    
+                }
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
             }
             catch (SqlException sqlEx)

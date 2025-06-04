@@ -76,17 +76,17 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-chitietdotthi-paged")]
-        public async Task<ActionResult<CaThiPage>> SelectBy_ma_chi_tiet_dot_thi_Paged([FromQuery] int maChiTietDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<ActionResult<Paged<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi_Paged([FromQuery] int maChiTietDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Paged(maChiTietDotThi, pageNumber, pageSize);
-            return Ok(APIResponse<CaThiPage>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
+            return Ok(APIResponse<Paged<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
         [HttpGet("filter-by-chitietdotthi-search-paged")]
-        public async Task<ActionResult<CaThiPage>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged([FromQuery] int maChiTietDotThi, [FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<ActionResult<Paged<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged([FromQuery] int maChiTietDotThi, [FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Search_Paged(maChiTietDotThi, keyword, pageNumber, pageSize);
-            return Ok(APIResponse<CaThiPage>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
+            return Ok(APIResponse<Paged<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
         //////////////////PUT///////////////////////////
@@ -214,6 +214,29 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         //////////////////DELETE//////////////////////////
+
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<CaThiDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _caThiService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần xóa"));
+                }
+                await NotifyChangeCaThiToAdmin(id, 2);
+                return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<CaThiDto>> Delete([FromRoute] int id)

@@ -74,5 +74,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
             return await sql.ExecuteNonQueryAsync();
         }
+
+        public async Task<int> ForceRemove(int ma_chi_tiet_dot_thi)
+        {
+            DatabaseReader sql = new("chi_tiet_dot_thi_ForceRemove");
+            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            return await sql.ExecuteNonQueryAsync();
+        }
     }
 }

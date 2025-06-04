@@ -80,6 +80,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             return await sql.ExecuteNonQueryAsync();
         }
+
+        public async Task<int> ForceRemove(int ma_ca_thi)
+        {
+            DatabaseReader sql = new("ca_thi_ForceRemove");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            return await sql.ExecuteNonQueryAsync();
+        }
+
         public async Task<int> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
         {
             DatabaseReader sql = new("ca_thi_Update");

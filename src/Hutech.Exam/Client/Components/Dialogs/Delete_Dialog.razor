@@ -1,0 +1,60 @@
+﻿<MudDialog style="transform: scale(0.7)">
+    <DialogContent>
+        <MudText>@((MarkupString)(ContentText ?? ""))</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Thoát</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ForceRemove">Xóa ràng buộc</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Remove">Xóa an toàn</MudButton>
+
+        <MudText Color="Color.Secondary"> Xóa ràng buộc bao gồm xóa những thực thể có phụ thuộc vào khóa của đối tượng</MudText>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string? ContentText { get; set; }
+
+    [Parameter]
+    public EventCallback? onHandleRemove { get; set; }
+
+    [Parameter]
+    public EventCallback? onHandleForceRemove { get; set; }
+
+    [Parameter]
+    public EventCallback? onHandleCancel { get; set; }
+
+    private async Task Remove()
+    {
+        if (onHandleRemove.HasValue)
+        {
+            await onHandleRemove.Value.InvokeAsync();
+        }
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private async Task ForceRemove()
+    {
+        if (onHandleForceRemove.HasValue)
+        {
+            await onHandleForceRemove.Value.InvokeAsync();
+        }
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private async Task Cancel()
+    {
+        if (onHandleCancel.HasValue)
+        {
+            await onHandleCancel.Value.InvokeAsync();
+        }
+        MudDialog?.Close(DialogResult.Cancel());
+    }
+}

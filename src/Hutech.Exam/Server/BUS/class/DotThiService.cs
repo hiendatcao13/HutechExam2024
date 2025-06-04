@@ -43,7 +43,7 @@ namespace Hutech.Exam.Server.BUS
             return result;
         }
 
-        public async Task<DotThiPage> GetAll_Paged(int pageNumber, int pageSize)
+        public async Task<Paged<DotThiDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
             List<DotThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new DotThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+            return new Paged<DotThiDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
 
         public async Task<DotThiDto> SelectOne(int ma_dot_thi)
@@ -94,6 +94,11 @@ namespace Hutech.Exam.Server.BUS
         public async Task<bool> Remove(int ma_dot_thi)
         {
             return await _dotThiRepository.Remove(ma_dot_thi) != 0;
+        }
+
+        public async Task<bool> ForceRemove(int ma_dot_thi)
+        {
+            return await _dotThiRepository.ForceRemove(ma_dot_thi) != 0;
         }
     }
 }

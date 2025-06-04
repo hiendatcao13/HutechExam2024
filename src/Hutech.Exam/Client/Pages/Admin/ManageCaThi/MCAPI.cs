@@ -33,13 +33,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
         private async Task<(List<CaThiDto>?, int, int)> CaThis_SelectBy_MaChiTietDotThi_PagedAPI(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize)
         {
-            var response = await SenderAPI.GetAsync<CaThiPage>($"api/cathis/filter-by-chitietdotthi-paged?maChiTietDotThi={ma_chi_tiet_dot_thi}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
+            var response = await SenderAPI.GetAsync<Paged<CaThiDto>>($"api/cathis/filter-by-chitietdotthi-paged?maChiTietDotThi={ma_chi_tiet_dot_thi}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords) : ([], 0, 0);
         }
 
         private async Task<(List<CaThiDto>?, int, int)> CaThis_SelectBy_MaChiTietDotThi_Search_PagedAPI(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize)
         {
-            var response = await SenderAPI.GetAsync<CaThiPage>($"api/cathis/filter-by-chitietdotthi-search-paged?maChiTietDotThi={ma_chi_tiet_dot_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
+            var response = await SenderAPI.GetAsync<Paged<CaThiDto>>($"api/cathis/filter-by-chitietdotthi-search-paged?maChiTietDotThi={ma_chi_tiet_dot_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords) : ([], 0, 0);
         }
         

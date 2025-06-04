@@ -1,0 +1,139 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.Lop
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên khoa:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@Khoa?.TenKhoa</span></MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên lớp:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên lớp" Required @bind-Value="@tempLop.TenLop" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày bắt đầu:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudDatePicker Editable="true" Label="Ngày bắt đầu" @bind-Date="@tempLop.NgayBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text {
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter][EditorRequired] public bool IsEdit { get; set; } = false;
+
+    [Parameter] public LopDto? Lop { get; set; } = default!;
+
+    [Parameter][EditorRequired] public KhoaDto? Khoa { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    private LopDto tempLop { get; set; } = default!;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if (IsEdit && Lop != null)
+        {
+            tempLop = new LopDto(Lop);
+            return;
+        }
+        tempLop = new();
+    }
+
+    private bool CheckValidForm()
+    {
+        return !string.IsNullOrWhiteSpace(tempLop.TenLop) && tempLop.NgayBatDau != default;
+    }
+
+
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickThem()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await InsertAPI(new LopCreateRequest
+            {
+                TenLop = tempLop.TenLop ?? string.Empty,
+                NgayBatDau = tempLop.NgayBatDau ?? DateTime.Now,
+				MaKhoa = Khoa?.MaKhoa ?? -1
+            });
+        if (result != null && result.MaKhoa != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickSua()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await UpdateAPI(tempLop.MaLop, new LopUpdateRequest
+            {
+                TenLop = tempLop.TenLop ?? string.Empty,
+                NgayBatDau = tempLop.NgayBatDau ?? DateTime.Now,
+				MaKhoa = Khoa?.MaKhoa ?? -1
+            });
+        if (result != null && result.MaKhoa != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<KhoaDto?> InsertAPI(LopCreateRequest khoa)
+    {
+        var response = await SenderAPI.PostAsync<KhoaDto>("api/lops", khoa);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<KhoaDto?> UpdateAPI(int id, LopUpdateRequest khoa)
+    {
+        var response = await SenderAPI.PutAsync<KhoaDto>($"api/lops/{id}", khoa);
+        return (response.Success) ? response.Data : null;
+    }
+}

@@ -1,9 +1,12 @@
-﻿using Hutech.Exam.Server.Authentication;
+﻿using System.Data.SqlClient;
+using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.SinhVien;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +44,42 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: result, message: "Đã tìm thấy sinh viên thành công"));
         }
 
+        [HttpGet("filter-by-lop-paged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Paged<SinhVienDto>>> SelectBy_MaLop_Paged([FromQuery] int maLop, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _sinhVienService.SelectBy_ma_lop_Paged(maLop, pageNumber, pageSize);
+            return Ok(APIResponse<Paged<SinhVienDto>>.SuccessResponse(data: result, message: "Lấy danh sách sinh viên theo lớp thành công"));
+        }
+
+        [HttpGet("filter-by-lop-search-paged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Paged<SinhVienDto>>> SelectBy_MaLop_Paged_Search([FromQuery] int maLop, [FromQuery] string keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _sinhVienService.SelectBy_ma_lop_Search_Paged(maLop, keyword, pageNumber, pageSize);
+            return Ok(APIResponse<Paged<SinhVienDto>>.SuccessResponse(data: result, message: "Lấy danh sách sinh viên theo lớp thành công"));
+        }
+
         //////////////////POST///////////////////////////
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<SinhVienDto>> Insert([FromBody] SinhVienCreateRequest sinhVien)
+        {
+            try
+            {
+                var id = await _sinhVienService.Insert(sinhVien);
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Thêm sinh viên thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Thêm sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
 
         [HttpPost("login")]
         [AllowAnonymous]
@@ -68,6 +106,32 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         //////////////////PUT///////////////////////////
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<SinhVienDto>> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
+        {
+            try
+            {
+                var result = await _sinhVienService.Update(id, sinhVien);
+                if (!result)
+                {
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần cập nhật"));
+                }
+                else
+                {
+                    return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Cập nhật sinh viên thành công"));
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Cập nhật sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
 
         //////////////////PATCH///////////////////////////
 
@@ -104,7 +168,51 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////DELTE///////////////////////////
 
+        [HttpDelete("{id}/force")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _sinhVienService.ForceRemove(id);
+                if (!result)
+                {
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
+                }
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
 
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _sinhVienService.Remove(id);
+                if (!result)
+                {
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
+                }
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
 
         //////////////////OTHERS///////////////////////////
 

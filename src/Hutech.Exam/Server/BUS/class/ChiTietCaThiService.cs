@@ -71,7 +71,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return result;
         }
-        public async Task<ChiTietCaThiPage> SelectBy_MaCaThi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
+        public async Task<Paged<ChiTietCaThiDto>> SelectBy_MaCaThi_Paged(int ma_ca_thi, int pageNumber, int pageSize)
         {
             List<ChiTietCaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -94,10 +94,10 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new ChiTietCaThiPage() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+            return new Paged<ChiTietCaThiDto>() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
 
-        public async Task<ChiTietCaThiPage> SelectBy_MaCaThi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
+        public async Task<Paged<ChiTietCaThiDto>> SelectBy_MaCaThi_Search_Paged(int ma_ca_thi, string keyword, int pageNumber, int pageSize)
         {
             List<ChiTietCaThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -120,7 +120,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new ChiTietCaThiPage() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+            return new Paged<ChiTietCaThiDto>() { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
         public async Task<ChiTietCaThiDto> SelectBy_MaCaThi_MaSinhVien(int ma_ca_thi, long ma_sinh_vien)

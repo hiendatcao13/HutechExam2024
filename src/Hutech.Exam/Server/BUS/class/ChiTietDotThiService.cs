@@ -48,7 +48,7 @@ namespace Hutech.Exam.Server.BUS
             return list;
         }
 
-        public async Task<ChiTietDotThiPage> SelectBy_MaDotThi_Paged(int ma_dot_thi, int pageNumber, int pageSize)
+        public async Task<Paged<ChiTietDotThiDto>> SelectBy_MaDotThi_Paged(int ma_dot_thi, int pageNumber, int pageSize)
         {
             List<ChiTietDotThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
@@ -72,7 +72,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                 }
             }
-            return new ChiTietDotThiPage { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
+            return new Paged<ChiTietDotThiDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi};
         }
 
         public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi_MaLopAo(int ma_dot_thi, int ma_lop_ao)
@@ -142,6 +142,11 @@ namespace Hutech.Exam.Server.BUS
         public async Task<bool> Remove(int ma_chi_tiet_dot_thi)
         {
             return await _chiTietDotThiResposity.Remove(ma_chi_tiet_dot_thi) != 0;
+        }
+
+        public async Task<bool> ForceRemove(int ma_chi_tiet_dot_thi)
+        {
+            return await _chiTietDotThiResposity.ForceRemove(ma_chi_tiet_dot_thi) != 0;
         }
     }
 }

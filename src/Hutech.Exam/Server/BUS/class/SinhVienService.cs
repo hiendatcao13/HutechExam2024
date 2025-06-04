@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.SinhVien;
 using Hutech.Exam.Shared.Models;
 using System;
 using System.Data;
@@ -84,16 +86,73 @@ namespace Hutech.Exam.Server.BUS
             }
             return sv;
         }
-        public async Task<long> Insert(SinhVienDto sinhVien)
+        public async Task<long> Insert(SinhVienCreateRequest sinhVien)
         {
-            return (long)(await _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
+            return Convert.ToInt64(await _sinhVienRepository.Insert(sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh, sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi,
                 sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId) ?? -1);
         }
-        public async Task<int> Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
-            DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
+        public async Task<bool> Update(long id, SinhVienUpdateRequest sinhVien)
         {
-            return await _sinhVienRepository.Update(ma_sinh_vien, ho_va_ten_lot, ten_sinh_vien, gioi_tinh,
-            ngay_sinh, ma_lop, dia_chi, email, dien_thoai, ma_so_sinh_vien);
+            return await _sinhVienRepository.Update(id, sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh,
+            sinhVien.NgaySinh, sinhVien.MaLop, sinhVien.DiaChi, sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien) != 0;
+        }
+
+        public async Task<bool> Remove(long ma_sinh_vien)
+        {
+            return await _sinhVienRepository.Remove(ma_sinh_vien) != 0;
+        }
+
+        public async Task<bool> ForceRemove(long ma_sinh_vien)
+        {
+            return await _sinhVienRepository.ForceRemove(ma_sinh_vien) != 0;
+        }
+
+        public async Task<Paged<SinhVienDto>> SelectBy_ma_lop_Paged(int ma_lop, int pageNumber, int pageSize)
+        {
+            List<SinhVienDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _sinhVienRepository.SelectBy_ma_lop_Paged(ma_lop, pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    SinhVienDto sv = GetProperty(dataReader);
+                    result.Add(sv);
+                }
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new Paged<SinhVienDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+        }
+
+        public async Task<Paged<SinhVienDto>> SelectBy_ma_lop_Search_Paged(int ma_lop, string keyword, int pageNumber, int pageSize)
+        {
+            List<SinhVienDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+            using (IDataReader dataReader = await _sinhVienRepository.SelectBy_ma_lop_Search_Paged(ma_lop, keyword, pageNumber, pageSize))
+            {
+                while (dataReader.Read())
+                {
+                    SinhVienDto sv = GetProperty(dataReader);
+                    result.Add(sv);
+                }
+                //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+                if (dataReader.NextResult())
+                {
+                    while (dataReader.Read())
+                    {
+                        tong_so_ban_ghi = dataReader.GetInt32(0);
+                        tong_so_trang = dataReader.GetInt32(1);
+                    }
+                }
+            }
+            return new Paged<SinhVienDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
     }
 }

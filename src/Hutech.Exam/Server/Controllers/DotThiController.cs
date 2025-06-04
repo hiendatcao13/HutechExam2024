@@ -49,7 +49,7 @@ namespace Hutech.Exam.Server.Controllers
             if (pageNumber.HasValue && pageSize.HasValue)
             {
                 var pagedResult = await _dotThiService.GetAll_Paged(pageNumber.Value, pageSize.Value);
-                return Ok(APIResponse<DotThiPage>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
+                return Ok(APIResponse<Paged<DotThiDto>>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
             }
             else
             {
@@ -93,16 +93,38 @@ namespace Hutech.Exam.Server.Controllers
 
         //////////////////DELETE//////////////////////////
 
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<DotThiDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _dotThiService.ForceRemove(id);
+                if(!result)
+                {
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
+                }    
+                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<DotThiDto>> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _dotThiService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
-                }    
+                }
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
             }
             catch (SqlException sqlEx)

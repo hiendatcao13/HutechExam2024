@@ -8,16 +8,17 @@
 <PageTitle>Organize Exam</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
-	<MudGrid Style="margin-top: 70px; margin-left: 5px">
+	<MudGrid Style="margin-top: 5px; margin-left: 5px">
 		<MudGrid>
 			<MudItem xs="6">
 				@if (dotThis != null)
 				{
 					<MudTable Elevation="24" T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
-							  TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
+					TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
 						<ToolBarContent>
 							<MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
 							<MudSpacer />
+							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await Start()">Sync</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDotThi()">Thêm</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDotThi()">Sửa</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDotThi()">Xóa</MudButton>
@@ -46,10 +47,11 @@
 				@if (chiTietDotThis != null)
 				{
 					<MudTable Elevation="24" T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc"
-							  TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
+					TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
 						<ToolBarContent>
 							<MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
 							<MudSpacer />
+							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCTDotThi()">Sync</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCTDotThi()">Thêm</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
 							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
@@ -75,14 +77,15 @@
 		</MudGrid>
 		@if (caThis != null)
 		{
-			<MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%"
-					  TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
+			<MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCaThiFunc"
+			TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
 				<ToolBarContent>
 					<MudText Typo="Typo.h6">Thông tin ca thi</MudText>
 					<MudSpacer />
-					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
-					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Cập nhật đề thi</MudButton>
-					<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
+					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCaThis()">Sync</MudButton>
+					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
+					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Cập nhật đề thi</MudButton>
+					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
 				</ToolBarContent>
 				<HeaderContent>
 					<MudTh>ID</MudTh>
@@ -132,16 +135,20 @@
 </MudContainer>
 <style>
 	.add-button {
-		transform: scale(0.85);
-		margin-bottom: 2%;
+	transform: scale(0.85);
+	margin-bottom: 2%;
+	}
+	
+	.final-table-button {
+		margin-top: 1%;
 	}
 
 	.checkbox {
-		transform: scale(0.85);
+	transform: scale(0.85);
 	}
 
 	.selected-row {
-		background-color: lightgray !important;
+	background-color: lightgray !important;
 	}
 </style>
 
@@ -261,14 +268,13 @@
 		if (args.Item == selectedDotThi)
 			return;
 		selectedDotThi = args.Item;
+		selectedChiTietDotThi = null;
+		selectedCaThi = null;
 		await SaveData();
 		chiTietDotThis = [];
 		caThis = [];
-		if (selectedDotThi != null)
-		{
-			(chiTietDotThis, totalPages_CTDT, totalRecords_CTDT) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
-			CreateFakeData_CTDT();
-		}
+
+		await FetchCTDotThi();
 	}
 	private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
 	{
@@ -279,17 +285,20 @@
 		if (args.Item == selectedChiTietDotThi)
 			return;
 		selectedChiTietDotThi = args.Item;
+		selectedCaThi = null;
 		await SaveData();
 		caThis = [];
-		if (selectedChiTietDotThi != null)
-		{
-			(caThis, totalPages_CT, totalRecords_CT) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
-			CreateFakeData_CT();
-		}
+
+		await FetchCaThis();
 	}
 	private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)
 	{
 		return item == selectedChiTietDotThi ? "selected-row" : string.Empty;
+	}
+
+	private string SelectedRowClassCaThiFunc(CaThiDto item, int rowNumber)
+	{
+		return item == selectedCaThi ? "selected-row" : string.Empty;
 	}
 	private async void OnRowClickedCaThi(TableRowClickEventArgs<CaThiDto> args)
 	{

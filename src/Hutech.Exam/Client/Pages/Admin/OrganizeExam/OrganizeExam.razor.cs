@@ -32,9 +32,9 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
-        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không?";
-        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không?";
-        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không?";
+        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI, CATHI, CHITIETCATHI, CHITIETBAITHI";
+        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI, CHITIETBAITHI";
+        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI, CHITIETCATHI, CHITIETBAITHI";
         private const string SUCCESS_DELETE_CATHI = "Xóa ca thi thành công";
         private const string ERROR_DELETE_CATHI = "Xóa ca thi thất bại";
 
@@ -62,6 +62,24 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             CreateFakeData_DT();
         }
 
+        private async Task FetchCaThis()
+        {
+            if (selectedChiTietDotThi != null)
+            {
+                (caThis, totalPages_CT, totalRecords_CT) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+                CreateFakeData_CT();
+            }
+        }
+
+        private async Task FetchCTDotThi()
+        {
+            if (selectedDotThi != null)
+            {
+                (chiTietDotThis, totalPages_CTDT, totalRecords_CTDT) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+                CreateFakeData_CTDT();
+            }
+        }
+
         private async Task GetItemsInSessionStorage()
         {
             var storedData = await SessionStorage.GetItemAsync<StoredDataOE>("storedDataOE");
@@ -75,14 +93,10 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         }
         private async Task FetchAllData()
         {
-            if (selectedDotThi != null && selectedDotThi != null)
+            if (selectedDotThi != null)
             {
-                chiTietDotThis = await ChiTietDotThis_SelectBy_MaDotThiAPI(selectedDotThi.MaDotThi);
-                if (selectedChiTietDotThi != null)
-                {
-                    (caThis, totalPages_CT, totalRecords_CT) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
-                    CreateFakeData_CT();
-                }
+                await FetchCTDotThi();
+                await FetchCaThis();
             }
         }
 
@@ -133,20 +147,20 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
             }
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_DOTTHI_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteDotThi())   }
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDotThi(true))   },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDotThi(false))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA ĐỢT THI", parameters, options);
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA ĐỢT THI", parameters, options);
         }
-        private async Task HandleDeleteDotThi()
+
+        private async Task HandleDeleteDotThi(bool isForce)
         {
             Snackbar.Add(WAITING_DELETE, Severity.Warning);
-            bool result = await DeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1);
+            bool result = (isForce) ? await ForceDeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1) : await DeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1);
             if (result && selectedDotThi != null)
             {
                 dotThis?.Remove(selectedDotThi);
@@ -155,6 +169,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 caThis = [];
             }
         }
+
         private async Task OnClickThemCTDotThi()
         {
             var result = await OpenChiTietDotThiDialog(false);

@@ -43,6 +43,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
             return await sql.ExecuteNonQueryAsync();
         }
+
+        public async Task<int> ForceRemove(long ma_sinh_vien)
+        {
+            DatabaseReader sql = new("sinh_vien_ForceRemove");
+            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
+            return await sql.ExecuteNonQueryAsync();
+        }
+
         // lấy thông tin của 1 SV từ maSV
         public async Task<IDataReader> SelectOne(long ma_sinh_vien)
         {
@@ -50,6 +58,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
             return await sql.ExecuteReaderAsync();
         }
+
         // lấy mã SV từ mã số SV
         public async Task<IDataReader> SelectBy_ma_so_sinh_vien(string ma_so_sinh_vien)
         {
@@ -57,11 +66,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien);
             return await sql.ExecuteReaderAsync();
         }
+
         public async Task<IDataReader> GetAll()
         {
             DatabaseReader sql = new("sinh_vien_GetAll");
             return await sql.ExecuteReaderAsync();
         }
+
         public async Task<int> Login(long ma_sinh_vien, DateTime last_log_in)
         {
             DatabaseReader sql = new("sinh_vien_Login");
@@ -69,12 +80,32 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@last_logged_in", SqlDbType.DateTime, last_log_in);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> Logout(long ma_sinh_vien, DateTime last_log_out)
         {
             DatabaseReader sql = new("sinh_vien_Logout");
             sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
             sql.SqlParams("@last_logged_out", SqlDbType.DateTime, last_log_out);
             return await sql.ExecuteNonQueryAsync();
+        }
+
+        public async Task<IDataReader> SelectBy_ma_lop_Search_Paged(int ma_lop, string keyword, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("sinh_vien_SelectBy_ma_lop_Search_Paged");
+            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+            sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
+        }
+
+        public async Task<IDataReader> SelectBy_ma_lop_Paged(int ma_lop, int pageNumber, int pageSize)
+        {
+            DatabaseReader sql = new("sinh_vien_SelectBy_ma_lop_Paged");
+            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+            return await sql.ExecuteReaderAsync();
         }
     }
 }
