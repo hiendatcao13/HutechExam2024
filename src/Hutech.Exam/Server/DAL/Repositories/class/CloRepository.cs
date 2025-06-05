@@ -35,12 +35,21 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@SoCau", SqlDbType.Int, so_cau);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> Remove(int ma_clo)
         {
             DatabaseReader sql = new("Clo_Remove");
             sql.SqlParams("@MaClo", SqlDbType.Int, ma_clo);
             return await sql.ExecuteNonQueryAsync();
         }
+
+        public async Task<int> ForceRemove(int ma_clo)
+        {
+            DatabaseReader sql = new("Clo_ForceRemove");
+            sql.SqlParams("@MaClo", SqlDbType.Int, ma_clo);
+            return await sql.ExecuteNonQueryAsync();
+        }
+
         public async Task<IDataReader> SelectBy_MaMonHoc(int ma_mon_hoc)
         {
             DatabaseReader sql = new("Clo_SelectBy_MaMonHoc");

@@ -37,15 +37,33 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
             return response.Success;
         }
 
+        private async Task<bool> Khoa_ForceDelete(int maKhoa)
+        {
+            var response = await SenderAPI.DeleteAsync<KhoaDto>($"api/khoas/{maKhoa}/force");
+            return response.Success;
+        }
+
         private async Task<bool> Lop_Delete(int maLop)
         {
             var response = await SenderAPI.DeleteAsync<LopDto>($"api/lops/{maLop}");
             return response.Success;
         }
 
+        private async Task<bool> Lop_ForceDelete(int maLop)
+        {
+            var response = await SenderAPI.DeleteAsync<LopDto>($"api/lops/{maLop}/force");
+            return response.Success;
+        }
+
         private async Task<bool> SinhVien_Delete(long maSinhVien)
         {
             var response = await SenderAPI.DeleteAsync<SinhVienDto>($"api/sinhviens/{maSinhVien}");
+            return response.Success;
+        }
+
+        private async Task<bool> SinhVien_ForceDelete(long maSinhVien)
+        {
+            var response = await SenderAPI.DeleteAsync<SinhVienDto>($"api/sinhviens/{maSinhVien}/force");
             return response.Success;
         }
     }

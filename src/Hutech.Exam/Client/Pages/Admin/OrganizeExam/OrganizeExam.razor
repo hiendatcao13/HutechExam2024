@@ -8,7 +8,7 @@
 <PageTitle>Organize Exam</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
-	<MudGrid Style="margin-top: 5px; margin-left: 5px">
+	<MudGrid Style="margin-top: 7px; margin-left: 5px">
 		<MudGrid>
 			<MudItem xs="6">
 				@if (dotThis != null)
@@ -117,11 +117,11 @@
 							<MudTooltip Text="Sửa ca thi">
 								<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)" />
 							</MudTooltip>
-							<MudTooltip Text="Cập nhật đề thi">
-								<MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
-							</MudTooltip>
 							<MudTooltip Text="Xóa ca thi">
 								<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)" />
+							</MudTooltip>
+							<MudTooltip Text="Cập nhật đề thi">
+								<MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
 							</MudTooltip>
 						</MudButtonGroup>
 					</MudTd>

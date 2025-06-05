@@ -67,9 +67,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
 
         private async Task Start()
         {
-            // lấy danh sách khoa
-            (Khoas, totalPages_Khoa, totalRecords_Khoa) = await Khoas_GetAll_PagedAPI(currentPage_Khoa, rowsPerPage_Khoa);
-            CreateFakeData_Khoa();
+            await FetchKhoa();
         }
 
 
@@ -102,6 +100,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
                 await FetchLops();
                 await FetchSinhViens();
             }    
+        }
+        private async Task FetchKhoa()
+        {
+            // lấy danh sách khoa
+            (Khoas, totalPages_Khoa, totalRecords_Khoa) = await Khoas_GetAll_PagedAPI(currentPage_Khoa, rowsPerPage_Khoa);
+            CreateFakeData_Khoa();
         }
 
 
@@ -160,23 +164,22 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
                 return;
             }
 
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_KHOA_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteKhoa())   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteKhoa(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteKhoa(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA KHOA", parameters, options);
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
                 
         }
 
-        private async Task HandleDeleteKhoa()
+        private async Task HandleDeleteKhoa(bool isForce)
         {
             if(selectedKhoa != null)
             {
-                var result = await Khoa_Delete(selectedKhoa.MaKhoa);
+                var result = (isForce) ? await Khoa_ForceDelete(selectedKhoa.MaKhoa) : await Khoa_Delete(selectedKhoa.MaKhoa);
 
                 if (result)
                 {
@@ -240,25 +243,22 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
                 return;
             }
 
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_LOP_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteLop())   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteLop(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteLop(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA LỚP", parameters, options);
-
-
-              
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA LỚP", parameters, options);
+      
         }
 
-        private async Task HandleDeleteLop()
+        private async Task HandleDeleteLop(bool isForce)
         {
             if(selectedLop != null)
             {
-                var result = await Lop_Delete(selectedLop.MaLop);
+                var result = (isForce) ? await Lop_ForceDelete(selectedLop.MaLop) : await Lop_Delete(selectedLop.MaLop);
 
                 if (result)
                 {
@@ -317,22 +317,21 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
                 return;
             }
 
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_SINHVIEN_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteSinhVien())   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteSinhVien(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteSinhVien(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA SINH VIÊN", parameters, options);
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA SINH VIÊN", parameters, options);
         }
 
-        private async Task HandleDeleteSinhVien()
+        private async Task HandleDeleteSinhVien(bool isForce)
         {
             if(selectedSinhVien != null)
             {
-                var result = await SinhVien_Delete(selectedSinhVien.MaSinhVien);
+                var result = (isForce) ? await SinhVien_ForceDelete(selectedSinhVien.MaSinhVien) : await SinhVien_Delete(selectedSinhVien.MaSinhVien);
                 if (result)
                 {
                     SinhViens?.Remove(selectedSinhVien);

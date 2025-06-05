@@ -102,6 +102,28 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(APIResponse<CloDto>.ErrorResponse(message: "Xóa CLO không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+            }
+        }
+
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _cloService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần xóa"));
+                }
+                return Ok();
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CloDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(APIResponse<CloDto>.ErrorResponse(message: "Xóa CLO không thành công", errorDetails: ex.Message));
             }
         }

@@ -30,17 +30,25 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CauHoiDto>(cauHoi);
         }
+
         public async Task<int> Insert(CauHoiCreateRequest cauHoi)
         {
             return Convert.ToInt32(await _cauHoiRepository.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi) ?? -1);
         }
+
         public async Task<bool> Update(int id, CauHoiUpdateRequest cauHoi)
         {
             return await _cauHoiRepository.Update(id, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.GhiChu, cauHoi.HoanVi) != 0;
         }
+
         public async Task<bool> Remove(int ma_cau_hoi)
         {
             return await _cauHoiRepository.Remove(ma_cau_hoi) != 0;
+        }
+
+        public async Task<bool> ForceRemove(int ma_cau_hoi)
+        {
+            return await _cauHoiRepository.ForceRemove(ma_cau_hoi) != 0;
         }
 
         public async Task<CauHoiDto> SelectOne(int ma_cau_hoi)
@@ -55,6 +63,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return cauHoi;
         }
+
         public async Task<int> SelectDapAn(int ma_cau_hoi)
         {
             // chỉ trả về duy nhất 1 cột là MaTraLoi

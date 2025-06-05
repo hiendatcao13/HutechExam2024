@@ -102,6 +102,28 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Xóa câu hỏi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+            }
+        }
+
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _cauHoiService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Không tìm thấy câu hỏi cần xóa"));
+                }
+                return Ok(APIResponse<CauHoiDto>.SuccessResponse(message: "Xóa câu hỏi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CauHoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Xóa câu hỏi không thành công", errorDetails: ex.Message));
             }
         }

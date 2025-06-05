@@ -28,6 +28,7 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<CloDto>(clo);
         }
+
         public async Task<CloDto> SelectOne(int ma_clo)
         {
             CloDto clo = new();
@@ -40,18 +41,26 @@ namespace Hutech.Exam.Server.BUS
             }
             return clo;
         }
+
         public async Task<int> Insert(CloCreateRequest clo)
         {
             return Convert.ToInt32(await _cloRepository.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau));
         }
+
         public async Task<bool> Update(int id, CloUpdateRequest clo)
         {
             return await _cloRepository.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau) != 0;
         }
+
         public async Task<bool> Remove(int ma_clo)
         {
             return await _cloRepository.Remove(ma_clo) != 0;
         }
+        public async Task<bool> ForceRemove(int ma_clo)
+        {
+            return await _cloRepository.ForceRemove(ma_clo) != 0;
+        }
+
         public async Task<List<CloDto>> SelectBy_MaMonHoc(int ma_mon_hoc)
         {
             List<CloDto> result = [];

@@ -39,17 +39,25 @@ namespace Hutech.Exam.Server.BUS
             }
             return cauTraLoi;
         }
+
         public async Task<int> Insert(CauTraLoiCreateRequest cauTraLoi)
         {
             return Convert.ToInt32(await _cauTraLoiRepository.Insert(cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi) ?? -1);
         }
+
         public async Task<bool> Update(int id, CauTraLoiUpdateRequest cauTraLoi)
         {
             return await _cauTraLoiRepository.Update(id, cauTraLoi.MaCauHoi, cauTraLoi.ThuTu, cauTraLoi.NoiDung, cauTraLoi.LaDapAn, cauTraLoi.HoanVi) != 0;
         }
+
         public async Task<bool> Remove(int ma_cau_tra_loi)
         {
             return await _cauTraLoiRepository.Remove(ma_cau_tra_loi) != 0;
+        }
+
+        public async Task<bool> ForceRemove(int ma_cau_tra_loi)
+        {
+            return await _cauTraLoiRepository.ForceRemove(ma_cau_tra_loi) != 0;
         }
 
         public async Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi)

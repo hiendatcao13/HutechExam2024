@@ -1,0 +1,169 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.DeThi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên đề thi:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên đề thi" Required @bind-Value="@tempDeThi.TenDeThi" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày tạo:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudDatePicker Editable="true" Label="Ngày tạo" @bind-Date="@ngay_tao" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+        
+            <MudItem xs="4" Style="align-content: center"><MudText>Ghi chú:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Ghi chú" @bind-Value="@tempDeThi.GhiChu" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Tổng số đề HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tổng số đề HV" @bind-Value="@tempDeThi.TongSoDeHoanVi" InputType="InputType.Number"></MudTextField></MudItem>
+        
+            <MudItem xs="6" md="4" lg="4">
+                <MudCheckBox @bind-Value="@tempDeThi.LuuTam">Lưu tạm</MudCheckBox>
+            </MudItem>
+
+            <MudItem xs="6" md="4" lg="4">
+                <MudCheckBox @bind-Value="@tempDeThi.DaDuyet">Đã duyệt</MudCheckBox>
+            </MudItem>
+
+            <MudItem xs="6" md="4" lg="4">
+                <MudCheckBox @bind-Value="@tempDeThi.BoChuongPhan">Bỏ chương phần</MudCheckBox>
+            </MudItem>
+        
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+
+    .title-text {
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter][EditorRequired] public bool IsEdit { get; set; } = false;
+
+    [Parameter] public DeThiDto? DeThi { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    private DeThiDto tempDeThi { get; set; } = default!;
+
+	private DateTime? ngay_tao = DateTime.Now;
+
+    private const string INVALID_FORM = "Vui lòng nhập ít nhất tên đề thi";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if (IsEdit && DeThi != null)
+        {
+            tempDeThi = new DeThiDto(DeThi);
+			ngay_tao = tempDeThi.NgayTao;
+            return;
+        }
+        tempDeThi = new();
+    }
+
+    private bool CheckValidForm()
+    {
+        return !string.IsNullOrWhiteSpace(tempDeThi.TenDeThi);
+    }
+
+
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickThem()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await InsertAPI(new DeThiCreateRequest
+            {
+				MaMonHoc = tempDeThi.MaMonHoc,
+				TenDeThi = tempDeThi.TenDeThi ?? string.Empty,
+				NgayTao = ngay_tao ?? DateTime.Now,
+				NguoiTao = -1,
+				GhiChu = tempDeThi.GhiChu ?? string.Empty,
+				LuuTam = tempDeThi.LuuTam,
+				DaDuyet = tempDeThi.DaDuyet,
+				TongSoDeHoanVi = tempDeThi.TongSoDeHoanVi,
+				BoChuongPhan = tempDeThi.BoChuongPhan
+
+            });
+        if (result != null && result.MaDeThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickSua()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await UpdateAPI(tempDeThi.MaDeThi, new DeThiUpdateRequest
+            {
+                MaMonHoc = tempDeThi.MaMonHoc,
+                TenDeThi = tempDeThi.TenDeThi ?? string.Empty,
+                NgayTao = ngay_tao ?? DateTime.Now,
+                NguoiTao = -1,
+                GhiChu = tempDeThi.GhiChu ?? string.Empty,
+                LuuTam = tempDeThi.LuuTam,
+                DaDuyet = tempDeThi.DaDuyet,
+                TongSoDeHoanVi = tempDeThi.TongSoDeHoanVi,
+                BoChuongPhan = tempDeThi.BoChuongPhan
+            });
+        if (result != null && result.MaDeThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<DeThiDto?> InsertAPI(DeThiCreateRequest deThi)
+    {
+        var response = await SenderAPI.PostAsync<DeThiDto>("api/dethis", deThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<DeThiDto?> UpdateAPI(int id, DeThiUpdateRequest deThi)
+    {
+        var response = await SenderAPI.PutAsync<DeThiDto>($"api/khoas/{id}", deThi);
+        return (response.Success) ? response.Data : null;
+    }
+}

@@ -51,11 +51,8 @@ namespace Hutech.Exam.Server.Controllers
                 var pagedResult = await _dotThiService.GetAll_Paged(pageNumber.Value, pageSize.Value);
                 return Ok(APIResponse<Paged<DotThiDto>>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
             }
-            else
-            {
-                var list = await _dotThiService.GetAll();
-                return Ok(APIResponse<List<DotThiDto>>.SuccessResponse(list, "Lấy danh sách đợt thi thành công"));
-            }
+            var list = await _dotThiService.GetAll();
+            return Ok(APIResponse<List<DotThiDto>>.SuccessResponse(list, "Lấy danh sách đợt thi thành công"));
         }
 
 
@@ -73,10 +70,10 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _dotThiService.Update(id, dotThi);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần cập nhật"));
-                }    
+                }
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Cập nhật đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -99,10 +96,10 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _dotThiService.ForceRemove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
-                }    
+                }
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
             }
             catch (SqlException sqlEx)
@@ -111,7 +108,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
             }
         }
 

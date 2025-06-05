@@ -128,7 +128,7 @@
 				Email = tempSinhVien.Email ?? string.Empty,
 				DiaChi = tempSinhVien.DiaChi ?? string.Empty,
 				DienThoai = tempSinhVien.DienThoai ?? string.Empty,
-				MaLop = Lop?.MaLop ?? 0
+				MaLop = Lop?.MaLop ?? -1
 			});
 
         if (result != null && result.MaSinhVien != 0)
@@ -152,7 +152,8 @@
 				NgaySinh = tempSinhVien.NgaySinh ?? DateTime.Now,
 				Email = tempSinhVien.Email ?? string.Empty,
 				DiaChi = tempSinhVien.DiaChi ?? string.Empty,
-				DienThoai = tempSinhVien.DienThoai ?? string.Empty
+				DienThoai = tempSinhVien.DienThoai ?? string.Empty,
+                MaLop = Lop?.MaLop ?? -1
             });
         if (result != null && result.MaSinhVien != 0)
         {

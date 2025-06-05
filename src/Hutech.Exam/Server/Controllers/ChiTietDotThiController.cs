@@ -147,7 +147,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
             }
         }
 

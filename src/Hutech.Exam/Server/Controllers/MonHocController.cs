@@ -3,6 +3,7 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.MonHoc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,9 +40,17 @@ namespace Hutech.Exam.Server.Controllers
         //////////////////GET////////////////////////////
 
         [HttpGet]
-        public async Task<ActionResult<List<MonHocDto>>> GetAll()
+        public async Task<ActionResult<List<MonHocDto>>> GetAll([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            return Ok(APIResponse<List<MonHocDto>>.SuccessResponse(data: await _monHocService.GetAll(), message: "Lấy danh sách môn học thành công"));
+            if (pageNumber.HasValue && pageSize.HasValue)
+            {
+                var pagedResult = await _monHocService.GetAll_Paged(pageNumber.Value, pageSize.Value);
+                return Ok(APIResponse<Paged<MonHocDto>>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
+            }
+            else
+            {
+                return Ok(APIResponse<List<MonHocDto>>.SuccessResponse(data: await _monHocService.GetAll(), message: "Lấy danh sách môn học thành công"));
+            }
         }
 
         [HttpGet("{id}")]
@@ -91,6 +100,28 @@ namespace Hutech.Exam.Server.Controllers
             {
                 var result = await _monHocService.Remove(id);
                 if(!result)
+                {
+                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
+                }
+                return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Xóa môn học không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+            }
+        }
+
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<MonHocDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _monHocService.ForceRemove(id);
+                if (!result)
                 {
                     return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
                 }

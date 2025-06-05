@@ -25,7 +25,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public string? GhiChu { get; set; }
 
-        public bool? LuuTam { get; set; }
+        public bool LuuTam { get; set; }
 
         public bool DaDuyet { get; set; }
 
@@ -42,7 +42,7 @@ namespace Hutech.Exam.Shared.DTO
             return TenDeThi;
         }
 
-        public DeThiDto(int maDeThi, int maMonHoc, string tenDeThi, DateTime ngayTao, int nguoiTao, string? ghiChu, bool? luuTam, bool daDuyet, int? tongSoDeHoanVi, bool boChuongPhan, ICollection<DeThiHoanViDto> deThiHoanVis, ICollection<NhomCauHoiDto> nhomCauHois)
+        public DeThiDto(int maDeThi, int maMonHoc, string tenDeThi, DateTime ngayTao, int nguoiTao, string? ghiChu, bool luuTam, bool daDuyet, int? tongSoDeHoanVi, bool boChuongPhan, ICollection<DeThiHoanViDto> deThiHoanVis, ICollection<NhomCauHoiDto> nhomCauHois)
         {
             MaDeThi = maDeThi;
             MaMonHoc = maMonHoc;

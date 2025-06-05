@@ -32,11 +32,9 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
-        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI, CATHI, CHITIETCATHI, CHITIETBAITHI";
-        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI, CHITIETBAITHI";
-        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI, CHITIETCATHI, CHITIETBAITHI";
-        private const string SUCCESS_DELETE_CATHI = "Xóa ca thi thành công";
-        private const string ERROR_DELETE_CATHI = "Xóa ca thi thất bại";
+        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
+        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI";
+        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
 
         protected override async Task OnInitializedAsync()
         {
@@ -159,10 +157,10 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private async Task HandleDeleteDotThi(bool isForce)
         {
-            Snackbar.Add(WAITING_DELETE, Severity.Warning);
             bool result = (isForce) ? await ForceDeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1) : await DeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1);
             if (result && selectedDotThi != null)
             {
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
                 dotThis?.Remove(selectedDotThi);
                 selectedDotThi = null;
                 chiTietDotThis = [];
@@ -222,22 +220,21 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
             }
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_CTDOTTHI_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteCTDotThi())   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCTDotThi(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCTDotThi(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA CHI TIẾT ĐỢT THI", parameters, options);
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA CHI TIẾT ĐỢT THI", parameters, options);
         }
-        private async Task HandleDeleteCTDotThi()
+        private async Task HandleDeleteCTDotThi(bool isForce)
         {
-            Snackbar.Add(WAITING_DELETE, Severity.Warning);
-            bool result = await DeleteCTDotThiAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1);
+            bool result = (isForce) ? await ForceDeleteCTDotThiAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1) : await DeleteCTDotThiAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1);
             if (result && selectedChiTietDotThi != null)
             {
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
                 chiTietDotThis?.Remove(selectedChiTietDotThi);
                 selectedChiTietDotThi = null;
                 caThis = [];
@@ -291,27 +288,24 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         private async Task OnClickDeleteCaThi(CaThiDto caThi)
         {
             selectedCaThi = caThi;
-            var parameters = new DialogParameters<Simple_Dialog>
+            var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_CATHI_MESSAGE },
-                { x => x.ButtonText, "Xóa" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi())   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Simple_Dialog>("XÓA CA THI", parameters, options);
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA CA THI", parameters, options);
         }
-        private async Task HandleDeleteCaThi()
+        private async Task HandleDeleteCaThi(bool isForce)
         {
-            Snackbar.Add(WAITING_DELETE, Severity.Warning);
-            bool result = await DeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1);
-            if (result)
+            bool result = (isForce) ? await ForceDeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1) : await DeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1);
+            if (result && selectedCaThi != null)
             {
-                Snackbar.Add(SUCCESS_DELETE_CATHI, Severity.Success);
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                caThis?.Remove(selectedCaThi);
                 selectedCaThi = null;
             }
-            else
-                Snackbar.Add(ERROR_DELETE_CATHI, Severity.Error);
         }
         private async Task OnClickCapNhatDeThi(CaThiDto caThi)
         {

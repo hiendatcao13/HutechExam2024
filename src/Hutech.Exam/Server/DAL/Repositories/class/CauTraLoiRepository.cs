@@ -28,6 +28,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@HoanVi", SqlDbType.Bit, hoan_vi);
             return await sql.ExecuteScalarAsync();
         }
+
         public async Task<int> Update(int ma_cau_tra_loi, int ma_cau_hoi, int thu_tu, string noi_dung, bool la_dap_an, bool hoan_vi)
         {
             DatabaseReader sql = new("CauTraLoi_Update");
@@ -39,9 +40,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@HoanVi", SqlDbType.Bit, hoan_vi);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> Remove(int ma_cau_tra_loi)
         {
             DatabaseReader sql = new("CauTraLoi_Delete");
+            sql.SqlParams("@MaCauTraLoi", SqlDbType.Int, ma_cau_tra_loi);
+            return await sql.ExecuteNonQueryAsync();
+        }
+
+        public async Task<int> ForceRemove(int ma_cau_tra_loi)
+        {
+            DatabaseReader sql = new("CauTraLoi_ForceDelete");
             sql.SqlParams("@MaCauTraLoi", SqlDbType.Int, ma_cau_tra_loi);
             return await sql.ExecuteNonQueryAsync();
         }

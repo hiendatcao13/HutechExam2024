@@ -257,7 +257,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
             }
         }
 

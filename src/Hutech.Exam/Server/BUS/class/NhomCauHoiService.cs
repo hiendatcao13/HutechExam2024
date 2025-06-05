@@ -32,18 +32,27 @@ namespace Hutech.Exam.Server.BUS
             };
             return _mapper.Map<NhomCauHoiDto>(nhomCauHoi);
         }
+
         public async Task<int> Insert(NhomCauHoiCreateRequest nhomCauHoi)
         {
             return Convert.ToInt32(await _nhomCauHoiRepository.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha, nhomCauHoi.SoCauLay, nhomCauHoi.LaCauHoiNhom) ?? -1);
         }
+
         public async Task<bool> Update(int id, NhomCauHoiUpdateRequest nhomCauHoi)
         {
             return await _nhomCauHoiRepository.Update(id, nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi, nhomCauHoi.ThuTu, nhomCauHoi.MaNhomCha) != 0;
         }
+
         public async Task<bool> Remove(int ma_nhom)
         {
             return await _nhomCauHoiRepository.Remove(ma_nhom) != 0;
         }
+
+        public async Task<bool> ForceRemove(int ma_nhom)
+        {
+            return await _nhomCauHoiRepository.ForceRemove(ma_nhom) != 0;
+        }
+
         public async Task<List<NhomCauHoiDto>> SelectAllBy_MaDeThi(int ma_de_thi)
         {
             List<NhomCauHoiDto> list = [];
@@ -57,6 +66,7 @@ namespace Hutech.Exam.Server.BUS
             }
             return list;
         }
+
         public async Task<NhomCauHoiDto> SelectOne(int ma_nhom)
         {
             NhomCauHoiDto nhomCauHoi = new();

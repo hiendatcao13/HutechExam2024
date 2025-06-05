@@ -17,7 +17,7 @@ public partial class DeThi
 
     public string? GhiChu { get; set; }
 
-    public bool? LuuTam { get; set; }
+    public bool LuuTam { get; set; }
 
     public bool DaDuyet { get; set; }
 

@@ -50,9 +50,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@HoanVi", SqlDbType.Bit, hoan_vi);
             return await sql.ExecuteNonQueryAsync();
         }
+
         public async Task<int> Remove(int ma_cau_hoi)
         {
             DatabaseReader sql = new("CauHoi_Delete");
+            sql.SqlParams("@MaCauHoi", SqlDbType.Int, ma_cau_hoi);
+            return await sql.ExecuteNonQueryAsync();
+        }
+
+        public async Task<int> ForceRemove(int ma_cau_hoi)
+        {
+            DatabaseReader sql = new("CauHoi_ForceDelete");
             sql.SqlParams("@MaCauHoi", SqlDbType.Int, ma_cau_hoi);
             return await sql.ExecuteNonQueryAsync();
         }
