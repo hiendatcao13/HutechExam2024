@@ -56,9 +56,9 @@
 						<MudTh>Ngày bắt đầu</MudTh>
 					</HeaderContent>
 					<RowTemplate Context="item">
-						<MudTd DataLabel="ID">@item?.MaLop</MudTd>
-						<MudTd DataLabel="Tên lớp">@item?.TenLop</MudTd>
-						<MudTd DataLabel="Ngày bắt đầu">@(item?.NgayBatDau.HasValue == true ? @item.NgayBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+						<MudTd DataLabel="ID">@item.MaLop</MudTd>
+						<MudTd DataLabel="Tên lớp">@item.TenLop</MudTd>
+						<MudTd DataLabel="Ngày bắt đầu">@(item.NgayBatDau.HasValue == true ? @item.NgayBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
 					</RowTemplate>
 					<PagerContent>
 						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
@@ -92,15 +92,15 @@
 						<MudTh>Điện thoại</MudTh>
 					</HeaderContent>
 					<RowTemplate Context="item">
-						<MudTd DataLabel="ID">@item?.MaSinhVien</MudTd>
-						<MudTd DataLabel="MSSV">@item?.MaSoSinhVien</MudTd>
-						<MudTd DataLabel="Họ lót">@item?.HoVaTenLot</MudTd>
-						<MudTd DataLabel="Tên">@item?.TenSinhVien</MudTd>
-						<MudTd DataLabel="Giới tính">@(item?.GioiTinh == 1 ? "Nam" : "Nữ")</MudTd>
-						<MudTd DataLabel="Ngày sinh">@(item?.NgaySinh.HasValue == true ? @item.NgaySinh.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
-						<MudTd DataLabel="Email">@item?.Email</MudTd>
-						<MudTd DataLabel="Địa chỉ">@item?.DiaChi</MudTd>
-						<MudTd DataLabel="Điện thoại">@item?.DienThoai</MudTd>
+						<MudTd DataLabel="ID">@item.MaSinhVien</MudTd>
+						<MudTd DataLabel="MSSV">@item.MaSoSinhVien</MudTd>
+						<MudTd DataLabel="Họ lót">@(string.IsNullOrEmpty(item.HoVaTenLot) ? "-" : item.HoVaTenLot)</MudTd>
+						<MudTd DataLabel="Tên">@item.TenSinhVien</MudTd>
+						<MudTd DataLabel="Giới tính">@(item.GioiTinh == 1 ? "Nam" : "Nữ")</MudTd>
+						<MudTd DataLabel="Ngày sinh">@(item.NgaySinh.HasValue == true ? @item.NgaySinh.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+						<MudTd DataLabel="Email">@(string.IsNullOrEmpty(item.Email) ? "-" : item.Email)l</MudTd>
+						<MudTd DataLabel="Địa chỉ">@(string.IsNullOrEmpty(item.DiaChi) ? "-" : item.DiaChi)</MudTd>
+						<MudTd DataLabel="Điện thoại">@(string.IsNullOrEmpty(item.DienThoai) ? "-" : item.DienThoai)</MudTd>
 					</RowTemplate>
 					<PagerContent>
 						<MudTablePager PageSizeOptions="new int[] {30, 60, 80, 100}" AllItemsText="All" />

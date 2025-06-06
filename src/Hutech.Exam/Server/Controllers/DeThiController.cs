@@ -3,6 +3,7 @@ using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.DeThi;
 using Microsoft.AspNetCore.Authorization;
@@ -13,9 +14,10 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/dethis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class DeThiController(DeThiService deThiService) : Controller
+    public class DeThiController(DeThiService deThiService, CustomMaDeThiService customMaDeThiService) : Controller
     {
         private readonly DeThiService _deThiService = deThiService;
+        private readonly CustomMaDeThiService _customMaDeThiService = customMaDeThiService;
 
 
         //////////////////POST//////////////////////////
@@ -66,6 +68,28 @@ namespace Hutech.Exam.Server.Controllers
                 return Ok(APIResponse<Paged<DeThiDto>>.SuccessResponse(pagedResult, message: "Lấy danh sách đề thi thành công"));
             }
             return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
+        }
+
+        [HttpGet("{id}/ma-de-thi")]
+        public async Task<ActionResult<List<CustomThongTinMaDeThi>>> GetThongTinMaDeThi([FromQuery] int maDeThi)
+        {
+            try
+            {
+                var result = await _customMaDeThiService.GetThongTinMaDeThi(maDeThi);
+                if (result.Count == 0)
+                {
+                    return NotFound(APIResponse<List<CustomThongTinMaDeThi>>.NotFoundResponse(message: "Không tìm thấy thông tin mã đề thi"));
+                }
+                return Ok(APIResponse<List<CustomThongTinMaDeThi>>.SuccessResponse(data: result, message: "Lấy thông tin mã đề thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<List<CustomThongTinMaDeThi>>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<List<CustomThongTinMaDeThi>>.ErrorResponse(message: "Lấy thông tin mã đề thi không thành công", errorDetails: ex.Message));
+            }
         }
 
 

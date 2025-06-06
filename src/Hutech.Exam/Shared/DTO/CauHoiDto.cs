@@ -20,6 +20,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public string? NoiDung { get; set; }
 
+        public int ThuTu { get; set; }
+
         public string? GhiChu { get; set; }
 
         public bool? HoanVi { get; set; }
@@ -47,6 +49,7 @@ namespace Hutech.Exam.Shared.DTO
             TieuDe = other.TieuDe;
             KieuNoiDung = other.KieuNoiDung;
             NoiDung = other.NoiDung;
+            ThuTu = other.ThuTu;
             GhiChu = other.GhiChu;
             HoanVi = other.HoanVi;
             CauTraLois = other.CauTraLois;
@@ -55,7 +58,7 @@ namespace Hutech.Exam.Shared.DTO
             MaNhomNavigation = other.MaNhomNavigation;
         }
 
-        public CauHoiDto(int maCauHoi, int maNhom, int maClo, string? tieuDe, int kieuNoiDung, string? noiDung, string? ghiChu, bool? hoanVi, ICollection<CauTraLoiDto> cauTraLois, ICollection<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis, CloDto maCloNavigation, NhomCauHoiDto maNhomNavigation)
+        public CauHoiDto(int maCauHoi, int maNhom, int maClo, string? tieuDe, int kieuNoiDung, string? noiDung, int thuTu, string? ghiChu, bool? hoanVi, ICollection<CauTraLoiDto> cauTraLois, ICollection<ChiTietDeThiHoanViDto> chiTietDeThiHoanVis, CloDto maCloNavigation, NhomCauHoiDto maNhomNavigation)
         {
             MaCauHoi = maCauHoi;
             MaNhom = maNhom;
@@ -63,6 +66,7 @@ namespace Hutech.Exam.Shared.DTO
             TieuDe = tieuDe;
             KieuNoiDung = kieuNoiDung;
             NoiDung = noiDung;
+            ThuTu = thuTu;
             GhiChu = ghiChu;
             HoanVi = hoanVi;
             CauTraLois = cauTraLois;

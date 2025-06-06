@@ -17,6 +17,8 @@ public partial class CauHoi
 
     public string? NoiDung { get; set; }
 
+    public int ThuTu { get; set; }  
+
     public string? GhiChu { get; set; }
 
     public bool? HoanVi { get; set; }

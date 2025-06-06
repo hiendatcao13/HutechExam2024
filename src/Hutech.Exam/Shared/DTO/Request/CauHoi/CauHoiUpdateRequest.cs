@@ -12,16 +12,6 @@ namespace Hutech.Exam.Shared.DTO.Request.CauHoi
         {
         }
 
-        public CauHoiUpdateRequest(int maNhom, int maClo, string tieuDe, int kieuNoiDung, string noiDung, string ghiChu, bool hoanVi)
-        {
-            MaNhom = maNhom;
-            MaClo = maClo;
-            TieuDe = tieuDe;
-            KieuNoiDung = kieuNoiDung;
-            NoiDung = noiDung;
-            GhiChu = ghiChu;
-            HoanVi = hoanVi;
-        }
 
         public int MaNhom { get; set; }
 
@@ -32,6 +22,8 @@ namespace Hutech.Exam.Shared.DTO.Request.CauHoi
         public int KieuNoiDung { get; set; }
 
         public string NoiDung { get; set; } = string.Empty;
+
+        public int ThuTu { get; set; }
 
         public string GhiChu { get; set; } = string.Empty;
 

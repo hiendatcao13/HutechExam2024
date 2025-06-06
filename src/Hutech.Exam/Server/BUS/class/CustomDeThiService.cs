@@ -86,14 +86,17 @@ namespace Hutech.Exam.Server.BUS
                 bool invalid = false;
                 foreach (char c in item.HoanViCauTraLoi)
                 {
-                    if (!char.IsDigit(c) || !int.TryParse(c.ToString(), out int index) || index <= 0 || index > cauTraLoisList.Count)
+                    if (!char.IsDigit(c) || !int.TryParse(c.ToString(), out int index))
                     {
                         invalid = true;
                         break;
                     }
-
-                    var pair = cauTraLoisList[index - 1];
-                    cauTraLoiHoanVi[pair.Key] = pair.Value;
+                    
+                    if(index > 0 || index <= cauTraLoisList.Count)
+                    {
+                        var pair = cauTraLoisList[index - 1];
+                        cauTraLoiHoanVi[pair.Key] = pair.Value;
+                    }
                 }
 
 

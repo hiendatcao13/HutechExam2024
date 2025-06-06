@@ -1,0 +1,87 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.Clo
+@using Hutech.Exam.Shared.DTO.Request.MonHoc
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 400px; max-height: auto; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
+			<MudItem xs="8"><MudText><span class="title-text">@tempDeThi?.TenDeThi</span></MudText></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Tổng số đề tạo:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Tổng số đề" Required InputType="InputType.Number" @bind-Value="so_luong_de" Placeholder="4" /></MudItem>
+
+			<MudItem xs="12">
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị theo chương</MudButton>
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị theo nhóm</MudButton>
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị tất cả</MudButton>
+			</MudItem>
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Cập nhật đề</MudButton>
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+
+	.add-button {
+		transform: scale(0.85);
+		margin-bottom: 2%;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	[Parameter][EditorRequired] public DeThiDto? DeThi { get; set; }
+
+	private DeThiDto tempDeThi = default!;
+
+	private int so_luong_de = 0;
+
+
+
+	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+	protected override async Task OnInitializedAsync()
+	{
+		HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private void HandleInput()
+	{
+		tempDeThi = new DeThiDto(DeThi);
+	}
+	private void OnClickThoat()
+	{
+		MudDialog?.Cancel();
+	}
+	private async Task OnClickThem()
+	{
+		
+		
+	}
+	private async Task OnClickSua()
+	{
+		
+
+		
+	}
+
+}

@@ -1,0 +1,143 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.Clo
+@using Hutech.Exam.Shared.DTO.Request.MonHoc
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 400px; max-height: auto; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="4"><MudText>Tên môn thi:</MudText></MudItem>
+			<MudItem xs="8"><MudText><span class="title-text">@MonHoc?.TenMonHoc</span></MudText></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Mã số CLO:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Mã số clo" Required InputType="InputType.Text" @bind-Value="tempClo.MaSoClo" Placeholder="CLO2" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Tiêu đề:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Tiêu đề" Lines="2" Required InputType="InputType.Text" @bind-Value="tempClo.TieuDe" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Nội dung:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Nội dung" Lines="3" Required InputType="InputType.Text" @bind-Value="tempClo.NoiDung" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Tiêu chí(%):</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Tiêu chí(%)" Required InputType="InputType.Number" @bind-Value="tempClo.TieuChi" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Số câu:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Số câu" Required InputType="InputType.Text" @bind-Value="tempClo.SoCau" /></MudItem>
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		@if (!IsEdit)
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+		}
+		else
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+		}
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+		backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+		font-weight: bold;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	[Parameter][EditorRequired] public MonHocDto? MonHoc { get; set; }
+
+	[Parameter] public CloDto? Clo { get; set; }
+
+	[Parameter] public bool IsEdit { get; set; } = false;
+
+	private CloDto tempClo = default!;
+
+	private const string INVALID_FORM = "Vui lòng nhập đầy đủ ít nhất thông tin mã số và tiêu đề";
+
+	protected override async Task OnInitializedAsync()
+	{
+		HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private void HandleInput()
+	{
+		if (Clo != null && IsEdit)
+		{
+			tempClo = new CloDto(Clo);
+			return;
+		}
+		tempClo = new();
+	}
+	private void OnClickThoat()
+	{
+		MudDialog?.Cancel();
+	}
+	private async Task OnClickThem()
+	{
+		if (string.IsNullOrEmpty(tempClo.MaSoClo) || string.IsNullOrEmpty(tempClo.TieuDe))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+		var result = await InsertCloAPI(new CloCreateRequest
+			{
+				MaMonHoc = MonHoc?.MaMonHoc ?? -1,
+				MaSoClo = tempClo.MaSoClo,
+				TieuDe = tempClo.TieuDe,
+				SoCau = tempClo.SoCau,
+			});
+
+		if (result != null && result.MaMonHoc != 0)
+		{
+			MudDialog?.Close(DialogResult.Ok(result));
+		}
+	}
+	private async Task OnClickSua()
+	{
+		if (string.IsNullOrEmpty(tempClo.MaSoClo) || string.IsNullOrEmpty(tempClo.TieuDe))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+
+		var result = await UpdateCloAPI(tempClo.MaClo, new CloUpdateRequest
+			{
+				MaMonHoc = MonHoc?.MaMonHoc ?? -1,
+				MaSoClo = tempClo.MaSoClo,
+				TieuDe = tempClo.TieuDe,
+				SoCau = tempClo.SoCau,
+			});
+
+		if (result != null && result.MaMonHoc != 0)
+		{
+			MudDialog?.Close(DialogResult.Ok(result));
+		}
+	}
+
+	private async Task<CloDto?> InsertCloAPI(CloCreateRequest clo)
+	{
+		var response = await SenderAPI.PostAsync<CloDto>("api/clos", clo);
+		return (response.Success) ? response.Data : null;
+
+	}
+	private async Task<CloDto?> UpdateCloAPI(int maClo, CloUpdateRequest clo)
+	{
+		var response = await SenderAPI.PutAsync<CloDto>($"api/monhocs/{maClo}", clo);
+		return (response.Success) ? response.Data : null;
+
+	}
+}

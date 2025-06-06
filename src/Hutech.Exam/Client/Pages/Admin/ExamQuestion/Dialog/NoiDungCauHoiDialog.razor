@@ -7,20 +7,22 @@
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
-        @if (noi_dung != null)
-        {
-            foreach (var ctCauHoi in noi_dung)
+        <p style="font-size: 16px">
+            @if (noi_dung != null)
             {
-                if (ctCauHoi.Contains("$$"))
+                foreach (var ctCauHoi in noi_dung)
                 {
-                    <Hutech.Exam.Client.Pages.Latext.Equation Value="@ctCauHoi.Substring(2)"></Hutech.Exam.Client.Pages.Latext.Equation>
-                }
-                else
-                {
-                    @((MarkupString)ctCauHoi)
+                    if (ctCauHoi.Contains("$$"))
+                    {
+                        <Hutech.Exam.Client.Pages.Latext.Equation Value="@ctCauHoi.Substring(2)"></Hutech.Exam.Client.Pages.Latext.Equation>
+                    }
+                    else
+                    {
+                        @((MarkupString)ctCauHoi)
+                    }
                 }
             }
-        }
+        </p> 
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>

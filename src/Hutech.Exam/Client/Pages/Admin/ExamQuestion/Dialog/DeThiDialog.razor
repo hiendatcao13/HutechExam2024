@@ -18,25 +18,25 @@
             <MudItem xs="8">
                 <MudDatePicker Editable="true" Label="Ngày tạo" @bind-Date="@ngay_tao" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
-        
+
             <MudItem xs="4" Style="align-content: center"><MudText>Ghi chú:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Label="Ghi chú" @bind-Value="@tempDeThi.GhiChu" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Tổng số đề HV:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Label="Tổng số đề HV" @bind-Value="@tempDeThi.TongSoDeHoanVi" InputType="InputType.Number"></MudTextField></MudItem>
-        
+
             <MudItem xs="6" md="4" lg="4">
-                <MudCheckBox @bind-Value="@tempDeThi.LuuTam">Lưu tạm</MudCheckBox>
+                <MudCheckBox T="bool" Value="@tempDeThi.LuuTam" ValueChanged="OnValueChangeLuuTam">Lưu tạm</MudCheckBox>
             </MudItem>
 
             <MudItem xs="6" md="4" lg="4">
-                <MudCheckBox @bind-Value="@tempDeThi.DaDuyet">Đã duyệt</MudCheckBox>
+                <MudCheckBox T="bool" Value="@tempDeThi.DaDuyet" ValueChanged="OnValueChangeDaDuyet">Đã duyệt</MudCheckBox>
             </MudItem>
 
             <MudItem xs="6" md="4" lg="4">
                 <MudCheckBox @bind-Value="@tempDeThi.BoChuongPhan">Bỏ chương phần</MudCheckBox>
             </MudItem>
-        
+
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -54,11 +54,11 @@
 </MudDialog>
 <style>
     .my-custom-class {
-        backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     }
 
     .title-text {
-        font-weight: bold;
+    font-weight: bold;
     }
 </style>
 
@@ -73,7 +73,7 @@
 
     private DeThiDto tempDeThi { get; set; } = default!;
 
-	private DateTime? ngay_tao = DateTime.Now;
+    private DateTime? ngay_tao = DateTime.Now;
 
     private const string INVALID_FORM = "Vui lòng nhập ít nhất tên đề thi";
 
@@ -89,7 +89,7 @@
         if (IsEdit && DeThi != null)
         {
             tempDeThi = new DeThiDto(DeThi);
-			ngay_tao = tempDeThi.NgayTao;
+            ngay_tao = tempDeThi.NgayTao;
             return;
         }
         tempDeThi = new();
@@ -153,6 +153,18 @@
         {
             MudDialog?.Close(DialogResult.Ok(result));
         }
+    }
+
+    private async Task OnValueChangeDaDuyet(bool isDuyet)
+    {
+        tempDeThi.DaDuyet = isDuyet;
+        tempDeThi.LuuTam = !isDuyet; // Nếu đã duyệt thì không lưu tạm nữa
+    }
+
+    private async Task OnValueChangeLuuTam(bool isLuuTam)
+    {
+        tempDeThi.LuuTam = isLuuTam;
+		tempDeThi.DaDuyet = !isLuuTam; // Nếu lưu tạm thì không duyệt nữa
     }
 
     private async Task<DeThiDto?> InsertAPI(DeThiCreateRequest deThi)

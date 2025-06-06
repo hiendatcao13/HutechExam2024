@@ -3,181 +3,207 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
 @using Hutech.Exam.Shared.DTO.Request.NhomCauHoi
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
 <MudDialog Style="min-width: 500px; max-height: auto; overflow: visible">
-	<DialogContent>
-		<MudGrid>
-			<MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
-			<MudItem xs="8"><MudText><span class="title-text" style="color: green; font-weight: bold">@DeThi?.TenDeThi</span></MudText></MudItem>
-			@if (!IsEdit)
-			{
-				<MudItem xs="12">
-					<MudCheckBox T="bool" @bind-Value="isNhomCon">Là câu hỏi con: @tempNhomCauHoiCha.TenNhom</MudCheckBox>
-				</MudItem>
-			}
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text" style="color: green; font-weight: bold">@DeThi?.TenDeThi</span></MudText></MudItem>
+            @if (!IsEdit && BoChuongPhan == false && NhomCauHoiCha != null && tempNhomCauHoi.MaNhomCha == -1)
+            {
+                <MudItem xs="12">
+                    <MudCheckBox T="bool" Value="isNhomCon" ValueChanged="OnValueChangeCauHoiNhom">Là câu hỏi con: @tempNhomCauHoiCha.TenNhom</MudCheckBox>
+                </MudItem>
+            }
+            <MudItem xs="4"><MudText>Kiểu nội dung:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect Label="Kiểu nội dung" T="int" Clearable="true" @bind-Value="tempNhomCauHoi.KieuNoiDung">
+                    @foreach (KieuNoiDungNhomCauHoi kieu in Enum.GetValues(typeof(KieuNoiDungNhomCauHoi)))
+                    {
+                        <MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
+                    }
 
-			<MudItem xs="4" Style="align-content: center"><MudText>Tên nhóm:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Tên nhóm" Required @bind-Value="@tempNhomCauHoi.TenNhom" InputType="InputType.Text"></MudTextField></MudItem>
+                </MudSelect>
+            </MudItem>
 
-			<MudItem xs="4" Style="align-content: center"><MudText>Nội dung:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Lines="5" Label="Nội dung" Required @bind-Value="@tempNhomCauHoi.NoiDung" InputType="InputType.Text"></MudTextField></MudItem>
 
-			<MudItem xs="4" Style="align-content: center"><MudText>Số câu hỏi:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Số câu hỏi" Required @bind-Value="@tempNhomCauHoi.SoCauHoi" InputType="InputType.Number"></MudTextField></MudItem>
-			
-			<MudItem xs="4" Style="align-content: center"><MudText>Số câu lấy:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Số câu lấy" Required @bind-Value="@tempNhomCauHoi.SoCauLay" InputType="InputType.Number"></MudTextField></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên nhóm:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên nhóm" Required @bind-Value="@tempNhomCauHoi.TenNhom" InputType="InputType.Text"></MudTextField></MudItem>
 
-			<MudItem xs="6">
-				<MudCheckBox @bind-Value="@tempNhomCauHoi.HoanVi">Hoán vị</MudCheckBox>
-			</MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Nội dung:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Lines="5" Label="Nội dung" Required @bind-Value="@tempNhomCauHoi.NoiDung" InputType="InputType.Text"></MudTextField></MudItem>
 
-			<MudItem xs="6">
-				<MudCheckBox Required @bind-Value="@tempNhomCauHoi.LaCauHoiNhom">Là câu hỏi nhóm</MudCheckBox>
-			</MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Số câu hỏi:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Số câu hỏi" Required @bind-Value="@tempNhomCauHoi.SoCauHoi" InputType="InputType.Number"></MudTextField></MudItem>
 
-			<MudItem xs="12">
-				<MudText Typo="Typo.subtitle2" Color="Color.Error">Lưu ý: Nếu là chương vui lòng không chọn câu hỏi nhóm. Hệ thống sẽ tính theo phân cấp (chương &rarr; nhóm câu hỏi &rarr; ds câu hỏi HOẶC nhóm câu hỏi &rarr; ds câu hỏi)</MudText>
-			</MudItem>
-		</MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Số câu lấy:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Số câu lấy" Required @bind-Value="@tempNhomCauHoi.SoCauLay" InputType="InputType.Number"></MudTextField></MudItem>
 
-	</DialogContent>
-	<DialogActions>
-		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
-		@if (!IsEdit)
-		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
-		}
-		else
-		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
-		}
-	</DialogActions>
+            <MudItem xs="6">
+                <MudCheckBox @bind-Value="@tempNhomCauHoi.HoanVi">Hoán vị</MudCheckBox>
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudCheckBox ReadOnly @bind-Value="@tempNhomCauHoi.LaCauHoiNhom">Là câu hỏi nhóm</MudCheckBox>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle2" Color="Color.Error">Lưu ý: Nếu là chương vui lòng không chọn câu hỏi nhóm. Hệ thống sẽ tính theo phân cấp (chương &rarr; nhóm câu hỏi &rarr; ds câu hỏi HOẶC nhóm câu hỏi &rarr; ds câu hỏi)</MudText>
+            </MudItem>
+        </MudGrid>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+        }
+    </DialogActions>
 </MudDialog>
 <style>
-	.my-custom-class {
-		backdrop-filter: blur(10px);
-	}
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
 
-	.title-text {
-		font-weight: bold;
-	}
+    .title-text {
+    font-weight: bold;
+    }
 </style>
 
 
 
 @code {
-	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-	[Inject] public ISenderAPI SenderAPI { get; set; } = default!;
+    [Inject] public ISenderAPI SenderAPI { get; set; } = default!;
 
-	[Parameter] public NhomCauHoiDto? NhomCauHoi { get; set; }
+    [Parameter] public NhomCauHoiDto? NhomCauHoi { get; set; }
 
-	[Parameter] public NhomCauHoiDto? NhomCauHoiCha { get; set; }
+    [Parameter] public NhomCauHoiDto? NhomCauHoiCha { get; set; }
 
-	[Parameter][EditorRequired] public DeThiDto? DeThi { get; set; }
+    [Parameter] public DeThiDto? DeThi { get; set; }
 
-	[Parameter] public bool IsEdit { get; set; } = false;
+    [Parameter] public bool IsEdit { get; set; } = false;
 
-	private bool isNhomCon { get; set; } = false;
-	private NhomCauHoiDto tempNhomCauHoi { get; set; } = new();
-	private NhomCauHoiDto tempNhomCauHoiCha { get; set; } = new();
+    [Parameter] public bool? BoChuongPhan { get; set; } = false; // nếu true thì không hiển thị checkbox là nhóm con được
 
-	//kết quả id mới nhất được tạo ra
-	private int? result_id;
+    [Parameter] public int ThuTu { get; set; } = 0; // sử dụng cho trường hợp thêm vào cuối cùng
 
-	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private bool isNhomCon { get; set; } = false;
 
-	protected async override Task OnInitializedAsync()
-	{
-		HandleInput();
-		await base.OnInitializedAsync();
-	}
-	private void HandleInput()
-	{
-		if (!IsEdit && NhomCauHoiCha != null)
-		{
-			tempNhomCauHoiCha = new NhomCauHoiDto(NhomCauHoiCha);
-		}
-		if (NhomCauHoi != null && IsEdit)
-		{
-			tempNhomCauHoi = new NhomCauHoiDto(NhomCauHoi);
-			if (NhomCauHoiCha != null)
-			{
-				tempNhomCauHoiCha = new NhomCauHoiDto(NhomCauHoiCha);
-			}
-		}
-	}
-	private void OnClickThoat()
-	{
-		MudDialog?.Cancel();
-	}
-	// int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom
-	private async Task OnClickThem()
-	{
-		if (string.IsNullOrEmpty(tempNhomCauHoi.TenNhom) || string.IsNullOrEmpty(tempNhomCauHoi.NoiDung) || tempNhomCauHoi.LaCauHoiNhom == null)
-		{
-			Snackbar.Add(INVALID_FORM, Severity.Error);
-			return;
-		}
-		var result = await InsertAPI(new NhomCauHoiCreateRequest
-			{
-				MaDeThi = DeThi?.MaDeThi ?? -1,
-				TenNhom = tempNhomCauHoi.TenNhom,
-				KieuNoiDung = tempNhomCauHoi.KieuNoiDung,
-				NoiDung = tempNhomCauHoi.NoiDung ?? string.Empty,
-				SoCauHoi = tempNhomCauHoi.SoCauHoi,
-				HoanVi = tempNhomCauHoi.HoanVi,
-				ThuTu = tempNhomCauHoiCha.ThuTu + 1,
-				MaNhomCha = (isNhomCon) ? tempNhomCauHoiCha.MaNhom : -1,
-				SoCauLay = tempNhomCauHoi.SoCauLay,
-				LaCauHoiNhom = tempNhomCauHoi.LaCauHoiNhom ?? false,
-			});
-		if (result != null && result.MaNhom != 0)
-		{
-			MudDialog?.Close(DialogResult.Ok(result));
-		}
-	}
+    private NhomCauHoiDto tempNhomCauHoi { get; set; } = new();
 
-	private async Task OnClickSua()
-	{
-		if (string.IsNullOrEmpty(tempNhomCauHoi.TenNhom) || string.IsNullOrEmpty(tempNhomCauHoi.NoiDung) || tempNhomCauHoi.LaCauHoiNhom == null)
-		{
-			Snackbar.Add(INVALID_FORM, Severity.Error);
-			return;
-		}
-		var result = await UpdateAPI(tempNhomCauHoi.MaNhom, new NhomCauHoiUpdateRequest
-			{
-				MaDeThi = DeThi?.MaDeThi ?? -1,
-				TenNhom = tempNhomCauHoi.TenNhom,
-				KieuNoiDung = tempNhomCauHoi.KieuNoiDung,
-				NoiDung = tempNhomCauHoi.NoiDung ?? string.Empty,
-				SoCauHoi = tempNhomCauHoi.SoCauHoi,
-				HoanVi = tempNhomCauHoi.HoanVi,
-				ThuTu = tempNhomCauHoi.ThuTu,
-				MaNhomCha = tempNhomCauHoi.MaNhomCha,
-				SoCauLay = tempNhomCauHoi.SoCauLay,
-				LaCauHoiNhom = tempNhomCauHoi.LaCauHoiNhom ?? false,
-			});
-		if (result != null && result.MaNhom != 0)
-		{
-			MudDialog?.Close(DialogResult.Ok(result));
-		}
-	}
+    private NhomCauHoiDto tempNhomCauHoiCha { get; set; } = new();
 
 
+    private const string INVALID_FORM = "Vui lòng nhập ít nhất thông tin tên nhóm, nội dung, kiểu nội dung và là câu hỏi nhóm?";
 
-	private async Task<NhomCauHoiDto?> InsertAPI(NhomCauHoiCreateRequest nhomCauHoi)
-	{
-		var response = await SenderAPI.PostAsync<NhomCauHoiDto>("api/nhomcauhois", nhomCauHoi);
-		return (response.Success) ? response.Data : null;
-	}
-	private async Task<NhomCauHoiDto?> UpdateAPI(int id, NhomCauHoiUpdateRequest nhomCauHoi)
-	{
-		var response = await SenderAPI.PostAsync<NhomCauHoiDto>("api/nhomcauhois", nhomCauHoi);
-		return (response.Success) ? response.Data : null;
-	}
+    protected async override Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+    private void HandleInput()
+    {
+        tempNhomCauHoi.KieuNoiDung = -1;
+        tempNhomCauHoi.LaCauHoiNhom = (NhomCauHoiCha != null);
+
+        if (!IsEdit && NhomCauHoiCha != null)
+        {
+            tempNhomCauHoiCha = new NhomCauHoiDto(NhomCauHoiCha);
+        }
+        if (NhomCauHoi != null && IsEdit)
+        {
+            tempNhomCauHoi = new NhomCauHoiDto(NhomCauHoi);
+            if (NhomCauHoiCha != null)
+            {
+                tempNhomCauHoiCha = new NhomCauHoiDto(NhomCauHoiCha);
+            }
+        }
+    }
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+    // int ma_de_thi, string ten_nhom, string noi_dung, int so_cau_hoi, bool hoan_vi, int thu_tu, int ma_nhom_cha, int so_cau_lay, bool la_cau_hoi_nhom
+    private async Task OnClickThem()
+    {
+        if (string.IsNullOrEmpty(tempNhomCauHoi.TenNhom) || string.IsNullOrEmpty(tempNhomCauHoi.NoiDung) || tempNhomCauHoi.LaCauHoiNhom == null || tempNhomCauHoi.KieuNoiDung == 0)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await InsertAPI(new NhomCauHoiCreateRequest
+            {
+                MaDeThi = DeThi?.MaDeThi ?? -1,
+                TenNhom = tempNhomCauHoi.TenNhom,
+                KieuNoiDung = tempNhomCauHoi.KieuNoiDung == 0 ? -1 : tempNhomCauHoi.KieuNoiDung,
+                NoiDung = tempNhomCauHoi.NoiDung ?? string.Empty,
+                SoCauHoi = tempNhomCauHoi.SoCauHoi,
+                HoanVi = tempNhomCauHoi.HoanVi,
+                ThuTu = (tempNhomCauHoiCha.MaNhom == 0) ? ThuTu : tempNhomCauHoiCha.ThuTu + 1,
+                MaNhomCha = (isNhomCon) ? tempNhomCauHoiCha.MaNhom : -1,
+                SoCauLay = tempNhomCauHoi.SoCauLay,
+                LaCauHoiNhom = tempNhomCauHoi.LaCauHoiNhom ?? false,
+            });
+        if (result != null && result.MaNhom != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickSua()
+    {
+        if (string.IsNullOrEmpty(tempNhomCauHoi.TenNhom) || string.IsNullOrEmpty(tempNhomCauHoi.NoiDung) || tempNhomCauHoi.LaCauHoiNhom == null || tempNhomCauHoi.KieuNoiDung == 0)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await UpdateAPI(tempNhomCauHoi.MaNhom, new NhomCauHoiUpdateRequest
+            {
+                MaDeThi = DeThi?.MaDeThi ?? -1,
+                TenNhom = tempNhomCauHoi.TenNhom,
+                KieuNoiDung = tempNhomCauHoi.KieuNoiDung == 0 ? -1 : tempNhomCauHoi.KieuNoiDung,
+                NoiDung = tempNhomCauHoi.NoiDung ?? string.Empty,
+                SoCauHoi = tempNhomCauHoi.SoCauHoi,
+                HoanVi = tempNhomCauHoi.HoanVi,
+                ThuTu = tempNhomCauHoi.ThuTu,
+                MaNhomCha = tempNhomCauHoi.MaNhomCha,
+                SoCauLay = tempNhomCauHoi.SoCauLay,
+                LaCauHoiNhom = tempNhomCauHoi.LaCauHoiNhom ?? false,
+            });
+        if (result != null && result.MaNhom != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private void OnValueChangeCauHoiNhom(bool value)
+    {
+        isNhomCon = value;
+        tempNhomCauHoi.LaCauHoiNhom = !value;
+        
+    }
+
+
+
+    private async Task<NhomCauHoiDto?> InsertAPI(NhomCauHoiCreateRequest nhomCauHoi)
+    {
+        var response = await SenderAPI.PostAsync<NhomCauHoiDto>("api/nhomcauhois", nhomCauHoi);
+        return (response.Success) ? response.Data : null;
+    }
+    private async Task<NhomCauHoiDto?> UpdateAPI(int id, NhomCauHoiUpdateRequest nhomCauHoi)
+    {
+        var response = await SenderAPI.PutAsync<NhomCauHoiDto>($"api/nhomcauhois/{id}", nhomCauHoi);
+        return (response.Success) ? response.Data : null;
+    }
 }
