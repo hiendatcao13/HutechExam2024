@@ -47,12 +47,5 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaCauTraLoi", SqlDbType.Int, ma_cau_tra_loi);
             return await sql.ExecuteNonQueryAsync();
         }
-
-        public async Task<int> ForceRemove(int ma_cau_tra_loi)
-        {
-            DatabaseReader sql = new("CauTraLoi_ForceDelete");
-            sql.SqlParams("@MaCauTraLoi", SqlDbType.Int, ma_cau_tra_loi);
-            return await sql.ExecuteNonQueryAsync();
-        }
     }
 }

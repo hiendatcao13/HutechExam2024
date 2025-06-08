@@ -54,11 +54,11 @@
 						<MudTd>@(chiTietCaThis.IndexOf(item) + 1)</MudTd>
 						<MudTd>@item.MaSinhVienNavigation?.MaSoSinhVien</MudTd>
 						<MudTd>@item.MaSinhVienNavigation?.HoVaTenLot @item.MaSinhVienNavigation?.TenSinhVien</MudTd>
-						<MudTd>@item.MaDeThi</MudTd>
+						<MudTd>@($"{item.KyHieuDe} ({item.MaDeThi})")</MudTd>
 						<MudTd Style="@($"color: {GetTrangThai(item)}")">@(item.DaHoanThanh ? "Đã thi" : item.DaThi ? "Đang thi" : "Chưa thi")</MudTd>
 						<MudTd Style="@($"color: {GetDangNhap(item)}")">@(item.MaSinhVienNavigation?.IsLoggedIn == true ? "Đã đăng nhập" : "Chưa đăng nhập")</MudTd>
-						<MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "0" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
-						<MudTd>@(item.Diem == -1 ? "∞" : item.Diem.ToString())</MudTd>
+						<MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "-" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
+						<MudTd>@(item.Diem == -1 ? "-" : item.Diem.ToString())</MudTd>
 						<MudTd>
 							<MudButtonGroup Style="zoom: 0.7">
 								<MudTooltip Text="Reset đăng nhập">

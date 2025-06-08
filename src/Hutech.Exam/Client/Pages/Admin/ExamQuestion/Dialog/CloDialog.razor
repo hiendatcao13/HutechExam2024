@@ -18,10 +18,10 @@
 			<MudItem xs="8"><MudTextField Label="Mã số clo" Required InputType="InputType.Text" @bind-Value="tempClo.MaSoClo" Placeholder="CLO2" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Tiêu đề:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Tiêu đề" Lines="2" Required InputType="InputType.Text" @bind-Value="tempClo.TieuDe" /></MudItem>
+			<MudItem xs="8"><MudTextField Label="Tiêu đề" Variant="Variant.Outlined" Class="tieu-de" AutoGrow Required InputType="InputType.Text" @bind-Value="tempClo.TieuDe" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Nội dung:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Nội dung" Lines="3" Required InputType="InputType.Text" @bind-Value="tempClo.NoiDung" /></MudItem>
+			<MudItem xs="8"><MudTextField Label="Nội dung" Variant="Variant.Outlined" Class="noi-dung" AutoGrow Required InputType="InputType.Text" @bind-Value="tempClo.NoiDung" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Tiêu chí(%):</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Tiêu chí(%)" Required InputType="InputType.Number" @bind-Value="tempClo.TieuChi" /></MudItem>
@@ -50,6 +50,14 @@
 
 	.title-text {
 		font-weight: bold;
+	}
+
+	.tieu-de {
+		background-color: lightcyan;
+	}
+
+	.noi-dung {
+		background-color: lightyellow;
 	}
 </style>
 

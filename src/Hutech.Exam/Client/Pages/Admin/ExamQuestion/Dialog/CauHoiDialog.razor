@@ -36,21 +36,21 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
-                <MudTextField Label="Tiêu đề" Variant="Variant.Outlined" Class="tieu-de" Required InputType="InputType.Text" @bind-Value="tempCauHoi.TieuDe" Lines="2" />
+                <MudTextField Label="Tiêu đề" AutoGrow Variant="Variant.Outlined" Class="tieu-de" Required InputType="InputType.Text" @bind-Value="tempCauHoi.TieuDe" />
             </MudItem>
 
             <MudItem xs="12">
-                <MudTextField Label="Nội dung gốc" Class="noi-dung" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempCauHoi.NoiDung" Lines="8" />
+                <MudTextField Label="Nội dung gốc" AutoGrow Class="noi-dung" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempCauHoi.NoiDung" />
             </MudItem>
 
             <MudItem xs="12" Style="padding-top: 2px">
                 <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" Style="margin-right: 5px" OnClick="async () => await OnClickViewNoiDung(tempCauHoi.NoiDung)">Xem chuyển</MudButton>
                 <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Accessibility" Color="Color.Secondary" OnClick="async () => await OnClickHoTro()">Hỗ trợ</MudButton>
-                <MudCheckBox T="bool" Label="Hoán vị câu trả lời" Value="tempCauHoi.HoanVi ?? false" ValueChanged="@(v => tempCauHoi.HoanVi = v)" Color="Color.Default" />
+                <MudCheckBox T="bool" Label="Hoán vị" Value="tempCauHoi.HoanVi ?? false" ValueChanged="OnValueChangeHoanVi" Color="Color.Default" />
             </MudItem>
 
             <MudItem xs="12">
-                @if (tempCauTraLois != null && tempCauTraLois.Count != 0)
+                @if (IsEdit && tempCauTraLois != null && tempCauTraLois.Count != 0)
                 {
                     <MudTable Elevation="24" Style="border: 1px solid" T="CauTraLoiDto" Items="@tempCauTraLois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCauTraLoi" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCauTraLoiFunc">
                         <ToolBarContent>
@@ -58,9 +58,9 @@
                             <MudSpacer />
                             @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
                             <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" Style="margin-left: 2px" StartIcon="@Icons.Material.Filled.Sync">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete">Xóa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="OnClickThemCauTraLoi">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="OnClickSuaCauTraLoi">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="OnClickXoaCauTraLoi">Xóa</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Nội dung</MudTh>
@@ -85,7 +85,7 @@
                     </MudTable>
                 }
             </MudItem>
-            
+
 
 
         </MudGrid>
@@ -109,12 +109,12 @@
     }
 
     .checkbox {
-        transform: scale(0.85);
+    transform: scale(0.85);
     }
 
     .add-button {
-        transform: scale(0.85);
-        margin-bottom: 2%;
+    transform: scale(0.85);
+    margin-bottom: 2%;
     }
 
     .tieu-de {
@@ -126,36 +126,40 @@
     }
 
     .selected-row {
-        background-color: lightgray !important;
+    background-color: lightgray !important;
     }
 </style>
 
 @code {
-    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+        [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-    [Inject] public IMapper mapper { get; set; } = default!;
+        [Inject] public IMapper mapper { get; set; } = default!;
 
-    [Parameter] public CauHoiDto? CauHoi { get; set; }
+        [Parameter] public CauHoiDto? CauHoi { get; set; }
 
-    [Parameter][EditorRequired] public NhomCauHoiDto? NhomCauHoi { get; set; }
+        [Parameter][EditorRequired] public NhomCauHoiDto? NhomCauHoi { get; set; }
 
-    [Parameter][EditorRequired] public List<CloDto>? Clos { get; set; }
+        [Parameter][EditorRequired] public List<CloDto>? Clos { get; set; }
 
-    [Parameter] public bool IsEdit { get; set; } = false;
+        [Parameter] public bool IsEdit { get; set; } = false;
 
     private CauHoiDto tempCauHoi = default!;
 
     private List<CauTraLoiDto> tempCauTraLois = new();
 
-	private CauTraLoiDto? selectedCauTraLoi = null;
+    private CauTraLoiDto? selectedCauTraLoi = null;
 
 
     bool isReadyToCreateQuestion = false;
 
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private const string ERROR_FORMAT_DIENKHUYET = "Không thể hoán vị câu hỏi cho nhóm câu hỏi điền khuyết";
+    private const string NOT_SELECT_OBJECT = "Vui lòng chọn đối tượng cần thao tác";
+    private const string DELTETE_CAUTRALOI = "Bạn có chắc chắn muốn xóa câu trả lời này?";
+    private const string ERROR_FORMAT_SOLUONGCAUTRALOI = "Bạn không thể thêm câu trả lời, tối đa 4 câu trả lời cho mỗi câu hỏi";
 
 
     protected async override Task OnInitializedAsync()
@@ -172,7 +176,7 @@
         if (IsEdit && CauHoi != null)
         {
             tempCauHoi = new CauHoiDto(CauHoi);
-			tempCauTraLois = new List<CauTraLoiDto>(tempCauHoi.CauTraLois);
+            tempCauTraLois = tempCauHoi.CauTraLois.ToList();
             isReadyToCreateQuestion = true;
             return;
         }
@@ -197,7 +201,7 @@
         if (result != null && result.MaCauHoi != 0)
         {
             isReadyToCreateQuestion = true;
-			MudDialog?.Close(DialogResult.Ok(result));
+            MudDialog?.Close(DialogResult.Ok(result));
         }
 
     }
@@ -222,6 +226,17 @@
             MudDialog?.Close(DialogResult.Ok(result));
         }
     }
+
+    private void OnValueChangeHoanVi(bool value)
+    {
+        if (NhomCauHoi != null && NhomCauHoi.KieuNoiDung == (int)KieuNoiDungNhomCauHoi.DienKhuyet)
+        {
+            Snackbar.Add(ERROR_FORMAT_DIENKHUYET, Severity.Error);
+            return;
+        }
+        tempCauHoi.HoanVi = value;
+    }
+
     private async Task OnClickViewNoiDung(string? text)
     {
         var parameters = new DialogParameters<NoiDungCauHoiDialog>
@@ -231,6 +246,7 @@
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
         await Dialog.ShowAsync<NoiDungCauHoiDialog>("XEM CHUYỂN", parameters, options);
     }
+
     private async Task OnClickHoTro()
     {
         var parameters = new DialogParameters<HoTroDialog> { };
@@ -239,6 +255,7 @@
 
         await Dialog.ShowAsync<HoTroDialog>("HƯỚNG DẪN", parameters, options);
     }
+
     private bool isValidForm()
     {
         if (string.IsNullOrEmpty(tempCauHoi.TieuDe) || string.IsNullOrEmpty(tempCauHoi.NoiDung))
@@ -262,6 +279,98 @@
         return item == selectedCauTraLoi ? "selected-row" : string.Empty;
     }
 
+    private async Task OnClickThemCauTraLoi()
+    {
+
+        if(tempCauTraLois.Count == 4)
+        {
+            Snackbar.Add(ERROR_FORMAT_SOLUONGCAUTRALOI, Severity.Warning);
+            return;
+        }
+        var result = await OpenCauTraLoiDialog(false);
+        if (result != null && !result.Canceled && result.Data != null)
+        {
+            var newCauTraLoi = (CauTraLoiDto)result.Data;
+            if (newCauTraLoi != null)
+            {
+                tempCauTraLois.Add(newCauTraLoi);
+                selectedCauTraLoi = newCauTraLoi;
+
+                tempCauHoi.CauTraLois = tempCauTraLois; // Cập nhật danh sách câu trả lời trong câu hỏi
+            }
+        }
+    }
+
+    private async Task OnClickSuaCauTraLoi()
+    {
+        if (selectedCauTraLoi == null)
+        {
+            Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+            return;
+        }
+        var result = await OpenCauTraLoiDialog(true);
+        if (result != null && !result.Canceled && result.Data != null)
+        {
+            var newCauTraLoi = (CauTraLoiDto)result.Data;
+            if (newCauTraLoi != null && selectedCauTraLoi != null)
+            {
+                var index = tempCauTraLois.FindIndex(p => p.MaCauTraLoi == newCauTraLoi.MaCauTraLoi);
+                if (index != -1)
+                {
+                    tempCauTraLois[index] = newCauTraLoi;
+                    selectedCauTraLoi = tempCauTraLois[index];
+
+                    tempCauHoi.CauTraLois = tempCauTraLois; // Cập nhật danh sách câu trả lời trong câu hỏi
+                }
+            }
+        }
+    }
+
+    private async Task OnClickXoaCauTraLoi()
+    {
+        var parameters = new DialogParameters<Simple_Dialog>
+            {
+                { x => x.ContentText, DELTETE_CAUTRALOI },
+                { x => x.ButtonText, "XÓA" },
+                { x => x.Color, Color.Error },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDeleteCauTraLoi())   }
+            };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+
+        await Dialog.ShowAsync<Simple_Dialog>("XÓA CÂU TRẢ LỜI", parameters, options);
+    }
+
+    private async Task HandleDeleteCauTraLoi()
+    {
+        if(selectedCauTraLoi != null)
+        {
+            var result = await CauTraLoi_Delete(selectedCauTraLoi.MaCauTraLoi);
+
+            if(result)
+            {
+                tempCauTraLois.Remove(selectedCauTraLoi);
+
+                tempCauHoi.CauTraLois = tempCauTraLois; // Cập nhật danh sách câu trả lời trong câu hỏi
+            }
+        }
+
+    }
+
+    private async Task<DialogResult?> OpenCauTraLoiDialog(bool isEdit)
+    {
+        var parameters = new DialogParameters<CauTraLoiDialog>
+            {
+                { x => x.IsEdit, isEdit},
+                { x => x.CauHoi, CauHoi },
+                { x => x.CauTraLoi, selectedCauTraLoi },
+                { x => x.ThuTu, tempCauHoi.CauTraLois.Count}
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        var dialog = await Dialog.ShowAsync<CauTraLoiDialog>((isEdit) ? "SỬA CÂU TRẢ LỜI" : "THÊM CÂU TRẢ LỜI", parameters, options);
+        return await dialog.Result;
+    }
+
 
     private async Task<CauHoiDto?> InsertAPI(CauHoiCreateRequest cauHoi)
     {
@@ -274,6 +383,11 @@
         return (response.Success) ? response.Data : null;
     }
 
+    private async Task<bool> CauTraLoi_Delete(int maCauTraLoi)
+    {
+        var response = await SenderAPI.DeleteAsync<CauTraLoiDto>($"api/cautralois/{maCauTraLoi}");
+        return response.Success;
+    }
 
 
 }

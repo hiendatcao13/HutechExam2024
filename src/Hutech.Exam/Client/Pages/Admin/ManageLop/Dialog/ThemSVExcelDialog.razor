@@ -1,0 +1,195 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Client.Components.Dialogs
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components.Forms
+@using OfficeOpenXml
+@using System.Text.RegularExpressions
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 700px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudText>@((MarkupString)(MESSAGE))</MudText>
+
+        <MudTextField Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="isMSSVNumber" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" />
+
+        <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control-sm w-70" OnChange="HandleFileUpload" accept=".xls,.xlsx">
+        </Microsoft.AspNetCore.Components.Forms.InputFile>
+        <MudText Color="Color.Warning" Typo="Typo.subtitle2">@NOTE</MudText>
+        <MudText Color="Color.Success">Số dòng được ghi nhận: @so_dong_ghi_nhan</MudText>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (isReadyToSave)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success">Lưu</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled>Lưu</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter][EditorRequired] public LopDto Lop { get; set; } = default!; // lớp hiện tại để thêm sinh viên vào
+
+    int so_dong_ghi_nhan = 0; // số dòng được ghi nhận
+
+    bool isReadyToSave = false;
+
+    Dictionary<string, SinhVienDto> sinhViens = [];
+
+    //mssv
+    int isMSSVNumber = -1; // tổng số kí tự MSSV
+    bool isMMSSVAllNumber = false; // chỉ chứa toàn số
+
+
+    const string MESSAGE = "Bảng sheet theo trình tự: <b style='color:red;'>[MSSV], [HoLot?], [Ten], [GioiTinh] 0(Nam)/1(Nữ) [NgaySinh?], [DiaChi?], [Email?], [DienThoai?]/b>";
+    const string NOTE = "Lưu ý: File excel phải có tiêu đề HEADING, dữ liệu đọc bắt đầu từ ô A2 tại sheet 1. \nFile tối đa 5MB. MSSV, tên và giới tính bắt buộc không được rỗng hoặc MSSV trùng lặp.";
+    const string NOT_FORMAT_EXCEL = "Định dạng file không phải Excel hoặc file rỗng";
+
+
+
+    private void OnClickThoat()
+    {
+        MudDialog?.Cancel();
+    }
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        isReadyToSave = false;
+        sinhViens.Clear();
+
+        var file = e.File;
+        if (file is null || !(file.ContentType == "application/vnd.ms-excel" || file.ContentType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||
+            !(file.Name.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) || file.Name.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase)))
+        {
+            Snackbar.Add(NOT_FORMAT_EXCEL, Severity.Error);
+            return;
+        }
+
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream); // 5 MB
+        memoryStream.Position = 0;
+
+        ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
+        using var package = new ExcelPackage(memoryStream);
+        var worksheet = package.Workbook.Worksheets[0]; // Lấy sheet đầu tiên
+        var rowCount = worksheet.Dimension.End.Row;       // Số dòng
+
+        so_dong_ghi_nhan = rowCount - 1; // Bỏ qua dòng tiêu đề
+
+        for (int row = 2; row <= rowCount; row++) // Bỏ qua dòng tiêu đề
+        {
+            var gioiTinhText = worksheet.Cells[row, 4].Text?.Trim();
+
+
+            SinhVienDto sinhVien = new SinhVienDto{
+                    MaSinhVien = row, // lưu tạm thời mã sinh viên thành dòng bị lỗi
+                    MaSoSinhVien = worksheet.Cells[row, 1].Text?.Trim(),
+                    HoVaTenLot = worksheet.Cells[row, 2].Text?.Trim(),
+                    TenSinhVien = worksheet.Cells[row, 3].Text?.Trim(),
+                    GioiTinh = (!string.IsNullOrEmpty(gioiTinhText) && (gioiTinhText == "1" || gioiTinhText == "0")) ? short.Parse(gioiTinhText) : null,
+                    NgaySinh = DateTime.TryParse(worksheet.Cells[row, 4].Text?.Trim(), out DateTime ngaySinh) ? ngaySinh : null,
+                    DiaChi = worksheet.Cells[row, 5].Text?.Trim(),
+                    Email = worksheet.Cells[row, 6].Text?.Trim(),
+                    DienThoai = worksheet.Cells[row, 7].Text?.Trim(),
+                    MaLop = Lop.MaLop,
+            };
+
+
+            if (!CheckValidData(row, sinhVien))
+            {
+                isReadyToSave = false;
+                return;
+            }
+
+            sinhViens[sinhVien.MaSoSinhVien + ""] = sinhVien; // Lưu sinh viên vào từ điển
+
+        }
+
+        isReadyToSave = true;
+        return;
+    }
+
+    private bool CheckValidData(int row, SinhVienDto sinhVien)
+    {
+        //Kiểm tra nếu MSSV rỗng
+        if (string.IsNullOrEmpty(sinhVien.MaSoSinhVien))
+        {
+            Snackbar.Add($"Dòng {row}: MSSV bị trống. Vui lòng kiểm tra");
+            return false;
+        }
+
+        // Kiểm tra nếu MSSV đã tồn tại trong danh sách
+        if (sinhViens.ContainsKey(sinhVien.MaSoSinhVien))
+        {
+            Snackbar.Add($"Dòng {row}: MSSV bị trùng lắp. Vui lòng kiểm tra bằng Ctrl + F trong file Excel");
+            return false;
+        }
+
+        //Kiểm tra tên không được rỗng
+        if (string.IsNullOrEmpty(sinhVien.TenSinhVien))
+        {
+            Snackbar.Add($"Dòng {row}: Tên thí sinh bị trống. Vui lòng kiểm tra");
+            return false;
+        }
+
+        //kiểm tra tên có chứa ký tự đặc biệt hoặc số
+        if (HasSpecialCharacter(sinhVien.TenSinhVien) || !HasOnlyLetter(sinhVien.TenSinhVien))
+        {
+            Snackbar.Add($"Dòng {row}: Tên thí sinh có chứa kí tự đặc biệt hoặc có số. Vui lòng kiểm tra");
+            return false;
+        }
+
+        if (sinhVien.GioiTinh == null)
+        {
+            Snackbar.Add($"Dòng {row}: Giới tính bị trống. Vui lòng kiểm tra");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private bool HasQualLengthMSSV(string mssv)
+    {
+        if (isMSSVNumber == -1)
+            return true;
+        return mssv.Length == isMSSVNumber;
+    }
+    private bool HasAllNumberMSSV(string mssv)
+    {
+        if (isMMSSVAllNumber == false)
+            return true;
+        return HasOnlyNumber(mssv);
+    }
+
+    private bool HasSpecialCharacter(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return false;
+        return Regex.IsMatch(text, @"[^a-zA-Z0-9\s]");
+    }
+    private bool HasOnlyNumber(string text)
+    {
+        return Regex.IsMatch(text, @"^\d+$");
+    }
+    private bool HasOnlyLetter(string text)
+    {
+        return Regex.IsMatch(text, @"^[a-zA-ZÀ-ỹà-ỹ\s]+$");
+    }
+}

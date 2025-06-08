@@ -110,28 +110,6 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
-        public async Task<ActionResult<CauTraLoiDto>> ForceDelete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _cauTraLoiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần xóa"));
-                }
-                return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(message: "Xóa câu trả lời thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CauTraLoiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CauTraLoiDto>.ErrorResponse(message: "Xóa câu trả lời không thành công", errorDetails: ex.Message));
-            }
-        }
-
         //////////////////PRIVATE//////////////////////////
     }
 }

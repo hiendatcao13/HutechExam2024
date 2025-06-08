@@ -1,0 +1,157 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.CauTraLoi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 500px; max-height: auto; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			@if(CauHoi != null && CauHoi.MaCauHoi != 0)
+			{
+				<MudItem xs="4"><MudText>Nội dung câu hỏi:</MudText></MudItem>
+				<MudItem xs="8"><MudTextField Variant="Variant.Outlined" Class="tieu-de" Label="Nội dung câu hỏi" ReadOnly AutoGrow InputType="InputType.Text" @bind-Value="CauHoi.NoiDung" /></MudItem>
+			}
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Nội dung câu trả lời:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Variant="Variant.Outlined" Class="noi-dung" Label="Nội dung câu trả lời" AutoGrow Required InputType="InputType.Text" @bind-Value="tempCauTraLoi.NoiDung" /></MudItem>
+
+			<MudItem xs="6">
+				<MudCheckBox T="bool" Label="Hoán vị" @bind-Value="tempCauTraLoi.HoanVi" Color="Color.Default" />
+			</MudItem>
+            <MudItem xs="6">
+				<MudCheckBox T="bool" Label="Là đáp án" @bind-Value="tempCauTraLoi.LaDapAn" Color="Color.Default" />
+			</MudItem>
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		@if (!IsEdit)
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+		}
+		else
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+		}
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+
+	.tieu-de {
+	background-color: lightcyan;
+	}
+
+	.noi-dung {
+	background-color: lightyellow;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	[Parameter][EditorRequired] public CauHoiDto? CauHoi { get; set; }
+
+	[Parameter] public CauTraLoiDto? CauTraLoi { get; set; }
+
+	[Parameter] public bool IsEdit { get; set; } = false;
+
+    [Parameter][EditorRequired] public int ThuTu { get; set; }
+
+	private CauTraLoiDto tempCauTraLoi = default!;
+
+	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+	protected override async Task OnInitializedAsync()
+	{
+		HandleInput();
+		await base.OnInitializedAsync();
+	}
+
+	private void HandleInput()
+	{
+		if (CauTraLoi != null && IsEdit)
+		{
+			tempCauTraLoi = new CauTraLoiDto(CauTraLoi);
+			return;
+		}
+		tempCauTraLoi = new();
+        tempCauTraLoi.HoanVi = true; // Mặc định là true để có thể hoán vị câu trả lời
+	}
+
+	private void OnClickThoat()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickThem()
+	{
+		if (string.IsNullOrEmpty(tempCauTraLoi.NoiDung))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+		var result = await InsertCauTraLoiAPI(new CauTraLoiCreateRequest
+			{
+                MaCauHoi = CauHoi?.MaCauHoi ?? -1,
+                ThuTu = ThuTu,
+                NoiDung = tempCauTraLoi.NoiDung,
+				LaDapAn = tempCauTraLoi.LaDapAn,
+                HoanVi = tempCauTraLoi.HoanVi,
+			});
+
+		if (result != null && result.MaCauTraLoi != 0)
+		{
+			MudDialog?.Close(DialogResult.Ok(result));
+		}
+	}
+
+	private async Task OnClickSua()
+	{
+		if (string.IsNullOrEmpty(tempCauTraLoi.NoiDung))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+
+		var result = await UpdateCauTraLoiAPI(tempCauTraLoi.MaCauTraLoi, new CauTraLoiUpdateRequest
+			{
+				MaCauHoi = CauHoi?.MaCauHoi ?? -1,
+				ThuTu = tempCauTraLoi.ThuTu,
+				NoiDung = tempCauTraLoi.NoiDung,
+				LaDapAn = tempCauTraLoi.LaDapAn,
+				HoanVi = tempCauTraLoi.HoanVi,
+			});
+
+		if (result != null && result.MaCauTraLoi != 0)
+		{
+			MudDialog?.Close(DialogResult.Ok(result));
+		}
+	}
+
+	private async Task<CauTraLoiDto?> InsertCauTraLoiAPI(CauTraLoiCreateRequest cauTraLoi)
+	{
+		var response = await SenderAPI.PostAsync<CauTraLoiDto>("api/cautralois", cauTraLoi);
+		return (response.Success) ? response.Data : null;
+
+	}
+	private async Task<CauTraLoiDto?> UpdateCauTraLoiAPI(int maTraLoi, CauTraLoiUpdateRequest cauTraLoi)
+	{
+		var response = await SenderAPI.PutAsync<CauTraLoiDto>($"api/cautralois/{maTraLoi}", cauTraLoi);
+		return (response.Success) ? response.Data : null;
+
+	}
+}

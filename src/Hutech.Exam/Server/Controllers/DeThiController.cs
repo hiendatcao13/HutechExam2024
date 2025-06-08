@@ -70,12 +70,12 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
         }
 
-        [HttpGet("{id}/ma-de-thi")]
-        public async Task<ActionResult<List<CustomThongTinMaDeThi>>> GetThongTinMaDeThi([FromQuery] int maDeThi)
+        [HttpGet("{id}/thong-tin-ma-de-thi")]
+        public async Task<ActionResult<List<CustomThongTinMaDeThi>>> GetThongTinMaDeThi([FromRoute] int id)
         {
             try
             {
-                var result = await _customMaDeThiService.GetThongTinMaDeThi(maDeThi);
+                var result = await _customMaDeThiService.GetThongTinMaDeThi(id);
                 if (result.Count == 0)
                 {
                     return NotFound(APIResponse<List<CustomThongTinMaDeThi>>.NotFoundResponse(message: "Không tìm thấy thông tin mã đề thi"));

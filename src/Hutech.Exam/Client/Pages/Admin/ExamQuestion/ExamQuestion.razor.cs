@@ -110,6 +110,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
         {
             (monHocs, totalPages_Mon, totalRecords_Mon) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
             CreateFakeData_MonHoc();
+
+            selectedMonHoc = null;
+            selectedClo = null;
+            selectedDeThi = null;
+            selectedNhomCauHoi = null;
+            selectedCauHoi = null;
         }
 
         private async Task FetchDeThi()
@@ -119,6 +125,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 (deThis, totalPages_DeThi, totalRecords_DeThi) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc.MaMonHoc, currentPage_DeThi, rowsPerPage_DeThi);
                 CreateFakeData_DeThi();
             }
+
+            selectedDeThi = null;
+            selectedNhomCauHoi = null;
+            selectedCauHoi = null;
         }
 
         private async Task FetchClo()
@@ -126,7 +136,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             if(selectedMonHoc != null)
             {
                 clos = await Clos_SelectBy_MaMonHocAPI(selectedMonHoc.MaMonHoc);
-            }    
+            }
+
+            selectedClo = null;
+            selectedNhomCauHoi = null;
+            selectedCauHoi = null;
         }
 
         private async Task FetchNhomCauHoi()
@@ -135,6 +149,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             {
                 nhomCauHois = await NhomCauHois_SelectAllBy_MaDeThiAPI(selectedDeThi.MaDeThi);
                 cauHois?.Clear();
+                selectedCauHoi = null;
 
                 // convert nhomCauHois to CustomNhomCauHoi
                 if (nhomCauHois != null)
@@ -145,6 +160,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 }
                 return;
             }
+            selectedNhomCauHoi = null;
+            selectedCauHoi = null;
         }
 
         private async Task FetchCauHoi()
@@ -154,6 +171,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 cauHois = await CauHois_SelectBy_MaNhomAPI(selectedNhomCauHoi.MaNhom);
                 return;
             }
+            selectedCauHoi = null;
         }
 
         private List<CustomNhomCauHoi> HandleNhomCauHoi(List<NhomCauHoiDto> nhomCauHoiGoc)
@@ -220,6 +238,41 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                         monHocs[index] = newMonHoc;
                         selectedMonHoc = newMonHoc;
                     }
+                }
+            }
+        }
+
+        private async Task OnClickXoaMonThi()
+        {
+            if (selectedMonHoc == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_MONHOC_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
+        }
+
+        private async Task HandleDeleteMonHoc(bool isForce)
+        {
+            if (selectedMonHoc != null)
+            {
+                var result = (isForce) ? await MonHoc_ForceDeleteAPI(selectedMonHoc.MaMonHoc) : await MonHoc_DeleteAPI(selectedMonHoc.MaMonHoc);
+
+                if (result)
+                {
+                    monHocs?.Remove(selectedMonHoc);
+                    selectedMonHoc = null;
+                    deThis?.Clear();
+                    customNhomCauHois?.Clear();
+                    cauHois?.Clear();
                 }
             }
         }
@@ -291,41 +344,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             }
         }
 
-        private async Task OnClickXoaMonThi()
+        private async Task OnClickTaoMaTranDe()
         {
-            if (selectedMonHoc == null)
+            if(selectedDeThi == null)
             {
                 Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
                 return;
             }
 
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_MONHOC_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
+            await OpenTaoDeHVDialog();
         }
-
-        private async Task HandleDeleteMonHoc(bool isForce)
-        {
-            if (selectedMonHoc != null)
-            {
-                var result = (isForce) ? await MonHoc_ForceDeleteAPI(selectedMonHoc.MaMonHoc) : await MonHoc_DeleteAPI(selectedMonHoc.MaMonHoc);
-
-                if (result)
-                {
-                    monHocs?.Remove(selectedMonHoc);
-                    selectedMonHoc = null;
-                    deThis?.Clear();
-                    customNhomCauHois?.Clear();
-                    cauHois?.Clear();
-                }
-            }
-        }
-
 
         private async Task OnClickThemNhomCauHoi()
         {
@@ -335,7 +363,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 return;
             }
             NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(p => p.MaNhom == selectedNhomCauHoi?.MaNhom);
-            var result = await OpenNhomCauHoiDialog("THÊM CHƯƠNG/PHẦN", false, nhomCauHoi, null, selectedDeThi);
+            var result = await OpenNhomCauHoiDialog(false, nhomCauHoi, null, selectedDeThi);
             if (result != null && result.Data != null && !result.Canceled)
             {
                 if (selectedDeThi != null)
@@ -358,7 +386,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 return;
             }
             NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(p => p.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenNhomCauHoiDialog("SỬA CHƯƠNG/PHẦN", true, null, nhomCauHoi, selectedDeThi);
+            var result = await OpenNhomCauHoiDialog(true, null, nhomCauHoi, selectedDeThi);
             if (result != null && result.Data != null && !result.Canceled)
             {
                 if (selectedDeThi != null)
@@ -420,7 +448,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 return;
             }    
             NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(x => x.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenCauHoiDialog("THÊM CÂU HỎI", false, nhomCauHoi);
+            var result = await OpenCauHoiDialog(false, nhomCauHoi);
             if(result != null && !result.Canceled && result.Data != null)
             {
                 var newCauHoi = (CauHoiDto)result.Data;
@@ -440,7 +468,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 return;
             }
             NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(x => x.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenCauHoiDialog("SỬA CÂU HỎI", true, nhomCauHoi);
+            var result = await OpenCauHoiDialog(true, nhomCauHoi);
             if (result != null && !result.Canceled && result.Data != null && cauHois != null)
             {
                 var newCauHoi = (CauHoiDto)result.Data;
@@ -608,7 +636,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             await Dialog.ShowAsync<Simple_Dialog>("Thông báo", parameters, options);
         }
 
-        private async Task<DialogResult?> OpenNhomCauHoiDialog(string tittle, bool isEdit, NhomCauHoiDto? nhomCauHoiCha, NhomCauHoiDto? nhomCauHoi, DeThiDto? deThi)
+        private async Task<DialogResult?> OpenNhomCauHoiDialog(bool isEdit, NhomCauHoiDto? nhomCauHoiCha, NhomCauHoiDto? nhomCauHoi, DeThiDto? deThi)
         {
             var thuTu = (nhomCauHois?.Count ?? 0) + 1;
             var parameters = new DialogParameters<NhomCauHoiDialog>
@@ -622,11 +650,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<NhomCauHoiDialog>(tittle, parameters, options);
+            var dialog = await Dialog.ShowAsync<NhomCauHoiDialog>((isEdit) ? "SỬA CHƯƠNG/NHÓM CÂU HỎI" : "THÊM CHƯƠNG/NHÓM CÂU HỎI", parameters, options);
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenCauHoiDialog(string tittle, bool isEdit, NhomCauHoiDto? nhomCauHoi)
+        private async Task<DialogResult?> OpenCauHoiDialog(bool isEdit, NhomCauHoiDto? nhomCauHoi)
         {
             var parameters = new DialogParameters<CauHoiDialog>
             {
@@ -636,7 +664,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
                 { x => x.IsEdit, isEdit },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<CauHoiDialog>(tittle, parameters, options);
+            var dialog = await Dialog.ShowAsync<CauHoiDialog>((isEdit) ? "SỬA CÂU HỎI" : "THÊM CÂU HỎI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenTaoDeHVDialog()
+        {
+            var parameters = new DialogParameters<MaTranDeDialog>
+            {
+                { x => x.DeThi, selectedDeThi }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<MaTranDeDialog>("TẠO MA TRẬN ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 

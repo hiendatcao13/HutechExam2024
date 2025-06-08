@@ -170,3 +170,9 @@
 06/06/2025 6PM
 - Đang hoàn thiện nghiệp vụ tạo ma trận đề thi
 - TODO: hoàn thành nốt nghiệp vụ và TVP Excel
+------------------------------------------------
+08/06/2025 11PM
+- Cập nhật toàn các nudget lên version mới nhất
+- Sửa lại nghiệp vụ thêm nhóm câu hỏi (chương/phần)
+- Sửa lại quá trình hiện thị đề (ký hiệu đề)
+- TODO: TVP Excel và ma trận đề, đã xây dựng trang nhập liệu file Excel

@@ -18,6 +18,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public long? MaDeThi { get; set; }
 
+        public string? KyHieuDe { get; set; } // đánh dấu không tồn tại trong Model
+
         public DateTime? ThoiGianBatDau { get; set; }
 
         public DateTime? ThoiGianKetThuc { get; set; }
@@ -50,6 +52,7 @@ namespace Hutech.Exam.Shared.DTO
             MaCaThi = other.MaCaThi;
             MaSinhVien = other.MaSinhVien;
             MaDeThi = other.MaDeThi;
+            KyHieuDe = other.KyHieuDe;
             ThoiGianBatDau = other.ThoiGianBatDau;
             ThoiGianKetThuc = other.ThoiGianKetThuc;
             DaThi = other.DaThi;
@@ -60,27 +63,6 @@ namespace Hutech.Exam.Shared.DTO
             GioCongThem = other.GioCongThem;
             ThoiDiemCong = other.ThoiDiemCong;
             LyDoCong = other.LyDoCong;
-        }
-
-        public ChiTietCaThiDto(int maChiTietCaThi, int? maCaThi, long? maSinhVien, long? maDeThi, DateTime? thoiGianBatDau, DateTime? thoiGianKetThuc, bool daThi, bool daHoanThanh, double diem, int? tongSoCau, int? soCauDung, int gioCongThem, DateTime? thoiDiemCong, string? lyDoCong, ICollection<ChiTietBaiThiDto> chiTietBaiThis, CaThiDto? maCaThiNavigation, SinhVienDto? maSinhVienNavigation)
-        {
-            MaChiTietCaThi = maChiTietCaThi;
-            MaCaThi = maCaThi;
-            MaSinhVien = maSinhVien;
-            MaDeThi = maDeThi;
-            ThoiGianBatDau = thoiGianBatDau;
-            ThoiGianKetThuc = thoiGianKetThuc;
-            DaThi = daThi;
-            DaHoanThanh = daHoanThanh;
-            Diem = diem;
-            TongSoCau = tongSoCau;
-            SoCauDung = soCauDung;
-            GioCongThem = gioCongThem;
-            ThoiDiemCong = thoiDiemCong;
-            LyDoCong = lyDoCong;
-            ChiTietBaiThis = chiTietBaiThis;
-            MaCaThiNavigation = maCaThiNavigation;
-            MaSinhVienNavigation = maSinhVienNavigation;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Hutech.Exam.Shared.DTO.Custom
 {
     public class CustomThongTinMaDeThi
     {
-        public int Chuong { get; set; }
+        public int MaChuong { get; set; }
 
         public int MaNhom { get; set; }
 
@@ -20,8 +20,10 @@ namespace Hutech.Exam.Shared.DTO.Custom
 
         public bool? HoanViCauHoi { get; set; }
 
+        public int? DapAn { get; set; }
+
         public int? ThuTuCauHoi { get; set; }
 
-        public List<int>? CauTraLoiKhongHoanVi { get; set; } = new List<int>();
+        public List<int>? CauTraLoiKhongHoanVi { get; set; } = [];
     }
 }

@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.BUS
                 {
                     ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                     chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
-
+                    chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH);
                     result.Add(chiTietCaThi);
                 }
             }
@@ -81,6 +81,7 @@ namespace Hutech.Exam.Server.BUS
                 {
                     ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                     chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
+                    chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH);
                     result.Add(chiTietCaThi);
                 }
 
@@ -107,6 +108,7 @@ namespace Hutech.Exam.Server.BUS
                 {
                     ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                     chiTietCaThi.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH);
+                    chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienService.COLUMN_LENGTH);
                     result.Add(chiTietCaThi);
                 }
 
@@ -149,7 +151,7 @@ namespace Hutech.Exam.Server.BUS
         }
         public async Task<ChiTietCaThiDto> SelectBy_MaSinhVienThi(long ma_sinh_vien)
         {
-            int ca_thi_column = CaThiService.COLUMN_LENGTH, chi_dot_thi_column = ChiTietDotThiService.COLUMN_LENGTH, lop_ao_column = LopAoService.COLUMN_LENGTH, mon_hoc_column = MonHocService.COLUMN_LENGTH;
+            int ca_thi_column = CaThiService.COLUMN_LENGTH, chi_dot_thi_column = ChiTietDotThiService.COLUMN_LENGTH, lop_ao_column = LopAoService.COLUMN_LENGTH, mon_hoc_column = MonHocService.COLUMN_LENGTH, sinh_vien_column = SinhVienService.COLUMN_LENGTH;
             ChiTietCaThiDto result = new();
             using (IDataReader dataReader = await _chiTietCaThiRepository.SelectBy_MaSinhVienThi(ma_sinh_vien))
             {
@@ -161,6 +163,7 @@ namespace Hutech.Exam.Server.BUS
                     result.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation = _lopAoServcie.GetProperty(dataReader, COLUMN_LENGTH + ca_thi_column + chi_dot_thi_column);
                     result.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation = _monHocService.GetProperty(dataReader, COLUMN_LENGTH + ca_thi_column + chi_dot_thi_column + lop_ao_column);
                     result.MaSinhVienNavigation = _sinhVienService.GetProperty(dataReader, COLUMN_LENGTH + ca_thi_column + chi_dot_thi_column + lop_ao_column + mon_hoc_column);
+                    result.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + ca_thi_column + chi_dot_thi_column + lop_ao_column + mon_hoc_column + sinh_vien_column) ? null : dataReader.GetString(COLUMN_LENGTH + ca_thi_column + chi_dot_thi_column + lop_ao_column + mon_hoc_column + sinh_vien_column);
                 }
                 if (result.MaChiTietCaThi == 0) //không có dữ liệu
                     result.MaSinhVienNavigation = await _sinhVienService.SelectOne(ma_sinh_vien);

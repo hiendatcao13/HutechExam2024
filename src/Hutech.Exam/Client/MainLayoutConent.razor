@@ -9,35 +9,35 @@
 }
 
 
-    @* Required *@
-<MudThemeProvider/>
-    <MudPopoverProvider />
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
 
-    @* Needed for dialogs *@
-    <MudDialogProvider />
+@* Needed for dialogs *@
+<MudDialogProvider />
 
-    @* Needed for snackbars *@
-    <MudSnackbarProvider />
-    <AuthorizeView>
-        <Authorized>
-            <main>
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+<AuthorizeView>
+    <Authorized>
+        <main>
+            @ChildContent
+        </main>
+    </Authorized>
+
+    <NotAuthorized>
+        <main>
+            @if (isLoginPage)
+            {
                 @ChildContent
-            </main>
-        </Authorized>
-
-        <NotAuthorized>
-            <main>
-                @if (isLoginPage)
-                {
-                    @ChildContent
-                }
-                else
-                {
-                    <Forbidden403></Forbidden403>
-                }
-            </main>
-        </NotAuthorized>
-    </AuthorizeView>
+            }
+            else
+            {
+                <Forbidden403></Forbidden403>
+            }
+        </main>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter, EditorRequired]

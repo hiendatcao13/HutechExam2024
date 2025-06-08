@@ -120,7 +120,7 @@
         await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(memoryStream); // 3 MB
         memoryStream.Position = 0;
 
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
         using var package = new ExcelPackage(memoryStream);
         var worksheet = package.Workbook.Worksheets[0]; // Lấy sheet đầu tiên
         var rowCount = worksheet.Dimension.End.Row;       // Số dòng

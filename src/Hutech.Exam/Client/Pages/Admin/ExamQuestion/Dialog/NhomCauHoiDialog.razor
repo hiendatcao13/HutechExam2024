@@ -13,7 +13,7 @@
         <MudGrid>
             <MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text" style="color: green; font-weight: bold">@DeThi?.TenDeThi</span></MudText></MudItem>
-            @if (!IsEdit && BoChuongPhan == false && NhomCauHoiCha != null && tempNhomCauHoi.MaNhomCha == -1)
+            @if (!IsEdit && BoChuongPhan == false && NhomCauHoiCha != null)
             {
                 <MudItem xs="12">
                     <MudCheckBox T="bool" Value="isNhomCon" ValueChanged="OnValueChangeCauHoiNhom">Là câu hỏi con: @tempNhomCauHoiCha.TenNhom</MudCheckBox>
@@ -21,21 +21,20 @@
             }
             <MudItem xs="4"><MudText>Kiểu nội dung:</MudText></MudItem>
             <MudItem xs="8">
-                <MudSelect Label="Kiểu nội dung" T="int" Clearable="true" @bind-Value="tempNhomCauHoi.KieuNoiDung">
+                <MudSelect Label="Kiểu nội dung" T="int" @bind-Value="tempNhomCauHoi.KieuNoiDung">
                     @foreach (KieuNoiDungNhomCauHoi kieu in Enum.GetValues(typeof(KieuNoiDungNhomCauHoi)))
                     {
                         <MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
                     }
-
                 </MudSelect>
             </MudItem>
 
 
             <MudItem xs="4" Style="align-content: center"><MudText>Tên nhóm:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên nhóm" Required @bind-Value="@tempNhomCauHoi.TenNhom" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow Class="tieu-de" Variant="Variant.Outlined" Label="Tên nhóm" Required @bind-Value="@tempNhomCauHoi.TenNhom" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Nội dung:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Lines="5" Label="Nội dung" Required @bind-Value="@tempNhomCauHoi.NoiDung" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow Class="noi-dung" Variant="Variant.Outlined" Label="Nội dung" Required @bind-Value="@tempNhomCauHoi.NoiDung" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Số câu hỏi:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Label="Số câu hỏi" Required @bind-Value="@tempNhomCauHoi.SoCauHoi" InputType="InputType.Number"></MudTextField></MudItem>
@@ -44,7 +43,7 @@
             <MudItem xs="8"><MudTextField Label="Số câu lấy" Required @bind-Value="@tempNhomCauHoi.SoCauLay" InputType="InputType.Number"></MudTextField></MudItem>
 
             <MudItem xs="6">
-                <MudCheckBox @bind-Value="@tempNhomCauHoi.HoanVi">Hoán vị</MudCheckBox>
+                <MudCheckBox T="bool" @bind-Value="@tempNhomCauHoi.HoanVi">Hoán vị</MudCheckBox>
             </MudItem>
 
             <MudItem xs="6">
@@ -71,11 +70,19 @@
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
 
     .title-text {
-    font-weight: bold;
+        font-weight: bold;
+    }
+
+    .tieu-de {
+        background-color: lightcyan;
+    }
+
+    .noi-dung {
+        background-color: lightyellow;
     }
 </style>
 
@@ -105,7 +112,7 @@
     private NhomCauHoiDto tempNhomCauHoiCha { get; set; } = new();
 
 
-    private const string INVALID_FORM = "Vui lòng nhập ít nhất thông tin tên nhóm, nội dung, kiểu nội dung và là câu hỏi nhóm?";
+    private const string INVALID_FORM = "Vui lòng nhập ít nhất thông tin tên nhóm, nội dung, kiểu nội dung";
 
     protected async override Task OnInitializedAsync()
     {
@@ -115,7 +122,7 @@
     private void HandleInput()
     {
         tempNhomCauHoi.KieuNoiDung = -1;
-        tempNhomCauHoi.LaCauHoiNhom = (NhomCauHoiCha != null);
+        tempNhomCauHoi.LaCauHoiNhom = (BoChuongPhan == true) ? true : false; // nếu bỏ chương phần thì mặc định ko có chương
 
         if (!IsEdit && NhomCauHoiCha != null)
         {
@@ -187,13 +194,13 @@
         }
     }
 
+
     private void OnValueChangeCauHoiNhom(bool value)
     {
         isNhomCon = value;
-        tempNhomCauHoi.LaCauHoiNhom = !value;
-        
-    }
+        tempNhomCauHoi.LaCauHoiNhom = value;
 
+    }
 
 
     private async Task<NhomCauHoiDto?> InsertAPI(NhomCauHoiCreateRequest nhomCauHoi)

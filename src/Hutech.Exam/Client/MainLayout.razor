@@ -37,7 +37,7 @@
             </MudNavMenu>
         </MudDrawer>
     }
-    <MudMainContent>
+    <MudMainContent Style="overflow:auto; height:100vh;">
         <ErrorBoundary @ref=_errorBoundary Context="errorContent">
             <ChildContent>
                 <MainLayoutConent>
@@ -77,16 +77,19 @@
         { "/admin/students", "Quản lý sinh viên"},
         { "/admin/feedback", "Đánh giá đề thi" }
     };
+
     private void ToggleDrawer()
     {
         _open = !_open;
     }
+
     protected override async Task OnInitializedAsync()
     {
         name = await SessionStorage.GetItemAsStringAsync("Name");
         Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
         await base.OnInitializedAsync();
     }
+
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         var path = new Uri(e.Location).PathAndQuery; // e.Location là string, ép sang Uri để lấy Path
@@ -110,6 +113,7 @@
 
         await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
     }
+
     private async Task handleDangXuat()
     {
         var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
@@ -117,6 +121,7 @@
         Nav?.NavigateTo("/admin", true);
 
     }
+
     private void RoutingPage(int index)
     {
         var path = names.ElementAt(index).Key;

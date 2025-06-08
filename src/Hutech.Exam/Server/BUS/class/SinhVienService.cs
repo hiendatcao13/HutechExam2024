@@ -15,7 +15,7 @@ namespace Hutech.Exam.Server.BUS
         private readonly ISinhVienRepository _sinhVienRepository = sinhVienRepository;
         private readonly IMapper _mapper = mapper;
 
-        public static readonly int COLUMN_LENGTH = 14; // số lượng cột trong bảng SinhVien
+        public static readonly int COLUMN_LENGTH = 15; // số lượng cột trong bảng SinhVien
 
         public SinhVienDto GetProperty(IDataReader dataReader, int start = 0)
         {

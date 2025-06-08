@@ -3,12 +3,13 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
 @using Hutech.Exam.Shared.DTO.Request.Clo
 @using Hutech.Exam.Shared.DTO.Request.MonHoc
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
-<MudDialog Style="min-width: 400px; max-height: auto; overflow: visible">
+<MudDialog Style="min-width: 500px; max-height: auto; overflow: visible">
 	<DialogContent>
 		<MudGrid>
 			<MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
@@ -17,16 +18,45 @@
 			<MudItem xs="4" Style="align-content: center"><MudText>Tổng số đề tạo:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Tổng số đề" Required InputType="InputType.Number" @bind-Value="so_luong_de" Placeholder="4" /></MudItem>
 
+			<MudItem xs="4" Style="align-content: center"><MudText>Ký hiệu đề:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Ký hiệu đề" Required InputType="InputType.Text" @bind-Value="kyHieuDe" Placeholder="TA001" HelperText="Vui lòng nhập * để tạo ra các mã số tương ứng (D3) - VD: TA001" /></MudItem>
+
 			<MudItem xs="12">
-				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị theo chương</MudButton>
-				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị theo nhóm</MudButton>
-				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">Hoán vị tất cả</MudButton>
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">HV chương</MudButton>
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">HV nhóm</MudButton>
+				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">HV câu hỏi</MudButton>
 			</MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Chương HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow Label="Chương HV" @bind-Value="dsChuongHV" ReadOnly></MudTextField></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Chương không HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Chương không HV" @bind-Value="dsChuongKhongHV"></MudTextField></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Nhóm HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Nhóm HV" @bind-Value="dsNhomCauHoiHV"></MudTextField></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Nhóm không HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Nhóm không HV" @bind-Value="dsNhomCauHoiKhongHV"></MudTextField></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Câu hỏi HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Câu hỏi HV" @bind-Value="dsCauHoiHV"></MudTextField></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Câu hỏi không HV:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Câu hỏi không HV" @bind-Value="dsCauHoiKhongHV"></MudTextField></MudItem>
+
 		</MudGrid>
 	</DialogContent>
 	<DialogActions>
 		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
-		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Cập nhật đề</MudButton>
+		@if(isValid)
+		{
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Cập nhật đề</MudButton>
+		}
+		else
+		{
+			<MudButton Variant="Variant.Filled" Disabled Color="Color.Success">Cập nhật đề</MudButton>
+		}
 	</DialogActions>
 </MudDialog>
 <style>
@@ -39,8 +69,9 @@
 	}
 
 	.add-button {
-		transform: scale(0.85);
-		margin-bottom: 2%;
+	transform: scale(0.85);
+	margin-bottom: 2%;
+	padding-top: 10px;
 	}
 </style>
 
@@ -51,22 +82,62 @@
 
 	[Parameter][EditorRequired] public DeThiDto? DeThi { get; set; }
 
+	private Random Random { get; set; } = new();
+
 	private DeThiDto tempDeThi = default!;
 
+	private List<CustomThongTinMaDeThi>? customThongTinMaDeThis = [];
+
 	private int so_luong_de = 0;
+    private string kyHieuDe = string.Empty; // ký hiệu đề thi, dùng để tạo ra các mã số tương ứng (D3) - VD: TA001, TA002, TA003...
+
+	private bool isValid = false;
+
+	//ds hiển thị 
+	string dsChuongHV = string.Empty;
+	string dsChuongKhongHV = string.Empty;
+
+	string dsNhomCauHoiHV = string.Empty;
+	string dsNhomCauHoiKhongHV = string.Empty;
+
+	string dsCauHoiHV = string.Empty;
+	string dsCauHoiKhongHV = string.Empty;
+
+	//ds xử lí theo key: thứ tự, value: (mã, hoán vị?)
+	private Dictionary<int, (int, bool)> dsChuong = [];
+
+	private Dictionary<int, (int, bool)> dsNhomCauHoi = [];
+
+	private Dictionary<string, (int, bool, int, List<int>?)> dsCauHoi = []; //key: thứ tự câu hỏi - S mã nhóm (1-S1) value: (mã câu hỏi, hoán vị?, mã đáp án, ds thứ tự đáp án không hoán vị)
 
 
 
-	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+	private const string INVALID_FORM = "Vui lòng nhập số lượng câu hỏi và thông tin ký hiệu đề";
+    private const string INVALID_KYHIEUDE = "Vui lòng nhập dấu * để tạo mã số tương ứng cho các đề thi (VD: TA001, TA002, TA003...)";
+    private const string INVALID_KYHIEUDE2 = "Không thể xuất hiện cùng lúc nhiều hơn một dấu * trong ký hiệu đề, vui lòng kiểm tra lại ký hiệu đề thi!";
+	private const string WAITING = "Vui lòng chờ hệ thống sẽ mất chút thời gian để tạo bộ đề...";
 
 	protected override async Task OnInitializedAsync()
 	{
-		HandleInput();
+		await HandleInput();
 		await base.OnInitializedAsync();
+
+		//method
 	}
-	private void HandleInput()
+
+
+	private async Task HandleInput()
 	{
+		if (DeThi == null)
+		{
+			tempDeThi = new DeThiDto();
+			return;
+		}
 		tempDeThi = new DeThiDto(DeThi);
+
+		customThongTinMaDeThis = await GetThongTinMaDeThi(tempDeThi.MaDeThi);
+
+		HandleData();
 	}
 	private void OnClickThoat()
 	{
@@ -74,14 +145,134 @@
 	}
 	private async Task OnClickThem()
 	{
-		
-		
+
+
 	}
 	private async Task OnClickSua()
 	{
-		
 
-		
+
+
+	}
+
+	private void OnClickHoanViTheoChuong()
+	{
+		if(!CheckValidForm() || !CheckMissingAnswer())
+		{
+			isValid = false;
+			return;
+		}
+
+		// tạo danh sách chương có hoán vị (thứ tự, mã số)
+
+
+	}
+
+	private void HandleData()
+	{
+		if(customThongTinMaDeThis == null || customThongTinMaDeThis.Count == 0)
+		{
+			return;
+		}
+
+		foreach(var item in customThongTinMaDeThis)
+		{
+			if(item.MaCauHoi == null) // chương tức là ko chứa câu hỏi (chỉ chứa nhóm câu hỏi)
+			{
+				dsChuong[item.ThuTuNhom] = (item.MaNhom, item.HoanViNhom);
+			}
+			else
+			{
+				dsNhomCauHoi[item.ThuTuNhom] = (item.MaNhom, item.HoanViNhom);
+			}
+
+			if(item.ThuTuCauHoi != null && item.MaCauHoi != null && item.HoanViCauHoi != null && item.DapAn != null)
+			{
+				dsCauHoi[$"{item.ThuTuCauHoi.Value}-S{item.MaNhom}"] = (item.MaCauHoi.Value, item.HoanViCauHoi.Value, item.DapAn.Value, item.CauTraLoiKhongHoanVi);
+				Console.WriteLine(item.HoanViCauHoi.Value + ", ");
+			}
+
+		}
+		ConvertToUI();
+
+	}
+
+	private void ConvertToUI()
+	{
+        dsChuongHV = string.Join(" - ", dsChuong.Where(x => x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+        dsChuongKhongHV = string.Join(" - ", dsChuong.Where(x => !x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+
+        dsNhomCauHoiHV = string.Join(" - ", dsNhomCauHoi.Where(x => x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+        dsNhomCauHoiKhongHV = string.Join(" - ", dsNhomCauHoi.Where(x => !x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+
+        dsCauHoiHV = string.Join(" - ", dsCauHoi.Where(x => x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+        dsCauHoiKhongHV = string.Join(" - ", dsCauHoi.Where(x => !x.Value.Item2).Select(x => $"{x.Value.Item1}"));
+	}
+
+
+	private List<int> RandomList(List<int> list)
+	{
+		// sử dụng thuật toán Fisher Yates để xáo trộn danh sách (tốc độ 0(n))
+		//Nó đảm bảo mỗi phần tử có xác suất bằng nhau xuất hiện ở bất kỳ vị trí nào trong kết quả.
+		var result = new List<int>(list);
+		int n = result.Count;
+
+		for (int i = n - 1; i > 0; i--)
+		{
+			int j = Random.Next(i + 1);
+
+			(result[i], result[j]) = (result[j], result[i]); // swap
+		}
+		return result;
+	}
+
+	private bool CheckValidForm()
+	{
+		if (so_luong_de <= 0 || string.IsNullOrEmpty(kyHieuDe))
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return false;
+		}
+
+        if (kyHieuDe.IndexOf('*') == -1)
+        {
+            Snackbar.Add(INVALID_KYHIEUDE, Severity.Error);
+            return false;
+        }
+
+		if (kyHieuDe.Count(c => c == '*') >= 2)
+		{
+            Snackbar.Add(INVALID_KYHIEUDE2, Severity.Error);
+            return false;
+
+		}
+
+		return true;
+	}
+
+	private bool CheckMissingAnswer()
+	{
+		// người dùng quên nhập câu trả lời
+		var missingAnswer = customThongTinMaDeThis?.Where(x => x.DapAn == null).ToList();
+
+		if(missingAnswer != null && missingAnswer.Count != 0)
+		{
+			var sb = new StringBuilder();
+			foreach (var item in missingAnswer)
+			{
+				sb.AppendLine($"Câu hỏi {item.MaCauHoi} chưa có đáp án.");
+			}
+			Snackbar.Add(sb.ToString(), Severity.Error);
+			return false;
+		}
+		return true;
+	}
+
+
+	private async Task<List<CustomThongTinMaDeThi>?> GetThongTinMaDeThi(int maDeThi)
+	{
+		var response = await SenderAPI.GetAsync<List<CustomThongTinMaDeThi>>($"api/dethis/{maDeThi}/thong-tin-ma-de-thi");
+		return (response.Success) ? response.Data : null;
 	}
 
 }

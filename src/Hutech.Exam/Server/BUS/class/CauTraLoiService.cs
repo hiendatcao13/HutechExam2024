@@ -55,11 +55,6 @@ namespace Hutech.Exam.Server.BUS
             return await _cauTraLoiRepository.Remove(ma_cau_tra_loi) != 0;
         }
 
-        public async Task<bool> ForceRemove(int ma_cau_tra_loi)
-        {
-            return await _cauTraLoiRepository.ForceRemove(ma_cau_tra_loi) != 0;
-        }
-
         public async Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi)
         {
             List<CauTraLoiDto> result = [];
