@@ -176,3 +176,7 @@
 - Sửa lại nghiệp vụ thêm nhóm câu hỏi (chương/phần)
 - Sửa lại quá trình hiện thị đề (ký hiệu đề)
 - TODO: TVP Excel và ma trận đề, đã xây dựng trang nhập liệu file Excel
+-------------------------------------------------
+9/06/2025 6PM
+- Cập nhật lại quy trình của Repo và Service, Service không được chứa đọc dữ liệu DataReader gây leak connection
+- TODO: Hoàn thành chuyển đổi lại toàn bộ, (hiện đang ở ChiTietDotThi)

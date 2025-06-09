@@ -10,111 +10,118 @@ namespace Hutech.Exam.Server.DAL.DataReader
 {
     public class DatabaseReader : IDisposable
     {
-        private static readonly int THOI_GIAN_HUY_BO = 10; // (giây), là n giây thực hiện procedure sẽ được hủy bỏ sau n giây đó
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // (giây), là n giây connection pool tồn tại và sẽ được hủy bỏ sau n giây đó
-        private string? _connectionString { get; set; }
-        private IConfiguration? _configuration { get; set; }
-        private List<SqlParameter> _params { get; set; }
-        private string _nameOfProcedure { get; set; }
-        private SqlConnection? connection { get; set; }
+        private const int THOI_GIAN_HUY_BO = 10;
+
+        private readonly CancellationTokenSource _cancellationTokenSource = new(TimeSpan.FromSeconds(30));
+        private readonly List<SqlParameter> _params = [];
+        private readonly string _nameOfProcedure;
+        private SqlConnection? _connection;
+        private readonly ILogger<DatabaseReader> _logger;
 
         public DatabaseReader(string nameOfProcedure)
         {
-            _params = new List<SqlParameter>();
             _nameOfProcedure = nameOfProcedure;
-            Initalize(nameOfProcedure);
-            connection = new SqlConnection(_connectionString);
+            _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<DatabaseReader>();
+            Initialize();
         }
-        private void Initalize(string nameOfProcedure)
+
+        private void Initialize()
         {
-            configureConnectionString();
-            if (_connectionString != null)
-                checkError(nameOfProcedure, _connectionString);
-        }
-        private void configureConnectionString()
-        {
-            var builder = new ConfigurationBuilder();
-            builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            _configuration = builder.Build();
-            string? connectionString = _configuration.GetConnectionString("DefaultConnection");
-            if (connectionString != null)
-                _connectionString = connectionString;
-        }
-        private void checkError(string nameOfProcedure, string connectionString)
-        {
-            if (string.IsNullOrWhiteSpace(nameOfProcedure))
+            try
             {
-                throw new ArgumentNullException(nameof(nameOfProcedure));
+                string? connStr = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: true)
+                    .Build()
+                    .GetConnectionString("DefaultConnection");
+
+                if (string.IsNullOrWhiteSpace(connStr))
+                {
+                    _logger.LogError("Connection string is null or empty.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(_nameOfProcedure))
+                {
+                    _logger.LogError("Procedure name is not provided.");
+                    return;
+                }
+
+                _connection = new SqlConnection(connStr);
             }
-            if (string.IsNullOrWhiteSpace(connectionString))
+            catch (Exception ex)
             {
-                throw new ArgumentNullException(nameof(connectionString));
+                _logger.LogError(ex, "Error initializing DatabaseReader.");
             }
         }
-        public void SqlParams(string nameOfParam, SqlDbType sqltype, object value)
+
+        public void SqlParams(string nameOfParam, SqlDbType sqlType, object value)
         {
-            SqlParameter parameter = new SqlParameter(nameOfParam, sqltype)
-            {
-                Value = value
-            };
-            _params.Add(parameter);
+            _params.Add(new SqlParameter(nameOfParam, sqlType) { Value = value });
         }
-        // return lines
+
         public async Task<int> ExecuteNonQueryAsync()
         {
-            if (connection == null)
-                throw new InvalidOperationException("Connection is not initialized.");
-
-            if (connection.State == System.Data.ConnectionState.Closed)
+            if (_connection == null)
             {
-                await connection.OpenAsync(_cancellationTokenSource.Token);
-            }
-
-            using (SqlTransaction transaction = connection.BeginTransaction())
-            {
-                try
-                {
-                    using (SqlCommand command = connection.CreateCommand())
-                    {
-                        command.Transaction = transaction;
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.CommandText = _nameOfProcedure;
-                        command.Parameters.AddRange(_params.ToArray());
-                        command.CommandTimeout = THOI_GIAN_HUY_BO;
-                        int result = await command.ExecuteNonQueryAsync();
-                        transaction.Commit();
-                        return result;
-                    }
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 208)
-                    {
-                        throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
-                    }
-                    transaction.Rollback();
-                    throw new Exception("An error occurred: " + ex.Message, ex);
-                }
-                finally
-                {
-                    Dispose();
-                }
-            }
-        }
-        // return the first value in the first line (id)
-        public async Task<object?> ExecuteScalarAsync()
-        {
-            if (connection == null)
-                throw new InvalidOperationException("Connection is not initialized.");
-
-            if (connection.State == System.Data.ConnectionState.Closed)
-            {
-                await connection.OpenAsync(_cancellationTokenSource.Token);
+                _logger.LogError("Connection is not initialized.");
+                return -1;
             }
 
             try
             {
-                SqlCommand command = connection.CreateCommand(); // ❌ Không dùng `using`
+                if (_connection.State == System.Data.ConnectionState.Closed)
+                    await _connection.OpenAsync(_cancellationTokenSource.Token);
+
+                using var transaction = _connection.BeginTransaction();
+                using var command = _connection.CreateCommand();
+
+                command.Transaction = transaction;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = _nameOfProcedure;
+                command.Parameters.AddRange(_params.ToArray());
+                command.CommandTimeout = THOI_GIAN_HUY_BO;
+
+                int result = await command.ExecuteNonQueryAsync();
+                transaction.Commit();
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, $"SQL error during ExecuteNonQueryAsync (SP: {_nameOfProcedure})");
+
+                try { _connection?.BeginTransaction()?.Rollback(); }
+                catch (Exception rollbackEx)
+                {
+                    _logger.LogWarning(rollbackEx, "Rollback failed.");
+                }
+
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during ExecuteNonQueryAsync");
+                return -1;
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
+
+        public async Task<object?> ExecuteScalarAsync()
+        {
+            if (_connection == null)
+            {
+                _logger.LogError("Connection is not initialized.");
+                return null;
+            }
+
+            try
+            {
+                if (_connection.State == System.Data.ConnectionState.Closed)
+                    await _connection.OpenAsync(_cancellationTokenSource.Token);
+
+                using var command = _connection.CreateCommand();
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = _nameOfProcedure;
                 command.Parameters.AddRange(_params.ToArray());
@@ -124,27 +131,34 @@ namespace Hutech.Exam.Server.DAL.DataReader
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 208)
-                {
-                    throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
-                }
-                throw new Exception("An error occurred: " + ex.Message, ex);
+                _logger.LogError(ex, $"SQL error during ExecuteScalarAsync (SP: {_nameOfProcedure})");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during ExecuteScalarAsync");
+                return null;
+            }
+            finally
+            {
+                Dispose();
             }
         }
 
-        public async Task<SqlDataReader> ExecuteReaderAsync()
+        public async Task<SqlDataReader?> ExecuteReaderAsync()
         {
-            if (connection == null)
-                throw new InvalidOperationException("Connection is not initialized.");
-
-            if (connection.State == System.Data.ConnectionState.Closed)
+            if (_connection == null)
             {
-                await connection.OpenAsync(_cancellationTokenSource.Token);
+                _logger.LogError("Connection is not initialized.");
+                return null;
             }
 
             try
             {
-                SqlCommand command = connection.CreateCommand(); // ❌ Không dùng `using` ở đây
+                if (_connection.State == System.Data.ConnectionState.Closed)
+                    await _connection.OpenAsync(_cancellationTokenSource.Token);
+
+                var command = _connection.CreateCommand(); // intentionally not using
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = _nameOfProcedure;
                 command.Parameters.AddRange(_params.ToArray());
@@ -154,21 +168,34 @@ namespace Hutech.Exam.Server.DAL.DataReader
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 208)
-                {
-                    throw new Exception($"Procedure: {_nameOfProcedure} not found in SQL Server", ex);
-                }
-                throw new Exception("An error occurred: " + ex.Message, ex);
+                _logger.LogError(ex, $"SQL error during ExecuteReaderAsync (SP: {_nameOfProcedure})");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during ExecuteReaderAsync");
+                return null;
             }
         }
+
         public void Dispose()
         {
-            if (connection != null)
+            if (_connection != null)
             {
-                connection.Close();
-                connection.Dispose();
-                connection = null;
+                try
+                {
+                    if (_connection.State != System.Data.ConnectionState.Closed)
+                        _connection.Close();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to close SQL connection.");
+                }
+
+                _connection.Dispose();
+                _connection = null;
             }
         }
+
     }
 }

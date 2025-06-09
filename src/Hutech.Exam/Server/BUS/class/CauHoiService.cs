@@ -7,110 +7,39 @@ using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class CauHoiService(ICauHoiRepository cauHoiRepository, CloService cloService, CauTraLoiService cauTraLoiService, IMapper mapper)
+    public class CauHoiService(ICauHoiRepository cauHoiRepository)
     {
         private readonly ICauHoiRepository _cauHoiRepository = cauHoiRepository;
-        private readonly CloService _cloService = cloService;
-        private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
-        private IMapper _mapper = mapper;
-        public static readonly int COLUMN_LENGTH = 9; // số lượng cột trong bảng CauHoi
 
-        public CauHoiDto GetProperty(IDataReader dataReader, int start = 0)
-        {
-            CauHoi cauHoi = new()
-            {
-                MaCauHoi = dataReader.GetInt32(0 + start),
-                MaNhom = dataReader.GetInt32(1 + start),
-                MaClo = dataReader.GetInt32(2 + start),
-                TieuDe = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
-                KieuNoiDung = dataReader.GetInt32(4 + start),
-                NoiDung = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
-                ThuTu = dataReader.GetInt32(6 + start),
-                GhiChu = dataReader.IsDBNull(7 + start) ? null : dataReader.GetString(7 + start),
-                HoanVi = dataReader.IsDBNull(8 + start) ? null : dataReader.GetBoolean(8 + start)
-            };
-            return _mapper.Map<CauHoiDto>(cauHoi);
-        }
 
         public async Task<int> Insert(CauHoiCreateRequest cauHoi)
         {
-            return Convert.ToInt32(await _cauHoiRepository.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.ThuTu, cauHoi.GhiChu, cauHoi.HoanVi) ?? -1);
+            return await _cauHoiRepository.Insert(cauHoi.MaClo, cauHoi.MaNhom, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.ThuTu, cauHoi.GhiChu, cauHoi.HoanVi);
         }
 
         public async Task<bool> Update(int id, CauHoiUpdateRequest cauHoi)
         {
-            return await _cauHoiRepository.Update(id, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.ThuTu, cauHoi.GhiChu, cauHoi.HoanVi) != 0;
+            return await _cauHoiRepository.Update(id, cauHoi.MaNhom, cauHoi.MaClo, cauHoi.TieuDe, cauHoi.KieuNoiDung, cauHoi.NoiDung, cauHoi.ThuTu, cauHoi.GhiChu, cauHoi.HoanVi);
         }
 
         public async Task<bool> Remove(int ma_cau_hoi)
         {
-            return await _cauHoiRepository.Remove(ma_cau_hoi) != 0;
+            return await _cauHoiRepository.Remove(ma_cau_hoi);
         }
 
         public async Task<bool> ForceRemove(int ma_cau_hoi)
         {
-            return await _cauHoiRepository.ForceRemove(ma_cau_hoi) != 0;
+            return await _cauHoiRepository.ForceRemove(ma_cau_hoi);
         }
 
         public async Task<CauHoiDto> SelectOne(int ma_cau_hoi)
         {
-            CauHoiDto cauHoi = new();
-            List<CauTraLoiDto> cauTraLois = [];
-            bool isFirst = true;
-            using (IDataReader dataReader = await _cauHoiRepository.SelectOne(ma_cau_hoi))
-            {
-                while(dataReader.Read())
-                {
-                    if(isFirst)
-                    {
-                        cauHoi = GetProperty(dataReader);
-                        cauHoi.MaCloNavigation = _cloService.GetProperty(dataReader, COLUMN_LENGTH);
-                        isFirst = false;
-                    }    
-                    cauTraLois.Add(_cauTraLoiService.GetProperty(dataReader, COLUMN_LENGTH + CloService.COLUMN_LENGTH));
-                }
-                cauHoi.CauTraLois = cauTraLois;
-            }
-            return cauHoi;
+            return await _cauHoiRepository.SelectOne(ma_cau_hoi);
         }
 
-        public async Task<int> SelectDapAn(int ma_cau_hoi)
-        {
-            // chỉ trả về duy nhất 1 cột là MaTraLoi
-            int dapAn = -1;
-            using (IDataReader dataReader = await _cauHoiRepository.SelectDapAn(ma_cau_hoi))
-            {
-                if (dataReader.Read())
-                {
-                    dapAn = dataReader.GetInt32(0);
-                }
-            }
-            return dapAn;
-        }
         public async Task<List<CauHoiDto>> SelectBy_MaNhom(int ma_nhom)
         {
-            List<CauHoiDto> listCauHoi = [];
-            Dictionary<int, CauHoiDto> cauHoiMap = []; // Để tra cứu nhanh theo MaCauHoi
-
-            using (IDataReader dataReader = await _cauHoiRepository.SelectBy_MaNhom(ma_nhom))
-            {
-                while (dataReader.Read())
-                {
-                    int maCauHoi = dataReader.GetInt32(0);
-
-                    if (!cauHoiMap.TryGetValue(maCauHoi, out var cauHoi))
-                    {
-                        cauHoi = GetProperty(dataReader);
-                        cauHoi.MaCloNavigation = _cloService.GetProperty(dataReader, COLUMN_LENGTH);
-                        cauHoiMap[maCauHoi] = cauHoi;
-                        listCauHoi.Add(cauHoi);
-                    }
-
-                    var cauTraLoi = _cauTraLoiService.GetProperty(dataReader, COLUMN_LENGTH + CloService.COLUMN_LENGTH);
-                    cauHoi.CauTraLois.Add(cauTraLoi);
-                }
-            }
-            return listCauHoi;
+            return await _cauHoiRepository.SelectBy_MaNhom(ma_nhom);
         }
     }
 }

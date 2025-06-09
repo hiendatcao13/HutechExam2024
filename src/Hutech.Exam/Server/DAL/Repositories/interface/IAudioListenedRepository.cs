@@ -1,11 +1,12 @@
 ﻿using System.Data;
+using Hutech.Exam.Shared.DTO;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IAudioListenedRepository
     {
-        public Task<IDataReader> SelectOne(int ma_chi_tiet_ca_thi, string filename);
+        Task<int> SelectOne(int ma_chi_tiet_ca_thi, string fileName);
 
-        public Task<object?> Save(int ma_chi_tiet_ca_thi, int ma_nhom);
+        Task<int> Save(int ma_chi_tiet_ca_thi, int ma_nhom);
     }
 }
