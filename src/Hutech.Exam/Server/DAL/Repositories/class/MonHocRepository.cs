@@ -1,60 +1,127 @@
-﻿using Hutech.Exam.Server.DAL.DataReader;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.Models;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
-    public class MonHocRepository : IMonHocRepository
+    public class MonHocRepository(IMapper mapper) : IMonHocRepository
     {
-        public async Task<IDataReader> SelectOne(int ma_mon_hoc)
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 3; // số lượng cột trong bảng MonHoc
+
+        public MonHocDto GetProperty(IDataReader dataReader, int start = 0)
         {
-            DatabaseReader sql = new("mon_hoc_SelectOne");
+            MonHoc monHoc = new()
+            {
+                MaMonHoc = dataReader.GetInt32(0 + start),
+                MaSoMonHoc = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                TenMonHoc = dataReader.IsDBNull(2 + start) ? null : dataReader.GetString(2 + start)
+            };
+            return _mapper.Map<MonHocDto>(monHoc);
+        }
+
+        public async Task<MonHocDto> SelectOne(int ma_mon_hoc)
+        {
+            using DatabaseReader sql = new("mon_hoc_SelectOne");
+
             sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
-            return await sql.ExecuteReaderAsync();
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            MonHocDto monHoc = new();
+
+            if (dataReader != null && dataReader.Read())
+            {
+                monHoc = GetProperty(dataReader);
+            }
+
+            return monHoc;
         }
 
-        public async Task<IDataReader> GetAll()
+        public async Task<List<MonHocDto>> GetAll()
         {
-            DatabaseReader sql = new("mon_hoc_GetAll");
-            return await sql.ExecuteReaderAsync();
+            using DatabaseReader sql = new("mon_hoc_GetAll");
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<MonHocDto> result = [];
+
+            while (dataReader != null && dataReader.Read())
+            {
+                result.Add(GetProperty(dataReader));
+            }
+
+            return result;
         }
 
-        public async Task<IDataReader> GetAll_Paged(int pageNumber, int pageSize)
+        public async Task<Paged<MonHocDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
-            DatabaseReader sql = new("mon_hoc_GetAll_Paged");
+            using DatabaseReader sql = new("mon_hoc_GetAll_Paged");
+
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
-            return await sql.ExecuteReaderAsync();
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<MonHocDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (dataReader != null && dataReader.Read())
+            {
+                result.Add(GetProperty(dataReader));
+            }
+
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (dataReader.Read())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<MonHocDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
-        public async Task<object?> Insert(string ma_so_mon_hoc, string ten_mon_hoc)
+        public async Task<int> Insert(string ma_so_mon_hoc, string ten_mon_hoc)
         {
-            DatabaseReader sql = new("mon_hoc_Insert");
+            using DatabaseReader sql = new("mon_hoc_Insert");
+
             sql.SqlParams("@ma_so_mon_hoc", SqlDbType.NVarChar, ma_so_mon_hoc);
             sql.SqlParams("@ten_mon_hoc", SqlDbType.NVarChar, ten_mon_hoc);
-            return await sql.ExecuteScalarAsync();
+
+            return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
-        public async Task<int> Update(int ma_mon_hoc, string ma_so_mon_hoc, string ten_mon_hoc)
+        public async Task<bool> Update(int ma_mon_hoc, string ma_so_mon_hoc, string ten_mon_hoc)
         {
-            DatabaseReader sql = new("mon_hoc_Update");
+            using DatabaseReader sql = new("mon_hoc_Update");
+
             sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
             sql.SqlParams("@ma_so_mon_hoc", SqlDbType.NVarChar, ma_so_mon_hoc);
             sql.SqlParams("@ten_mon_hoc", SqlDbType.NVarChar, ten_mon_hoc);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<int> Remove(int ma_mon_hoc)
+        public async Task<bool> Remove(int ma_mon_hoc)
         {
-            DatabaseReader sql = new("mon_hoc_Remove");
+            using DatabaseReader sql = new("mon_hoc_Remove");
+
             sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<int> ForceRemove(int ma_mon_hoc)
+        public async Task<bool> ForceRemove(int ma_mon_hoc)
         {
-            DatabaseReader sql = new("mon_hoc_ForceRemove");
+            using DatabaseReader sql = new("mon_hoc_ForceRemove");
+
             sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
     }
 }

@@ -5,6 +5,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IChiTietBaiThiRepository
     {
+        ChiTietBaiThiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<int> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, DateTime NgayTao, int ThuTu);
         
         Task Insert_Batch(List<ChiTietBaiThiDto> chiTietBaiThis);

@@ -8,87 +8,43 @@ using System.Data.Common;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class LopAoService(ILopAoRepository lopAoRepository, IMapper mapper)
+    public class LopAoService(ILopAoRepository lopAoRepository)
     {
         private readonly ILopAoRepository _lopAoRepository = lopAoRepository;
-        private readonly IMapper _mapper = mapper;
 
-        public static readonly int COLUMN_LENGTH = 4; // số lượng cột trong bảng LopAo
-
-        public LopAoDto GetProperty(IDataReader dataReader, int start = 0)
-        {
-            LopAo lopAo = new()
-            {
-                MaLopAo = dataReader.GetInt32(0 + start),
-                TenLopAo = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
-                NgayBatDau = dataReader.IsDBNull(2 + start) ? null : dataReader.GetDateTime(2 + start),
-                MaMonHoc = dataReader.IsDBNull(3 + start) ? null : dataReader.GetInt32(3 + start)
-            };
-            return _mapper.Map<LopAoDto>(lopAo);
-        }
         public async Task<LopAoDto> SelectOne(int ma_lop_ao)
         {
-            LopAoDto lopAo = new();
-            using(IDataReader dataReader = await _lopAoRepository.SelectOne(ma_lop_ao))
-            {
-                if (dataReader.Read())
-                {
-                    lopAo = GetProperty(dataReader);
-                }
-            }
-            return lopAo;
+            return await _lopAoRepository.SelectOne(ma_lop_ao);
         }
+
         public async Task<List<LopAoDto>> SelectBy_ma_mon_hoc(int ma_mon_hoc)
         {
-            List<LopAoDto> list = [];
-            using(IDataReader dataReader = await _lopAoRepository.SelectBy_ma_mon_hoc(ma_mon_hoc))
-            {
-                while (dataReader.Read())
-                {
-                    LopAoDto lopAo = GetProperty(dataReader);
-                    list.Add(lopAo);
-                }
-            }
-            return list;
+            return await _lopAoRepository.SelectBy_ma_mon_hoc(ma_mon_hoc);
         }
+
         public async Task<List<LopAoDto>> SelectBy_ListChiTietDotThi(List<ChiTietDotThi> list)
         {
-            List<LopAoDto> result = [];
-            foreach(var chiTietDotThi in list)
-            {
-                LopAoDto lopAo = await this.SelectOne(chiTietDotThi.MaLopAo);
-                // tránh bị trùng lặp
-                if (!result.Contains(lopAo))
-                {
-                    result.Add(lopAo);
-                }
-            }
-            return result;
+            return await _lopAoRepository.SelectBy_ma_mon_hoc(list.FirstOrDefault()?.MaLopAo ?? 0);
         }
+
         public async Task<List<LopAoDto>> GetAll()
         {
-            List<LopAoDto> result = [];
-            using (IDataReader dataReader = await _lopAoRepository.GetAll())
-            {
-                while (dataReader.Read())
-                {
-                    LopAoDto lopAo = GetProperty(dataReader);
-                    result.Add(lopAo);
-                }
-            }
-            return result;
+            return await _lopAoRepository.GetAll();
         }
+
         public async Task<int> Insert(LopAoCreateRequest lopAo)
         {
-            return Convert.ToInt32(await _lopAoRepository.Insert(lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc) ?? -1);
+            return await _lopAoRepository.Insert(lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc);
         }
+
         public async Task<bool> Update(int id, LopAoUpdateRequest lopAo)
         {
-            return await _lopAoRepository.Update(id, lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc) != 0;
+            return await _lopAoRepository.Update(id, lopAo.TenLopAo, lopAo.NgayBatDau, lopAo.MaMonHoc);
         }
+
         public async Task<bool> Remove(int ma_lop_ao)
         {
-            return await _lopAoRepository.Remove(ma_lop_ao) != 0;
+            return await _lopAoRepository.Remove(ma_lop_ao);
         }
     }
 }

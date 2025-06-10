@@ -1,13 +1,17 @@
-﻿using System.Data;
+﻿using Hutech.Exam.Shared.DTO;
+using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IDeThiHoanViRepository
     {
-        public Task<IDataReader> SelectOne(long ma_de_hoan_vi);
-        public Task<IDataReader> SelectBy_MaDeThi(int ma_de_thi);
+        DeThiHoanViDto GetProperty(IDataReader dataReader, int start = 0);  
 
-        public Task<IDataReader> DapAn(long ma_de_hoan_vi);
+        Task<DeThiHoanViDto> SelectOne(long ma_de_hoan_vi);
+
+        Task<List<DeThiHoanViDto>> SelectBy_MaDeThi(int ma_de_thi);
+
+        Task<Dictionary<int, int>> DapAn(long ma_de_hoan_vi);
     }
 
 }

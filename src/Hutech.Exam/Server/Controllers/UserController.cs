@@ -54,7 +54,7 @@ namespace Hutech.Exam.Server.Controllers
             await _userService.LoginSuccess(userId);
         }
 
-        public async Task<int> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
+        public async Task<bool> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
         {
             return await _userService.UpdateLastActivity(userId, lastActivityDate);
         }

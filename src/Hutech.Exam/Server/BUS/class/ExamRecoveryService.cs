@@ -2,9 +2,8 @@
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class ExamRecoveryService(ChiTietBaiThiService chiTietBaiThiService, RedisService redisService, ILogger<ExamRecoveryService> logger)
+    public class ExamRecoveryService(RedisService redisService, ILogger<ExamRecoveryService> logger)
     {
-        private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly RedisService _redisService = redisService;
         private readonly ILogger _logger = logger;
 

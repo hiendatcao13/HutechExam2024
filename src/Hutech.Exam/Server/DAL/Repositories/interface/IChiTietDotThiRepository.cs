@@ -5,8 +5,10 @@ using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
-    public interface IChiTietDotThiResposity
+    public interface IChiTietDotThiRepository
     {
+        ChiTietDotThiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi(int ma_dot_thi);
 
         Task<Paged<ChiTietDotThiDto>> SelectBy_MaDotThi_Paged(int ma_dot_thi, int pageNumber, int pageSize);

@@ -5,6 +5,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface ICauTraLoiRepository
     {
+        CauTraLoiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<CauTraLoiDto> SelectOne(int ma_cau_tra_loi);
 
         Task<List<CauTraLoiDto>> SelectBy_MaCauHoi(int ma_cau_hoi);

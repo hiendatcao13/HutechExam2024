@@ -9,10 +9,10 @@ using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
-    public class ChiTietCaThiRepository(ICaThiRepository caThiRepository, IChiTietDotThiResposity chiTietDotThiResposity, ILopAoRepository lopAoRepository, IMonHocRepository monHocRepository, ISinhVienRepository sinhVienRepository, IMapper mapper) : IChiTietCaThiRepository
+    public class ChiTietCaThiRepository(ICaThiRepository caThiRepository, IChiTietDotThiRepository chiTietDotThiResposity, ILopAoRepository lopAoRepository, IMonHocRepository monHocRepository, ISinhVienRepository sinhVienRepository, IMapper mapper) : IChiTietCaThiRepository
     {
         private readonly ICaThiRepository _caThiRepository = caThiRepository;
-        private readonly IChiTietDotThiResposity _chiTietDotThiRepository = chiTietDotThiResposity;
+        private readonly IChiTietDotThiRepository _chiTietDotThiRepository = chiTietDotThiResposity;
         private readonly ILopAoRepository _lopAoRepository = lopAoRepository;
         private readonly IMonHocRepository _monHocRepository = monHocRepository;
         private readonly ISinhVienRepository _sinhVienRepository = sinhVienRepository;
@@ -89,7 +89,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                 chiTietCaThi.MaSinhVienNavigation = _sinhVienRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH);
+                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH);
                 result.Add(chiTietCaThi);
             }
 
@@ -112,7 +112,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                 chiTietCaThi.MaSinhVienNavigation = _sinhVienRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH);
+                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH);
                 result.Add(chiTietCaThi);
             }
 
@@ -144,7 +144,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                 chiTietCaThi.MaSinhVienNavigation = _sinhVienRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + _sinhVienRepository.COLUMN_LENGTH);
+                chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH);
                 result.Add(chiTietCaThi);
             }
 
@@ -178,7 +178,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         }
         public async Task<ChiTietCaThiDto> SelectBy_MaSinhVienThi(long ma_sinh_vien)
         {
-            int ca_thi_column = _caThiRepository.COLUMN_LENGTH, chi_dot_thi_column = _chiTietDotThiRepository.COLUMN_LENGTH, lop_ao_column = _lopAoRepository.COLUMN_LENGTH, mon_hoc_column = _monHocRepository.COLUMN_LENGTH, sinh_vien_column = _sinhVienRepository.COLUMN_LENGTH;
+            int ca_thi_column = CaThiRepository.COLUMN_LENGTH, chi_dot_thi_column = ChiTietDotThiRepository.COLUMN_LENGTH, lop_ao_column = LopAoRepository.COLUMN_LENGTH, mon_hoc_column = MonHocRepository.COLUMN_LENGTH, sinh_vien_column = SinhVienRepository.COLUMN_LENGTH;
             ChiTietCaThiDto result = new();
 
             using DatabaseReader sql = new("chi_tiet_ca_thi_SelectBy_MaSinhVienThi");

@@ -8,10 +8,10 @@ using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
-    public class ChiTietDotThiResposity(LopAoRepository lopAoRepository, MonHocRepository monHocRepository, IMapper mapper) : IChiTietDotThiResposity
+    public class ChiTietDotThiRepository(ILopAoRepository lopAoRepository, IMonHocRepository monHocRepository, IMapper mapper) : IChiTietDotThiRepository
     {
-        private readonly LopAoRepository _lopAoRepository = lopAoRepository;
-        private readonly MonHocRepository _monHocRepository = monHocRepository;
+        private readonly ILopAoRepository _lopAoRepository = lopAoRepository;
+        private readonly IMonHocRepository _monHocRepository = monHocRepository;
 
         private readonly IMapper _mapper = mapper;
         public static readonly int COLUMN_LENGTH = 5; // số lượng cột trong bảng ChiTietDotThi
@@ -42,7 +42,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                 chiTietDotThi.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
+                chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoRepository.COLUMN_LENGTH);
                 result.Add(chiTietDotThi);
             }
 
@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                 chiTietDotThi.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
+                chiTietDotThi.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoRepository.COLUMN_LENGTH);
                 result.Add(chiTietDotThi);
             }
 
@@ -131,7 +131,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             {
                 result = GetProperty(dataReader);
                 result.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
-                result.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoService.COLUMN_LENGTH);
+                result.MaLopAoNavigation.MaMonHocNavigation = _monHocRepository.GetProperty(dataReader, COLUMN_LENGTH + LopAoRepository.COLUMN_LENGTH);
             }
 
             return result;

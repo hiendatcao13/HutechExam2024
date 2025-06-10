@@ -6,6 +6,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface ICaThiRepository
     {
+        CaThiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<Paged<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi_Paged(int ma_chi_tiet_dot_thi, int pageNumber, int pageSize);
 
         Task<Paged<CaThiDto>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged(int ma_chi_tiet_dot_thi, string keyword, int pageNumber, int pageSize);

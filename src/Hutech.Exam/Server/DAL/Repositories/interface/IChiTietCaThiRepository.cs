@@ -6,6 +6,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IChiTietCaThiRepository
     {
+        ChiTietCaThiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<ChiTietCaThiDto> SelectOne(int chi_tiet_ca_thi);
 
         Task<List<ChiTietCaThiDto>> SelectBy_ma_sinh_vien(long ma_sinh_vien);

@@ -1,21 +1,25 @@
-﻿using System.Data;
+﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
+using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IKhoaRepository
     {
-        public Task<IDataReader> SelectOne(int ma_khoa);
+        KhoaDto GetProperty(IDataReader dataReader, int start = 0);
 
-        public Task<object?> Insert(string ten_khoa, DateTime ngay_thanh_lap);
+        Task<KhoaDto> SelectOne(int ma_khoa);
 
-        public Task<int> Update(int ma_khoa, string ten_khoa, DateTime ngay_thanh_lap);
+        Task<int> Insert(string ten_khoa, DateTime ngay_thanh_lap);
 
-        public Task<int> Remove(int ma_khoa);
+        Task<bool> Update(int ma_khoa, string ten_khoa, DateTime ngay_thanh_lap);
 
-        public Task<int> ForceRemove(int ma_khoa);
+        Task<bool> Remove(int ma_khoa);
 
-        public Task<IDataReader> GetAll();
+        Task<bool> ForceRemove(int ma_khoa);
 
-        public Task<IDataReader> GetAll_Paged(int pageNumber, int pageSize);
+        Task<List<KhoaDto>> GetAll();
+
+        Task<Paged<KhoaDto>> GetAll_Paged(int pageNumber, int pageSize);
     }
 }

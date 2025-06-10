@@ -8,8 +8,8 @@ namespace Hutech.Exam.Shared.DTO.Custom
 {
     public enum KieuNoiDungNhomCauHoi
     {
-        Thường = -1,
-        Điền_khuyết = 1,
-        Âm_thanh = 2
+        Thuong = -1,
+        Dien_Khuyet = 1,
+        Am_Thanh = 2
     }
 }

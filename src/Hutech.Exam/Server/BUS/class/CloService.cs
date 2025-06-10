@@ -31,48 +31,31 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<CloDto> SelectOne(int ma_clo)
         {
-            CloDto clo = new();
-            using (IDataReader dataReader = await _cloRepository.SelectOne(ma_clo))
-            {
-                if (dataReader.Read())
-                {
-                    clo = GetProperty(dataReader);
-                }
-            }
-            return clo;
+            return await _cloRepository.SelectOne(ma_clo);
         }
 
         public async Task<int> Insert(CloCreateRequest clo)
         {
-            return Convert.ToInt32(await _cloRepository.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau));
+            return await _cloRepository.Insert(clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau);
         }
 
         public async Task<bool> Update(int id, CloUpdateRequest clo)
         {
-            return await _cloRepository.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau) != 0;
+            return await _cloRepository.Update(id, clo.MaMonHoc, clo.MaSoClo, clo.TieuDe, clo.NoiDung, clo.TieuChi, clo.SoCau);
         }
 
         public async Task<bool> Remove(int ma_clo)
         {
-            return await _cloRepository.Remove(ma_clo) != 0;
+            return await _cloRepository.Remove(ma_clo);
         }
         public async Task<bool> ForceRemove(int ma_clo)
         {
-            return await _cloRepository.ForceRemove(ma_clo) != 0;
+            return await _cloRepository.ForceRemove(ma_clo);
         }
 
         public async Task<List<CloDto>> SelectBy_MaMonHoc(int ma_mon_hoc)
         {
-            List<CloDto> result = [];
-            using (IDataReader dataReader = await _cloRepository.SelectBy_MaMonHoc(ma_mon_hoc))
-            {
-                while (dataReader.Read())
-                {
-                    CloDto clo = GetProperty(dataReader);
-                    result.Add(clo);
-                }
-            }
-            return result;
+            return await _cloRepository.SelectBy_MaMonHoc(ma_mon_hoc);
         }
     }
 }

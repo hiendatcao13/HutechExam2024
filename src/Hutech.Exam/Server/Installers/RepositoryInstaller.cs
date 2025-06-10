@@ -17,7 +17,7 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<IChiTietCaThiRepository, ChiTietCaThiRepository>();
             services.AddScoped<IChiTietDeThiHoanViRepository, ChiTietDeThiHoanViRepository>();
             services.AddScoped<IChiTietDeThiRepository, ChiTietDeThiRepository>();
-            services.AddScoped<IChiTietDotThiResposity, ChiTietDotThiResposity>();
+            services.AddScoped<IChiTietDotThiRepository, ChiTietDotThiRepository>();
             services.AddScoped<IDeThiHoanViRepository, DeThiHoanViRepository>();
             services.AddScoped<IDeThiRepository, DeThiRepository>();
             services.AddScoped<IDotThiRepository, DotThiRepository>();
@@ -32,7 +32,8 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<ICloRepository, CloRepository>();
 
 
-            services.AddScoped<ICustomRepository, CustomRepository>();
+            services.AddScoped<ICustomDeThiRepository, CustomDeThiRepository>();
+            services.AddScoped<ICustomMaDeThiRepository, CustomMaDeThiRepository>();
             services.AddScoped<CustomDeThi>();
         }
     }

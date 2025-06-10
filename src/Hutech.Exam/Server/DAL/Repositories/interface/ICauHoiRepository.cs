@@ -5,6 +5,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface ICauHoiRepository
     {
+        CauHoiDto GetProperty(IDataReader dataReader, int start = 0);
+
         Task<CauHoiDto> SelectOne(int ma_cau_hoi);
 
         Task<List<CauHoiDto>> SelectBy_MaNhom(int ma_nhom);

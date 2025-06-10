@@ -229,7 +229,7 @@
 
     private void OnValueChangeHoanVi(bool value)
     {
-        if (NhomCauHoi != null && NhomCauHoi.KieuNoiDung == (int)KieuNoiDungNhomCauHoi.DienKhuyet)
+        if (NhomCauHoi != null && NhomCauHoi.KieuNoiDung == (int)KieuNoiDungNhomCauHoi.Dien_Khuyet)
         {
             Snackbar.Add(ERROR_FORMAT_DIENKHUYET, Severity.Error);
             return;

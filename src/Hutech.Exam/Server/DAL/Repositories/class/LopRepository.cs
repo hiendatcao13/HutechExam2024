@@ -1,74 +1,134 @@
-﻿using Hutech.Exam.Server.DAL.DataReader;
+﻿using AutoMapper;
+using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.Models;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
-    public class LopRepository : ILopRepository
+    public class LopRepository(IMapper mapper) : ILopRepository
     {
-        public async Task<IDataReader> SelectOne(int ma_lop)
+        private readonly IMapper _mapper = mapper;
+
+        public static readonly int COLUMN_LENGTH = 4; // số lượng cột trong bảng Lop
+
+        public LopDto GetProperty(IDataReader dataReader, int start = 0)
         {
-            DatabaseReader sql = new("lop_SelectOne");
-            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
-            return await sql.ExecuteReaderAsync();
+            Lop lop = new()
+            {
+                MaLop = dataReader.GetInt32(0 + start),
+                TenLop = dataReader.IsDBNull(1 + start) ? null : dataReader.GetString(1 + start),
+                NgayBatDau = dataReader.IsDBNull(2 + start) ? null : dataReader.GetDateTime(2 + start),
+                MaKhoa = dataReader.IsDBNull(3 + start) ? null : dataReader.GetInt32(3 + start)
+            };
+            return _mapper.Map<LopDto>(lop);
         }
-        public async Task<object?> Insert(string ten_lop, DateTime ngay_bat_dau, int ma_khoa)
+
+        public async Task<LopDto> SelectOne(int ma_lop)
         {
-            DatabaseReader sql = new("lop_Insert");
+            using DatabaseReader sql = new("lop_SelectOne");
+
+            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            LopDto lop = new();
+
+            if (dataReader != null && dataReader.Read())
+            {
+                lop = GetProperty(dataReader);
+            }
+
+            return lop;
+        }
+        public async Task<int> Insert(string ten_lop, DateTime ngay_bat_dau, int ma_khoa)
+        {
+            using DatabaseReader sql = new("lop_Insert");
+
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop);
             sql.SqlParams("@ngay_bat_dau", SqlDbType.DateTime, ngay_bat_dau);
             sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
-            return await sql.ExecuteScalarAsync();
+
+            return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
-        public async Task<int> Update(int ma_lop, string ten_lop, DateTime ngay_bat_dau, int ma_khoa)
+        public async Task<bool> Update(int ma_lop, string ten_lop, DateTime ngay_bat_dau, int ma_khoa)
         {
-            DatabaseReader sql = new("lop_Insert");
+            using DatabaseReader sql = new("lop_Insert");
+
             sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop);
             sql.SqlParams("@ngay_bat_dau", SqlDbType.DateTime, ngay_bat_dau);
             sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<int> Remove(int ma_lop)
+        public async Task<bool> Remove(int ma_lop)
         {
-            DatabaseReader sql = new("lop_Remove");
+            using DatabaseReader sql = new("lop_Remove");
+
             sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<int> ForceRemove(int ma_lop)
+        public async Task<bool> ForceRemove(int ma_lop)
         {
-            DatabaseReader sql = new("lop_ForceRemove");
+            using DatabaseReader sql = new("lop_ForceRemove");
+
             sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
-            return await sql.ExecuteNonQueryAsync();
+
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<IDataReader> SelectBy_ten_lop(string ten_lop)
+        public async Task<LopDto> SelectBy_ten_lop(string ten_lop)
         {
-            DatabaseReader sql = new("lop_SelectBy_ten_lop");
+            using DatabaseReader sql = new("lop_SelectBy_ten_lop");
+
             sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop);
-            return await sql.ExecuteReaderAsync();
 
+            using var dataReader = await sql.ExecuteReaderAsync();
+            LopDto lop = new();
+
+            if (dataReader != null && dataReader.Read())
+            {
+                lop = GetProperty(dataReader);
+            }
+
+            return lop;
         }
 
-        public async Task<IDataReader> SelectBy_ma_khoa_Paged(int ma_khoa, int pageNumber, int pageSize)
+        public async Task<Paged<LopDto>> SelectBy_ma_khoa_Paged(int ma_khoa, int pageNumber, int pageSize)
         {
-            DatabaseReader sql = new("lop_SelectBy_ma_khoa_Paged");
+            using DatabaseReader sql = new("lop_SelectBy_ma_khoa_Paged");
+
             sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
             sql.SqlParams("@pageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@pageSize", SqlDbType.Int, pageSize);
-            return await sql.ExecuteReaderAsync();
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<LopDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (dataReader != null && dataReader.Read())
+            {
+                result.Add(GetProperty(dataReader));
+            }
+
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (dataReader.Read())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<LopDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
-        public async Task<object?> Insert(string? ten_lop, DateTime? ngay_bat_dau, int? ma_khoa)
-        {
-            DatabaseReader sql = new("lop_Insert");
-            sql.SqlParams("@ten_lop", SqlDbType.NVarChar, ten_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@ngay_bat_dau", SqlDbType.DateTime, ngay_bat_dau ?? (object)DBNull.Value);
-            sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa ?? (object)DBNull.Value);
-            return await sql.ExecuteScalarAsync();
-        }
     }
 }
