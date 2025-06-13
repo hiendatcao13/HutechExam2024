@@ -4,6 +4,7 @@
 @using System.Text.Json
 @using System.Text
 @using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
 @using Microsoft.AspNetCore.Components.Forms
 @using OfficeOpenXml
 @using System.Text.RegularExpressions
@@ -23,10 +24,6 @@
 
             <MudItem xs="6" Style="padding-top: 10px">
                 <MudCheckBox @bind-Value="isMSSVAllNumber">MSSV phải là số</MudCheckBox>
-            </MudItem>
-
-            <MudItem xs="6" Style="padding-top: 10px">
-                <MudCheckBox @bind-Value="isMSSVIgnoreExist">Bỏ qua MSSV đã tồn tại</MudCheckBox>
             </MudItem>
 
             <MudItem xs="12">
@@ -52,7 +49,7 @@
 </MudDialog>
 <style>
     .my-custom-class {
-        backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     }
 
 </style>
@@ -62,29 +59,23 @@
 
     [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-    [Parameter][EditorRequired] public LopDto Lop { get; set; } = default!; // lớp hiện tại để thêm sinh viên vào
-
-    [Parameter] public List<SinhVienDto>? ExistSVs { get; set; } = default!; // danh sách sinh viên đã tồn tại trong lớp, dùng để kiểm tra trùng lặp MSSV
-
     int so_dong_ghi_nhan = 0; // số dòng được ghi nhận
 
     bool isReadyToSave = false;
 
-    Dictionary<string, SinhVienDto> sinhViens = [];
-
-    Dictionary<string, SinhVienDto> existSVsDict = []; // Từ điển để kiểm tra MSSV đã tồn tại trong lớp
+    Dictionary<string, ChiTietCaThiCreateBatchRequest> chiTietCaThis = [];
 
     //mssv
     int isMSSVNumber = -1; // tổng số kí tự MSSV
     bool isMSSVAllNumber = false; // chỉ chứa toàn số
-    bool isMSSVIgnoreExist = false; // tự động bỏ qua MSSV đã tồn tại trong danh sách sinh viên của lớp
 
 
-    const string MESSAGE = "Bảng sheet theo trình tự: <b style='color:red;'>[MSSV], [HoLot?], [Ten], [GioiTinh] 0(Nam)/1(Nữ) [NgaySinh?], [DiaChi?], [Email?], [DienThoai?]/b>";
-    const string NOTE = "Lưu ý: File excel phải có thể có hoặc không có tiêu đề HEADING, dữ liệu đọc bắt đầu từ ô A2 tại sheet 1. \nFile tối đa 5MB. MSSV, tên và giới tính bắt buộc không được rỗng hoặc MSSV trùng lặp.";
+    const string MESSAGE = "Bảng sheet theo trình tự: <b style='color:red;'>[MSSV], [MaCaThi], [MaDeHV?] </b>";
+    const string NOTE = "Lưu ý: File excel có thể có hoặc không có tiêu đề HEADING, dữ liệu đọc bắt đầu từ ô A2 tại sheet 1. \nFile tối đa 5MB. MSSV và mã ca thi bắt buộc không được rỗng hoặc MSSV trùng lặp trong file." +
+                            "Thêm thí sinh vào ca thi thành công chỉ khi thí sinh đó đã tồn tại trong bảng sinh viên";
     const string NOT_FORMAT_EXCEL = "Định dạng file không phải Excel hoặc file rỗng";
     const string WAITING_MESSAGE = "Hệ thống sẽ mất ít thời gian để hoàn thành. Vui lòng chờ";
-    const string NO_SINHVIEN = "Không có sinh viên nào được ghi nhận. Vui lòng kiểm tra lại file Excel hoặc điền thông tin sinh viên bằng tay.";
+    const string NO_SINHVIENCATHI = "Không có sinh viên nào vào ca thi được ghi nhận. Vui lòng kiểm tra lại file Excel.";
     const string NO_ERROR = "Hệ thống đã ghi nhận toàn bộ thông tin. Sẵn sàng để lưu";
 
 
@@ -92,10 +83,11 @@
     {
         MudDialog?.Cancel();
     }
+
     private async Task HandleFileUpload(InputFileChangeEventArgs e)
     {
         isReadyToSave = false;
-        sinhViens.Clear();
+        chiTietCaThis.Clear();
 
         Snackbar.Add(WAITING_MESSAGE, Severity.Info);
 
@@ -120,36 +112,28 @@
 
         for (int row = 2; row <= rowCount; row++) // Bỏ qua dòng tiêu đề
         {
-            var gioiTinhText = worksheet.Cells[row, 4].Text?.Trim();
+
+            var chiTietCaThi = new ChiTietCaThiCreateBatchRequest
+            {
+                MaSoSinhVien = NormalizeString(worksheet.Cells[row, 1].Text) + "",
+                MaCaThi = int.TryParse(worksheet.Cells[row, 2].Text?.Trim(), out int maCaThi) ? maCaThi : 0,
+                MaDeThi = long.TryParse(worksheet.Cells[row, 3].Text?.Trim(), out long maDeThi) ? maDeThi : null,
+            };
 
 
-            SinhVienDto sinhVien = new SinhVienDto
-                {
-                    MaSoSinhVien = NormalizeString(worksheet.Cells[row, 1].Text),
-                    HoVaTenLot = NormalizeString(worksheet.Cells[row, 2].Text),
-                    TenSinhVien = NormalizeString(worksheet.Cells[row, 3].Text),
-                    GioiTinh = (!string.IsNullOrEmpty(gioiTinhText) && (gioiTinhText == "1" || gioiTinhText == "0")) ? short.Parse(gioiTinhText) : null,
-                    NgaySinh = DateTime.TryParse(worksheet.Cells[row, 4].Text?.Trim(), out DateTime ngaySinh) ? ngaySinh : null,
-                    DiaChi = NormalizeString(worksheet.Cells[row, 5].Text),
-                    Email = NormalizeString(worksheet.Cells[row, 6].Text),
-                    DienThoai = NormalizeString(worksheet.Cells[row, 7].Text),
-                    MaLop = Lop.MaLop,
-                };
-
-
-            if (!CheckValidData(row, sinhVien))
+            if (!CheckValidData(row, chiTietCaThi))
             {
                 isReadyToSave = false;
                 return;
             }
 
-            sinhViens[sinhVien.MaSoSinhVien + ""] = sinhVien; // Lưu sinh viên vào từ điển
+            chiTietCaThis[chiTietCaThi.MaSoSinhVien + ""] = chiTietCaThi; // Lưu sinh viên vào từ điển
 
         }
 
-        if (sinhViens.Count == 0)
+        if (chiTietCaThis.Count == 0)
         {
-            Snackbar.Add(NO_SINHVIEN, Severity.Warning);
+            Snackbar.Add(NO_SINHVIENCATHI, Severity.Warning);
             isReadyToSave = false;
             return;
         }
@@ -159,82 +143,41 @@
         return;
     }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Chuyển danh sách sinh viên đã tồn tại thành từ điển để kiểm tra trùng lặp MSSV
-            existSVsDict = ExistSVs?.ToDictionary(sv => sv.MaSoSinhVien + "", sv => sv) ?? [];
-        }
-    }
 
-    private bool CheckValidData(int row, SinhVienDto sinhVien)
+    private bool CheckValidData(int row, ChiTietCaThiCreateBatchRequest chiTietCaThi)
     {
         //Kiểm tra nếu MSSV rỗng
-        if (string.IsNullOrEmpty(sinhVien.MaSoSinhVien))
+        if (string.IsNullOrWhiteSpace(chiTietCaThi.MaSoSinhVien))
         {
             Snackbar.Add($"Dòng {row}: MSSV bị trống. Vui lòng kiểm tra");
             return false;
         }
 
         //Kiểm tra độ dài của MSSV
-        if (isMSSVNumber != -1 && isMSSVNumber != sinhVien.MaSoSinhVien.Length)
+        if (isMSSVNumber != -1 && isMSSVNumber != chiTietCaThi.MaSoSinhVien.Length)
         {
             Snackbar.Add($"Dòng {row}: MSSV phải có độ dài {isMSSVNumber} ký tự. Vui lòng kiểm tra");
             return false;
         }
 
         //Kiểm tra nếu MSSV chỉ chứa toàn số
-        if (isMSSVAllNumber == true && !HasAllNumberMSSV(sinhVien.MaSoSinhVien))
+        if (isMSSVAllNumber == true && !HasAllNumberMSSV(chiTietCaThi.MaSoSinhVien))
         {
             Snackbar.Add($"Dòng {row}: MSSV phải chỉ chứa toàn số. Vui lòng kiểm tra");
             return false;
         }
 
         // Kiểm tra nếu MSSV bị lặp
-        if (sinhViens.ContainsKey(sinhVien.MaSoSinhVien))
+        if (chiTietCaThis.ContainsKey(chiTietCaThi.MaSoSinhVien))
         {
-            Snackbar.Add($"Dòng {row}: MSSV {sinhVien.MaSoSinhVien} bị trùng lắp. Vui lòng kiểm tra bằng Ctrl + F trong file Excel");
+            Snackbar.Add($"Dòng {row}: MSSV {chiTietCaThi.MaSoSinhVien} bị trùng lắp. Vui lòng kiểm tra bằng Ctrl + F trong file Excel");
             return false;
         }
 
-        //Kiểm tra tên không được rỗng
-        if (string.IsNullOrEmpty(sinhVien.TenSinhVien))
+        //Kiểm tra mã ca thi
+        if (chiTietCaThi.MaCaThi <= 0)
         {
-            Snackbar.Add($"Dòng {row}: Tên thí sinh bị trống. Vui lòng kiểm tra");
-            return false;
-        }
-
-        //kiểm tra tên có chứa ký tự đặc biệt hoặc số
-        if (!HasOnlyLetter(sinhVien.TenSinhVien) || !HasOnlyLetter(sinhVien.HoVaTenLot + ""))
-        {
-            Snackbar.Add($"Dòng {row}: Tên hoặc họ lót thí sinh có chứa kí tự đặc biệt hoặc có số. Vui lòng kiểm tra");
-            return false;
-        }
-
-        if (sinhVien.GioiTinh == null)
-        {
-            Snackbar.Add($"Dòng {row}: Giới tính bị trống. Vui lòng kiểm tra");
-            return false;
-        }
-
-        //Kiểm tra email nếu có
-        if (!string.IsNullOrEmpty(sinhVien.Email) && !IsValidEmail(sinhVien.Email))
-        {
-            Snackbar.Add($"Dòng {row}: Email {sinhVien.Email} không hợp lệ. Vui lòng kiểm tra");
-            return false;
-        }
-
-        //Kiểm tra nếu MSSV đã tồn tại trong ds
-        if (existSVsDict.ContainsKey(sinhVien.MaSoSinhVien))
-        {
-            if (isMSSVIgnoreExist)
-            {
-                Snackbar.Add($"Dòng {row}: MSSV {sinhVien.MaSoSinhVien} đã tồn tại trong danh sách sinh viên của lớp được bỏ qua");
-                return true;
-            }
-
-            Snackbar.Add($"Dòng {row}: MSSV {sinhVien.MaSoSinhVien} đã tồn tại trong danh sách sinh viên của lớp");
+            Snackbar.Add($"Dòng {row}: Mã ca thi không hợp lệ. Vui lòng kiểm tra");
             return false;
         }
 
@@ -244,7 +187,7 @@
     private async Task OnClickLuu()
     {
         Snackbar.Add(WAITING_MESSAGE, Severity.Info);
-        if (await Insert_BatchAPI(sinhViens.Values.ToList()))
+        if (await Insert_BatchAPI(chiTietCaThis.Values.ToList()))
         {
             MudDialog?.Close(DialogResult.Ok(true));
         }
@@ -286,15 +229,11 @@
         return Regex.IsMatch(text, @"^[a-zA-ZÀ-ỹà-ỹ\s]+$");
     }
 
-    private bool IsValidEmail(string email)
-    {
-        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-    }
 
 
-    private async Task<bool> Insert_BatchAPI(List<SinhVienDto> sinhViens)
+    private async Task<bool> Insert_BatchAPI(List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
     {
-        var result = await SenderAPI.PostAsync<List<SinhVienDto>>("api/sinhviens/batch", sinhViens);
+        var result = await SenderAPI.PostAsync<List<SinhVienDto>>("api/chitietcathis/batch", chiTietCaThis);
         return result.Success;
     }
 }

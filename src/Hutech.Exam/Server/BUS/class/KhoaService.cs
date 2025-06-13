@@ -10,8 +10,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class KhoaService(IKhoaRepository khoaRepository)
     {
+        #region Private Fields
         private readonly IKhoaRepository _khoaRepository = khoaRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<KhoaDto> SelectOne(int ma_khoa)
         {
             return await _khoaRepository.SelectOne(ma_khoa);
@@ -46,5 +49,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _khoaRepository.GetAll_Paged(pageNumber, pageSize);
         }
+        #endregion
+
     }
 }

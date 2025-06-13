@@ -10,8 +10,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class DeThiService(IDeThiRepository deThiRepository)
     {
+        #region Private Fields
         private readonly IDeThiRepository _deThiRepository = deThiRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<int> Insert(DeThiCreateRequest deThi)
         {
             return await _deThiRepository.Insert(deThi.MaMonHoc, deThi.TenDeThi, deThi.NgayTao, deThi.NguoiTao, deThi.GhiChu ?? string.Empty, deThi.BoChuongPhan);
@@ -56,5 +59,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _deThiRepository.SelectByMonHoc_Paged(ma_mon_hoc, pageNumber, pageSize);
         }
+        #endregion
+
     }
 }

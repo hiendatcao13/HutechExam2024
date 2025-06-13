@@ -9,9 +9,12 @@ namespace Hutech.Exam.Server.BUS
 {
     public class CloService(ICloRepository cloRepository, IMapper mapper)
     {
+        #region Private Fields
         private readonly ICloRepository _cloRepository = cloRepository;
         private IMapper _mapper = mapper;
+        #endregion
 
+        #region Public Methods
         public static readonly int COLUMN_LENGTH = 7; // số lượng cột trong bảng Clo
 
         public CloDto GetProperty(IDataReader dataReader, int start = 0)
@@ -57,5 +60,6 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _cloRepository.SelectBy_MaMonHoc(ma_mon_hoc);
         }
+        #endregion
     }
 }

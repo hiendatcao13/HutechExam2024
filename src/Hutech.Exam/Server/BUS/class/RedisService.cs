@@ -11,12 +11,16 @@ namespace Hutech.Exam.Server.BUS
 {
     public class RedisService(DeThiHoanViService deThiHoanViService, CustomDeThiService customDeThiService, IResponseCacheService cacheService, ILogger<RedisService> logger)
     {
+        #region Private Fields
         private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
         private readonly CustomDeThiService _customDeThiService = customDeThiService;
 
         private readonly IResponseCacheService _cacheService = cacheService;
 
         private readonly ILogger _logger = logger;
+        #endregion
+
+        #region Public Methods
         public async Task SetConnectionIdAsync(long ma_sinh_vien, string connectionId)
         {
             try
@@ -230,5 +234,7 @@ namespace Hutech.Exam.Server.BUS
                 return await _customDeThiService.GetDeThi(id);
             }
         }
+        #endregion
+
     }
 }

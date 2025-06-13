@@ -9,8 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class UserService(IUserRepository userRepository)
     {
+        #region Private Fields
         private readonly IUserRepository _userRepository = userRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<UserDto> SelectOne(Guid userId)
         {
             return await _userRepository.SelectOne(userId);
@@ -47,5 +50,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _userRepository.Update(userId, loginName, username, email, name, isDeleted, isLockedOut, lastActivityDate, lastLoginDate, lastLockedOutDate, failedPwdAttemptCount, failedPwdAttemptWindowStart, comment);
         }
+        #endregion
+
     }
 }

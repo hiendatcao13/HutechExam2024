@@ -14,29 +14,13 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class CauHoiController(CauHoiService cauHoiService) : Controller
     {
+        #region Private Fields
+
         private readonly CauHoiService _cauHoiService = cauHoiService;
 
-        //////////////////POST//////////////////////////
+        #endregion
 
-        [HttpPost]
-        public async Task<ActionResult<CauHoiDto>> Insert([FromBody] CauHoiCreateRequest cauHoi)
-        {
-            try
-            {
-                var id = await _cauHoiService.Insert(cauHoi);
-                return Ok(APIResponse<CauHoiDto>.SuccessResponse(data: await _cauHoiService.SelectOne(id), message: "Thêm câu hỏi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CauHoiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Thêm câu hỏi không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CauHoiDto>> SelectOne([FromRoute] int id)
@@ -56,7 +40,31 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<CauHoiDto>>.SuccessResponse(data: result, message: "Lấy danh sách câu hỏi thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
+
+        #region Post Methods
+
+        [HttpPost]
+        public async Task<ActionResult<CauHoiDto>> Insert([FromBody] CauHoiCreateRequest cauHoi)
+        {
+            try
+            {
+                var id = await _cauHoiService.Insert(cauHoi);
+                return Ok(APIResponse<CauHoiDto>.SuccessResponse(data: await _cauHoiService.SelectOne(id), message: "Thêm câu hỏi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CauHoiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Thêm câu hỏi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CauHoiUpdateRequest cauHoi)
@@ -80,9 +88,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
@@ -128,6 +142,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
+
+        #region Private Methods
+
+
+        #endregion
+
     }
 }

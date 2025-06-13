@@ -16,9 +16,13 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class LopController(LopService lopService) : Controller
     {
+        #region Private Fields
+
         private readonly LopService _lopService = lopService;
 
-        ////////////////GET////////////////////////////
+        #endregion
+
+        #region Get Methods
 
         [HttpGet("{id}")]
         public async Task<ActionResult<LopDto>> SelectOne([FromRoute] int id)
@@ -38,8 +42,9 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<Paged<LopDto>>.SuccessResponse(data: await _lopService.SelectBy_ma_khoa_Paged(maKhoa, pageNumber, pageSize), message: "Lấy danh sách lớp thành công"));
         }
 
+        #endregion
 
-        ///////////////POST///////////////////////////
+        #region Post Methods
 
         [HttpPost]
         public async Task<ActionResult<LopDto>> Insert([FromBody] LopCreateRequest lop)
@@ -59,7 +64,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        ////////////////PUT///////////////////////////
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<LopDto>> Update([FromRoute] int id, [FromBody] LopUpdateRequest lop)
@@ -83,10 +90,38 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        /////////////////PATCH///////////////////////
+        #endregion
+
+        #region Patch Methods
 
 
-        //////////////////DELETE/////////////////////////
+
+        #endregion
+
+        #region Delete Methods
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<LopDto>> Delete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _lopService.Remove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Không tìm thấy lớp học"));
+                }
+                return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Xóa lớp học không thành công", errorDetails: ex.Message));
+            }
+
+        }
 
         [HttpDelete("{id}/force")]
         public async Task<ActionResult<LopDto>> ForceDelete([FromRoute] int id)
@@ -111,27 +146,12 @@ namespace Hutech.Exam.Server.Controllers
 
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<LopDto>> Delete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _lopService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Không tìm thấy lớp học"));
-                }
-                return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Xóa lớp học không thành công", errorDetails: ex.Message));
-            }
+        #endregion
 
-        }
+        #region Private Methods
+
+
+        #endregion
+
     }
 }

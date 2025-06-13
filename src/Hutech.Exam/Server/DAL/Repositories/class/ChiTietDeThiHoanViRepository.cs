@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Client.Pages.Result;
 using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -25,6 +27,18 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 DapAn = dataReader.IsDBNull(5 + start) ? null : dataReader.GetInt32(5 + start)
             };
             return _mapper.Map<ChiTietDeThiHoanViDto>(chiTietDeThiHoanVi);
+        }
+
+        public async Task Insert_Batch(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+        {
+            var dt = DeThiHelper.ToDataTable(chiTietDeThiHoanVis);
+            using DatabaseReader sql = new("ChiTietDeThiHoanVi_Insert_Batch");
+
+            sql.SqlParams("@MaDeThi", SqlDbType.Int, maDeThi);
+            sql.SqlParams("@KyHieuDe", SqlDbType.NVarChar, kyHieuDe);
+            sql.SqlParams("@DanhSachThongTinDeThi", SqlDbType.Structured, dt);
+
+            await sql.ExecuteNonQueryAsync();
         }
 
         public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV)

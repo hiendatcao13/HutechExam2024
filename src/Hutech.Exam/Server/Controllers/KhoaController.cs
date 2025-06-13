@@ -15,29 +15,13 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class KhoaController(KhoaService khoaService) : Controller
     {
+        #region Private Fields
+
         private readonly KhoaService _khoaService = khoaService;
 
-        //////////////////CREATE//////////////////////////
+        #endregion
 
-        [HttpPost]
-        public async Task<ActionResult<KhoaDto>> Insert([FromBody]KhoaCreateRequest khoaCreateRequest)
-        {
-            try
-            {
-                var id = await _khoaService.Insert(khoaCreateRequest);
-                return Ok(APIResponse<KhoaDto>.SuccessResponse(data: await _khoaService.SelectOne(id), message: "Thêm khoa thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopAoDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Thêm khoa không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////READ////////////////////////////
+        #region Get Methods
 
         [HttpGet("{id}")]
         public async Task<ActionResult<KhoaDto>> SelectOne([FromRoute] int id)
@@ -64,7 +48,31 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////UDATE///////////////////////////
+        #endregion
+
+        #region Post Methods
+
+        [HttpPost]
+        public async Task<ActionResult<KhoaDto>> Insert([FromBody] KhoaCreateRequest khoaCreateRequest)
+        {
+            try
+            {
+                var id = await _khoaService.Insert(khoaCreateRequest);
+                return Ok(APIResponse<KhoaDto>.SuccessResponse(data: await _khoaService.SelectOne(id), message: "Thêm khoa thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<LopAoDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Thêm khoa không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<KhoaDto>> Update([FromRoute] int id, [FromBody] KhoaUpdateRequest khoa)
@@ -88,31 +96,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
 
-        [HttpDelete("{id}/force")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _khoaService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Không tìm thấy khoa để xóa"));
-                }
-                return Ok(APIResponse<KhoaDto>.SuccessResponse(message: "Xóa khoa thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<KhoaDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<KhoaDto>.ErrorResponse(message: "Xóa khoa không thành công", errorDetails: ex.Message));
-            }
-        }
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
@@ -136,10 +128,34 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _khoaService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Không tìm thấy khoa để xóa"));
+                }
+                return Ok(APIResponse<KhoaDto>.SuccessResponse(message: "Xóa khoa thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<KhoaDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<KhoaDto>.ErrorResponse(message: "Xóa khoa không thành công", errorDetails: ex.Message));
+            }
+        }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
 
+        #region Private Methods
+
+
+        #endregion
 
     }
 }

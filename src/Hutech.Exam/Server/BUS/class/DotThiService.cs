@@ -10,9 +10,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class DotThiService(IDotThiRepository dotThiRepository)
     {
+        #region Private Fields
         private readonly IDotThiRepository _dotThiRepository = dotThiRepository;
+        #endregion
 
-
+        #region Public Methods
         public async Task<List<DotThiDto>> GetAll()
         {
             return await _dotThiRepository.GetAll();
@@ -47,5 +49,6 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _dotThiRepository.ForceRemove(ma_dot_thi);
         }
+        #endregion
     }
 }

@@ -340,6 +340,32 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageLop
             }    
         }
 
+        private async Task OnClickThemSVExcel()
+        {
+            if (selectedLop == null)
+            {
+                Snackbar.Add(NO_SELECT_LOP, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<ThemSVExcelDialog>
+            {
+                { x => x.Lop, selectedLop },
+                { x => x.ExistSVs, SinhViens }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<ThemSVExcelDialog>("NHẬP SINH VIÊN TỪ FILE EXCEL", parameters, options);
+            var result = await dialog.Result;
+
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                if((bool)result.Data)
+                {
+                    await FetchSinhViens();
+                }
+            }
+        }
+
         private async Task<DialogResult?> OpenKhoaDialog(bool isEdit, KhoaDto? khoa)
         {
             var parameters = new DialogParameters<KhoaDialog>

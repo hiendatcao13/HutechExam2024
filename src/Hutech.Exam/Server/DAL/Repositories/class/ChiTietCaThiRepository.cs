@@ -2,8 +2,10 @@
 using Hutech.Exam.Client.Pages.Result;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -232,6 +234,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
+
         public async Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau)
         {
             using DatabaseReader sql = new("chi_tiet_ca_thi_Insert");
@@ -243,6 +246,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync());
         }
+
+        public async Task Insert_Batch(List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
+        {
+            var dt = SinhVienCaThiHelper.ToDataTable(chiTietCaThis);
+
+            using DatabaseReader sql = new("chi_tiet_ca_thi_Insert_Batch");
+            sql.SqlParams("@DanhSachSinhVienCaThi", SqlDbType.Structured, dt);
+
+            await sql.ExecuteNonQueryAsync();
+        }
+
         public async Task<int> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi)
         {
             using DatabaseReader sql = new("chi_tiet_ca_thi_ThemSVKhanCap");

@@ -9,9 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class NhomCauHoiHoanViService(INhomCauHoiHoanViRepository nhomCauHoiHoanViRepository)
     {
+        #region Private Fields
         private readonly INhomCauHoiHoanViRepository _nhomCauHoiHoanViRepository = nhomCauHoiHoanViRepository;
-        
+        #endregion
 
+        #region Public Methods
         public async Task<NhomCauHoiHoanViDto> SelectOne(long ma_de_hoan_vi, int ma_nhom)
         {
             return await _nhomCauHoiHoanViRepository.SelectOne(ma_de_hoan_vi, ma_nhom);
@@ -22,5 +24,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _nhomCauHoiHoanViRepository.SelectBy_MaDeHV(ma_de_hoan_vi);
         }
+        #endregion
+
     }
 }

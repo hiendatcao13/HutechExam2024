@@ -5,9 +5,12 @@ namespace Hutech.Exam.Server.BUS
 {
     public class SelectAnswerService(RedisService redisService, ILogger<SelectAnswerService> logger)
     {
+        #region Private Fields
         private readonly RedisService _redisService = redisService;
         private readonly ILogger<SelectAnswerService> _logger = logger;
+        #endregion
 
+        #region Public Methods
         public async Task SetChiTietBaiLamAsync(byte[] message)
         {
             try
@@ -35,5 +38,7 @@ namespace Hutech.Exam.Server.BUS
                 throw; // ném ngoại lệ để rabbitMQ bắt và đẩy thông điệp vào hàng đợi
             }
         }
+        #endregion
+
     }
 }

@@ -242,16 +242,22 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         }
         private async Task OnClickThemCaThi()
         {
-            var result = await OpenCaThiDialog(false, new());
+            var result = await OpenCaThiDialog(false);
             if(result != null && !result.Canceled && result.Data != null && caThis != null)
             {
                 var newCaThi = (CaThiDto)result.Data;
                 caThis.Insert(0, newCaThi); // Thêm vào cuối danh sách
             }    
         }
-        private async Task OnClickSuaCaThi(CaThiDto caThi)
+        private async Task OnClickSuaCaThi()
         {
-            var result = await OpenCaThiDialog(true, caThi);
+            if (selectedCaThi == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return;
+            }
+
+            var result = await OpenCaThiDialog(true);
             if (result != null && !result.Canceled && result.Data != null && caThis != null)
             {
                 var newCaThi = (CaThiDto)result.Data;
@@ -264,7 +270,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             }
         }
 
-        private async Task<DialogResult?> OpenCaThiDialog(bool isEdit, CaThiDto caThi)
+        private async Task<DialogResult?> OpenCaThiDialog(bool isEdit)
         {
             if (selectedChiTietDotThi == null)
             {
@@ -279,15 +285,21 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 { x => x.TenMonThi, selectedChiTietDotThi.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
                 { x => x.LanThi, selectedChiTietDotThi.LanThi },
                 { x => x.IsEdit, isEdit },
-                { x => x.CaThi, caThi }
+                { x => x.CaThi, selectedCaThi }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<CaThiDialog>((isEdit) ? "SỬA CA THI" : "THÊM CA THI", parameters, options);
             return await dialog.Result;
         }
-        private async Task OnClickDeleteCaThi(CaThiDto caThi)
+
+        private async Task OnClickDeleteCaThi()
         {
-            selectedCaThi = caThi;
+            if (selectedCaThi == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return;
+            }
+
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_CATHI_MESSAGE },
@@ -297,6 +309,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA CA THI", parameters, options);
         }
+
         private async Task HandleDeleteCaThi(bool isForce)
         {
             bool result = (isForce) ? await ForceDeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1) : await DeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1);
@@ -307,6 +320,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 selectedCaThi = null;
             }
         }
+
         private async Task OnClickCapNhatDeThi(CaThiDto caThi)
         {
             var result = await OpenCapNhatDeThiDialog(caThi);
@@ -320,19 +334,13 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 }    
             }
         }
+
         private async Task OnClickCapNhatSVCaThi()
         {
-            if(selectedCaThi == null)
-            {
-                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
-                return;
-            }
-            var parameters = new DialogParameters<ThemSVExcelDialog>
-            {
-                { x => x.CaThi, selectedCaThi }
-            };
+
+            var parameters = new DialogParameters<ThemSVCaThiExcelDialog>{ };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<ThemSVExcelDialog>("THÊM DANH SÁCH SINH VIÊN", parameters, options);
+            await Dialog.ShowAsync<ThemSVCaThiExcelDialog>("THÊM DANH SÁCH SINH VIÊN VÀO CA THI", parameters, options);
         }
         private async Task<DialogResult?> OpenCapNhatDeThiDialog(CaThiDto caThi)
         {

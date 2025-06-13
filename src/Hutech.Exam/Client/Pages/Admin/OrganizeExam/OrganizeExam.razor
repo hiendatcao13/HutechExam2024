@@ -8,303 +8,312 @@
 <PageTitle>Organize Exam</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
-	<MudGrid Style="margin-top: 7px; margin-left: 5px">
-		<MudGrid>
-			<MudItem xs="6">
-				@if (dotThis != null)
-				{
-					<MudTable Elevation="24" T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
-					TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
-						<ToolBarContent>
-							<MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
-							<MudSpacer />
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await Start()">Sync</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDotThi()">Thêm</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDotThi()">Sửa</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDotThi()">Xóa</MudButton>
-						</ToolBarContent>
-						<HeaderContent>
-							<MudTh>ID</MudTh>
-							<MudTh>Đợt Thi</MudTh>
-							<MudTh>Năm Học</MudTh>
-							<MudTh>Ngày Kết Thúc</MudTh>
-							<MudTh>Ngày Kết Thúc</MudTh>
-						</HeaderContent>
-						<RowTemplate Context="item">
-							<MudTd DataLabel="ID">@item?.MaDotThi</MudTd>
-							<MudTd DataLabel="Đợt Thi">@item?.TenDotThi</MudTd>
-							<MudTd DataLabel="Năm Học">@item?.NamHoc</MudTd>
-							<MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianBatDau.HasValue == true ? @item.ThoiGianBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
-							<MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianKetThuc.HasValue == true ? @item.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
-						</RowTemplate>
-						<PagerContent>
-							<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
-						</PagerContent>
-					</MudTable>
-				}
-			</MudItem>
-			<MudItem xs="6">
-				@if (chiTietDotThis != null)
-				{
-					<MudTable Elevation="24" T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc"
-					TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
-						<ToolBarContent>
-							<MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
-							<MudSpacer />
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCTDotThi()">Sync</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCTDotThi()">Thêm</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
-							<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
-						</ToolBarContent>
-						<HeaderContent>
-							<MudTh>ID</MudTh>
-							<MudTh>Môn Thi</MudTh>
-							<MudTh>Phòng Thi</MudTh>
-							<MudTh>Lần Thi</MudTh>
-						</HeaderContent>
-						<RowTemplate Context="item">
-							<MudTd DataLabel="ID">@item?.MaChiTietDotThi</MudTd>
-							<MudTd DataLabel="Môn Thi">@item?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudTd>
-							<MudTd DataLabel="Phòng Thi">@item?.MaLopAoNavigation.TenLopAo</MudTd>
-							<MudTd DataLabel="Lần Thi">@item?.LanThi</MudTd>
-						</RowTemplate>
-						<PagerContent>
-							<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
-						</PagerContent>
-					</MudTable>
-				}
-			</MudItem>
-		</MudGrid>
-		@if (caThis != null)
-		{
-			<MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCaThiFunc"
-			TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
-				<ToolBarContent>
-					<MudText Typo="Typo.h6">Thông tin ca thi</MudText>
-					<MudSpacer />
-					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCaThis()">Sync</MudButton>
-					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
-					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Cập nhật đề thi</MudButton>
-					<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
-				</ToolBarContent>
-				<HeaderContent>
-					<MudTh>ID</MudTh>
-					<MudTh>Tên Ca Thi</MudTh>
-					<MudTh>Ngày Thi</MudTh>
-					<MudTh>Thời Lượng</MudTh>
-					<MudTh>Có Đề?</MudTh>
-					<MudTh>Kích Hoạt?</MudTh>
-					<MudTh>TG Kích Hoạt</MudTh>
-					<MudTh>Kết Thúc?</MudTh>
-					<MudTh>TG Kết Thúc</MudTh>
-					<MudTh>Chức năng</MudTh>
-				</HeaderContent>
-				<RowTemplate Context="item">
-					<MudTd DataLabel="ID">@item?.MaCaThi</MudTd>
-					<MudTd DataLabel="Tên Ca Thi">@item?.TenCaThi</MudTd>
-					<MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
-					<MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
-					<MudTd DataLabel="Có Đề?"><MudCheckBox ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)"></MudCheckBox></MudTd>
-					<MudTd DataLabel="Kích Hoạt?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.IsActivated"></MudCheckBox></MudTd>
-					<MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>
-					<MudTd DataLabel="Kết Thúc?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.KetThuc"></MudCheckBox></MudTd>
-					<MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
-					<MudTd>
-						<MudButtonGroup Style="zoom: 0.7">
-							<MudTooltip Text="Xem chi tiết">
-								<MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)" />
-							</MudTooltip>
-							<MudTooltip Text="Sửa ca thi">
-								<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickSuaCaThi(item)" />
-							</MudTooltip>
-							<MudTooltip Text="Xóa ca thi">
-								<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteCaThi(item)" />
-							</MudTooltip>
-							<MudTooltip Text="Cập nhật đề thi">
-								<MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
-							</MudTooltip>
-						</MudButtonGroup>
-					</MudTd>
-				</RowTemplate>
-				<PagerContent>
-					<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
-				</PagerContent>
-			</MudTable>
-		}
-	</MudGrid>
+    <MudGrid Style="margin-top: 7px; margin-left: 5px">
+        <MudGrid>
+            <MudItem xs="6">
+                @if (dotThis != null)
+                {
+                    <MudTable Elevation="24" T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
+                              TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
+                            <MudSpacer />
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await Start()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDotThi()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDotThi()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDotThi()">Xóa</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>ID</MudTh>
+                            <MudTh>Đợt Thi</MudTh>
+                            <MudTh>Năm Học</MudTh>
+                            <MudTh>Ngày Kết Thúc</MudTh>
+                            <MudTh>Ngày Kết Thúc</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="item">
+                            <MudTd DataLabel="ID">@item?.MaDotThi</MudTd>
+                            <MudTd DataLabel="Đợt Thi">@item?.TenDotThi</MudTd>
+                            <MudTd DataLabel="Năm Học">@item?.NamHoc</MudTd>
+                            <MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianBatDau.HasValue == true ? @item.ThoiGianBatDau.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+                            <MudTd DataLabel="Ngày Kết Thúc">@(item?.ThoiGianKetThuc.HasValue == true ? @item.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy") : "Không có DL")</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+                        </PagerContent>
+                    </MudTable>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                @if (chiTietDotThis != null)
+                {
+                    <MudTable Elevation="24" T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc"
+                              TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
+                            <MudSpacer />
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCTDotThi()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCTDotThi()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>ID</MudTh>
+                            <MudTh>Môn Thi</MudTh>
+                            <MudTh>Phòng Thi</MudTh>
+                            <MudTh>Lần Thi</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="item">
+                            <MudTd DataLabel="ID">@item?.MaChiTietDotThi</MudTd>
+                            <MudTd DataLabel="Môn Thi">@item?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudTd>
+                            <MudTd DataLabel="Phòng Thi">@item?.MaLopAoNavigation.TenLopAo</MudTd>
+                            <MudTd DataLabel="Lần Thi">@item?.LanThi</MudTd>
+                        </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+                        </PagerContent>
+                    </MudTable>
+                }
+            </MudItem>
+        </MudGrid>
+        @if (caThis != null)
+        {
+            <MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCaThiFunc"
+                      TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
+                    <MudSpacer />
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCaThis()">Sync</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
+                    <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>Tên Ca Thi</MudTh>
+                    <MudTh>Ngày Thi</MudTh>
+                    <MudTh>Thời Lượng</MudTh>
+                    <MudTh>Có Đề?</MudTh>
+                    <MudTh>Kích Hoạt?</MudTh>
+                    <MudTh>TG Kích Hoạt</MudTh>
+                    <MudTh>Kết Thúc?</MudTh>
+                    <MudTh>TG Kết Thúc</MudTh>
+                    <MudTh>Chức năng</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd DataLabel="ID">@item?.MaCaThi</MudTd>
+                    <MudTd DataLabel="Tên Ca Thi">@item?.TenCaThi</MudTd>
+                    <MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
+                    <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
+                    <MudTd DataLabel="Có Đề?"><MudCheckBox ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Kích Hoạt?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.IsActivated"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>
+                    <MudTd DataLabel="Kết Thúc?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.KetThuc"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
+                    <MudTd>
+                        <MudButtonGroup Style="zoom: 0.7">
+                            <MudTooltip Text="Xem chi tiết">
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)" />
+                            </MudTooltip>
+                            <MudTooltip Text="Cập nhật đề thi">
+                                <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
+                            </MudTooltip>
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+                </PagerContent>
+            </MudTable>
+        }
+    </MudGrid>
 </MudContainer>
 <style>
-	.add-button {
-	transform: scale(0.85);
-	margin-bottom: 2%;
-	}
-	
-	.final-table-button {
-		margin-top: 1%;
-	}
+    .add-button {
+        transform: scale(0.85);
+        margin-bottom: 2%;
+    }
 
-	.checkbox {
-	transform: scale(0.85);
-	}
+    .final-table-button {
+        margin-top: 1%;
+    }
 
-	.selected-row {
-	background-color: lightgray !important;
-	}
+    .checkbox {
+        transform: scale(0.85);
+    }
+
+    .selected-row {
+        background-color: lightgray !important;
+    }
 </style>
 
 @code {
-	private string searchString = "";
-	private int currentPage_DT = 0;
+    private string searchString = "";
+    private int currentPage_DT = 0;
 
-	// thông số cho bảng đợt thi
-	private int rowsPerPage_DT = 20;
-	private int totalRecords_DT = 20;
-	private int totalPages_DT = 1;
+    // thông số cho bảng đợt thi
+    private int rowsPerPage_DT = 20;
+    private int totalRecords_DT = 20;
+    private int totalPages_DT = 1;
 
-	// thông số cho bảng chi tiết đợt thi
-	private int currentPage_CTDT = 0;
-	private int rowsPerPage_CTDT = 20;
-	private int totalRecords_CTDT = 20;
-	private int totalPages_CTDT = 1;
+    // thông số cho bảng chi tiết đợt thi
+    private int currentPage_CTDT = 0;
+    private int rowsPerPage_CTDT = 20;
+    private int totalRecords_CTDT = 20;
+    private int totalPages_CTDT = 1;
 
-	// thông số cho bảng ca thi
-	private int currentPage_CT = 0;
-	private int rowsPerPage_CT = 20;
-	private int totalRecords_CT = 20;
-	private int totalPages_CT = 1;
-
-
-
-	private DotThiDto? selectedDotThi;
-	private ChiTietDotThiDto? selectedChiTietDotThi;
-	private CaThiDto? selectedCaThi;
-
-	private List<int> selectedPages_DT = new() { 0 }; // luôn load có trang đầu tiên
-	private List<int> selectedPages_CTDT = new() { 0 }; // luôn load có trang đầu tiên
-	private List<int> selectedPages_CT = new() { 0 }; // luôn load có trang đầu tiên
-
-	private async Task OnRowsPerPageChange_DT(int rows)
-	{
-		if (rows == rowsPerPage_DT)
-			return;
-
-		this.rowsPerPage_DT = rows;
-		currentPage_DT = 0; //Reset về trang đầu tiên
-
-		(var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
-		PadEmptyRows(newDotThis);
-	}
-	private async Task OnCurrentPageChange_DT(int page)
-	{
-		if (page == currentPage_DT)
-			return;
-
-		this.currentPage_DT = page;
-		if (selectedPages_DT.Contains(page))
-			return;
-
-		//chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
-		PadEmptyRows(newDotThis);
-		selectedPages_DT?.Add(currentPage_DT);
-	}
+    // thông số cho bảng ca thi
+    private int currentPage_CT = 0;
+    private int rowsPerPage_CT = 20;
+    private int totalRecords_CT = 20;
+    private int totalPages_CT = 1;
 
 
-	private async Task OnRowsPerPageChange_CTDT(int rows)
-	{
-		if (rows == rowsPerPage_CTDT || selectedDotThi == null)
-			return;
 
-		this.rowsPerPage_CTDT = rows;
-		currentPage_CTDT = 0; //Reset về trang đầu tiên
+    private DotThiDto? selectedDotThi;
+    private ChiTietDotThiDto? selectedChiTietDotThi;
+    private CaThiDto? selectedCaThi;
 
-		(var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
-		PadEmptyRows(newChiTietDotThis);
-	}
-	private async Task OnCurrentPageChange_CTDT(int page)
-	{
-		if (page == currentPage_CTDT || selectedDotThi == null)
-			return;
+    private List<int> selectedPages_DT = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_CTDT = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_CT = new() { 0 }; // luôn load có trang đầu tiên
 
-		this.currentPage_CTDT = page;
-		if (selectedPages_CTDT.Contains(page))
-			return;
+    private async Task OnRowsPerPageChange_DT(int rows)
+    {
+        if (rows == rowsPerPage_DT)
+            return;
 
-		//chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
-		PadEmptyRows(newChiTietDotThis);
-		selectedPages_CTDT?.Add(currentPage_CTDT);
-	}
+        this.rowsPerPage_DT = rows;
+        currentPage_DT = 0; //Reset về trang đầu tiên
 
-	private async Task OnRowsPerPageChange_CT(int rows)
-	{
-		if (rows == rowsPerPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
-			return;
+        (var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+        PadEmptyRows(newDotThis);
+    }
+    private async Task OnCurrentPageChange_DT(int page)
+    {
+        if (page == currentPage_DT)
+            return;
 
-		this.rowsPerPage_CT = rows;
-		currentPage_CT = 0; //Reset về trang đầu tiên
+        this.currentPage_DT = page;
+        if (selectedPages_DT.Contains(page))
+            return;
 
-		(var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
-		PadEmptyRows(newCaThis);
-	}
-	private async Task OnCurrentPageChange_CT(int page)
-	{
-		if (page == currentPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
-			return;
-
-		this.currentPage_CT = page;
-		if (selectedPages_CT.Contains(page))
-			return;
-
-		//chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
-		PadEmptyRows(newCaThis);
-		selectedPages_CT?.Add(currentPage_CT);
-	}
+        //chỉ thực hiện load data khi người dùng chọn trang mới
+        (var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+        PadEmptyRows(newDotThis);
+        selectedPages_DT?.Add(currentPage_DT);
+    }
 
 
-	private async Task OnRowClickedDotThi(TableRowClickEventArgs<DotThiDto> args)
-	{
-		if (args.Item == selectedDotThi)
-			return;
-		selectedDotThi = args.Item;
-		selectedChiTietDotThi = null;
-		selectedCaThi = null;
-		await SaveData();
-		chiTietDotThis = [];
-		caThis = [];
+    private async Task OnRowsPerPageChange_CTDT(int rows)
+    {
+        if (rows == rowsPerPage_CTDT || selectedDotThi == null)
+            return;
 
-		await FetchCTDotThi();
-	}
-	private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
-	{
-		return item == selectedDotThi ? "selected-row" : string.Empty;
-	}
-	private async Task OnRowClickedCTDotThi(TableRowClickEventArgs<ChiTietDotThiDto> args)
-	{
-		if (args.Item == selectedChiTietDotThi)
-			return;
-		selectedChiTietDotThi = args.Item;
-		selectedCaThi = null;
-		await SaveData();
-		caThis = [];
+        this.rowsPerPage_CTDT = rows;
+        currentPage_CTDT = 0; //Reset về trang đầu tiên
 
-		await FetchCaThis();
-	}
-	private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)
-	{
-		return item == selectedChiTietDotThi ? "selected-row" : string.Empty;
-	}
+        (var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+        PadEmptyRows(newChiTietDotThis);
+    }
+    private async Task OnCurrentPageChange_CTDT(int page)
+    {
+        if (page == currentPage_CTDT || selectedDotThi == null)
+            return;
 
-	private string SelectedRowClassCaThiFunc(CaThiDto item, int rowNumber)
-	{
-		return item == selectedCaThi ? "selected-row" : string.Empty;
-	}
-	private async void OnRowClickedCaThi(TableRowClickEventArgs<CaThiDto> args)
-	{
-		if (args.Item == selectedCaThi)
-			return;
-		selectedCaThi = args.Item;
-		await SaveData();
-	}
+        this.currentPage_CTDT = page;
+        if (selectedPages_CTDT.Contains(page))
+            return;
+
+        //chỉ thực hiện load data khi người dùng chọn trang mới
+        (var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+        PadEmptyRows(newChiTietDotThis);
+        selectedPages_CTDT?.Add(currentPage_CTDT);
+    }
+
+    private async Task OnRowsPerPageChange_CT(int rows)
+    {
+        if (rows == rowsPerPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+            return;
+
+        this.rowsPerPage_CT = rows;
+        currentPage_CT = 0; //Reset về trang đầu tiên
+
+        (var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+        PadEmptyRows(newCaThis);
+    }
+    private async Task OnCurrentPageChange_CT(int page)
+    {
+        if (page == currentPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+            return;
+
+        this.currentPage_CT = page;
+        if (selectedPages_CT.Contains(page))
+            return;
+
+        //chỉ thực hiện load data khi người dùng chọn trang mới
+        (var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+        PadEmptyRows(newCaThis);
+        selectedPages_CT?.Add(currentPage_CT);
+    }
+
+
+    private async Task OnRowClickedDotThi(TableRowClickEventArgs<DotThiDto> args)
+    {
+        if (args.Item == selectedDotThi)
+            return;
+        selectedDotThi = args.Item;
+        selectedChiTietDotThi = null;
+        selectedCaThi = null;
+        await SaveData();
+        chiTietDotThis = [];
+        caThis = [];
+
+        await FetchCTDotThi();
+    }
+    private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
+    {
+        return item == selectedDotThi ? "selected-row" : string.Empty;
+    }
+    private async Task OnRowClickedCTDotThi(TableRowClickEventArgs<ChiTietDotThiDto> args)
+    {
+        if (args.Item == selectedChiTietDotThi)
+            return;
+        selectedChiTietDotThi = args.Item;
+        selectedCaThi = null;
+        await SaveData();
+        caThis = [];
+
+        await FetchCaThis();
+    }
+    private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)
+    {
+        return item == selectedChiTietDotThi ? "selected-row" : string.Empty;
+    }
+
+    private string SelectedRowClassCaThiFunc(CaThiDto item, int rowNumber)
+    {
+        return item == selectedCaThi ? "selected-row" : string.Empty;
+    }
+    private async void OnRowClickedCaThi(TableRowClickEventArgs<CaThiDto> args)
+    {
+        if (args.Item == selectedCaThi)
+            return;
+        selectedCaThi = args.Item;
+        await SaveData();
+    }
+
+    private async Task Filter()
+    {
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            (caThis, totalRecords_CT, totalPages_CT) = await CaThis_SelectBy_MaChiTietDotThi_Search_PagedAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1, searchString, currentPage_CT, rowsPerPage_CT);
+            CreateFakeData_CT();
+        }
+        else
+        {
+            await FetchCaThis();
+        }
+    }
 }

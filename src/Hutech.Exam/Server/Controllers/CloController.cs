@@ -14,10 +14,34 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class CloController(CloService cloService) : Controller
     {
+        #region Private Fields
+
         private readonly CloService _cloService = cloService;
 
+        #endregion
 
-        //////////////////POST//////////////////////////
+        #region Get Methods
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
+        {
+            var result = await _cloService.SelectOne(id);
+            if (result.MaClo == 0)
+            {
+                return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO"));
+            }
+            return Ok(APIResponse<CloDto>.SuccessResponse(data: result, message: "Lấy CLO thành công"));
+        }
+
+        [HttpGet("filter-by-monhoc")]
+        public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
+        {
+            return Ok(APIResponse<List<CloDto>>.SuccessResponse(data: await _cloService.SelectBy_MaMonHoc(maMonHoc), message: "Lấy danh sách CLO thành công"));
+        }
+
+        #endregion
+
+        #region Post Methods
 
         [HttpPost]
         public async Task<ActionResult<CloDto>> Insert([FromBody] CloCreateRequest clo)
@@ -37,26 +61,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////GET////////////////////////////
+        #endregion
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
-        {
-            var result = await _cloService.SelectOne(id);
-            if(result.MaClo == 0)
-            {
-                return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO"));
-            }    
-            return Ok(APIResponse<CloDto>.SuccessResponse(data: result, message: "Lấy CLO thành công"));
-        }
-
-        [HttpGet("filter-by-monhoc")]
-        public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
-        {
-            return Ok(APIResponse<List<CloDto>>.SuccessResponse(data: await _cloService.SelectBy_MaMonHoc(maMonHoc), message: "Lấy danh sách CLO thành công"));
-        }
-
-        //////////////////PUT///////////////////////////
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CloDto>> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
@@ -64,7 +71,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _cloService.Update(id, clo);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần cập nhật"));
                 }
@@ -80,9 +87,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
@@ -90,10 +103,10 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _cloService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần xóa"));
-                }    
+                }
                 return Ok();
             }
             catch (SqlException sqlEx)
@@ -128,12 +141,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        #endregion
 
-        //////////////////OTHERS///////////////////////////
-
-        //////////////////PRIVATE///////////////////////////
+        #region Private Methods
 
 
+        #endregion
 
     }
 }

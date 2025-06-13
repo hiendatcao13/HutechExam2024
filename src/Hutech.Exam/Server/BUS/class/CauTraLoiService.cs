@@ -9,8 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class CauTraLoiService(ICauTraLoiRepository cauTraLoiRepository)
     {
+        #region Private Fields
         private readonly ICauTraLoiRepository _cauTraLoiRepository = cauTraLoiRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<CauTraLoiDto> SelectOne(int ma_cau_tra_loi)
         {
             return await _cauTraLoiRepository.SelectOne(ma_cau_tra_loi);
@@ -35,5 +38,6 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _cauTraLoiRepository.SelectBy_MaCauHoi(ma_cau_hoi);
         }
+        #endregion
     }
 }

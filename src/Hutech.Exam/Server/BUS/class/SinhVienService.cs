@@ -8,8 +8,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class SinhVienService(ISinhVienRepository sinhVienRepository)
     {
+        #region Private Fields
         private readonly ISinhVienRepository _sinhVienRepository = sinhVienRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<List<SinhVienDto>> GetAll()
         {
             return await _sinhVienRepository.GetAll();
@@ -42,6 +45,11 @@ namespace Hutech.Exam.Server.BUS
                 sinhVien.Email, sinhVien.DienThoai, sinhVien.MaSoSinhVien, sinhVien.StudentId);
         }
 
+        public async Task Insert_Batch(List<SinhVienDto> sinhVienDtos)
+        {
+            await _sinhVienRepository.Insert_Batch(sinhVienDtos);
+        }
+
         public async Task<bool> Update(long id, SinhVienUpdateRequest sinhVien)
         {
             return await _sinhVienRepository.Update(id, sinhVien.HoVaTenLot, sinhVien.TenSinhVien, sinhVien.GioiTinh,
@@ -67,5 +75,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _sinhVienRepository.SelectBy_ma_lop_Search_Paged(ma_lop, keyword, pageNumber, pageSize);
         }
+        #endregion
+
     }
 }

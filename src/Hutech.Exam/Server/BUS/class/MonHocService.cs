@@ -11,9 +11,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class MonHocService(IMonHocRepository monHocRepository)
     {
+        #region Private Fields
         private readonly IMonHocRepository _monHocRepository = monHocRepository;
+        #endregion
 
-
+        #region Public Methods
         public async Task<MonHocDto> SelectOne(int ma_mon_hoc)
         {
             return await _monHocRepository.SelectOne(ma_mon_hoc);
@@ -47,5 +49,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _monHocRepository.ForceRemove(ma_mon_hoc);
         }
+        #endregion
+
     }
 }

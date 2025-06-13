@@ -18,42 +18,24 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize]
     public class ChiTietCaThiController(ChiTietCaThiService chiTietCaThiService, IHubContext<AdminHub> adminHub) : Controller
     {
-        private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
+        #region Private Fields
 
+        private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
 
-        //////////////////POST//////////////////////////
+        #endregion
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
-        {
-            try
-            {
-                var id = await _chiTietCaThiService.Insert(chiTietCaThi);
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Thêm chi tiết ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _chiTietCaThiService.SelectOne(id);
-            if(result.MaChiTietCaThi == 0)
+            if (result.MaChiTietCaThi == 0)
             {
                 return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi"));
-            }    
+            }
             return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: result, message: "Lấy chi tiết ca thi thành công"));
         }
 
@@ -80,20 +62,18 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<Paged<ChiTietCaThiDto>>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keyword, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
 
-        [HttpPut("{id}")]
+        #region Post Methods
+
+        [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
+        public async Task<ActionResult<ChiTietCaThiDto>> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
         {
             try
             {
-                var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
-                if(!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cập nhật"));
-                }    
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cập nhật chi tiết ca thi thành công"));
+                var id = await _chiTietCaThiService.Insert(chiTietCaThi);
+                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Thêm chi tiết ca thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -101,25 +81,18 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật chi tiết ca thi không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm chi tiết ca thi không thành công", errorDetails: ex.Message));
             }
         }
 
-
-        //////////////////PATCH///////////////////////////
-
-        [HttpPatch("{id}/cong-gio")]
+        [HttpPost("batch")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+        public async Task<ActionResult<List<ChiTietCaThiDto>>> InsertBatch([FromBody] List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
         {
             try
             {
-                var result = await _chiTietCaThiService.CongGio(id, chiTietCaThi);
-                if(!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));
-                }    
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cộng giờ cho thí sinh thành công"));
+                await _chiTietCaThiService.Insert_Batch(chiTietCaThis);
+                return Ok(APIResponse<List<ChiTietCaThiDto>>.SuccessResponse(message: "Thêm danh sách chi tiết ca thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -127,27 +100,15 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cộng giờ cho thí sinh không thành công", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm danh sách chi tiết ca thi không thành công", errorDetails: ex.Message));
             }
-
         }
-
-        [HttpPatch("{id}/bat-dau-thi")]//------------------API cho thí sinh----------------------
-        public async Task<ActionResult> UpdateBatDauThi([FromRoute] int id)
-        {
-            await _chiTietCaThiService.UpdateBatDau(id, DateTime.Now);
-            await NotifSVStatusThiToAdmin(id, true, DateTime.Now);
-            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Cập nhật trạng thái bắt đầu thi cho thí sinh thành công"));
-        }
-
-
-        //////////////////OTHERS///////////////////////////
 
         [HttpPost("export-excel")]
         public async Task<ActionResult<byte[]>> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
         {
             // Cấp phép cho EPPlus
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
 
             using (var package = new ExcelPackage())
             {
@@ -188,12 +149,86 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
+
+        #region Put Methods
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ChiTietCaThiDto>> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
+        {
+            try
+            {
+                var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
+                if (!result)
+                {
+                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cập nhật"));
+                }
+                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cập nhật chi tiết ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật chi tiết ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Patch Methods
+
+        [HttpPatch("{id}/cong-gio")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+        {
+            try
+            {
+                var result = await _chiTietCaThiService.CongGio(id, chiTietCaThi);
+                if (!result)
+                {
+                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));
+                }
+                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cộng giờ cho thí sinh thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cộng giờ cho thí sinh không thành công", errorDetails: ex.Message));
+            }
+
+        }
+
+        [HttpPatch("{id}/bat-dau-thi")]//------------------API cho thí sinh----------------------
+        public async Task<ActionResult> UpdateBatDauThi([FromRoute] int id)
+        {
+            await _chiTietCaThiService.UpdateBatDau(id, DateTime.Now);
+            await NotifSVStatusThiToAdmin(id, true, DateTime.Now);
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Cập nhật trạng thái bắt đầu thi cho thí sinh thành công"));
+        }
+
+        #endregion
+
+        #region Delete Methods
+
+
+
+        #endregion
+
+        #region Private Methods
 
         private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
         {
             // 0: bắt đầu thi, 1: kết thúc thi
             await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
         }
+
+        #endregion
+
     }
 }

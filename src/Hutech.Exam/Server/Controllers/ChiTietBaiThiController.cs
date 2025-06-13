@@ -11,14 +11,14 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize]
     public class ChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService) : Controller
     {
+        #region Private Fields
+
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
 
-        //////////////////CRUD///////////////////////////
+        #endregion
 
-        //-- Phần CRUD được sử dụng vào trong Redis Service giao tiếp qua SignalR không phải api
+        #region Get Methods
 
-        //////////////////FILTER///////////////////////////
-        
         [HttpGet("filter-by-chitietcathi")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<APIResponse<List<ChiTietBaiThiDto>>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
@@ -27,10 +27,36 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<ChiTietBaiThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách chi tiết bài thi thành công"));
         }
 
-        //////////////////OTHERS///////////////////////////
+        #endregion
 
-        //////////////////PRIVATE///////////////////////////
+        #region Post Methods
 
-        
+
+
+        #endregion
+
+        #region Put Methods
+
+
+
+        #endregion
+
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
+
+
+
+        #endregion
+
+        #region Private Methods
+
+
+        #endregion
+
     }
 }

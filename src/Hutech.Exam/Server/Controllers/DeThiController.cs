@@ -16,31 +16,16 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class DeThiController(DeThiService deThiService, CustomMaDeThiService customMaDeThiService) : Controller
     {
+        #region Private Fields
+
+
         private readonly DeThiService _deThiService = deThiService;
         private readonly CustomMaDeThiService _customMaDeThiService = customMaDeThiService;
 
 
-        //////////////////POST//////////////////////////
+        #endregion
 
-        [HttpPost]
-        public async Task<ActionResult<DeThiDto>> Insert([FromBody] DeThiCreateRequest deThi)
-        {
-            try
-            {
-                var id = await _deThiService.Insert(deThi);
-                return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Thêm đề thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Thêm đề thi không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet]
         public async Task<ActionResult<List<DeThiDto>>> GetAll()
@@ -52,10 +37,10 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<DeThiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _deThiService.SelectOne(id);
-            if(result.MaDeThi == 0)
+            if (result.MaDeThi == 0)
             {
                 return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi"));
-            }    
+            }
             return Ok(APIResponse<DeThiDto>.SuccessResponse(data: result, message: "Lấy đề thi thành công"));
         }
 
@@ -92,9 +77,27 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        #endregion
 
+        #region Post Methods
 
-        //////////////////PUT///////////////////////////
+        [HttpPost]
+        public async Task<ActionResult<DeThiDto>> Insert([FromBody] DeThiCreateRequest deThi)
+        {
+            try
+            {
+                var id = await _deThiService.Insert(deThi);
+                return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Thêm đề thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Thêm đề thi không thành công", errorDetails: ex.Message));
+            }
+        }
 
         [HttpPost("{id}")]
         public async Task<ActionResult<DeThiDto>> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
@@ -118,9 +121,21 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Put Methods
+
+
+
+        #endregion
+
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<DeThiDto>> Delete([FromRoute] int id)
@@ -166,11 +181,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        #endregion
 
-        //////////////////PRIVATE///////////////////////////
+        #region Private Methods
 
 
+        #endregion
 
     }
 }

@@ -29,8 +29,8 @@ namespace Hutech.Exam.Server.DAL.Helper
                     item.MaCauHoi,
                     item.MaClo,
                     item.CauTraLoi,
-                    DateTime.Now,
-                    DateTime.Now,
+                    item.NgayTao,
+                    item.NgayCapNhat,
                     item.KetQua,
                     item.ThuTu
                 );

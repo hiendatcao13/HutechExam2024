@@ -34,6 +34,7 @@
                 <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
                 <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
                 <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Checklist" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
             </MudNavMenu>
         </MudDrawer>
     }
@@ -75,7 +76,8 @@
         { "/admin/question", "Tổ chức đề thi" },
         { "/admin/supervise", "Giám sát phòng thi"},
         { "/admin/students", "Quản lý sinh viên"},
-        { "/admin/feedback", "Đánh giá đề thi" }
+        { "/admin/feedback", "Đánh giá đề thi" },
+        { "/admin/accounts", "Quản lý tài khoản" }
     };
 
     private void ToggleDrawer()

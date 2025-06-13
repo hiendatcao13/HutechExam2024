@@ -9,8 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class NhomCauHoiService(INhomCauHoiRepository nhomCauHoiRepository)
     {
+        #region Private Fields
         private readonly INhomCauHoiRepository _nhomCauHoiRepository = nhomCauHoiRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<int> Insert(NhomCauHoiCreateRequest nhomCauHoi)
         {
             return await _nhomCauHoiRepository.Insert(nhomCauHoi.MaDeThi, nhomCauHoi.TenNhom, nhomCauHoi.KieuNoiDung, nhomCauHoi.NoiDung ?? "", nhomCauHoi.SoCauHoi, nhomCauHoi.HoanVi,
@@ -42,5 +45,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _nhomCauHoiRepository.SelectOne(ma_nhom);
         }
+        #endregion
+
     }
 }

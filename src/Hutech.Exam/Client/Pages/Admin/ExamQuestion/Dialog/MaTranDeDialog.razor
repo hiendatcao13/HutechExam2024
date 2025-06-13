@@ -19,7 +19,7 @@
 			<MudItem xs="8"><MudTextField Label="Tổng số đề" Required InputType="InputType.Number" @bind-Value="so_luong_de" Placeholder="4" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Ký hiệu đề:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Ký hiệu đề" Required InputType="InputType.Text" @bind-Value="kyHieuDe" Placeholder="TA001" HelperText="Vui lòng nhập * để tạo ra các mã số tương ứng (D3) - VD: TA001" /></MudItem>
+			<MudItem xs="8"><MudTextField Label="Ký hiệu đề" Required InputType="InputType.Text" @bind-Value="kyHieuDe" Placeholder="TA001" HelperText="Vui lòng nhập * để tạo ra các mã số tương ứng (D3) - VD: TA00* - TA001" /></MudItem>
 
 			<MudItem xs="12">
 				<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate">HV chương</MudButton>
@@ -89,7 +89,7 @@
 	private List<CustomThongTinMaDeThi>? customThongTinMaDeThis = [];
 
 	private int so_luong_de = 0;
-    private string kyHieuDe = string.Empty; // ký hiệu đề thi, dùng để tạo ra các mã số tương ứng (D3) - VD: TA001, TA002, TA003...
+	private string kyHieuDe = string.Empty; // ký hiệu đề thi, dùng để tạo ra các mã số tương ứng (D3) - VD: TA001, TA002, TA003...
 
 	private bool isValid = false;
 
@@ -113,8 +113,8 @@
 
 
 	private const string INVALID_FORM = "Vui lòng nhập số lượng câu hỏi và thông tin ký hiệu đề";
-    private const string INVALID_KYHIEUDE = "Vui lòng nhập dấu * để tạo mã số tương ứng cho các đề thi (VD: TA001, TA002, TA003...)";
-    private const string INVALID_KYHIEUDE2 = "Không thể xuất hiện cùng lúc nhiều hơn một dấu * trong ký hiệu đề, vui lòng kiểm tra lại ký hiệu đề thi!";
+	private const string INVALID_KYHIEUDE = "Vui lòng nhập dấu * để tạo mã số tương ứng cho các đề thi (VD: TA001, TA002, TA003...)";
+	private const string INVALID_KYHIEUDE2 = "Không thể xuất hiện cùng lúc nhiều hơn một dấu * trong ký hiệu đề, vui lòng kiểm tra lại ký hiệu đề thi!";
 	private const string WAITING = "Vui lòng chờ hệ thống sẽ mất chút thời gian để tạo bộ đề...";
 
 	protected override async Task OnInitializedAsync()
@@ -123,6 +123,13 @@
 		await base.OnInitializedAsync();
 
 		//method
+	}
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if(firstRender)
+		{
+
+		}
 	}
 
 
@@ -139,6 +146,7 @@
 
 		HandleData();
 	}
+
 	private void OnClickThoat()
 	{
 		MudDialog?.Cancel();
@@ -164,9 +172,13 @@
 		}
 
 		// tạo danh sách chương có hoán vị (thứ tự, mã số)
-
+        for (int i = 0; i < so_luong_de; i++)
+        {
+            
+        }
 
 	}
+
 
 	private void HandleData()
 	{
@@ -209,6 +221,10 @@
         dsCauHoiKhongHV = string.Join(" - ", dsCauHoi.Where(x => !x.Value.Item2).Select(x => $"{x.Value.Item1}"));
 	}
 
+	private Dictionary<int, TValue> SwapData<TValue>(Dictionary<int, TValue> values)
+	{
+
+	}
 
 	private List<int> RandomList(List<int> list)
 	{
@@ -260,7 +276,7 @@
 			var sb = new StringBuilder();
 			foreach (var item in missingAnswer)
 			{
-				sb.AppendLine($"Câu hỏi {item.MaCauHoi} chưa có đáp án.");
+				sb.AppendLine($"Câu hỏi {item.MaCauHoi} chưa có đáp án. Vui lòng kiểm tra");
 			}
 			Snackbar.Add(sb.ToString(), Severity.Error);
 			return false;

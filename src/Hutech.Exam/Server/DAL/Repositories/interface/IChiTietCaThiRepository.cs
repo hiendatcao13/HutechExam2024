@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
@@ -29,6 +30,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
         Task<bool> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime? thoi_diem_cong, string? ly_do_cong);
 
         Task<int> Insert(int ma_ca_thi, long ma_sinh_vien, long ma_de_thi, int tong_so_cau);
+
+        Task Insert_Batch(List<ChiTietCaThiCreateBatchRequest> chiTietCaThis);
 
         Task<int> ThemSVKhanCap(string ma_so_sinh_vien, int ma_ca_thi, long ma_de_thi);
 

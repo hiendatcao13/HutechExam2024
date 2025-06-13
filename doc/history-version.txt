@@ -184,3 +184,8 @@
 10/06/2025 11PM
 - Hoàn thành chuyển đổi toàn bộ phần nghiệp vụ đọc ở databaseReader cho Repo
 - TODO: TVP Excel, quản lí tài khoản người dùng, phân quyền
+--------------------------------------------------
+13/06/2025 11PM
+- Hoàn thành TVP Excel thêm sinh viên vào lớp, thêm sinh viên vào ca thi
+- Code controller, service được phân chia theo region
+- TODO: TVP Excel ma trận đề thi, quản lí tài khoản người dùng

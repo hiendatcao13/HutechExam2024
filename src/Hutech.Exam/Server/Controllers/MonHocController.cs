@@ -15,29 +15,13 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class MonHocController(MonHocService monHocService) : Controller
     {
+        #region Private Fields
+
         private readonly MonHocService _monHocService = monHocService;
 
-        //////////////////POST//////////////////////////
+        #endregion
 
-        [HttpPost]
-        public async Task<ActionResult<MonHocDto>> Insert([FromBody] MonHocCreateRequest monHoc)
-        {
-            try
-            {
-                var id = await _monHocService.Insert(monHoc);
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Thêm môn học không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet]
         public async Task<ActionResult<List<MonHocDto>>> GetAll([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
@@ -57,14 +41,38 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<ActionResult<MonHocDto>> SelectOne([FromRoute] int id)
         {
             var result = await _monHocService.SelectOne(id);
-            if(result.MaMonHoc == 0)
+            if (result.MaMonHoc == 0)
             {
                 return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học"));
             }
             return Ok(APIResponse<MonHocDto>.SuccessResponse(data: result, message: "Lấy môn học thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
+
+        #region Post Methods
+
+        [HttpPost]
+        public async Task<ActionResult<MonHocDto>> Insert([FromBody] MonHocCreateRequest monHoc)
+        {
+            try
+            {
+                var id = await _monHocService.Insert(monHoc);
+                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Thêm môn học không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<MonHocDto>> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
@@ -72,7 +80,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _monHocService.Update(id, monHoc);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần cập nhật"));
                 }
@@ -88,10 +96,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        #endregion
 
-        //////////////////PATCH///////////////////////////
+        #region Patch Methods
 
-        //////////////////DELETE//////////////////////////
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<MonHocDto>> Delete([FromRoute] int id)
@@ -99,7 +112,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _monHocService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
                 }
@@ -137,10 +150,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        #endregion
 
-        //////////////////PRIVATE///////////////////////////
+        #region Private Methods
 
+
+        #endregion
 
     }
 }

@@ -11,13 +11,19 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize]
     public class DeThiHoanViController(CustomDeThiService customDeThiService, DeThiHoanViService deThiHoanViService, RedisService redisService, IResponseCacheService cacheService) : Controller
     {
+        #region Private Fields
+
         private readonly CustomDeThiService _customDeThiService = customDeThiService; // định dạng theo format riêng của đề thi
+
         private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService; // định dạng theo format của đề thi hoàn vi
+
         private readonly RedisService _redisService = redisService; // dịch vụ Redis để lưu trữ kết nối và thông tin khác
 
         private readonly IResponseCacheService _cacheService = cacheService;
 
-        //////////////////CRUD///////////////////////////
+        #endregion
+
+        #region Get Methods
 
         [HttpGet("{id}")]//-------------API cho thí sinh----------------------
         public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromRoute] int id)
@@ -32,11 +38,36 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<Dictionary<int, int>>.SuccessResponse(data: await _redisService.GetDapAnAsync(id), message: "Lấy danh sách đáp án thành công"));
         }
 
-        //////////////////FILTER///////////////////////////
+        #endregion
 
-        //////////////////OTHERS///////////////////////////
+        #region Post Methods
 
-        //////////////////PRIVATE///////////////////////////
+
+
+        #endregion
+
+        #region Put Methods
+
+
+
+        #endregion
+
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
+
+
+
+        #endregion
+
+        #region Private Methods
+
+
+        #endregion
 
     }
 }

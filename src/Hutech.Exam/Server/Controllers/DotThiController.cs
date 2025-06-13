@@ -17,31 +17,15 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class DotThiController(DotThiService dotThiService, IHubContext<AdminHub> mainHub) : Controller
     {
+        #region Private Fields
+
         private readonly DotThiService _dotThiService = dotThiService;
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
-        //////////////////POST//////////////////////////
+        #endregion
 
-        [HttpPost]
-        public async Task<ActionResult<DotThiDto>> Insert([FromBody] DotThiCreateRequest dotThi)
-        {
-            try
-            {
-                var id = await _dotThiService.Insert(dotThi);
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm đợt thi không thành công", errorDetails: ex.Message));
-            }
-        }
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
@@ -62,7 +46,31 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Lấy đợt thi thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
+
+        #region Post Methods
+
+        [HttpPost]
+        public async Task<ActionResult<DotThiDto>> Insert([FromBody] DotThiCreateRequest dotThi)
+        {
+            try
+            {
+                var id = await _dotThiService.Insert(dotThi);
+                return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm đợt thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<DotThiDto>> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
@@ -86,31 +94,16 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
 
-        //////////////////DELETE//////////////////////////
+        #endregion
 
-        [HttpDelete("{id}/force")]
-        public async Task<ActionResult<DotThiDto>> ForceDelete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _dotThiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
-                }
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
-            }
-        }
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<DotThiDto>> Delete([FromRoute] int id)
@@ -134,9 +127,34 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<DotThiDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _dotThiService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
+                }
+                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+            }
+        }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
+
+        #region Private Methods
+
+
+        #endregion
 
     }
 }

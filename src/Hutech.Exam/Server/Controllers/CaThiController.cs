@@ -15,37 +15,16 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/cathis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub ) : Controller
+    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub) : Controller
     {
+        #region Private Fields
         private readonly CaThiService _caThiService = caThiService;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
+        #endregion
 
-        //////////////////POST//////////////////////////
-
-        [HttpPost]
-        public async Task<ActionResult<CaThiDto>> Insert([FromBody] CaThiCreateRequest caThi)
-        {
-            try
-            {
-                var id = await _caThiService.Insert(caThi);
-                await NotifyChangeCaThiToAdmin(id, 0);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), "Thêm ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm ca thi không thành công", errorDetails: ex.Message));
-            }
-
-        }
-
-
-        //////////////////GET////////////////////////////
+        #region Get Methods
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CaThiDto>> SelectOne([FromRoute] int id)
@@ -89,7 +68,33 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<Paged<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
+
+        #region Post Methods
+
+        [HttpPost]
+        public async Task<ActionResult<CaThiDto>> Insert([FromBody] CaThiCreateRequest caThi)
+        {
+            try
+            {
+                var id = await _caThiService.Insert(caThi);
+                await NotifyChangeCaThiToAdmin(id, 0);
+                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), "Thêm ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm ca thi không thành công", errorDetails: ex.Message));
+            }
+
+        }
+
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CaThiDto>> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
@@ -115,8 +120,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
+        #region Patch Methods
 
         [HttpPatch("{id}/active")]
         public async Task<ActionResult> KichHoatCaThi([FromRoute] int id)
@@ -213,30 +219,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////DELETE//////////////////////////
+        #endregion
 
-        [HttpDelete("{id}/force")]
-        public async Task<ActionResult<CaThiDto>> ForceDelete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _caThiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần xóa"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 2);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
-            }
-        }
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<CaThiDto>> Delete([FromRoute] int id)
@@ -261,7 +246,33 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PRIVATE///////////////////////////
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult<CaThiDto>> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _caThiService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần xóa"));
+                }
+                await NotifyChangeCaThiToAdmin(id, 2);
+                return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+
+        #endregion
+
+        #region Private Methods
         private async Task NotifyChangeStatusCaThiToSV(int ma_ca_thi)
         {
             await _sinhVienHub.Clients.Group(ma_ca_thi + "").SendAsync("ChangeStatusCaThi");
@@ -274,5 +285,7 @@ namespace Hutech.Exam.Server.Controllers
             string message = (function == 0) ? "InsertCaThi" : (function == 1) ? "UpdateCaThi" : "DeleteCaThi";
             await _adminHub.Clients.Group("admin").SendAsync(message, ma_ca_thi);
         }
+        #endregion
+
     }
 }

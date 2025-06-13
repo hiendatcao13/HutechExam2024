@@ -11,8 +11,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class ChiTietCaThiService(IChiTietCaThiRepository chiTietCaThiRepository, SinhVienService sinhVienService)
     {
+        #region Private Fields
         private readonly IChiTietCaThiRepository _chiTietCaThiRepository = chiTietCaThiRepository;
+        #endregion
 
+        #region Public Methods
         private readonly SinhVienService _sinhVienService = sinhVienService;
 
         public async Task<ChiTietCaThiDto> SelectOne(int chi_tiet_ca_thi)
@@ -61,6 +64,11 @@ namespace Hutech.Exam.Server.BUS
             return await _chiTietCaThiRepository.Insert(chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1);
         }
 
+        public async Task Insert_Batch(List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
+        {
+            await _chiTietCaThiRepository.Insert_Batch(chiTietCaThis);
+        }
+
 
         public async Task<bool> Remove(int ma_chi_tiet_ca_thi)
         {
@@ -71,5 +79,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _chiTietCaThiRepository.Update(id, chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1);
         }
+        #endregion
+
     }
 }

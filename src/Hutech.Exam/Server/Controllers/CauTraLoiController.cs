@@ -16,22 +16,35 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class CauTraLoiController(CauTraLoiService cauTraLoiService) : Controller
     {
+        #region Private Fields
+
         private readonly CauTraLoiService _cauTraLoiService = cauTraLoiService;
 
-        //////////////////GET///////////////////////////
+        #endregion
+
+        #region Get Methods
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _cauTraLoiService.SelectOne(id);
-            if(result.MaCauTraLoi == 0)
+            if (result.MaCauTraLoi == 0)
             {
                 return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời"));
             }
             return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: result, message: "Lấy câu trả lời thành công"));
         }
 
-        //////////////////POST//////////////////////////
+        [HttpGet("filter-by-cauhoi")]
+        public async Task<ActionResult<List<CauTraLoiDto>>> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
+        {
+            var result = _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi);
+            return Ok(APIResponse<List<CauTraLoiDto>>.SuccessResponse(data: await _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi), message: "Lấy danh sách câu trả lời thành công"));
+        }
+
+        #endregion
+
+        #region Post Methods
 
         [HttpPost]
         public async Task<ActionResult<CauTraLoiDto>> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
@@ -51,16 +64,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////GET////////////////////////////
+        #endregion
 
-        [HttpGet("filter-by-cauhoi")]
-        public async Task<ActionResult<List<CauTraLoiDto>>> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
-        {
-            var result = _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi);
-            return Ok(APIResponse<List<CauTraLoiDto>>.SuccessResponse(data: await _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi), message: "Lấy danh sách câu trả lời thành công"));
-        }
-
-        //////////////////PUT///////////////////////////
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
@@ -68,10 +74,10 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _cauTraLoiService.Update(id, cauTraLoi);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần cập nhật"));
-                }    
+                }
                 return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(data: await _cauTraLoiService.SelectOne(id), message: "Cập nhật câu trả lời thành công"));
             }
             catch (SqlException sqlEx)
@@ -84,9 +90,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<CauTraLoiDto>> Delete([FromRoute] int id)
@@ -94,10 +106,10 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _cauTraLoiService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần xóa"));
-                }    
+                }
                 return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(message: "Xóa câu trả lời thành công"));
             }
             catch (SqlException sqlEx)
@@ -110,6 +122,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PRIVATE//////////////////////////
+        #endregion
+
+        #region Private Methods
+
+
+        #endregion
+
     }
 }

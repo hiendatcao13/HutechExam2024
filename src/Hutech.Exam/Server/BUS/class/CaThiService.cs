@@ -10,7 +10,13 @@ namespace Hutech.Exam.Server.BUS
 {
     public class CaThiService(ICaThiRepository caThiRepository)
     {
+        #region Private Fields
+
         private readonly ICaThiRepository _caThiRepository = caThiRepository;
+
+        #endregion
+
+        #region Public Methods
 
         public async Task<List<CaThiDto>> SelectBy_MaDotThi_MaLop_LanThi(int ma_dot_thi, int ma_lop, int lan_thi)
         {
@@ -69,5 +75,6 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
         }
+        #endregion
     }
 }

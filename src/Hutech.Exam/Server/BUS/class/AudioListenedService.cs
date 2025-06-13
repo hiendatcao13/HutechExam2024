@@ -9,8 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class AudioListenedService(IAudioListenedRepository audioListenedRepository)
     {
+        #region Private Fields
         private readonly IAudioListenedRepository _audioListenedRepository = audioListenedRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<int> SelectOne(int ma_chi_tiet_ca_thi, string fileName)
         {
             return await _audioListenedRepository.SelectOne(ma_chi_tiet_ca_thi, fileName);
@@ -20,5 +23,8 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _audioListenedRepository.Save(audio.MaChiTietCaThi, audio.MaNhom);
         }
+        #endregion
+
+
     }
 }

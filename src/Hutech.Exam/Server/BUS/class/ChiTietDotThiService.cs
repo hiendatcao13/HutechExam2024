@@ -11,9 +11,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class ChiTietDotThiService(IChiTietDotThiRepository chiTietDotThiRepository)
     {
+        #region Private Fields
         private readonly IChiTietDotThiRepository _chiTietDotThiResposity = chiTietDotThiRepository;
+        #endregion
 
-
+        #region Public Methods
         public async Task<List<ChiTietDotThiDto>> SelectBy_MaDotThi(int ma_dot_thi)
         {
             return await _chiTietDotThiResposity.SelectBy_MaDotThi(ma_dot_thi);
@@ -58,5 +60,7 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _chiTietDotThiResposity.ForceRemove(ma_chi_tiet_dot_thi);
         }
+        #endregion
+
     }
 }

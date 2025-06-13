@@ -13,15 +13,21 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class UserController(UserService userService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
+        #region Private Fields
+
         private readonly UserService _userService = userService;
 
         private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
-        //////////////////CRUD///////////////////////////
+        #endregion
 
-        //////////////////FILTER///////////////////////////
+        #region Get Methods
 
-        //////////////////OTHERS///////////////////////////
+
+
+        #endregion
+
+        #region Post Methods
 
         [HttpPost("login")]
         [AllowAnonymous]
@@ -32,7 +38,7 @@ namespace Hutech.Exam.Server.Controllers
             {
                 if (userSession.NavigateUser.IsLockedOut)
                 {
-                    return BadRequest(APIResponse<UserSession>.ErrorResponse( message: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!"));
+                    return BadRequest(APIResponse<UserSession>.ErrorResponse(message: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!"));
                 }
                 if (userSession.NavigateUser.IsDeleted)
                 {
@@ -47,7 +53,27 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
+
+        #region Put Methods
+
+
+
+        #endregion
+
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
+
+
+
+        #endregion
+
+        #region Private Methods
 
         private async Task UpdateLoginSuccess(Guid userId)
         {
@@ -58,5 +84,8 @@ namespace Hutech.Exam.Server.Controllers
         {
             return await _userService.UpdateLastActivity(userId, lastActivityDate);
         }
+
+        #endregion
+
     }
 }

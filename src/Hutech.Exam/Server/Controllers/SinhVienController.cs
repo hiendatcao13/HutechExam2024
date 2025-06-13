@@ -19,9 +19,12 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize]
     public class SinhVienController(SinhVienService sinhVienService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub, RedisService redisService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
+        #region Private Fields
+
         private readonly SinhVienService _sinhVienService = sinhVienService;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
+
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
 
         private readonly RedisService _redisService = redisService;
@@ -30,17 +33,19 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
-        //////////////////GET///////////////////////////
+        #endregion
+
+        #region Get Methods
 
         [HttpGet("filter-by-mssv")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string maSoSinhVien)
         {
             var result = await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien);
-            if(result == null || string.IsNullOrEmpty(result.MaSoSinhVien))
+            if (result == null || string.IsNullOrEmpty(result.MaSoSinhVien))
             {
                 return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên với mã số sinh viên đã cung cấp."));
-            }    
+            }
             return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: result, message: "Đã tìm thấy sinh viên thành công"));
         }
 
@@ -60,7 +65,9 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<Paged<SinhVienDto>>.SuccessResponse(data: result, message: "Lấy danh sách sinh viên theo lớp thành công"));
         }
 
-        //////////////////POST///////////////////////////
+        #endregion
+
+        #region Post Methods
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -78,6 +85,25 @@ namespace Hutech.Exam.Server.Controllers
             catch (Exception ex)
             {
                 return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Thêm sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        [HttpPost("batch")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Insert_Batch([FromBody] List<SinhVienDto> sinhViens)
+        {
+            try
+            {
+                await _sinhVienService.Insert_Batch(sinhViens);
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Thêm danh sách sinh viên thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Thêm danh sách sinh viên không thành công", errorDetails: ex.Message));
             }
         }
 
@@ -105,7 +131,9 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản thí sinh thành công"));
         }
 
-        //////////////////PUT///////////////////////////
+        #endregion
+
+        #region Put Methods
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
@@ -133,7 +161,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
+
+        #region Patch Methods
 
         [HttpPatch("{id}/reset-login")]
         [Authorize(Roles = "Admin")]
@@ -145,7 +175,7 @@ namespace Hutech.Exam.Server.Controllers
                 await NotifyLogOutToSV(id);
                 return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Cố lỗi khi cố gắng truy cập redis", errorDetails: ex.Message));
             }
@@ -160,36 +190,15 @@ namespace Hutech.Exam.Server.Controllers
                 await NotifyNopBaiToSV(id);
                 return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Có lỗi khi cố gắng truy cập vào redis", errorDetails: ex.Message));
             }
         }
 
-        //////////////////DELTE///////////////////////////
+        #endregion
 
-        [HttpDelete("{id}/force")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _sinhVienService.ForceRemove(id);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
-                }
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
-            }
-        }
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
@@ -214,13 +223,32 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        [HttpDelete("{id}/force")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _sinhVienService.ForceRemove(id);
+                if (!result)
+                {
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
+                }
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
+            }
+        }
 
+        #endregion
 
-
-
-
-        //////////////////PRIVATE///////////////////////////
+        #region Private Methods
 
         private async Task UpdateLogin(long ma_sinh_vien)
         {
@@ -250,17 +278,17 @@ namespace Hutech.Exam.Server.Controllers
 
         private async Task NotifyAuthenticationToAdmin(long ma_sinh_vien, bool isLogin, DateTime thoi_gian)
         {
-           
+
             await _adminHub.Clients.Group("admin").SendAsync("SV_Authentication", ma_sinh_vien, isLogin, thoi_gian);
         }
 
         private async Task NotifyLogOutToSV(long ma_sinh_vien)
         {
             string? connectionId = await GetConnectionIdAsync(ma_sinh_vien);
-            if(connectionId != null)
+            if (connectionId != null)
             {
                 await _sinhVienHub.Clients.Client(connectionId).SendAsync("ResetLogin");
-            }    
+            }
         }
 
         private async Task NotifyNopBaiToSV(long ma_sinh_vien)
@@ -271,5 +299,8 @@ namespace Hutech.Exam.Server.Controllers
                 await _sinhVienHub.Clients.Client(connectionId).SendAsync("SubmitExam");
             }
         }
+
+        #endregion
+
     }
 }

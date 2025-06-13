@@ -4,9 +4,12 @@ namespace Hutech.Exam.Server.BUS
 {
     public class ExamRecoveryService(RedisService redisService, ILogger<ExamRecoveryService> logger)
     {
+        #region Private Fields
         private readonly RedisService _redisService = redisService;
         private readonly ILogger _logger = logger;
+        #endregion
 
+        #region Public Methods
         // dành cho thí sinh tiếp tục thi khi bị treo máy
         public async Task<Dictionary<int, ChiTietBaiThiRequest>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
         {
@@ -29,5 +32,7 @@ namespace Hutech.Exam.Server.BUS
                 return [];
             }
         }
+        #endregion
+
     }
 }

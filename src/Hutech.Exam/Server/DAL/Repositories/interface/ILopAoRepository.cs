@@ -19,5 +19,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         Task<bool> Update(int ma_lop_ao, string ten_lop_ao, DateTime ngay_bat_dau, int ma_mon_hoc);
 
         Task<bool> Remove(int ma_lop_ao);
+
+        Task<bool> ForceRemove(int ma_lop_ao);
     }
 }

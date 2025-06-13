@@ -9,9 +9,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class ChiTietBaiThiService(IChiTietBaiThiRepository chiTietBaiThiRepository)
     {
+        #region Private Fields
         private readonly IChiTietBaiThiRepository _chiTietBaiThiRepository = chiTietBaiThiRepository;
+        #endregion
 
-
+        #region Public Methods
         public async Task<long> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, DateTime NgayTao, int ThuTu)
         {
             return await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, MaClo, NgayTao, ThuTu);
@@ -112,8 +114,9 @@ namespace Hutech.Exam.Server.BUS
             double diem = TinhDem(ketQuaList.Count, soCauDung);
             return (ketQuaList, soCauDung, diem);
         }
+        #endregion
 
-
+        #region Private Methods
         private double TinhDem(int tong_so_cau, int so_cau_dung)
         {
             if (so_cau_dung == 0)
@@ -121,5 +124,6 @@ namespace Hutech.Exam.Server.BUS
             double diem = ((double)so_cau_dung / tong_so_cau) * 10;
             return Math.Round(diem * 4, MidpointRounding.AwayFromZero) / 4.0;
         }
+        #endregion
     }
 }

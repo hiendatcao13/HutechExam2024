@@ -107,5 +107,15 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
+
+        public async Task<bool> ForceRemove(int ma_lop_ao)
+        {
+            using DatabaseReader sql = new("lop_ao_ForceRemove");
+
+            sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
+
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
+
     }
 }

@@ -14,9 +14,34 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class NhomCauHoiController(NhomCauHoiService nhomCauHoiService) : Controller
     {
+        #region Private Fields
+
         private readonly NhomCauHoiService _nhomCauHoiService = nhomCauHoiService;
 
-        //////////////////POST//////////////////////////
+        #endregion
+
+        #region Get Methods
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<NhomCauHoiDto>> SelectOne([FromRoute] int id)
+        {
+            var result = await _nhomCauHoiService.SelectOne(id);
+            if (result.MaNhom == 0)
+            {
+                return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi"));
+            }
+            return Ok(APIResponse<NhomCauHoiDto>.SuccessResponse(data: result, message: "Lấy nhóm câu hỏi thành công"));
+        }
+
+        [HttpGet("filter-by-dethi")]
+        public async Task<ActionResult<List<NhomCauHoiDto>>> SelectAllBy_MaDeThi([FromQuery] int maDeThi)
+        {
+            return Ok(APIResponse<List<NhomCauHoiDto>>.SuccessResponse(data: await _nhomCauHoiService.SelectAllBy_MaDeThi(maDeThi), message: "Lấy danh sách nhóm câu hỏi thành công"));
+        }
+
+        #endregion
+
+        #region Post Methods
 
         [HttpPost]
         public async Task<ActionResult<NhomCauHoiDto>> Insert([FromBody] NhomCauHoiCreateRequest nhomCauHoi)
@@ -36,26 +61,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////CREATE////////////////////////////
+        #endregion
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<NhomCauHoiDto>> SelectOne([FromRoute] int id)
-        {
-            var result = await _nhomCauHoiService.SelectOne(id);
-            if(result.MaNhom == 0)
-            {
-                return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi"));
-            }    
-            return Ok(APIResponse<NhomCauHoiDto>.SuccessResponse(data: result, message: "Lấy nhóm câu hỏi thành công"));
-        }
-
-        [HttpGet("filter-by-dethi")]
-        public async Task<ActionResult<List<NhomCauHoiDto>>> SelectAllBy_MaDeThi([FromQuery] int maDeThi)
-        {
-            return Ok(APIResponse<List<NhomCauHoiDto>>.SuccessResponse(data: await _nhomCauHoiService.SelectAllBy_MaDeThi(maDeThi), message: "Lấy danh sách nhóm câu hỏi thành công"));
-        }
-
-        //////////////////PUT///////////////////////////
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<NhomCauHoiDto>> Update([FromRoute] int id, [FromBody] NhomCauHoiUpdateRequest nhomCauHoi)
@@ -63,7 +71,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _nhomCauHoiService.Update(id, nhomCauHoi);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi cần cập nhật"));
                 }
@@ -80,9 +88,15 @@ namespace Hutech.Exam.Server.Controllers
 
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
@@ -90,7 +104,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _nhomCauHoiService.Remove(id);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<NhomCauHoiDto>.NotFoundResponse(message: "Không tìm thấy nhóm câu hỏi cần xóa"));
                 }
@@ -129,10 +143,12 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        #endregion
 
-        //////////////////PRIVATE///////////////////////////
+        #region Private Methods
 
+
+        #endregion
 
     }
 }

@@ -12,6 +12,7 @@ namespace Hutech.Exam.Server.BUS
 {
     public class SubmitService(ChiTietBaiThiService chiTietBaiThiService, ChiTietCaThiService chiTietCaThiService, RedisService redisService, IHubContext<SinhVienHub> sinhVienHub, IHubContext<AdminHub> adminHub, ILogger<SubmitService> logger, IMapper mapper)
     {
+        #region Private Fields
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
@@ -20,7 +21,9 @@ namespace Hutech.Exam.Server.BUS
         private readonly IMapper _mapper = mapper;
 
         private readonly ILogger _logger = logger;
+        #endregion
 
+        #region Public Methods
         public async Task HandleSubmit(byte[] message)
         {
             SubmitRequest submitRequest = default!;
@@ -113,7 +116,9 @@ namespace Hutech.Exam.Server.BUS
                 throw; // ném ra để rabbitMQ đẩy lại vào hàng đợi, xử lí lại
             }
         }
+        #endregion
 
+        #region Private Methods
         // hàm sử dụng khi thí sinh bị mất bài nộp hoặc thiếu bài nộp
         private async Task HandleRecoverySubmit(SubmitRequest request, Dictionary<int, int> dapAns)
         {
@@ -143,5 +148,7 @@ namespace Hutech.Exam.Server.BUS
             // 0: bắt đầu thi, 1: kết thúc thi
             await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
         }
+        #endregion
+
     }
 }

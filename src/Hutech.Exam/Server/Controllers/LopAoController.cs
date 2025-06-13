@@ -14,9 +14,35 @@ namespace Hutech.Exam.Server.Controllers
     [Authorize(Roles = "Admin")]
     public class LopAoController(LopAoService lopAoService) : Controller
     {
+        #region Private Fields
+
         private readonly LopAoService _lopAoService = lopAoService;
 
-        //////////////////POST//////////////////////////
+        #endregion
+
+        #region Get Methods
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<LopAoDto>> SelectOne([FromRoute] int id)
+        {
+            var result = await _lopAoService.SelectOne(id);
+            if (result.MaLopAo == 0)
+            {
+                return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi"));
+            }
+            return Ok(APIResponse<LopAoDto>.SuccessResponse(data: result, message: "Lấy phòng thi thành công"));
+        }
+
+        [HttpGet("filter-by-monhoc")]
+        public async Task<ActionResult<List<LopAoDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
+        {
+            return Ok(APIResponse<List<LopAoDto>>.SuccessResponse(data: await _lopAoService.SelectBy_ma_mon_hoc(maMonHoc), message: "Lấy danh sách phòng thi thành công"));
+        }
+
+        #endregion
+
+        #region Post Methods
+
 
         [HttpPost]
         public async Task<ActionResult<LopAoDto>> Insert([FromBody] LopAoCreateRequest lopAo)
@@ -36,27 +62,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        #endregion
 
-        //////////////////GET////////////////////////////
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<LopAoDto>> SelectOne([FromRoute] int id)
-        {
-            var result = await _lopAoService.SelectOne(id);
-            if(result.MaLopAo == 0)
-            {
-                return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi"));
-            }    
-            return Ok(APIResponse<LopAoDto>.SuccessResponse(data: result, message: "Lấy phòng thi thành công"));
-        }
-
-        [HttpGet("filter-by-monhoc")]
-        public async Task<ActionResult<List<LopAoDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
-        {
-            return Ok(APIResponse<List<LopAoDto>>.SuccessResponse(data: await _lopAoService.SelectBy_ma_mon_hoc(maMonHoc), message: "Lấy danh sách phòng thi thành công"));
-        }
-
-        //////////////////PUT///////////////////////////
+        #region Put Methods
 
         [HttpPut("{id}")]
         public async Task<ActionResult<LopAoDto>> Update([FromRoute] int id, [FromBody] LopAoUpdateRequest lopAo)
@@ -64,7 +72,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 var result = await _lopAoService.Update(id, lopAo);
-                if(!result)
+                if (!result)
                 {
                     return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi"));
                 }
@@ -80,9 +88,15 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////PATCH///////////////////////////
+        #endregion
 
-        //////////////////DELETE//////////////////////////
+        #region Patch Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
@@ -106,10 +120,34 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        //////////////////OTHERS///////////////////////////
+        [HttpDelete("{id}/force")]
+        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _lopAoService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi cần xóa"));
+                }
+                return Ok(APIResponse<LopAoDto>.SuccessResponse("Xóa phòng thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<LopAoDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<LopAoDto>.ErrorResponse(message: "Xóa phòng thi không thành công", errorDetails: ex.Message));
+            }
+        }
 
-        //////////////////PRIVATE///////////////////////////
+        #endregion
 
+        #region Private Methods
+
+
+        #endregion
 
     }
 }

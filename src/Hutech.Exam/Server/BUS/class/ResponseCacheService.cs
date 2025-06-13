@@ -9,9 +9,12 @@ namespace Hutech.Exam.Server.BUS.@class
 {
     public class ResponseCacheService : IResponseCacheService
     {
+        #region Private Fields
         private readonly IDistributedCache _distributedCache;
         private readonly IConnectionMultiplexer _connectionMultiplexer; // kết nối với nhiều redis
+        #endregion
 
+        #region Public Methods
         public ResponseCacheService(IDistributedCache distributedCache, IConnectionMultiplexer connectionMultiplexer)
         {
             _distributedCache = distributedCache;
@@ -460,5 +463,7 @@ namespace Hutech.Exam.Server.BUS.@class
         //    // Xóa đáp án khỏi list
         //    await db.ListRemoveAsync(listKey, serializedAnswer);
         //}
+        #endregion
+
     }
 }

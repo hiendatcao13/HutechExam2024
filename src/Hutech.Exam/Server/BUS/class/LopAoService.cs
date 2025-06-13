@@ -10,8 +10,11 @@ namespace Hutech.Exam.Server.BUS
 {
     public class LopAoService(ILopAoRepository lopAoRepository)
     {
+        #region Private Fields
         private readonly ILopAoRepository _lopAoRepository = lopAoRepository;
+        #endregion
 
+        #region Public Methods
         public async Task<LopAoDto> SelectOne(int ma_lop_ao)
         {
             return await _lopAoRepository.SelectOne(ma_lop_ao);
@@ -46,5 +49,13 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _lopAoRepository.Remove(ma_lop_ao);
         }
+
+        public async Task<bool> ForceRemove(int ma_lop_ao)
+        {
+            return await _lopAoRepository.ForceRemove(ma_lop_ao);
+        }
+
+        #endregion
+
     }
 }

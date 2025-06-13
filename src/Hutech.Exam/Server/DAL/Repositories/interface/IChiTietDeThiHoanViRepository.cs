@@ -1,11 +1,14 @@
 ﻿using System.Data;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IChiTietDeThiHoanViRepository
     {
         ChiTietDeThiHoanViDto GetProperty(IDataReader dataReader, int start = 0);
+
+        Task Insert_Batch(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis);
 
         Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV);
 

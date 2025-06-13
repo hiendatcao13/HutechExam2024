@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.Models;
@@ -54,20 +55,29 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return Convert.ToInt64(await sql.ExecuteScalarAsync() ?? -1);
         }
+
+        public async Task Insert_Batch(List<SinhVienDto> sinhVienDtos)
+        {
+            var dt = SinhVienHelper.ToDataTable(sinhVienDtos);
+            using DatabaseReader sql = new("sinh_vien_Insert_Batch");
+            sql.SqlParams("@DanhSachSinhVien", SqlDbType.Structured, dt);
+
+            await sql.ExecuteNonQueryAsync();
+        }
         public async Task<bool> Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
             DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
         {
             using DatabaseReader sql = new("sinh_vien_Update");
 
             sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
-            sql.SqlParams("@ho_va_ten_lot", SqlDbType.NVarChar, ho_va_ten_lot ?? (object)DBNull.Value);
-            sql.SqlParams("@ten_sinh_vien", SqlDbType.NVarChar, ten_sinh_vien ?? (object)DBNull.Value);
+            sql.SqlParams("@ho_va_ten_lot", SqlDbType.NVarChar, NormalizeString(ho_va_ten_lot) ?? (object)DBNull.Value);
+            sql.SqlParams("@ten_sinh_vien", SqlDbType.NVarChar, NormalizeString(ten_sinh_vien) ?? (object)DBNull.Value);
             sql.SqlParams("@gioi_tinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
             sql.SqlParams("@ngay_sinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
             sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@dia_chi", SqlDbType.Text, dia_chi ?? (object)DBNull.Value);
-            sql.SqlParams("@email", SqlDbType.NVarChar, email ?? (object)DBNull.Value);
-            sql.SqlParams("@dien_thoai", SqlDbType.NVarChar, dien_thoai ?? (object)DBNull.Value);
+            sql.SqlParams("@dia_chi", SqlDbType.Text, NormalizeString(dia_chi) ?? (object)DBNull.Value);
+            sql.SqlParams("@email", SqlDbType.NVarChar, NormalizeString(email) ?? (object)DBNull.Value);
+            sql.SqlParams("@dien_thoai", SqlDbType.NVarChar, NormalizeString(dien_thoai) ?? (object)DBNull.Value);
             sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
 
             return await sql.ExecuteNonQueryAsync() > 0;
@@ -218,6 +228,19 @@ namespace Hutech.Exam.Server.DAL.Repositories
             }
 
             return new Paged<SinhVienDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+        }
+
+
+
+
+
+
+
+
+
+        private string? NormalizeString(string? input)
+        {
+            return string.IsNullOrWhiteSpace(input) ? null : input.Trim();
         }
     }
 }
