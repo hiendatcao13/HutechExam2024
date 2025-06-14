@@ -99,7 +99,11 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPost("{id}")]
+        #endregion
+
+        #region Put Methods
+
+        [HttpPut("{id}")]
         public async Task<ActionResult<DeThiDto>> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
         {
             try
@@ -120,12 +124,6 @@ namespace Hutech.Exam.Server.Controllers
                 return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Cập nhật đề thi không thành công", errorDetails: ex.Message));
             }
         }
-
-        #endregion
-
-        #region Put Methods
-
-
 
         #endregion
 

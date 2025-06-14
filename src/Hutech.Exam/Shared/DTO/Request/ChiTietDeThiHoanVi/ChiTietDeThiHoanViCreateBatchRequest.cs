@@ -19,5 +19,15 @@ namespace Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi
         public string? HoanViTraLoi { get; set; }
 
         public int DapAn { get; set; }
+
+        public ChiTietDeThiHoanViCreateBatchRequest(int maNhom, int thuTuNhom, int maCauHoi, int thuTuCauHoi, string? hoanViTraLoi, int dapAn)
+        {
+            MaNhom = maNhom;
+            ThuTuNhom = thuTuNhom;
+            MaCauHoi = maCauHoi;
+            ThuTuCauHoi = thuTuCauHoi;
+            HoanViTraLoi = hoanViTraLoi;
+            DapAn = dapAn;
+        }
     }
 }

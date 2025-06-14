@@ -36,7 +36,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             while (dataReader != null && dataReader.Read())
             {
                 var customMaDeThi = GetProperty(dataReader);
-                customMaDeThi.CauTraLoiKhongHoanVi = !dataReader.IsDBNull(8) ? dataReader.GetString(8).Split(";;;", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList() : [];
+                customMaDeThi.CauTraLoiKhongHoanVi = !dataReader.IsDBNull(8) ? dataReader.GetString(8) : null;
                 result.Add(customMaDeThi);
             }
 

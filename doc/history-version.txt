@@ -189,3 +189,7 @@
 - Hoàn thành TVP Excel thêm sinh viên vào lớp, thêm sinh viên vào ca thi
 - Code controller, service được phân chia theo region
 - TODO: TVP Excel ma trận đề thi, quản lí tài khoản người dùng
+-------------------------------------------------
+14/06/2025 11PM
+- Hoàn thành chức năng TVP Excel tạo ma trận các đề thi hoán vị
+- TODO: đập lại giao diện cho dialog ma trận đề trực quan hơn, tạo trang quản lí tài khoản người dùng

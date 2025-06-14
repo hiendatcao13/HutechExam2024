@@ -155,13 +155,13 @@
         }
     }
 
-    private async Task OnValueChangeDaDuyet(bool isDuyet)
+    private void OnValueChangeDaDuyet(bool isDuyet)
     {
         tempDeThi.DaDuyet = isDuyet;
         tempDeThi.LuuTam = !isDuyet; // Nếu đã duyệt thì không lưu tạm nữa
     }
 
-    private async Task OnValueChangeLuuTam(bool isLuuTam)
+    private void OnValueChangeLuuTam(bool isLuuTam)
     {
         tempDeThi.LuuTam = isLuuTam;
 		tempDeThi.DaDuyet = !isLuuTam; // Nếu lưu tạm thì không duyệt nữa
@@ -175,7 +175,7 @@
 
     private async Task<DeThiDto?> UpdateAPI(int id, DeThiUpdateRequest deThi)
     {
-        var response = await SenderAPI.PutAsync<DeThiDto>($"api/khoas/{id}", deThi);
+        var response = await SenderAPI.PutAsync<DeThiDto>($"api/dethis/{id}", deThi);
         return (response.Success) ? response.Data : null;
     }
 }

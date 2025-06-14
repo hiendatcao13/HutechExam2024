@@ -33,7 +33,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 FailedPwdAnswerCount = dataReader.IsDBNull(15 + start) ? null : dataReader.GetInt32(15 + start),
                 FailedPwdAnswerWindowStart = dataReader.IsDBNull(16 + start) ? null : dataReader.GetDateTime(16 + start),
                 PasswordSalt = dataReader.IsDBNull(17 + start) ? null : dataReader.GetString(17 + start),
-                Comment = dataReader.GetString(18 + start),
+                Comment = dataReader.IsDBNull(18 + start) ? null : dataReader.GetString(18 + start),
                 IsBuildInUser = dataReader.GetBoolean(19 + start)
             };
             return _mapper.Map<UserDto>(user);

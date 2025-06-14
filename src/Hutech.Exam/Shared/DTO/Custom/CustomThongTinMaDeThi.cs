@@ -24,6 +24,6 @@ namespace Hutech.Exam.Shared.DTO.Custom
 
         public int? ThuTuCauHoi { get; set; }
 
-        public List<int>? CauTraLoiKhongHoanVi { get; set; } = [];
+        public string? CauTraLoiKhongHoanVi { get; set; }
     }
 }
