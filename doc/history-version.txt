@@ -193,3 +193,7 @@
 14/06/2025 11PM
 - Hoàn thành chức năng TVP Excel tạo ma trận các đề thi hoán vị
 - TODO: đập lại giao diện cho dialog ma trận đề trực quan hơn, tạo trang quản lí tài khoản người dùng
+--------------------------------------------------
+23/06/2025 6PM
+- Đang hoàn thiện trang đánh giá đề thi
+- TODO: Hoàn thiện nốt trang này và trang quản lí tài khoản

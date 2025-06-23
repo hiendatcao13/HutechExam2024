@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
+using Syncfusion.Blazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,13 +24,14 @@ builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<ISenderAPI, SenderAPI>();
 builder.Services.AddAuthorizationCore();
+builder.Services.AddSyncfusionBlazor();
 // bien toan cuc
 builder.Services.AddSingleton<AdminDataService>();
 builder.Services.AddSingleton<ApplicationDataService>();
 builder.Services.AddSingleton<AdminHubService>();
 builder.Services.AddSingleton<StudentHubService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NNaF1cWWhPYVB2WmFZfVtgcV9CaFZSQ2YuP1ZhSXxWdkNhWn9bdHxWQWhcU0N9XUs=");
 // them MudBlazor
 builder.Services.AddMudServices(config =>
 {

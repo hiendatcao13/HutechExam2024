@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Installers
 
             services.AddScoped<ICustomDeThiRepository, CustomDeThiRepository>();
             services.AddScoped<ICustomMaDeThiRepository, CustomMaDeThiRepository>();
-            services.AddScoped<CustomDeThi>();
+            services.AddScoped<ICustomThongKeRepository, CustomThongKeRepository>();
         }
     }
 }

@@ -1,0 +1,246 @@
+﻿@page "/admin/testreview"
+@using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.DTO.Custom
+@using Syncfusion.Blazor.Charts
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Exam Evaluation</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+	<MudGrid Style="margin-top: 5px; margin-left: 5px">
+		<MudItem xs="12" md="6" lg="6">
+			@if (monHocs != null)
+			{
+				<MudTable Elevation="24" T="MonHocDto" Items="@monHocs" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedMonHoc(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassMonHocFunc"
+				TotalItems="totalRecords_Mon" RowsPerPage="rowsPerPage_Mon" CurrentPageChanged="OnCurrentPageChange_Mon" RowsPerPageChanged="OnRowsPerPageChange_Mon">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin môn thi</MudText>
+						<MudSpacer />
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>Mã số</MudTh>
+						<MudTh>Tên</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item?.MaMonHoc</MudTd>
+						<MudTd DataLabel="Mã số">@item?.MaSoMonHoc</MudTd>
+						<MudTd DataLabel="Tên">@item?.TenMonHoc</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+
+		<MudItem xs="12" md="6" lg="6">
+			@if (deThis != null)
+			{
+				<MudTable Elevation="24" T="DeThiDto" Items="@deThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDeThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDeThiFunc"
+				TotalItems="totalRecords_DeThi" RowsPerPage="rowsPerPage_DeThi" CurrentPageChanged="OnCurrentPageChange_DeThi" RowsPerPageChanged="OnRowsPerPageChange_DeThi">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin đề thi</MudText>
+						<MudSpacer />
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>Tên</MudTh>
+						<MudTh>Ngày tạo</MudTh>
+						<MudTh>Người tạo</MudTh>
+						<MudTh>Ghi chú</MudTh>
+						<MudTh>Tổng số đề HV</MudTh>
+						<MudTh>Bỏ chương phần?</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item.MaDeThi</MudTd>
+						<MudTd DataLabel="Tên">@item.TenDeThi</MudTd>
+						<MudTd DataLabel="Ngày tạo">@(item.NgayTao.ToString("dd/MM/yyyy"))</MudTd>
+						<MudTd DataLabel="Người tạo">@(item.NguoiTao == -1 ? "-" : item.NguoiTao)</MudTd>
+						<MudTd DataLabel="Ghi chú">@(string.IsNullOrEmpty(item?.GhiChu) ? "-" : item.GhiChu)</MudTd>
+						<MudTd DataLabel="Tổng số đề HV">@item.TongSoDeHoanVi</MudTd>
+						<MudTd DataLabel="Bỏ chương phần?"><MudCheckBox ReadOnly @bind-Value="@item.BoChuongPhan"></MudCheckBox></MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+
+		<MudItem xs="12">
+			<SfChart Title="Thống kê SL trả lời câu hỏi" Width="100%">
+				<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Title="Mã câu hỏi - Mã CLO" LabelIntersectAction="LabelIntersectAction.Rotate45" />
+				<ChartPrimaryYAxis Title="Phần trăm (%)" />
+				<ChartLegendSettings Visible="true"/>
+				<ChartTooltipSettings Enable="true"/>
+				<ChartEvents OnPointClick="OnPointClick" />
+				<ChartSeriesCollection>
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLDung" Name="SL trả lời đúng" Fill="#90A4AE">
+						<ChartMarker>
+							<ChartDataLabel Visible="true"></ChartDataLabel>
+						</ChartMarker>
+					</ChartSeries>
+
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLTraLoi" Name="Tổng SL trả lời" Fill="#64B5F6">
+						<ChartMarker>
+							<ChartDataLabel Visible="true"></ChartDataLabel>
+						</ChartMarker>
+					</ChartSeries>
+
+					<ChartSeries Type="ChartSeriesType.Line" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="PhanTram" Fill="red" Width="3">
+						<ChartMarker>
+							<ChartDataLabel Visible="true" Fill="red"></ChartDataLabel>
+						</ChartMarker>
+					</ChartSeries>
+				</ChartSeriesCollection>
+			</SfChart>
+		</MudItem>
+
+
+	</MudGrid>
+</MudContainer>
+
+<style>
+	.add-button {
+	transform: scale(0.85);
+	margin-bottom: 2%;
+	}
+
+	.final-table-button {
+	margin-top: 1%;
+	}
+
+	.checkbox {
+	transform: scale(0.85);
+	}
+
+	.selected-row {
+	background-color: lightgray !important;
+	}
+</style>
+
+
+@code {
+
+	// thông số cho bảng môn thi
+	private int currentPage_Mon = 0;
+	private int rowsPerPage_Mon = 20;
+	private int totalRecords_Mon = 20;
+	private int totalPages_Mon = 1;
+
+	// thông số cho bảng đề thi
+	private int currentPage_DeThi = 0;
+	private int rowsPerPage_DeThi = 20;
+	private int totalRecords_DeThi = 20;
+	private int totalPages_DeThi = 1;
+
+	private List<int> selectedPages_Mon = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_DeThi = new() { 0 }; // luôn load có trang đầu tiên
+
+	void OnPointClick(PointEventArgs args)
+	{
+		// args.PointIndex là double, ép về int
+		int index = Convert.ToInt32(args.PointIndex);
+
+		if (index >= 0 && index < customThongKeCauHois.Count)
+		{
+			var item = customThongKeCauHois[index];
+
+			// Xử lý tiếp, ví dụ show dialog hoặc log ra
+			Console.WriteLine($"Bạn vừa click vào câu hỏi {item.MaCauHoi} tại index {index}");
+		}
+	}
+
+	private async Task OnRowsPerPageChange_Mon(int rows)
+	{
+		if (rows == rowsPerPage_Mon)
+			return;
+
+		this.rowsPerPage_Mon = rows;
+		currentPage_Mon = 0; //Reset về trang đầu tiên
+
+		(var newMons, _, _) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+		PadEmptyRows(newMons);
+	}
+	private async Task OnCurrentPageChange_Mon(int page)
+	{
+		if (page == currentPage_Mon)
+			return;
+
+		this.currentPage_Mon = page;
+		if (selectedPages_Mon.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newMons, _, _) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+		PadEmptyRows(newMons);
+		selectedPages_Mon?.Add(currentPage_Mon);
+	}
+
+	private async Task OnRowsPerPageChange_DeThi(int rows)
+	{
+		if (rows == rowsPerPage_DeThi)
+			return;
+
+		this.rowsPerPage_DeThi = rows;
+		currentPage_DeThi = 0; //Reset về trang đầu tiên
+
+		(var newDeThis, _, _) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc?.MaMonHoc ?? -1, currentPage_DeThi, rowsPerPage_DeThi);
+		PadEmptyRows(newDeThis);
+	}
+	private async Task OnCurrentPageChange_DeThi(int page)
+	{
+		if (page == currentPage_DeThi)
+			return;
+
+		this.currentPage_DeThi = page;
+		if (selectedPages_DeThi.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newDeThis, _, _) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc?.MaMonHoc ?? -1, currentPage_DeThi, rowsPerPage_DeThi);
+		PadEmptyRows(newDeThis);
+		selectedPages_DeThi?.Add(currentPage_DeThi);
+	}
+
+	private async Task OnRowClickedMonHoc(TableRowClickEventArgs<MonHocDto> args)
+	{
+		if (args.Item == selectedMonHoc)
+			return;
+
+		selectedMonHoc = args.Item;
+
+		deThis?.Clear();
+
+		await FetchDeThi();
+	}
+
+	private async Task OnRowClickedDeThi(TableRowClickEventArgs<DeThiDto> args)
+	{
+		if (args.Item == selectedDeThi)
+			return;
+
+		selectedDeThi = args.Item;
+
+		if (selectedDeThi == null)
+			return;
+
+		customThongKeCauHois = await ThongKeCauHoi_SelectBy_DeThiAPI(selectedDeThi.MaDeThi);
+
+		await ThongKeDiem(selectedDeThi.MaDeThi);
+	}
+
+
+	private string SelectedRowClassMonHocFunc(MonHocDto item, int rowNumber)
+	{
+		return item == selectedMonHoc ? "selected-row" : string.Empty;
+	}
+
+	private string SelectedRowClassDeThiFunc(DeThiDto item, int rowNumber)
+	{
+		return item == selectedDeThi ? "selected-row" : string.Empty;
+	}
+}

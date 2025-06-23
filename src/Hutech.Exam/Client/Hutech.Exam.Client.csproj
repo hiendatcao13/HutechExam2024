@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\Admin\ManageAccount\**" />
+    <Content Remove="Pages\Admin\ManageAccount\**" />
+    <EmbeddedResource Remove="Pages\Admin\ManageAccount\**" />
+    <None Remove="Pages\Admin\ManageAccount\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Pages\MessageBox.razor" />
     <Content Remove="wwwroot\js\notauthorize.js" />
   </ItemGroup>
@@ -26,6 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.5" />
     <PackageReference Include="MudBlazor" Version="8.7.0" />
     <PackageReference Include="Ninject" Version="3.3.6" />
+    <PackageReference Include="Syncfusion.Blazor" Version="29.2.11" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
   </ItemGroup>
 
@@ -34,7 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Admin\ManageAccount\" />
     <Folder Include="wwwroot\css\exam\" />
     <Folder Include="wwwroot\images\admin\monitor\" />
     <Folder Include="wwwroot\images\exam\" />

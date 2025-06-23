@@ -1,6 +1,7 @@
 ﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
+using Hutech.Exam.Shared.DTO.Custom;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/chitietbaithis")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService) : Controller
     {
         #region Private Fields
@@ -20,7 +21,6 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("filter-by-chitietcathi")]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<APIResponse<List<ChiTietBaiThiDto>>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
         {
             var result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(maChiTietCaThi);

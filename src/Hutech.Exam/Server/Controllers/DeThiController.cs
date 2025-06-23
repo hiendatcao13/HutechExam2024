@@ -14,13 +14,14 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/dethis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class DeThiController(DeThiService deThiService, CustomMaDeThiService customMaDeThiService) : Controller
+    public class DeThiController(DeThiService deThiService, CustomMaDeThiService customMaDeThiService, CustomThongKeService customThongKeService) : Controller
     {
         #region Private Fields
 
 
         private readonly DeThiService _deThiService = deThiService;
         private readonly CustomMaDeThiService _customMaDeThiService = customMaDeThiService;
+        private readonly CustomThongKeService _customThongKeService = customThongKeService;
 
 
         #endregion
@@ -75,6 +76,20 @@ namespace Hutech.Exam.Server.Controllers
             {
                 return BadRequest(APIResponse<List<CustomThongTinMaDeThi>>.ErrorResponse(message: "Lấy thông tin mã đề thi không thành công", errorDetails: ex.Message));
             }
+        }
+
+        [HttpGet("{id}/report-cauhoi")]
+        public async Task<IActionResult> ThongKeCauHoi_SelectBy_DeThi([FromRoute] int id)
+        {
+            var result = await _customThongKeService.ThongKeCauHoi_SelectBy_DeThi(id);
+            return Ok(APIResponse<List<CustomThongKeCauHoi>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
+        }
+
+        [HttpGet("{id}/report-diem")]
+        public async Task<IActionResult> ThongKeDiem_SelectBy_DeThi([FromRoute] int id)
+        {
+            var result = await _customThongKeService.ThongKeDiem_SelectBy_DeThi(id);
+            return Ok(APIResponse<List<(double Diem, int SoLuongSV)>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         }
 
         #endregion

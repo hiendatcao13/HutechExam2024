@@ -4,6 +4,7 @@ using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
 using Hutech.Exam.Server.Middleware;
 using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Shared.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +72,7 @@ static void Configure(WebApplication app)
 
 static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    services.AddAutoMapper(typeof(AllProfiles));
     services.InstallerServicesInAssembly(configuration);
 
 

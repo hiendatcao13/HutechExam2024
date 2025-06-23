@@ -85,8 +85,8 @@
                     <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
                     <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCaThis()">Sync</MudButton>
                     <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCaThi()">Sửa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCaThi()">Xóa</MudButton>
                     <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                 </ToolBarContent>
                 <HeaderContent>
