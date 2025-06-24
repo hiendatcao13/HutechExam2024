@@ -1,0 +1,131 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.User
+@using System.Text.RegularExpressions
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 400px; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
+			<MudItem xs="8">
+				<MudSelect Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
+					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
+					{
+						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
+					}
+				</MudSelect>
+			</MudItem>
+
+			<MudItem xs="4"><MudText>LoginName:</MudText></MudItem>
+			<MudItem xs="8"><MudText><span class="title-text">@tempUser.LoginName</span></MudText></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Email" Required InputType="InputType.Email" @bind-Value="tempUser.Email" Placeholder="example@mail.com" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Name:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Name" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.Name" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Password:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Mật khẩu" Variant="Variant.Outlined" Required InputType="InputType.Password" @bind-Value="password" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Nhập lại password:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Nhập lại mật khẩu" Variant="Variant.Outlined" Required InputType="InputType.Password" @bind-Value="repassword" /></MudItem>
+
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	private UserDto tempUser = default!;
+
+	private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+	private const string INVALID_EMAIL = "Email không hợp lệ. Vui lòng kiểm tra";
+	private const string NOT_MATCH_PASSWORD = "Mật khẩu không trùng nhau. Vui lòng kiểm tra";
+
+	private string password = string.Empty, repassword = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private void HandleInput()
+	{
+		tempUser = new UserDto();
+	}
+	private void OnClickThoat()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickThem()
+	{
+		if (string.IsNullOrEmpty(tempUser.Email) || string.IsNullOrEmpty(tempUser.Name) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(repassword) || tempUser.MaRole == 0)
+		{
+			Snackbar.Add(INVALID_FORM, Severity.Error);
+			return;
+		}
+
+		if(!IsValidEmail(tempUser.Email))
+		{
+			Snackbar.Add(INVALID_EMAIL, Severity.Error);
+			return;
+		}
+
+		if(string.Compare(password, repassword) != 0)
+		{
+			Snackbar.Add(NOT_MATCH_PASSWORD, Severity.Error);
+			return;
+		}
+
+		var result = await InsertUserAPI(new UserCreateRequest
+			{
+				MaRole = tempUser.MaRole,
+				LoginName = tempUser.LoginName,
+				Email = tempUser.Email,
+				Name = tempUser.Name,
+				Password = password,
+				Comment = string.Empty
+			});
+
+		if (result != null && !string.IsNullOrEmpty(result.LoginName))
+		{
+			MudDialog?.Close(DialogResult.Ok(result));
+		}
+	}
+
+	private bool IsValidEmail(string email)
+	{
+		return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+	}
+
+	private async Task<UserDto?> InsertUserAPI(UserCreateRequest user)
+	{
+		var response = await SenderAPI.PostAsync<UserDto>($"api/users", user);
+		return (response.Success) ? response.Data : null;
+	}
+}

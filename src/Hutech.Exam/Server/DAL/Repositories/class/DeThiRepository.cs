@@ -42,11 +42,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@NguoiTao", SqlDbType.Int, nguoi_tao);
             sql.SqlParams("@GhiChu", SqlDbType.NVarChar, ghi_chu);
             sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
+            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
+            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
-        public async Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan)
+        public async Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan, bool da_duyet, bool luu_tam)
         {
             using DatabaseReader sql = new("DeThi_Update");
 
@@ -57,6 +59,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@NguoiTao", SqlDbType.Int, nguoi_tao);
             sql.SqlParams("@GhiChu", SqlDbType.NVarChar, ghi_chu);
             sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
+            sql.SqlParams("@DaDuyet", SqlDbType.Bit, da_duyet);
+            sql.SqlParams("@LuuTam", SqlDbType.Bit, luu_tam);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

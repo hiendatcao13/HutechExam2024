@@ -22,7 +22,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Get Methods
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<NhomCauHoiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _nhomCauHoiService.SelectOne(id);
@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<NhomCauHoiDto>> Update([FromRoute] int id, [FromBody] NhomCauHoiUpdateRequest nhomCauHoi)
         {
             try
@@ -98,7 +98,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
             try
@@ -121,7 +121,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:int}/force")]
         public async Task<ActionResult> ForceDelete([FromRoute] int id)
         {
             try

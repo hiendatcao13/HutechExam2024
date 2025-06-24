@@ -38,18 +38,18 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return result;
         }
 
-        public async Task<List<(double Diem, int SoLuongSV)>> ThongKeDiem_SelectBy_DeThi(int MaDeThi)
+        public async Task<List<CustomThongKeDiem>> ThongKeDiem_SelectBy_DeThi(int MaDeThi)
         {
             using DatabaseReader sql = new("Custom_ThongKeDiem_SelectBy_DeThi");
 
             sql.SqlParams("@MaDeThi", SqlDbType.Int, MaDeThi);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            List<(double Diem, int SoLuongSV)> result = [];
+            List<CustomThongKeDiem> result = [];
 
             while (dataReader != null && dataReader.Read())
             {
-                result.Add((dataReader.GetDouble(0), dataReader.GetInt32(1)));
+                result.Add(new CustomThongKeDiem { Diem = dataReader.GetDouble(0), SoLuong = dataReader.GetInt32(1)});
             }
 
             return result;

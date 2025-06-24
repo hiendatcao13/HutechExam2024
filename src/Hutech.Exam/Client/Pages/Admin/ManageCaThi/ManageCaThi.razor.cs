@@ -39,7 +39,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageCaThi
 
         private readonly List<int> lanThis = [1, 2, 3, 4, 5];
 
-        private bool isFristRender = false; // biến để tạo fake data
 
 
         protected override async Task OnInitializedAsync()

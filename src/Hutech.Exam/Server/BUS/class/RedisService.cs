@@ -206,7 +206,7 @@ namespace Hutech.Exam.Server.BUS
 
         }
 
-        public async Task<List<CustomDeThi>> GetDeThi([FromRoute] int id)
+        public async Task<List<CustomDeThi>> GetDeThi(long id)
         {
             try
             {

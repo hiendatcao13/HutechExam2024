@@ -197,3 +197,8 @@
 23/06/2025 6PM
 - Đang hoàn thiện trang đánh giá đề thi
 - TODO: Hoàn thiện nốt trang này và trang quản lí tài khoản
+--------------------------------------------------
+24/06/225 6PM
+- Hoàn thành trang user
+- Trang đánh giá đề thi hiện còn thiếu phần đánh giá CLO
+- TODO: Hoàn thiện trang này, sửa lại trang giám sát ca thi, idea thêm table user_hierarchy

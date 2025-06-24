@@ -20,10 +20,10 @@
 			<MudItem xs="8"><MudTextField Variant="Variant.Outlined" Class="noi-dung" Label="Nội dung câu trả lời" AutoGrow Required InputType="InputType.Text" @bind-Value="tempCauTraLoi.NoiDung" /></MudItem>
 
 			<MudItem xs="6">
-				<MudCheckBox T="bool" Label="Hoán vị" @bind-Value="tempCauTraLoi.HoanVi" Color="Color.Default" />
+				<MudSwitch T="bool" Label="Hoán vị" @bind-Value="tempCauTraLoi.HoanVi" Color="Color.Success" />
 			</MudItem>
             <MudItem xs="6">
-				<MudCheckBox T="bool" Label="Là đáp án" @bind-Value="tempCauTraLoi.LaDapAn" Color="Color.Default" />
+				<MudSwitch T="bool" Label="Là đáp án" @bind-Value="tempCauTraLoi.LaDapAn" Color="Color.Success" />
 			</MudItem>
 		</MudGrid>
 	</DialogContent>

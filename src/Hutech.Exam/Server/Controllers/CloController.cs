@@ -22,7 +22,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Get Methods
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
         {
             var result = await _cloService.SelectOne(id);
@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<CloDto>> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
         {
             try
@@ -97,7 +97,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
             try
@@ -119,7 +119,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:int}/force")]
         public async Task<ActionResult> ForceDelete([FromRoute] int id)
         {
             try

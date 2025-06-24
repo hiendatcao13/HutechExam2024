@@ -10,7 +10,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<int> Insert(int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan);
 
-        Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan);
+        Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan, bool da_duyet, bool luu_tam);
 
         Task<bool> Delete(int ma_de_thi);
 

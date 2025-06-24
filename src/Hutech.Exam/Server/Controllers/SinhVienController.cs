@@ -123,8 +123,8 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPost("{id}/logout")]
-        public async Task<ActionResult> UpdateLogout([FromRoute] int id)
+        [HttpPost("{id:long}/logout")]
+        public async Task<ActionResult> UpdateLogout([FromRoute] long id)
         {
             await _sinhVienService.Logout(id, DateTime.Now);
             await NotifyAuthenticationToAdmin(id, false, DateTime.Now);
@@ -135,7 +135,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:long}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SinhVienDto>> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
         {
@@ -165,9 +165,9 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Patch Methods
 
-        [HttpPatch("{id}/reset-login")]
+        [HttpPatch("{id:long}/reset-login")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ResetLogin([FromRoute] int id)
+        public async Task<ActionResult> ResetLogin([FromRoute] long id)
         {
             // liên quan redis nên tốt nhất là try catch
             try
@@ -181,7 +181,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPatch("{id}/submit-exam")]
+        [HttpPatch("{id:long}/submit-exam")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SubmitExam([FromRoute] int id)
         {
@@ -200,9 +200,9 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:long}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<ActionResult> Delete([FromRoute] long id)
         {
             try
             {
@@ -223,9 +223,9 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:long}/force")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        public async Task<ActionResult> ForceDelete([FromRoute] long id)
         {
             try
             {

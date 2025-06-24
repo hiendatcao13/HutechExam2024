@@ -28,7 +28,6 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         private List<DotThiDto>? dotThis = [];
         private List<ChiTietDotThiDto>? chiTietDotThis = [];
         private List<CaThiDto>? caThis = [];
-        private HubConnection? hubConnection;
 
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
@@ -49,7 +48,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             {
                 Nav.NavigateTo("/admin", true);
             }
-            await CreateHubConnection();
+            //await CreateHubConnection();
             await GetItemsInSessionStorage();
             await base.OnInitializedAsync();
         }

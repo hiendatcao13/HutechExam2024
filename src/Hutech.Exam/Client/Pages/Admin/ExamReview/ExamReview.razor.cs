@@ -35,7 +35,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
         List<CustomThongKeCauHoi> customThongKeCauHois = [];
 
         // thống kê điểm
-        List<(double Diem, int SoLuongSV)> customThongKeDiems = [];
+        List<CustomThongKeDiem> customThongKeDiems = [];
         int tong_sv_thi, tong_sv_duoibang1, tong_sv_duoi5 = 0;
         double diem_trung_binh = 0;
 
@@ -87,7 +87,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             customThongKeDiems = await ThongKeDiem_SelectBy_DeThiAPI(maDeThi);
 
             List<double> diems = customThongKeDiems.Select(_ => _.Diem).ToList();
-            diem_trung_binh = diems.Average();
+            tong_sv_thi = diems.Count();
+            diem_trung_binh = (diems.Count != 0) ? diems.Average() : 0;
             tong_sv_duoibang1 = diems.Count(d => d <= 1);
             tong_sv_duoi5 = diems.Count(d => d < 5);
         }

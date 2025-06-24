@@ -16,7 +16,7 @@ namespace Hutech.Exam.Server.BUS
             return await _customThongKeRepository.ThongKeCauHoi_SelectBy_DeThi(maDeThi);
         }
 
-        public async Task<List<(double Diem, int SoLuongSV)>> ThongKeDiem_SelectBy_DeThi(int maDeThi)
+        public async Task<List<CustomThongKeDiem>> ThongKeDiem_SelectBy_DeThi(int maDeThi)
         {
             return await _customThongKeRepository.ThongKeDiem_SelectBy_DeThi(maDeThi);
         }

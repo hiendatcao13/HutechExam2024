@@ -26,7 +26,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Get Methods
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<CaThiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _caThiService.SelectOne(id);
@@ -38,7 +38,7 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<CaThiDto>.SuccessResponse(result, "Lấy ca thi thành công"));
         }
 
-        [HttpGet("{id}/is-active")]
+        [HttpGet("{id:int}/is-active")]
         [Authorize] //----------------Đánh dấu thí sinh có thể truy cập
         public async Task<ActionResult<bool>> IsActiveCaThi([FromRoute] int id)
         {
@@ -96,7 +96,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<CaThiDto>> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
         {
             try
@@ -124,7 +124,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Patch Methods
 
-        [HttpPatch("{id}/active")]
+        [HttpPatch("{id:int}/active")]
         public async Task<ActionResult> KichHoatCaThi([FromRoute] int id)
         {
             try
@@ -147,7 +147,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPatch("{id}/deactive")]
+        [HttpPatch("{id:int}/deactive")]
         public async Task<ActionResult> HuyKichHoatCaThi([FromRoute] int id)
         {
             try
@@ -171,7 +171,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPatch("{id}/pause")]
+        [HttpPatch("{id:int}/pause")]
         public async Task<ActionResult> DungCaThi([FromRoute] int id)
         {
             try
@@ -195,7 +195,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpPatch("{id}/finish")]
+        [HttpPatch("{id:int}/finish")]
         public async Task<ActionResult> KetThucCaThi([FromRoute] int id)
         {
             try

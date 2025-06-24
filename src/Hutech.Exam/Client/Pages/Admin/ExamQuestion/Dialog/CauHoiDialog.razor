@@ -46,7 +46,7 @@
             <MudItem xs="12" Style="padding-top: 2px">
                 <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" Style="margin-right: 5px" OnClick="async () => await OnClickViewNoiDung(tempCauHoi.NoiDung)">Xem chuyển</MudButton>
                 <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Accessibility" Color="Color.Secondary" OnClick="async () => await OnClickHoTro()">Hỗ trợ</MudButton>
-                <MudCheckBox T="bool" Label="Hoán vị" Value="tempCauHoi.HoanVi ?? false" ValueChanged="OnValueChangeHoanVi" Color="Color.Default" />
+                <MudSwitch T="bool" Label="Hoán vị" Value="tempCauHoi.HoanVi ?? false" ValueChanged="OnValueChangeHoanVi" Color="Color.Default" />
             </MudItem>
 
             <MudItem xs="12">
@@ -72,8 +72,8 @@
                         <RowTemplate Context="cauTraLoi">
                             <MudTd DataLabel="Nội dung">@(string.IsNullOrEmpty(cauTraLoi.NoiDung) ? "-" : cauTraLoi.NoiDung)</MudTd>
                             <MudTd DataLabel="Thứ tự">@cauTraLoi.ThuTu</MudTd>
-                            <MudTd DataLabel="Là đáp án"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@cauTraLoi.LaDapAn"></MudCheckBox></MudTd>
-                            <MudTd DataLabel="Hoán vị"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@cauTraLoi.HoanVi"></MudCheckBox></MudTd>
+                            <MudTd DataLabel="Là đáp án"><MudSwitch Class="checkbox" ReadOnly="true" Value="@cauTraLoi.LaDapAn" Color="Color.Success"></MudSwitch></MudTd>
+                            <MudTd DataLabel="Hoán vị"><MudSwitch Class="checkbox" ReadOnly="true" Value="@cauTraLoi.HoanVi" Color="Color.Success"></MudSwitch></MudTd>
                             <MudTd DataLabel="Chức năng">
                                 <MudButtonGroup Style="zoom: 0.7">
                                     <MudTooltip Text="Xem chuyển">
@@ -131,28 +131,25 @@
 </style>
 
 @code {
-        [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-        [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        [Inject] public IMapper mapper { get; set; } = default!;
+    [Inject] public IMapper mapper { get; set; } = default!;
 
-        [Parameter] public CauHoiDto? CauHoi { get; set; }
+    [Parameter] public CauHoiDto? CauHoi { get; set; }
 
-        [Parameter][EditorRequired] public NhomCauHoiDto? NhomCauHoi { get; set; }
+    [Parameter][EditorRequired] public NhomCauHoiDto? NhomCauHoi { get; set; }
 
-        [Parameter][EditorRequired] public List<CloDto>? Clos { get; set; }
+    [Parameter][EditorRequired] public List<CloDto>? Clos { get; set; }
 
-        [Parameter] public bool IsEdit { get; set; } = false;
+    [Parameter] public bool IsEdit { get; set; } = false;
 
     private CauHoiDto tempCauHoi = default!;
 
     private List<CauTraLoiDto> tempCauTraLois = new();
 
     private CauTraLoiDto? selectedCauTraLoi = null;
-
-
-    bool isReadyToCreateQuestion = false;
 
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
@@ -177,7 +174,6 @@
         {
             tempCauHoi = new CauHoiDto(CauHoi);
             tempCauTraLois = tempCauHoi.CauTraLois.ToList();
-            isReadyToCreateQuestion = true;
             return;
         }
         tempCauHoi = new CauHoiDto();
@@ -200,7 +196,6 @@
             });
         if (result != null && result.MaCauHoi != 0)
         {
-            isReadyToCreateQuestion = true;
             MudDialog?.Close(DialogResult.Ok(result));
         }
 

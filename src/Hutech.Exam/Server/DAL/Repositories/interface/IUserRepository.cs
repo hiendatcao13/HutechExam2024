@@ -1,5 +1,7 @@
 ﻿using Hutech.Exam.Server.DAL.DataReader;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.User;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -8,20 +10,30 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         UserDto GetProperty(IDataReader dataReader, int start = 0);
 
-        public Task<UserDto> SelectOne(Guid userId);
+        Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize);
 
-        public Task<UserDto> SelectByLoginName(string loginName);
+        Task<Paged<UserDto>> GetAll_Search_Paged(string keyword, int pageNumber, int pageSize);
 
-        public Task<List<string>> Login(string loginName);
+        Task<Guid> Insert(UserCreateRequest user);
 
-        public Task<bool> LoginSuccess(Guid userId);
+        Task<UserDto> SelectOne(Guid userId);
 
-        public Task<bool> LoginFail(Guid userId);
+        Task<UserDto> SelectByLoginName(string loginName);
 
-        public Task<bool> UpdateLastActivity(Guid userId, DateTime lastActivityDate);
+        Task<List<string>> Login(string loginName);
 
-        public Task<bool> Update(Guid userId, string? loginName, string? username, string? email, string? name, bool? isDeleted, bool? isLockedOut,
-            DateTime? lastActivityDate, DateTime? lastLoginDate, DateTime? lastLockedOutDate, int? failedPwdAttemptCount,
-            DateTime? failedPwdAttemptWindowStart, string? comment);
+        Task<bool> LoginSuccess(Guid userId);
+
+        Task<bool> LoginFail(Guid userId);
+
+        Task<bool> UpdateLastActivity(Guid userId, DateTime lastActivityDate);
+
+        Task<bool> UpdatePassword(Guid id, UserUpdatePasswordRequest user);
+
+        Task<bool> Update(Guid id, UserUpdateRequest user);
+
+        Task<bool> Delete(Guid id);
+
+        Task<bool> CheckExistName(string loginName, string email);
     }
 }

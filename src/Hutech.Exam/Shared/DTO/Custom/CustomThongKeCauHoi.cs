@@ -20,6 +20,8 @@ namespace Hutech.Exam.Shared.DTO.Custom
 
         public double PhanTram { get; set; }
 
+        public int TongSLSai => TongSLTraLoi - TongSLDung;
+
         public string MaCauHoiCLO => $"{MaCauHoi} - {MaSoCLO}";
 
     }

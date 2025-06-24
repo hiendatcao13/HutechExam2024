@@ -107,9 +107,9 @@
                         <MudTd DataLabel="Người tạo">@(item.NguoiTao == -1 ? "-" : item.NguoiTao)</MudTd>
                         <MudTd DataLabel="Ghi chú">@(string.IsNullOrEmpty(item?.GhiChu) ? "-" : item.GhiChu)</MudTd>
                         <MudTd DataLabel="Tổng số đề HV">@item.TongSoDeHoanVi</MudTd>
-                        <MudTd DataLabel="Lưu tạm?"><MudCheckBox ReadOnly @bind-Value="@item.LuuTam"></MudCheckBox></MudTd>
-                        <MudTd DataLabel="Đã duyệt?"><MudCheckBox ReadOnly @bind-Value="@item.DaDuyet"></MudCheckBox></MudTd>
-                        <MudTd DataLabel="Bỏ chương phần?"><MudCheckBox ReadOnly @bind-Value="@item.BoChuongPhan"></MudCheckBox></MudTd>
+                        <MudTd DataLabel="Lưu tạm?"><MudSwitch ReadOnly @bind-Value="@item.LuuTam" Color="Color.Success"></MudSwitch></MudTd>
+                        <MudTd DataLabel="Đã duyệt?"><MudSwitch ReadOnly @bind-Value="@item.DaDuyet" Color="Color.Info"></MudSwitch></MudTd>
+                        <MudTd DataLabel="Bỏ chương phần?"><MudSwitch ReadOnly @bind-Value="@item.BoChuongPhan" Color="Color.Primary"></MudSwitch></MudTd>
                     </RowTemplate>
                     <PagerContent>
                         <MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
@@ -166,7 +166,7 @@
                     <MudTd DataLabel="Loại câu hỏi">@(item.KieuNoiDung == -1 ? "Thường" : item.KieuNoiDung)</MudTd>
                     <MudTd DataLabel="CLO">@item.MaCloNavigation.MaSoClo</MudTd>
                     <MudTd DataLabel="Thứ tự">@item.ThuTu</MudTd>
-                    <MudTd DataLabel="Hoán vị"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Hoán vị"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudSwitch></MudTd>
                     <MudTd DataLabel="Chức năng">
                         <MudButtonGroup Style="zoom: 0.7">
                             <MudTooltip Text="Xem chuyển">

@@ -22,7 +22,7 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<bool> Update(int id, DeThiUpdateRequest deThi)
         {
-            return (await _deThiRepository.Update(id, deThi.MaMonHoc, deThi.TenDeThi, deThi.NgayTao, deThi.NguoiTao, deThi.GhiChu ?? string.Empty, deThi.BoChuongPhan));
+            return (await _deThiRepository.Update(id, deThi.MaMonHoc, deThi.TenDeThi, deThi.NgayTao, deThi.NguoiTao, deThi.GhiChu ?? string.Empty, deThi.BoChuongPhan, deThi.DaDuyet, deThi.LuuTam));
         }
 
         public async Task<bool> Delete(int ma_de_thi)

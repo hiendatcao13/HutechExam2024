@@ -27,9 +27,9 @@ namespace Hutech.Exam.Client.Authentication
                 }
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userSession.Username),
-                    new Claim(ClaimTypes.Role, userSession.Role),
-                    new Claim(ClaimTypes.NameIdentifier, userSession.Username)
+                    new Claim(ClaimTypes.Name, userSession.Username + ""),
+                    new Claim(ClaimTypes.Role, userSession.Role + ""),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username + "")
 
                 }, "JwtAuth"));
                 // trả về giấy xác thực người dùng
@@ -51,9 +51,9 @@ namespace Hutech.Exam.Client.Authentication
             {
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userSession.Username),
-                    new Claim(ClaimTypes.Role, userSession.Role),
-                    new Claim(ClaimTypes.NameIdentifier, userSession.Username)
+                    new Claim(ClaimTypes.Name, userSession.Username + ""),
+                    new Claim(ClaimTypes.Role, userSession.Role + ""),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username + "")
                 }));
                 userSession.ExpiryTimeStamp = DateTime.Now.AddSeconds(userSession.ExpireIn);
                 await _sessionStorageService.SaveItemEncryptedAsync("UserSession", userSession);
@@ -78,7 +78,7 @@ namespace Hutech.Exam.Client.Authentication
                 }
             }
             catch { }
-            return result;
+            return result ?? string.Empty;
         }
     }
 }

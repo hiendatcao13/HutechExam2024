@@ -16,7 +16,7 @@
             @if (!IsEdit && BoChuongPhan == false && NhomCauHoiCha != null)
             {
                 <MudItem xs="12">
-                    <MudCheckBox T="bool" Value="isNhomCon" ValueChanged="OnValueChangeCauHoiNhom">Là câu hỏi con: @tempNhomCauHoiCha.TenNhom</MudCheckBox>
+                    <MudSwitch T="bool" Value="isNhomCon" ValueChanged="OnValueChangeCauHoiNhom">Là câu hỏi con: @tempNhomCauHoiCha.TenNhom</MudSwitch>
                 </MudItem>
             }
             <MudItem xs="4"><MudText>Kiểu nội dung:</MudText></MudItem>
@@ -43,11 +43,11 @@
             <MudItem xs="8"><MudTextField Label="Số câu lấy" Required @bind-Value="@tempNhomCauHoi.SoCauLay" InputType="InputType.Number"></MudTextField></MudItem>
 
             <MudItem xs="6">
-                <MudCheckBox T="bool" @bind-Value="@tempNhomCauHoi.HoanVi">Hoán vị</MudCheckBox>
+                <MudSwitch T="bool" @bind-Value="@tempNhomCauHoi.HoanVi" Color="Color.Success">Hoán vị</MudSwitch>
             </MudItem>
 
             <MudItem xs="6">
-                <MudCheckBox ReadOnly @bind-Value="@tempNhomCauHoi.LaCauHoiNhom">Là câu hỏi nhóm</MudCheckBox>
+                <MudSwitch ReadOnly @bind-Value="@tempNhomCauHoi.LaCauHoiNhom" Color="Color.Success">Là câu hỏi nhóm</MudSwitch>
             </MudItem>
 
             <MudItem xs="12">

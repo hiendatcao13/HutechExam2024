@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.GetAll(), message: "Lấy danh sách đề thi thành công"));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<DeThiDto>> SelectOne([FromRoute] int id)
         {
             var result = await _deThiService.SelectOne(id);
@@ -56,7 +56,7 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
         }
 
-        [HttpGet("{id}/thong-tin-ma-de-thi")]
+        [HttpGet("{id:int}/thong-tin-ma-de-thi")]
         public async Task<ActionResult<List<CustomThongTinMaDeThi>>> GetThongTinMaDeThi([FromRoute] int id)
         {
             try
@@ -78,18 +78,18 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpGet("{id}/report-cauhoi")]
+        [HttpGet("{id:int}/report-cauhoi")]
         public async Task<IActionResult> ThongKeCauHoi_SelectBy_DeThi([FromRoute] int id)
         {
             var result = await _customThongKeService.ThongKeCauHoi_SelectBy_DeThi(id);
             return Ok(APIResponse<List<CustomThongKeCauHoi>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         }
 
-        [HttpGet("{id}/report-diem")]
+        [HttpGet("{id:int}/report-diem")]
         public async Task<IActionResult> ThongKeDiem_SelectBy_DeThi([FromRoute] int id)
         {
             var result = await _customThongKeService.ThongKeDiem_SelectBy_DeThi(id);
-            return Ok(APIResponse<List<(double Diem, int SoLuongSV)>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
+            return Ok(APIResponse<List<CustomThongKeDiem>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         }
 
         #endregion
@@ -118,7 +118,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<DeThiDto>> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
         {
             try
@@ -150,7 +150,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<DeThiDto>> Delete([FromRoute] int id)
         {
             try
@@ -172,7 +172,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:int}/force")]
         public async Task<ActionResult<DeThiDto>> ForceDelete([FromRoute] int id)
         {
             try

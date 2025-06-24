@@ -24,9 +24,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 
-        private async Task<List<(double Diem, int SoLuongCauHoi)>> ThongKeDiem_SelectBy_DeThiAPI(int maDeThi)
+        private async Task<List<CustomThongKeDiem>> ThongKeDiem_SelectBy_DeThiAPI(int maDeThi)
         {
-            var response = await SenderAPI.GetAsync<List<(double Diem, int SoLuongCauHoi)>>($"api/dethis/{maDeThi}/report-diem");
+            var response = await SenderAPI.GetAsync<List<CustomThongKeDiem>>($"api/dethis/{maDeThi}/report-diem");
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 

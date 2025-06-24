@@ -53,6 +53,7 @@ static void Configure(WebApplication app)
     app.UseBlazorFrameworkFiles();
     app.UseStaticFiles();
 
+    app.UseMiddleware<GlobalExceptionMiddleware>();
     app.UseRouting();
 
     app.UseAuthentication();

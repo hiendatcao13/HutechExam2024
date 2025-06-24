@@ -7,13 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Pages\Admin\ManageAccount\**" />
-    <Content Remove="Pages\Admin\ManageAccount\**" />
-    <EmbeddedResource Remove="Pages\Admin\ManageAccount\**" />
-    <None Remove="Pages\Admin\ManageAccount\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Remove="Pages\MessageBox.razor" />
     <Content Remove="wwwroot\js\notauthorize.js" />
   </ItemGroup>

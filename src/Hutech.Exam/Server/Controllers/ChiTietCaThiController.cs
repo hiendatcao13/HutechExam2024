@@ -27,7 +27,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Get Methods
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> SelectOne([FromRoute] int id)
         {
@@ -153,7 +153,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
         {
@@ -180,7 +180,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Patch Methods
 
-        [HttpPatch("{id}/cong-gio")]
+        [HttpPatch("{id:int}/cong-gio")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
         {
@@ -204,7 +204,7 @@ namespace Hutech.Exam.Server.Controllers
 
         }
 
-        [HttpPatch("{id}/bat-dau-thi")]//------------------API cho thí sinh----------------------
+        [HttpPatch("{id:int}/bat-dau-thi")]//------------------API cho thí sinh----------------------
         public async Task<ActionResult> UpdateBatDauThi([FromRoute] int id)
         {
             await _chiTietCaThiService.UpdateBatDau(id, DateTime.Now);

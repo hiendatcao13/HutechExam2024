@@ -26,15 +26,15 @@
             <MudItem xs="8"><MudTextField Label="Tổng số đề HV" @bind-Value="@tempDeThi.TongSoDeHoanVi" InputType="InputType.Number"></MudTextField></MudItem>
 
             <MudItem xs="6" md="4" lg="4">
-                <MudCheckBox T="bool" Value="@tempDeThi.LuuTam" ValueChanged="OnValueChangeLuuTam">Lưu tạm</MudCheckBox>
+                <MudSwitch T="bool" Value="@tempDeThi.LuuTam" ValueChanged="OnValueChangeLuuTam" Color="Color.Success">Lưu tạm</MudSwitch>
             </MudItem>
 
             <MudItem xs="6" md="4" lg="4">
-                <MudCheckBox T="bool" Value="@tempDeThi.DaDuyet" ValueChanged="OnValueChangeDaDuyet">Đã duyệt</MudCheckBox>
+                <MudSwitch T="bool" Value="@tempDeThi.DaDuyet" ValueChanged="OnValueChangeDaDuyet" Color="Color.Info">Đã duyệt</MudSwitch>
             </MudItem>
 
             <MudItem xs="6" md="4" lg="4">
-                <MudCheckBox @bind-Value="@tempDeThi.BoChuongPhan">Bỏ chương phần</MudCheckBox>
+                <MudSwitch @bind-Value="@tempDeThi.BoChuongPhan" Color="Color.Primary">Bỏ chương</MudSwitch>
             </MudItem>
 
         </MudGrid>

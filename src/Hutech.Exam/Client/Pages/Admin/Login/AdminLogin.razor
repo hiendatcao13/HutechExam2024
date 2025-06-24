@@ -13,11 +13,11 @@
         <MudCardContent>
             <MudGrid Spacing="2">
                 <MudItem xs="12">
-                    <MudTextField T="string" Label="Nhập username" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AccountCircle" Style="background-color: #eaeaea" InputType="InputType.Text"
+                    <MudTextField T="string" Label="Nhập tên đăng nhập hoặc email" Variant="Variant.Outlined" Adornment="Adornment.Start" Style="background-color: #eaeaea" InputType="InputType.Text"
                                   @bind-Value="username" Required="true" RequiredError="Vui lòng nhập tên tài khoản!" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField T="string" Label="Nhập password" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.VpnKey" Style="background-color: #eaeaea" InputType="InputType.Password"
+                    <MudTextField T="string" Label="Nhập password" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password" Style="background-color: #eaeaea"
                                   @bind-Value="password" @onkeyup="Enter" Required="true" RequiredError="Vui lòng nhập mật khẩu!" />
                 </MudItem>
                 <MudItem xs="12" Class="d-flex justify-center">
@@ -33,3 +33,25 @@
         padding: 0;
     }
 </style>
+
+@code {
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}

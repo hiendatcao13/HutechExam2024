@@ -132,7 +132,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task OnClickNopBai(ChiTietCaThiDto chiTietCaThi)
         {
             SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
-            if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || sinhVien == null || sinhVien.IsLoggedIn == false)
+            if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || chiTietCaThi == null || sinhVien == null || sinhVien.IsLoggedIn == false)
             {
                 Snackbar.Add(FAILED_NOPBAI, Severity.Error);
                 return;

@@ -40,7 +40,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<DotThiDto>> SelectOne([FromRoute] int id)
         {
             return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Lấy đợt thi thành công"));
@@ -72,7 +72,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<DotThiDto>> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
             try
@@ -105,7 +105,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<DotThiDto>> Delete([FromRoute] int id)
         {
             try
@@ -127,7 +127,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:int}/force")]
         public async Task<ActionResult<DotThiDto>> ForceDelete([FromRoute] int id)
         {
             try

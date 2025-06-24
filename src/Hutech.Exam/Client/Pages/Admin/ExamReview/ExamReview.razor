@@ -49,19 +49,12 @@
 						<MudTh>ID</MudTh>
 						<MudTh>Tên</MudTh>
 						<MudTh>Ngày tạo</MudTh>
-						<MudTh>Người tạo</MudTh>
-						<MudTh>Ghi chú</MudTh>
-						<MudTh>Tổng số đề HV</MudTh>
-						<MudTh>Bỏ chương phần?</MudTh>
+
 					</HeaderContent>
 					<RowTemplate Context="item">
 						<MudTd DataLabel="ID">@item.MaDeThi</MudTd>
 						<MudTd DataLabel="Tên">@item.TenDeThi</MudTd>
 						<MudTd DataLabel="Ngày tạo">@(item.NgayTao.ToString("dd/MM/yyyy"))</MudTd>
-						<MudTd DataLabel="Người tạo">@(item.NguoiTao == -1 ? "-" : item.NguoiTao)</MudTd>
-						<MudTd DataLabel="Ghi chú">@(string.IsNullOrEmpty(item?.GhiChu) ? "-" : item.GhiChu)</MudTd>
-						<MudTd DataLabel="Tổng số đề HV">@item.TongSoDeHoanVi</MudTd>
-						<MudTd DataLabel="Bỏ chương phần?"><MudCheckBox ReadOnly @bind-Value="@item.BoChuongPhan"></MudCheckBox></MudTd>
 					</RowTemplate>
 					<PagerContent>
 						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
@@ -71,26 +64,25 @@
 		</MudItem>
 
 		<MudItem xs="12">
-			<SfChart Title="Thống kê SL trả lời câu hỏi" Width="100%">
-				<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Title="Mã câu hỏi - Mã CLO" LabelIntersectAction="LabelIntersectAction.Rotate45" />
-				<ChartPrimaryYAxis Title="Phần trăm (%)" />
-				<ChartLegendSettings Visible="true"/>
-				<ChartTooltipSettings Enable="true"/>
-				<ChartEvents OnPointClick="OnPointClick" />
+			<SfChart Title="Thống kê mức độ câu hỏi" Width="100%">
+				<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Title="Mã câu hỏi - Mã CLO" LabelRotation="-90" />
+				<ChartPrimaryYAxis Title="Số lượng thí sinh" />
+				<ChartLegendSettings Visible="true" />
+				<ChartTooltipSettings Enable="true" />
 				<ChartSeriesCollection>
-					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLDung" Name="SL trả lời đúng" Fill="#90A4AE">
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLSai" Name="Tổng SL trả lời sai" Fill="#90A4AE">
 						<ChartMarker>
-							<ChartDataLabel Visible="true"></ChartDataLabel>
+							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
 						</ChartMarker>
 					</ChartSeries>
 
-					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLTraLoi" Name="Tổng SL trả lời" Fill="#64B5F6">
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="TongSLDung" Name="Tổng SL trả lời đúng" Fill="#FFA726">
 						<ChartMarker>
-							<ChartDataLabel Visible="true"></ChartDataLabel>
+							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
 						</ChartMarker>
 					</ChartSeries>
 
-					<ChartSeries Type="ChartSeriesType.Line" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="PhanTram" Fill="red" Width="3">
+					<ChartSeries Type="ChartSeriesType.Line" DataSource="customThongKeCauHois" XName="MaCauHoiCLO" YName="PhanTram" Fill="red" Width="3" Name="(%) tỉ lệ đúng">
 						<ChartMarker>
 							<ChartDataLabel Visible="true" Fill="red"></ChartDataLabel>
 						</ChartMarker>
@@ -99,6 +91,70 @@
 			</SfChart>
 		</MudItem>
 
+		<MudItem xs="3">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+				<MudText Typo="Typo.h5" Align="Align.Center">Tổng số thí sinh</MudText>
+				<MudText Typo="Typo.h3" Align="Align.Center">@tong_sv_thi.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</MudText>
+			</MudPaper>
+		</MudItem>
+
+		<MudItem xs="3">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+				<MudText Typo="Typo.h5" Align="Align.Center">Điểm trung bình</MudText>
+				<MudText Typo="Typo.h3" Align="Align.Center">@diem_trung_binh.ToString("0.00")</MudText>
+			</MudPaper>
+		</MudItem>
+
+		<MudItem xs="3">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+				<MudText Typo="Typo.h5" Align="Align.Center">Điểm &lt;= 1</MudText>
+				<MudText Typo="Typo.h3" Align="Align.Center">@tong_sv_duoibang1</MudText>
+			</MudPaper>
+		</MudItem>
+
+		<MudItem xs="3">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+				<MudText Typo="Typo.h5" Align="Align.Center">Điểm &lt; 5</MudText>
+				<MudText Typo="Typo.h3" Align="Align.Center">@tong_sv_duoi5</MudText>
+			</MudPaper>
+		</MudItem>
+
+		<MudItem xs="12">
+			<SfChart Title="Phổ điểm thi" Width="100%">
+				<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Title="Điểm" LabelRotation="-90" />
+				<ChartPrimaryYAxis Title="Số lượng thí sinh" />
+				<ChartLegendSettings Visible="true" />
+				<ChartTooltipSettings Enable="true" />
+				<ChartSeriesCollection>
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customThongKeDiems" XName="Diem" YName="SoLuong" Name="Điểm" Fill="#64B5F6">
+						<ChartMarker>
+							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
+						</ChartMarker>
+					</ChartSeries>
+				</ChartSeriesCollection>
+
+			</SfChart>
+		</MudItem>
+
+		<MudItem xs="12">
+			@if (customThongKeDiems != null)
+			{
+				<MudTable Elevation="24" T="CustomThongKeDiem" Items="@customThongKeDiems" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Bảng tần số</MudText>
+						<MudSpacer />
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>Điểm</MudTh>
+						<MudTh>Số lượng</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item.Diem</MudTd>
+						<MudTd DataLabel="Mã số">@item.SoLuong</MudTd>
+					</RowTemplate>
+				</MudTable>
+			}
+		</MudItem>
 
 	</MudGrid>
 </MudContainer>
@@ -140,19 +196,6 @@
 	private List<int> selectedPages_Mon = new() { 0 }; // luôn load có trang đầu tiên
 	private List<int> selectedPages_DeThi = new() { 0 }; // luôn load có trang đầu tiên
 
-	void OnPointClick(PointEventArgs args)
-	{
-		// args.PointIndex là double, ép về int
-		int index = Convert.ToInt32(args.PointIndex);
-
-		if (index >= 0 && index < customThongKeCauHois.Count)
-		{
-			var item = customThongKeCauHois[index];
-
-			// Xử lý tiếp, ví dụ show dialog hoặc log ra
-			Console.WriteLine($"Bạn vừa click vào câu hỏi {item.MaCauHoi} tại index {index}");
-		}
-	}
 
 	private async Task OnRowsPerPageChange_Mon(int rows)
 	{
@@ -214,6 +257,10 @@
 		selectedMonHoc = args.Item;
 
 		deThis?.Clear();
+		customThongKeCauHois.Clear();
+		customThongKeDiems.Clear();
+		tong_sv_thi = tong_sv_duoibang1 = tong_sv_duoi5 = 0;
+		diem_trung_binh = 0;
 
 		await FetchDeThi();
 	}

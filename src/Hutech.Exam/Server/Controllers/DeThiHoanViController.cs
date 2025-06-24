@@ -25,13 +25,13 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Get Methods
 
-        [HttpGet("{id}")]//-------------API cho thí sinh----------------------
-        public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromRoute] int id)
+        [HttpGet("{id:long}")]//-------------API cho thí sinh----------------------
+        public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromRoute] long id)
         {
             return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: await _redisService.GetDeThi(id), message: "Lấy đề thi thành công"));
         }
 
-        [HttpGet("{id}/dap-an")]
+        [HttpGet("{id:long}/dap-an")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Dictionary<int, int>>> SelectByMaDeHV_DapAn([FromRoute] long id)
         {

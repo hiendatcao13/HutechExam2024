@@ -37,7 +37,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<MonHocDto>> SelectOne([FromRoute] int id)
         {
             var result = await _monHocService.SelectOne(id);
@@ -74,7 +74,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Put Methods
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult<MonHocDto>> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
         {
             try
@@ -106,7 +106,7 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<MonHocDto>> Delete([FromRoute] int id)
         {
             try
@@ -128,7 +128,7 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
-        [HttpDelete("{id}/force")]
+        [HttpDelete("{id:int}/force")]
         public async Task<ActionResult<MonHocDto>> ForceDelete([FromRoute] int id)
         {
             try

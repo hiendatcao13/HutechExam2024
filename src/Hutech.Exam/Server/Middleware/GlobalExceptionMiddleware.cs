@@ -11,11 +11,13 @@ namespace Hutech.Exam.Server.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionMiddleware> _logger;
+        private readonly IHostEnvironment _env;
 
-        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
+        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger, IHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -26,33 +28,31 @@ namespace Hutech.Exam.Server.Middleware
             }
             catch (Exception ex)
             {
-                // Log lỗi chi tiết
-                _logger.LogError(ex, "An error occurred while processing the request.");
-
-                // Xử lý ngoại lệ và trả về phản hồi lỗi phù hợp
-                await HandleExceptionAsync(context, ex);
+                _logger.LogError(ex, "Unhandled exception occurred");
+                await HandleExceptionAsync(context, ex, _env);
             }
         }
-        //AppException
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
 
+        private static Task HandleExceptionAsync(HttpContext context, Exception exception, IHostEnvironment env)
+        {
             context.Response.ContentType = "application/json";
 
-            // Xác định mã trạng thái HTTP phù hợp dựa trên loại ngoại lệ
             var (statusCode, message, errorCode, errorDetails) = exception switch
             {
                 NotFoundException =>
-                    ((int)HttpStatusCode.NotFound, exception.Message, "RESOURCE_NOT_FOUND", exception.StackTrace),
+                    ((int)HttpStatusCode.NotFound, exception.Message, "RESOURCE_NOT_FOUND", null),
+
                 UnauthorizedAccessException =>
-                    ((int)HttpStatusCode.Unauthorized, exception.Message, "UNAUTHORIZED", exception.StackTrace),
+                    ((int)HttpStatusCode.Unauthorized, "Bạn không có quyền truy cập.", "UNAUTHORIZED", null),
+
                 AppException appEx =>
-                    ((int)appEx.ErrorCode.StatusCode, appEx.ErrorCode.Message, appEx.ErrorCode.Code.ToString(), exception.StackTrace),
+                    ((int)appEx.ErrorCode.StatusCode, appEx.ErrorCode.Message, appEx.ErrorCode.Code.ToString(), null),
+
                 _ =>
-                    ((int)HttpStatusCode.InternalServerError, "An unexpected error occurred.", "INTERNAL_SERVER_ERROR", exception.StackTrace)
+                    ((int)HttpStatusCode.InternalServerError, "Đã có lỗi xảy ra. Vui lòng thử lại sau.", "INTERNAL_SERVER_ERROR",
+                        env.IsDevelopment() ? exception.ToString() : null)
             };
 
-            // Trả về phản hồi lỗi theo cấu trúc ResponseAPI
             var response = new APIResponse<object>(
                 success: false,
                 message: message,
@@ -64,7 +64,11 @@ namespace Hutech.Exam.Server.Middleware
 
             context.Response.StatusCode = statusCode;
 
-            var result = JsonSerializer.Serialize(response);
+            var result = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
             return context.Response.WriteAsync(result);
         }
     }

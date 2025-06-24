@@ -19,9 +19,36 @@ namespace Hutech.Exam.Client.API
             _snackbar = snackbar;
         }
 
-        private async Task<APIResponse<TResult?>> HandleResponseAsync<TResult>(HttpResponseMessage response, string requestUri)
+        private async Task<APIResponse<TResult?>> HandleResponseAsync<TResult>(HttpResponseMessage response)
         {
             var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = $"Lỗi máy chủ: {(int)response.StatusCode} {response.ReasonPhrase}";
+
+                // Nếu có nội dung JSON, có thể cố gắng parse để lấy message (tùy backend)
+                try
+                {
+                    var errorResponse = JsonSerializer.Deserialize<APIResponse<TResult?>>(content, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (errorResponse != null && !string.IsNullOrEmpty(errorResponse.Message))
+                    {
+                        _snackbar.Add(errorResponse.Message, Severity.Error);
+                        return errorResponse;
+                    }
+                }
+                catch
+                {
+                    // Không parse được, fallback thông báo lỗi mặc định
+                }
+
+                _snackbar.Add(errorMessage, Severity.Error);
+                return APIResponse<TResult?>.ErrorResponse(message: errorMessage, errorDetails: content);
+            }
 
             try
             {
@@ -65,30 +92,30 @@ namespace Hutech.Exam.Client.API
         public async Task<APIResponse<TResult?>> DeleteAsync<TResult>(string requestUri)
         {
             var response = await _http.DeleteAsync(requestUri);
-            return await HandleResponseAsync<TResult>(response, requestUri);
+            return await HandleResponseAsync<TResult>(response);
         }
 
         public async Task<APIResponse<TResult?>> GetAsync<TResult>(string requestUri)
         {
             var response = await _http.GetAsync(requestUri);
-            return await HandleResponseAsync<TResult>(response, requestUri);
+            return await HandleResponseAsync<TResult>(response);
         }
 
         public async Task<APIResponse<TResult?>> PostAsync<TResult>(string requestUri, object? data)
         {
             var response = await _http.PostAsJsonAsync(requestUri, data);
-            return await HandleResponseAsync<TResult>(response, requestUri);
+            return await HandleResponseAsync<TResult>(response);
         }
         public async Task<APIResponse<TResult?>> PatchAsync<TResult>(string requestUri, object? data)
         {
             var response = await _http.PatchAsJsonAsync(requestUri, data);
-            return await HandleResponseAsync<TResult>(response, requestUri);
+            return await HandleResponseAsync<TResult>(response);
         }
 
         public async Task<APIResponse<TResult?>> PutAsync<TResult>(string requestUri, object? data)
         {
             var response = await _http.PutAsJsonAsync(requestUri, data);
-            return await HandleResponseAsync<TResult>(response, requestUri);
+            return await HandleResponseAsync<TResult>(response);
         }
     }
 }
