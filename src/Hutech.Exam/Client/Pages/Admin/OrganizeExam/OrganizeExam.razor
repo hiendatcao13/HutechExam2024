@@ -11,17 +11,17 @@
     <MudGrid Style="margin-top: 7px; margin-left: 5px">
         <MudGrid>
             <MudItem xs="6">
-                @if (dotThis != null)
+                @if (examBatchs != null)
                 {
-                    <MudTable Elevation="24" T="DotThiDto" Items="@dotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDotThiFunc"
-                              TotalItems="totalRecords_DT" RowsPerPage="rowsPerPage_DT" CurrentPageChanged="OnCurrentPageChange_DT" RowsPerPageChanged="OnRowsPerPageChange_DT">
+                    <MudTable Elevation="24" T="DotThiDto" Items="@examBatchs" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchFunc"
+                              TotalItems="totalRecords_ExamBatch" RowsPerPage="rowsPerPage_ExamBatch" CurrentPageChanged="OnCurrentPageChange_ExamBatchAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamBatchAsync">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await Start()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDotThi()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDotThi()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDotThi()">Xóa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await StartAsync()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchAsync()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchAsync()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchAsync()">Xóa</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -44,17 +44,17 @@
                 }
             </MudItem>
             <MudItem xs="6">
-                @if (chiTietDotThis != null)
+                @if (examBatchDetails != null)
                 {
-                    <MudTable Elevation="24" T="ChiTietDotThiDto" Items="@chiTietDotThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCTDotThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCTDotThiFunc"
-                              TotalItems="totalRecords_CTDT" RowsPerPage="rowsPerPage_CTDT" CurrentPageChanged="OnCurrentPageChange_CTDT" RowsPerPageChanged="OnRowsPerPageChange_CTDT">
+                    <MudTable Elevation="24" T="ChiTietDotThiDto" Items="@examBatchDetails" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchDetailAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchDetailFunc"
+                              TotalItems="totalRecords_ExamBatchDetail" RowsPerPage="rowsPerPage_ExamBatchDetail" CurrentPageChanged="OnCurrentPageChange_ExamBachDetailAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamBatchDetailAsync">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCTDotThi()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCTDotThi()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCTDotThi()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCTDotThi()">Xóa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamBatchDetailAsync()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchDetailAsync()">Xóa</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -75,19 +75,19 @@
                 }
             </MudItem>
         </MudGrid>
-        @if (caThis != null)
+        @if (examSessions != null)
         {
-            <MudTable Elevation="24" T="CaThiDto" Items="@caThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedCaThi" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCaThiFunc"
-                      TotalItems="totalRecords_CT" RowsPerPage="rowsPerPage_CT" CurrentPageChanged="OnCurrentPageChange_CT" RowsPerPageChanged="OnRowsPerPageChange_CT">
+            <MudTable Elevation="24" T="CaThiDto" Items="@examSessions" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedExamSessionAsync" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionFunc"
+                      TotalItems="totalRecords_ExamSession" RowsPerPage="rowsPerPage_ExamSession" CurrentPageChanged="OnCurrentPageChange_ExamSessionAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamSessionAsync">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                     <MudSpacer />
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickCapNhatSVCaThi()">Cập nhật sinh viên vào ca thi</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCaThis()">Sync</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCaThi()">Thêm</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCaThi()">Sửa</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCaThi()">Xóa</MudButton>
-                    <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickUploadStudentListToExamSessionAsync()">Cập nhật sinh viên vào ca thi</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamSessionAsync()">Sync</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamSessionAsync()">Thêm</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamSessionAsync()">Sửa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamSessionAsync()">Xóa</MudButton>
+                    <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>ID</MudTh>
@@ -106,18 +106,18 @@
                     <MudTd DataLabel="Tên Ca Thi">@item?.TenCaThi</MudTd>
                     <MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
                     <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
-                    <MudTd DataLabel="Có Đề?"><MudCheckBox ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)"></MudCheckBox></MudTd>
-                    <MudTd DataLabel="Kích Hoạt?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.IsActivated"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
+                    <MudTd DataLabel="Kích Hoạt?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.IsActivated" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>
-                    <MudTd DataLabel="Kết Thúc?"><MudCheckBox Class="checkbox" ReadOnly="true" Value="@item.KetThuc"></MudCheckBox></MudTd>
+                    <MudTd DataLabel="Kết Thúc?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.KetThuc" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
                     <MudTd>
                         <MudButtonGroup Style="zoom: 0.7">
                             <MudTooltip Text="Xem chi tiết">
-                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Primary" OnClick="async () => await OnClickShowChiTietCaThi(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Primary" OnClick="async () => await OnClickShowExamBatchDetailAsync(item)" />
                             </MudTooltip>
                             <MudTooltip Text="Cập nhật đề thi">
-                                <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickCapNhatDeThi(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickUpdateExamAsync(item)" />
                             </MudTooltip>
                         </MudButtonGroup>
                     </MudTd>
@@ -139,9 +139,6 @@
         margin-top: 1%;
     }
 
-    .checkbox {
-        transform: scale(0.85);
-    }
 
     .selected-row {
         background-color: lightgray !important;
@@ -150,170 +147,170 @@
 
 @code {
     private string searchString = "";
-    private int currentPage_DT = 0;
+    private int currentPage_ExamBatch = 0;
 
     // thông số cho bảng đợt thi
-    private int rowsPerPage_DT = 20;
-    private int totalRecords_DT = 20;
-    private int totalPages_DT = 1;
+    private int rowsPerPage_ExamBatch = 20;
+    private int totalRecords_ExamBatch = 20;
+    private int totalPages_ExamBatch = 1;
 
     // thông số cho bảng chi tiết đợt thi
-    private int currentPage_CTDT = 0;
-    private int rowsPerPage_CTDT = 20;
-    private int totalRecords_CTDT = 20;
-    private int totalPages_CTDT = 1;
+    private int currentPage_ExamBatchDetail = 0;
+    private int rowsPerPage_ExamBatchDetail = 20;
+    private int totalRecords_ExamBatchDetail = 20;
+    private int totalPages_ExamBatchDetail = 1;
 
     // thông số cho bảng ca thi
-    private int currentPage_CT = 0;
-    private int rowsPerPage_CT = 20;
-    private int totalRecords_CT = 20;
-    private int totalPages_CT = 1;
+    private int currentPage_ExamSession = 0;
+    private int rowsPerPage_ExamSession = 20;
+    private int totalRecords_ExamSession = 20;
+    private int totalPages_ExamSession = 1;
 
 
 
-    private DotThiDto? selectedDotThi;
-    private ChiTietDotThiDto? selectedChiTietDotThi;
-    private CaThiDto? selectedCaThi;
+    private DotThiDto? selectedExamBatch;
+    private ChiTietDotThiDto? selectedExamBatchDetail;
+    private CaThiDto? selectedExamSession;
 
-    private List<int> selectedPages_DT = new() { 0 }; // luôn load có trang đầu tiên
-    private List<int> selectedPages_CTDT = new() { 0 }; // luôn load có trang đầu tiên
-    private List<int> selectedPages_CT = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_ExamBatch = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_ExamBatchDetail = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_ExamSession = new() { 0 }; // luôn load có trang đầu tiên
 
-    private async Task OnRowsPerPageChange_DT(int rows)
+    private async Task OnRowsPerPageChange_ExamBatchAsync(int rows)
     {
-        if (rows == rowsPerPage_DT)
+        if (rows == rowsPerPage_ExamBatch)
             return;
 
-        this.rowsPerPage_DT = rows;
-        currentPage_DT = 0; //Reset về trang đầu tiên
+        this.rowsPerPage_ExamBatch = rows;
+        currentPage_ExamBatch = 0; //Reset về trang đầu tiên
 
-        (var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+        (var newDotThis, _, _) = await ExamBatchs_GetAllAPI(currentPage_ExamBatch, rowsPerPage_ExamBatch);
         PadEmptyRows(newDotThis);
     }
-    private async Task OnCurrentPageChange_DT(int page)
+    private async Task OnCurrentPageChange_ExamBatchAsync(int page)
     {
-        if (page == currentPage_DT)
+        if (page == currentPage_ExamBatch)
             return;
 
-        this.currentPage_DT = page;
-        if (selectedPages_DT.Contains(page))
+        this.currentPage_ExamBatch = page;
+        if (selectedPages_ExamBatch.Contains(page))
             return;
 
         //chỉ thực hiện load data khi người dùng chọn trang mới
-        (var newDotThis, _, _) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+        (var newDotThis, _, _) = await ExamBatchs_GetAllAPI(currentPage_ExamBatch, rowsPerPage_ExamBatch);
         PadEmptyRows(newDotThis);
-        selectedPages_DT?.Add(currentPage_DT);
+        selectedPages_ExamBatch?.Add(currentPage_ExamBatch);
     }
 
 
-    private async Task OnRowsPerPageChange_CTDT(int rows)
+    private async Task OnRowsPerPageChange_ExamBatchDetailAsync(int rows)
     {
-        if (rows == rowsPerPage_CTDT || selectedDotThi == null)
+        if (rows == rowsPerPage_ExamBatchDetail || selectedExamBatch == null)
             return;
 
-        this.rowsPerPage_CTDT = rows;
-        currentPage_CTDT = 0; //Reset về trang đầu tiên
+        this.rowsPerPage_ExamBatchDetail = rows;
+        currentPage_ExamBatchDetail = 0; //Reset về trang đầu tiên
 
-        (var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+        (var newChiTietDotThis, _, _) = await ExamBatchDetailDetail_SelectBy_ExamBatchId_PagedAPI(selectedExamBatch.MaDotThi, currentPage_ExamBatchDetail, rowsPerPage_ExamBatchDetail);
         PadEmptyRows(newChiTietDotThis);
     }
-    private async Task OnCurrentPageChange_CTDT(int page)
+    private async Task OnCurrentPageChange_ExamBachDetailAsync(int page)
     {
-        if (page == currentPage_CTDT || selectedDotThi == null)
+        if (page == currentPage_ExamBatchDetail || selectedExamBatch == null)
             return;
 
-        this.currentPage_CTDT = page;
-        if (selectedPages_CTDT.Contains(page))
+        this.currentPage_ExamBatchDetail = page;
+        if (selectedPages_ExamBatchDetail.Contains(page))
             return;
 
         //chỉ thực hiện load data khi người dùng chọn trang mới
-        (var newChiTietDotThis, _, _) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+        (var newChiTietDotThis, _, _) = await ExamBatchDetailDetail_SelectBy_ExamBatchId_PagedAPI(selectedExamBatch.MaDotThi, currentPage_ExamBatchDetail, rowsPerPage_ExamBatchDetail);
         PadEmptyRows(newChiTietDotThis);
-        selectedPages_CTDT?.Add(currentPage_CTDT);
+        selectedPages_ExamBatchDetail?.Add(currentPage_ExamBatchDetail);
     }
 
-    private async Task OnRowsPerPageChange_CT(int rows)
+    private async Task OnRowsPerPageChange_ExamSessionAsync(int rows)
     {
-        if (rows == rowsPerPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+        if (rows == rowsPerPage_ExamSession || selectedExamBatch == null || selectedExamBatchDetail == null)
             return;
 
-        this.rowsPerPage_CT = rows;
-        currentPage_CT = 0; //Reset về trang đầu tiên
+        this.rowsPerPage_ExamSession = rows;
+        currentPage_ExamSession = 0; //Reset về trang đầu tiên
 
-        (var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+        (var newCaThis, _, _) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(selectedExamBatchDetail.MaChiTietDotThi, currentPage_ExamSession, rowsPerPage_ExamSession);
         PadEmptyRows(newCaThis);
     }
-    private async Task OnCurrentPageChange_CT(int page)
+    private async Task OnCurrentPageChange_ExamSessionAsync(int page)
     {
-        if (page == currentPage_CT || selectedDotThi == null || selectedChiTietDotThi == null)
+        if (page == currentPage_ExamSession || selectedExamBatch == null || selectedExamBatchDetail == null)
             return;
 
-        this.currentPage_CT = page;
-        if (selectedPages_CT.Contains(page))
+        this.currentPage_ExamSession = page;
+        if (selectedPages_ExamSession.Contains(page))
             return;
 
         //chỉ thực hiện load data khi người dùng chọn trang mới
-        (var newCaThis, _, _) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+        (var newCaThis, _, _) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(selectedExamBatchDetail.MaChiTietDotThi, currentPage_ExamSession, rowsPerPage_ExamSession);
         PadEmptyRows(newCaThis);
-        selectedPages_CT?.Add(currentPage_CT);
+        selectedPages_ExamSession?.Add(currentPage_ExamSession);
     }
 
 
-    private async Task OnRowClickedDotThi(TableRowClickEventArgs<DotThiDto> args)
+    private async Task OnRowClickedExamBatchAsync(TableRowClickEventArgs<DotThiDto> args)
     {
-        if (args.Item == selectedDotThi)
+        if (args.Item == selectedExamBatch)
             return;
-        selectedDotThi = args.Item;
-        selectedChiTietDotThi = null;
-        selectedCaThi = null;
-        await SaveData();
-        chiTietDotThis = [];
-        caThis = [];
+        selectedExamBatch = args.Item;
+        selectedExamBatchDetail = null;
+        selectedExamSession = null;
+        await SaveDataAsync();
+        examBatchDetails = [];
+        examSessions = [];
 
-        await FetchCTDotThi();
+        await FetchExamBatchDetailAsync();
     }
-    private string SelectedRowClassDotThiFunc(DotThiDto item, int rowNumber)
+    private string SelectedRowClassExamBatchFunc(DotThiDto item, int rowNumber)
     {
-        return item == selectedDotThi ? "selected-row" : string.Empty;
+        return item == selectedExamBatch ? "selected-row" : string.Empty;
     }
-    private async Task OnRowClickedCTDotThi(TableRowClickEventArgs<ChiTietDotThiDto> args)
+    private async Task OnRowClickedExamBatchDetailAsync(TableRowClickEventArgs<ChiTietDotThiDto> args)
     {
-        if (args.Item == selectedChiTietDotThi)
+        if (args.Item == selectedExamBatchDetail)
             return;
-        selectedChiTietDotThi = args.Item;
-        selectedCaThi = null;
-        await SaveData();
-        caThis = [];
+        selectedExamBatchDetail = args.Item;
+        selectedExamSession = null;
+        await SaveDataAsync();
+        examSessions = [];
 
-        await FetchCaThis();
+        await FetchExamSessionAsync();
     }
-    private string SelectedRowClassCTDotThiFunc(ChiTietDotThiDto item, int rowNumber)
+    private string SelectedRowClassExamBatchDetailFunc(ChiTietDotThiDto item, int rowNumber)
     {
-        return item == selectedChiTietDotThi ? "selected-row" : string.Empty;
+        return item == selectedExamBatchDetail ? "selected-row" : string.Empty;
     }
 
-    private string SelectedRowClassCaThiFunc(CaThiDto item, int rowNumber)
+    private string SelectedRowClassExamSessionFunc(CaThiDto item, int rowNumber)
     {
-        return item == selectedCaThi ? "selected-row" : string.Empty;
+        return item == selectedExamSession ? "selected-row" : string.Empty;
     }
-    private async void OnRowClickedCaThi(TableRowClickEventArgs<CaThiDto> args)
+    private async void OnRowClickedExamSessionAsync(TableRowClickEventArgs<CaThiDto> args)
     {
-        if (args.Item == selectedCaThi)
+        if (args.Item == selectedExamSession)
             return;
-        selectedCaThi = args.Item;
-        await SaveData();
+        selectedExamSession = args.Item;
+        await SaveDataAsync();
     }
 
-    private async Task Filter()
+    private async Task FilterAsync()
     {
         if (!string.IsNullOrEmpty(searchString))
         {
-            (caThis, totalRecords_CT, totalPages_CT) = await CaThis_SelectBy_MaChiTietDotThi_Search_PagedAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1, searchString, currentPage_CT, rowsPerPage_CT);
+            (examSessions, totalRecords_ExamSession, totalPages_ExamSession) = await ExamSessions_SelectBy_ExamBatchDetailId_Search_PagedAPI(selectedExamBatchDetail?.MaChiTietDotThi ?? -1, searchString, currentPage_ExamSession, rowsPerPage_ExamSession);
             CreateFakeData_CT();
         }
         else
         {
-            await FetchCaThis();
+            await FetchExamSessionAsync();
         }
     }
 }

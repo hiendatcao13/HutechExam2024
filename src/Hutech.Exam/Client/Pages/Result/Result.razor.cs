@@ -10,9 +10,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
-using AutoMapper;
 using Hutech.Exam.Client.API;
-using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO.Request.Custom;
 
 namespace Hutech.Exam.Client.Pages.Result
@@ -41,23 +39,24 @@ namespace Hutech.Exam.Client.Pages.Result
 
         private bool IsLoading {get; set;}
 
-        private SinhVienDto SinhVien { get; set; } = default!;
+        private SinhVienDto Student { get; set; } = default!;
 
-        private CaThiDto CaThi { get; set; } = default!;
+        private CaThiDto ExamSession { get; set; } = default!;
 
-        private ChiTietCaThiDto ChiTietCaThi { get; set; } = default!;
+        private ChiTietCaThiDto ExamSessionDetail { get; set; } = default!;
 
         // biến cục bộ
 
-        private List<bool?> ketQuaDapAn = [];
-        private double diem = 0;
-        private int so_cau_dung;
+        private List<bool?> selectedAnswerResults = [];
+        private double score = 0;
+        private int totalRightAnswer;
         private HubConnection? hubConnection;
         private bool isShow = false; // chỉ nhận kết quả cho lần đầu, tránh nhận thêm thông điệp từ server do gửi lỗi
 
         private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
-        private async Task CheckPage()
+        
+        private async Task CheckPageAsync()
         {
             if (MyData.ChiTietCaThi.MaChiTietCaThi == 0 || MyData.SinhVien.MaSinhVien == 0)
             {
@@ -67,10 +66,10 @@ namespace Hutech.Exam.Client.Pages.Result
             }
             if (MyData.ChiTietCaThi != null && MyData.ChiTietCaThi.MaCaThiNavigation != null)
             {
-                ChiTietCaThi = MyData.ChiTietCaThi;
-                CaThi = MyData.ChiTietCaThi.MaCaThiNavigation;
-                SinhVien = MyData.SinhVien;
-                await Start();
+                ExamSessionDetail = MyData.ChiTietCaThi;
+                ExamSession = MyData.ChiTietCaThi.MaCaThiNavigation;
+                Student = MyData.SinhVien;
+                await StartAsync();
             }
         }
         protected override async Task OnInitializedAsync()
@@ -86,41 +85,42 @@ namespace Hutech.Exam.Client.Pages.Result
             {
                 Nav.NavigateTo("/");
             }
-            await CheckPage();
+            await CheckPageAsync();
             await base.OnInitializedAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (diem != 0)
+            if (score != 0)
             {
                 Context = await CanvasReference.CreateCanvas2DAsync();
                 await Context.SetFontAsync("35px Arial");
-                if (diem - (int)diem != 0)
+                if (score - (int)score != 0)
                 {
-                    await Context.FillTextAsync(diem.ToString(), 5, 35);
+                    await Context.FillTextAsync(score.ToString(), 5, 35);
                 }
-                string text = diem + ".0";
+                string text = score + ".0";
                 await Context.FillTextAsync(text.ToString(), 5, 35);
             }
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        private async Task OnClickDangXuatAsync()
+        private async Task OnClickLogoutAsync()
         {
             var parameters = new DialogParameters<Simple_Dialog>
-        {
-            { x => x.ContentText, LOGOUT_MESSAGE },
-            { x => x.ButtonText, "Đăng xuất" },
-            { x => x.Color, Color.Error },
-            { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleDangXuat())   }
-        };
+            {
+                { x => x.ContentText, LOGOUT_MESSAGE },
+                { x => x.ButtonText, "Đăng xuất" },
+                { x => x.Color, Color.Error },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleLogoutAsync())   }
+            };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
             await Dialog.ShowAsync<Simple_Dialog>("Thoát tài khoản", parameters, options);
         }
-        private async Task HandleDangXuat()
+
+        private async Task HandleLogoutAsync()
         {
             if (await UpdateLogoutAPI(MyData.SinhVien.MaSinhVien))
             {
@@ -130,24 +130,25 @@ namespace Hutech.Exam.Client.Pages.Result
             }
 
         }
-        private async Task Start()
+
+        private async Task StartAsync()
         {
             IsLoading = true;
-            await CreateHubConnection();
+            await CreateHubConnectionAsync();
         }
-        private async Task CreateHubConnection()
+
+        private async Task CreateHubConnectionAsync()
         {
-            hubConnection = await StudentHub.GetConnectionAsync(SinhVien?.MaSinhVien ?? -1);
+            hubConnection = await StudentHub.GetConnectionAsync(Student?.MaSinhVien ?? -1);
 
             hubConnection.On("ResetLogin", async () =>
             {
-                await HandleDangXuat();
+                await HandleLogoutAsync();
             });
 
             hubConnection.On("RequestRecoverySubmit", async () =>
             {
-                Console.Write("Recoverrrrrrrrrrrrrrry here");
-                var storedData = await GetData();
+                var storedData = await GetDataAsync();
                 if(storedData != null)
                 {
                     await StudentHub.RecoverySubmit(storedData);
@@ -158,13 +159,13 @@ namespace Hutech.Exam.Client.Pages.Result
             {
                 if(!isShow) // chỉ nhận cho lần đầu
                 {
-                    ketQuaDapAn = dapAns;
-                    this.so_cau_dung = so_cau_dung;
-                    this.diem = diem;
+                    selectedAnswerResults = dapAns;
+                    this.totalRightAnswer = so_cau_dung;
+                    this.score = diem;
                     IsLoading = false;
 
                     // hiển thị điểm
-                    await HandleDiem();
+                    await HandleScoreAsync();
                     StateHasChanged();
 
                     isShow = true;  
@@ -172,21 +173,22 @@ namespace Hutech.Exam.Client.Pages.Result
             });
 
             //rời group ca thi
-            await hubConnection.InvokeAsync("LeaveGroupMaCaThi", CaThi?.MaCaThi ?? -1);
+            await hubConnection.InvokeAsync("LeaveGroupMaCaThi", ExamSession?.MaCaThi ?? -1);
         }
-        private async Task HandleDiem()
+
+        private async Task HandleScoreAsync()
         {
             Context = await CanvasReference.CreateCanvas2DAsync();
             await Context.SetFontAsync("35px Arial");
-            if (diem - (int)diem != 0)
+            if (score - (int)score != 0)
             {
-                await Context.FillTextAsync(diem.ToString(), 5, 35);
+                await Context.FillTextAsync(score.ToString(), 5, 35);
             }
-            string text = diem + ".0";
+            string text = score + ".0";
             await Context.FillTextAsync(text.ToString(), 5, 35);
         }
 
-        private async Task<SubmitRequest?> GetData()
+        private async Task<SubmitRequest?> GetDataAsync()
         {
             return await SessionStorage.GetItemAsync<SubmitRequest?>("SubmitRequest");
         }

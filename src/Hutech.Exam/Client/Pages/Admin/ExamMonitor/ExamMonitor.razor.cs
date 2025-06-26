@@ -9,15 +9,13 @@ using Hutech.Exam.Client.Components.Dialogs;
 using Microsoft.JSInterop;
 using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
-using System.Net.Http.Json;
 using Hutech.Exam.Client.API;
-using Hutech.Exam.Shared.Models;
-using Hutech.Exam.Client.Pages.Result;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor : IAsyncDisposable
     {
+        #region Private Fields
         [Parameter][SupplyParameterFromQuery] public string? ma_ca_thi { get; set; }
 
         [Inject] private HttpClient Http { get; set; } = default!;
@@ -45,13 +43,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private const string WAITING_DOWNLOADEXCEL = "Đang tải xuống file excel. Hãy chờ trong giây lát";
         private const string ERROR_MOCKTEST = "Không thể xem bài của thí sinh khi thí sinh chưa nộp bài";
 
-
         private const string FAILED_RESETLOGIN = "Không thể reset đăng nhập cho thí sinh khi thí sinh không đăng nhập vào hệ thống thi";
         private const string FAILED_CONGGIO = "Không thể cộng giờ cho thí sinh khi thí sinh chưa thi";
         private const string FAILED_NOPBAI = "Không thể bắt thí sinh nộp bài khi thí sinh chưa thi hoặc thí sinh không đăng nhập";
 
         private const string UPDATE_CA_THI = "Ca thi này đã được cập nhật theo yêu cầu của quản trị viên";
         private const string DELETE_CA_THI = "Ca thi này đã được xóa theo yêu cầu của quản trị viên. Vui lòng rời khỏi trang ...";
+        #endregion
+
+        #region Initial Methods
 
         protected override async Task OnInitializedAsync()
         {
@@ -74,10 +74,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 Nav.NavigateTo("/admin", true);
             }
-            await Start();
+            await StartAsync();
             await base.OnInitializedAsync();
         }
-        private async void OnClickResetLogin(SinhVienDto? sinhVien)
+
+        #endregion
+
+        #region OnClick Methods
+
+        private async Task OnClickResetLoginAsync(SinhVienDto? sinhVien)
         {
             if (sinhVien != null && sinhVien.IsLoggedIn == true)
             {
@@ -86,7 +91,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                     { x => x.ContentText, $"Thí sinh đăng nhập lần cuối vào lúc {sinhVien.LastLoggedIn}. Hãy cân nhắc thời gian trên và chắc chắn rằng sinh viên không gian lận" },
                     { x => x.ButtonText, "Reset" },
                     { x => x.Color, Color.Warning },
-                    { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleResetLogin(sinhVien))   }
+                    { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleResetLoginAsync(sinhVien))   }
                 };
 
                 var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
@@ -97,39 +102,19 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             else
                 Snackbar.Add(FAILED_RESETLOGIN, Severity.Error);
         }
-        private async Task HandleResetLogin(SinhVienDto sinhVien)
+
+        private async Task OnClickAddTimeAsync(ChiTietCaThiDto chiTietCaThi)
         {
-            await ResetLoginAPI(sinhVien.MaSinhVien);
-        }
-        private async Task OnClickCongGioThem(ChiTietCaThiDto chiTietCaThi)
-        {
-            var result = await OpenCongGioThemDialog(chiTietCaThi);
+            var result = await OpenAddTimeDialogAsync(chiTietCaThi);
             if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
                 int index = chiTietCaThis.FindIndex(p => p.MaChiTietCaThi == newChiTietCaThi.MaChiTietCaThi);
                 chiTietCaThis[index] = newChiTietCaThi;
-            }    
-        }
-
-        private async Task<DialogResult?> OpenCongGioThemDialog(ChiTietCaThiDto chiTietCaThi)
-        {
-            if (chiTietCaThi != null && chiTietCaThi.DaThi == false && chiTietCaThi.MaSinhVienNavigation != null && chiTietCaThi.MaSinhVienNavigation.IsLoggedIn == false)
-            {
-                Snackbar.Add(FAILED_CONGGIO, Severity.Error);
-                return null;
             }
-            var parameters = new DialogParameters<CongGioDialog>
-            {
-                { x => x.chiTietCaThi, chiTietCaThi },
-                { x => x.caThi, caThi }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-
-            var dialog = await Dialog.ShowAsync<CongGioDialog>("Cộng giờ thi", parameters, options);
-            return await dialog.Result;
         }
-        private async Task OnClickNopBai(ChiTietCaThiDto chiTietCaThi)
+
+        private async Task OnClickSubmitAsync(ChiTietCaThiDto chiTietCaThi)
         {
             SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
             if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || chiTietCaThi == null || sinhVien == null || sinhVien.IsLoggedIn == false)
@@ -142,7 +127,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                     { x => x.ContentText, $"Nộp bài của thí sinh. Vui lòng chắc chắn thao tác này chỉ thực hiện khi thí sinh đang trong quá trình thi và đăng nhập. Nếu muốn tính điểm, chọn 'Check Điểm'" },
                     { x => x.ButtonText, "Nộp bài" },
                     { x => x.Color, Color.Warning },
-                    { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleNopBai(chiTietCaThi))   }
+                    { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleSubmitAsync(chiTietCaThi))   }
                 };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
@@ -150,32 +135,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             await Dialog.ShowAsync<Simple_Dialog>("Nộp bài làm thí sinh", parameters, options);
 
         }
-        private async Task HandleNopBai(ChiTietCaThiDto chiTietCaThi)
-        {
-            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
-            bool result = await NopBaiAPI(sinhVien?.MaSinhVien ?? -1);
-            if (result)
-                Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
-            else
-                Snackbar.Add(ERROR_NOPBAI, Severity.Error);
-        }
-        private async Task OnClickXemCTBaiThi(ChiTietCaThiDto chiTietCaThi)
-        {
-            if (chiTietCaThi.Diem == -1 || !chiTietCaThi.DaHoanThanh)
-            {
-                Snackbar.Add(ERROR_MOCKTEST, Severity.Error);
-                return;
-            }
 
-            await Js.InvokeVoidAsync("openInNewTab", $"/monitor/mocktest?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}");
-        }
-
-        private async Task Refresh()
-        {
-            searchString = string.Empty;
-            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
-        }
-        private async Task OnClickDownloadExcel()
+        private async Task OnClickDownloadExcelAsync()
         {
             if (chiTietCaThis != null)
             {
@@ -192,16 +153,85 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
         }
 
-        private async Task Start()
+        private async Task OnClickRefreshAsync()
         {
-            IntializeThoiGianBieu();
-            (chiTietCaThis, totalRecords, totalPages) = await ChiTietCaThis_SelectBy_MaCaThi_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+            searchString = string.Empty;
+            (chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+        }
+
+        private async Task OnClickViewExamSubmissionDetailAsync(ChiTietCaThiDto chiTietCaThi)
+        {
+            if (chiTietCaThi.Diem == -1 || !chiTietCaThi.DaHoanThanh)
+            {
+                Snackbar.Add(ERROR_MOCKTEST, Severity.Error);
+                return;
+            }
+
+            await Js.InvokeVoidAsync("openInNewTab", $"/monitor/mocktest?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}");
+        }
+
+        #endregion
+
+        #region HandleOnClick Methods
+        private async Task HandleResetLoginAsync(SinhVienDto sinhVien)
+        {
+            var result = await ResetLoginAPI(sinhVien.MaSinhVien);
+            if (result && chiTietCaThis != null)
+            {
+                int index = chiTietCaThis.FindIndex(k => k.MaSinhVien == sinhVien.MaSinhVien);
+                if (index != -1)
+                {
+                    chiTietCaThis[index].MaSinhVienNavigation!.IsLoggedIn = false;
+                    chiTietCaThis[index].MaSinhVienNavigation!.LastLoggedIn = DateTime.Now;
+                }
+            }
+        }
+
+        private async Task HandleSubmitAsync(ChiTietCaThiDto chiTietCaThi)
+        {
+            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
+            bool result = await SubmitAPI(sinhVien?.MaSinhVien ?? -1);
+            if (result)
+                Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
+            else
+                Snackbar.Add(ERROR_NOPBAI, Severity.Error);
+        }
+
+        #endregion
+
+        #region Dialog Methods
+
+        private async Task<DialogResult?> OpenAddTimeDialogAsync(ChiTietCaThiDto chiTietCaThi)
+        {
+            if (chiTietCaThi != null && chiTietCaThi.DaThi == false && chiTietCaThi.MaSinhVienNavigation != null && chiTietCaThi.MaSinhVienNavigation.IsLoggedIn == false)
+            {
+                Snackbar.Add(FAILED_CONGGIO, Severity.Error);
+                return null;
+            }
+            var parameters = new DialogParameters<AddTimeDialog>
+            {
+                { x => x.chiTietCaThi, chiTietCaThi },
+                { x => x.caThi, caThi }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+
+            var dialog = await Dialog.ShowAsync<AddTimeDialog>("Cộng giờ thi", parameters, options);
+            return await dialog.Result;
+        }
+
+        #endregion
+
+        #region Other Methods
+
+        private async Task StartAsync()
+        {
+            CreateSchedule();
+            (chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
             CreateFakeData();
 
 
-            await CreateHubConnection();
+            await CreateHubConnectionAsync();
         }
-
 
         private void CreateFakeData()
         {
@@ -216,6 +246,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 }
             }
         }
+
         private void PadEmptyRows(List<ChiTietCaThiDto> newChiTietCaThi)
         {
             // tìm phần tử đầu tiên của trang đó
@@ -231,10 +262,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         }
 
-
         public async ValueTask DisposeAsync()
         {
             await AdminHub.DisconnectionAsync();
         }
+
+        #endregion
+
     }
 }

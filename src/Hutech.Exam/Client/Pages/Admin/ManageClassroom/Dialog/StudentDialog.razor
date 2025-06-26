@@ -1,0 +1,175 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.SinhVien
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4"><MudText>Tên lớp:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@Classroom?.TenLop</span></MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>MSSV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="MSSV" Required @bind-Value="@tempStudent.MaSoSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Họ lót:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Họ lót" @bind-Value="@tempStudent.HoVaTenLot" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên" Required @bind-Value="@tempStudent.TenSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Giới tính:</MudText></MudItem>
+            <MudItem xs="8"><MudCheckBox @bind-Value="@isMale">Nam</MudCheckBox></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày sinh:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudDatePicker Editable="true" Label="Ngày sinh" @bind-Date="@tempStudent.NgaySinh" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Email" @bind-Value="@tempStudent.Email" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Địa chỉ:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Địa chỉ" @bind-Value="@tempStudent.DiaChi" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Điện thoại:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Điện thoại" @bind-Value="@tempStudent.DienThoai" InputType="InputType.Text"></MudTextField></MudItem>
+
+
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text {
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter][EditorRequired] public bool IsEdit { get; set; } = false;
+
+    [Parameter][EditorRequired] public LopDto? Classroom { get; set; } = default!;
+
+    [Parameter] public SinhVienDto? Student { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    private SinhVienDto tempStudent { get; set; } = default!;
+
+    private const string INVALID_FORM = "Vui lòng phải nhập ít nhất mssv, tên thí sinh và ngày sinh";
+
+    private bool isMale = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if (IsEdit && Student != null)
+        {
+            tempStudent = new SinhVienDto(Student);
+			isMale = (tempStudent.GioiTinh == 1) ? true : false;
+            return;
+        }
+        tempStudent = new();
+    }
+
+    private bool CheckValidForm()
+    {
+        return !string.IsNullOrWhiteSpace(tempStudent.MaSoSinhVien) && !string.IsNullOrWhiteSpace(tempStudent.TenSinhVien) && tempStudent.NgaySinh != null;
+    }
+
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickAddAsync()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+		var result = await InsertAPI(new SinhVienCreateRequest
+			{
+				MaSoSinhVien = tempStudent.MaSoSinhVien ?? string.Empty,
+				HoVaTenLot = tempStudent.HoVaTenLot ?? string.Empty,
+				TenSinhVien = tempStudent.TenSinhVien ?? string.Empty,
+				GioiTinh = (short)((isMale) ? 1 : 0),
+				NgaySinh = tempStudent.NgaySinh ?? DateTime.Now,
+				Email = tempStudent.Email ?? string.Empty,
+				DiaChi = tempStudent.DiaChi ?? string.Empty,
+				DienThoai = tempStudent.DienThoai ?? string.Empty,
+				MaLop = Classroom?.MaLop ?? -1
+			});
+
+        if (result != null && result.MaSinhVien != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+		var result = await UpdateAPI(tempStudent.MaSinhVien, new SinhVienUpdateRequest
+			{
+				MaSoSinhVien = tempStudent.MaSoSinhVien ?? string.Empty,
+				HoVaTenLot = tempStudent.HoVaTenLot ?? string.Empty,
+				TenSinhVien = tempStudent.TenSinhVien ?? string.Empty,
+                GioiTinh = (short)((isMale) ? 1 : 0),
+				NgaySinh = tempStudent.NgaySinh ?? DateTime.Now,
+				Email = tempStudent.Email ?? string.Empty,
+				DiaChi = tempStudent.DiaChi ?? string.Empty,
+				DienThoai = tempStudent.DienThoai ?? string.Empty,
+                MaLop = Classroom?.MaLop ?? -1
+            });
+        if (result != null && result.MaSinhVien != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<SinhVienDto?> InsertAPI(SinhVienCreateRequest sinhVien)
+    {
+        var response = await SenderAPI.PostAsync<SinhVienDto>("api/sinhviens", sinhVien);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<SinhVienDto?> UpdateAPI(long id, SinhVienUpdateRequest sinhVien)
+    {
+        var response = await SenderAPI.PutAsync<SinhVienDto>($"api/sinhviens/{id}", sinhVien);
+        return (response.Success) ? response.Data : null;
+    }
+}

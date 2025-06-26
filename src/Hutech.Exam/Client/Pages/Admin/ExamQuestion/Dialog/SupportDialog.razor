@@ -1,0 +1,55 @@
+﻿@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <p style="font-size: 16px">
+            Nội dung câu hỏi và câu trả lời được định dạng theo HTML tag @htmlTag.
+            <ul>
+                <li>@boldTag: <b>in đậm văn bản</b>.</li>
+                <li>@italicTag: <i>in nghiêng văn bản.</i></li>
+                <li>@underlineTag: <u>gạch dưới văn bản.</u></li>
+                <li>@latexTag: 
+                    @if(latextText != null)
+                    {
+                        <Hutech.Exam.Client.Pages.Latext.Equation Value="@latextText"></Hutech.Exam.Client.Pages.Latext.Equation>
+                    }
+                </li>
+            </ul>
+        </p>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickEdit" Color="Color.Default">Thoát</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+
+    .mjx-container[jax="CHTML"][display="true"] {
+        display: contents;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    const string htmlTag = "<kiểu format>text</kiểu format>";
+    const string boldTag = "<b>text</b>";
+    const string italicTag = "<i>text</i>";
+    const string underlineTag = "<u>text</u>";
+
+    const string latexTag = "<latex>E = mc^2</latex>";
+    const string latextText = "E = mc^2";
+
+
+    private void OnClickEdit()
+    {
+        MudDialog?.Cancel();
+    }
+}

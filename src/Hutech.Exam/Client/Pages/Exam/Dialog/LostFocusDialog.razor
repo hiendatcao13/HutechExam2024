@@ -11,7 +11,7 @@
         <MudText>Bạn đã rời khỏi trang thi, hãy quay lại trang thi để tiếp tục làm bài. Nếu không quay lại trong <strong style="color: red">@giay</strong> giây, hệ thống sẽ tự động nộp bài.</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
     </DialogActions>
 </MudDialog>
 <style>
@@ -51,7 +51,7 @@
             // Người dùng đã quay lại hoặc thoát dialog
         }
     }
-    private void OnClickThoat()
+    private void OnClickExit()
     {
         _cts.Cancel(); // Ngừng đếm
         MudDialog?.Cancel();

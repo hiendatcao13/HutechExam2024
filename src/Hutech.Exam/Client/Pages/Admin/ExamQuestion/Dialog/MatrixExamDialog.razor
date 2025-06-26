@@ -1,0 +1,459 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi
+@using Hutech.Exam.Shared.DTO.Request.Clo
+@using Hutech.Exam.Shared.DTO.Request.MonHoc
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4"><MudText>Tên đề thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@tempExam?.TenDeThi</span></MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Tổng số đề tạo:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tổng số đề" Required InputType="InputType.Number" @bind-Value="totalExam" Placeholder="4" /></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ký hiệu đề:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Ký hiệu đề" Required InputType="InputType.Text" @bind-Value="examCode" Placeholder="TA00*" HelperText="Vui lòng nhập * để tạo ra các mã số tương ứng (D3) - VD: TA00* - TA001" /></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Chương HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow Label="Chương HV" @bind-Value="listShuffleChapter" ReadOnly></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Chương không HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Chương không HV" @bind-Value="listChapter"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Nhóm HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Nhóm HV" @bind-Value="listShuffleGroupQuestion"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Nhóm không HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Nhóm không HV" @bind-Value="listGroupQuestion"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Câu hỏi HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Câu hỏi HV" @bind-Value="listShuffleQuestion"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Câu hỏi không HV:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Câu hỏi không HV" @bind-Value="listQuestion"></MudTextField></MudItem>
+
+            <MudItem xs="12">
+                <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByChapter">HV chương</MudButton>
+                <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByGroupQuestion">HV nhóm</MudButton>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle2" Color="Color.Error">@WARNING_NOTE</MudText>
+            </MudItem>
+
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (isValid)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSaveAsync()" Color="Color.Success">Luu</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Disabled Color="Color.Success">Cập nhật đề</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text {
+    font-weight: bold;
+    }
+
+    .add-button {
+    transform: scale(0.85);
+    margin-bottom: 2%;
+    padding-top: 10px;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter][EditorRequired] public DeThiDto? Exam { get; set; }
+
+    private Random random { get; set; } = new();
+
+    private DeThiDto tempExam = default!;
+
+    private List<CustomThongTinMaDeThi>? customExamInformations = [];
+
+    private int totalExam = 0;
+    private string examCode = string.Empty; // ký hiệu đề thi, dùng để tạo ra các mã số tương ứng (D3) - VD: TA001, TA002, TA003...
+
+    private bool isValid = false;
+
+    //ds hiển thị
+    string listShuffleChapter = string.Empty;
+    string listChapter = string.Empty;
+
+    string listShuffleGroupQuestion = string.Empty;
+    string listGroupQuestion = string.Empty;
+
+    string listShuffleQuestion = string.Empty;
+    string listQuestion = string.Empty;
+
+    //ds xử lí theo key: thứ tự, value: (mã, hoán vị?)
+    private Dictionary<int, (int MaChuong, bool HoanVi)> chapters = [];
+
+    private Dictionary<int, (int MaNhom, bool HoanVi)> groupQuestions = [];
+
+    private Dictionary<string, (int MaCauHoi, bool HoanVi, int DapAn, string? DSCauTraLoiKhongHV)> questions = []; //key: thứ tự câu hỏi - S mã nhóm (1-S1) value: (mã câu hỏi, hoán vị?, mã đáp án, ds thứ tự đáp án không hoán vị)
+
+    private Dictionary<int, List<ChiTietDeThiHoanViCreateBatchRequest>> shuffleExamDetails = [];
+
+    private const string INVALID_FORM = "Vui lòng nhập số lượng câu hỏi và thông tin ký hiệu đề";
+    private const string INVALID_KYHIEUDE = "Vui lòng nhập dấu * để tạo mã số tương ứng cho các đề thi (VD: TA001, TA002, TA003...)";
+    private const string INVALID_KYHIEUDE2 = "Không thể xuất hiện cùng lúc nhiều hơn một dấu * trong ký hiệu đề, vui lòng kiểm tra lại ký hiệu đề thi!";
+    private const string WAITING = "Vui lòng chờ hệ thống sẽ mất chút thời gian để tạo bộ đề...";
+    private const string ERROR_FORMAT = "Không thể hoán vị chương khi đề thi bỏ chương phần";
+    private const string WARNING_NOTE = "Trong suốt quá trình tạo đề thi, vui lòng không xóa thủ công trực tiếp tại database vì dễ gây sai thứ tự của các câu hỏi và câu trả lời dẫn đến tạo đề không thành công.";
+    private const string READY_TO_SAVE = "Đã sẵn sàng để lưu";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HandleInput();
+        await base.OnInitializedAsync();
+
+        //method
+    }
+
+
+    private async Task HandleInput()
+    {
+        if (Exam == null)
+        {
+            tempExam = new DeThiDto();
+            return;
+        }
+        tempExam = new DeThiDto(Exam);
+
+        customExamInformations = await GetExamInformationAPI(tempExam.MaDeThi);
+
+        HandleData();
+    }
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+
+    private async Task OnClickSaveAsync()
+    {
+        // tạo các mã đề (lưu theo batch)
+        for (int z = 0; z < totalExam; z++)
+        {
+            string ky_hieu_de = examCode.Replace("*", z + 1 + "");
+            await Insert_BatchAPI(tempExam.MaDeThi, ky_hieu_de, shuffleExamDetails[z]);
+        }
+    }
+
+
+    private void OnClickShuffleByChapter()
+    {
+        if (!CheckValidForm() || !CheckMissingAnswer() || customExamInformations == null)
+        {
+            isValid = false;
+            return;
+        }
+
+        if (tempExam.BoChuongPhan)
+        {
+            Snackbar.Add(ERROR_FORMAT, Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            shuffleExamDetails.Clear();
+
+            List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThi = [];
+            var listChuongHV = Shuffle(chapters, x => (x.MaChuong, x.HoanVi));
+            int index = 0;
+
+            foreach (var chuong in listChuongHV)
+            {
+                var chiTiet = HandleGroupQuestionInChapter(chuong, totalExam, customExamInformations);
+
+                chiTietDeThi.AddRange(chiTiet);
+
+                shuffleExamDetails[index++] = chiTietDeThi;
+            }
+
+            Snackbar.Add(READY_TO_SAVE, Severity.Success);
+            isValid = true;
+        }
+        catch (Exception ex)
+        {
+            isValid = false;
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnClickShuffleByGroupQuestion()
+    {
+        if (!CheckValidForm() || !CheckMissingAnswer() || customExamInformations == null)
+        {
+            isValid = false;
+            return;
+        }
+
+        try
+        {
+            shuffleExamDetails.Clear();
+
+            List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThi = [];
+            var listNhom = Shuffle(groupQuestions, x => (x.MaNhom, x.HoanVi));
+            int index = 0;
+
+            for (int i = 0; i < listNhom.Count; i++)
+            {
+                var maNhom = groupQuestions[listNhom[i]].MaNhom;
+                var chiTiet = HandleQuestion(maNhom, i + 1, customExamInformations);
+
+                chiTietDeThi.AddRange(chiTiet);
+
+                shuffleExamDetails[index++] = chiTietDeThi;
+            }
+
+            Snackbar.Add(READY_TO_SAVE, Severity.Success);
+            isValid = true;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.StackTrace + ",,,,,," + ex.InnerException, Severity.Error);
+            Console.WriteLine(ex.StackTrace + ",,,,,," + ex.InnerException);
+        }
+    }
+
+    private List<ChiTietDeThiHoanViCreateBatchRequest> HandleQuestion(int maNhom, int thuTuNhom, IEnumerable<CustomThongTinMaDeThi> dataCauHoi)
+    {
+        var listCauHoi = dataCauHoi
+            .Where(p => p.MaNhom == maNhom && p.ThuTuCauHoi != null)
+            .DistinctBy(p => p.ThuTuCauHoi!.Value)
+            .ToDictionary(p => p.ThuTuCauHoi!.Value, p => (p.MaCauHoi!.Value, p.HoanViCauHoi!.Value, p.CauTraLoiKhongHoanVi, p.DapAn));
+
+        var listCauHoiHV = Shuffle(listCauHoi, x => (x.Item1, x.Item2));
+
+        var result = new List<ChiTietDeThiHoanViCreateBatchRequest>();
+        for (int i = 0; i < listCauHoiHV.Count; i++)
+        {
+            result.Add(new ChiTietDeThiHoanViCreateBatchRequest(
+                maNhom,
+                thuTuNhom,
+                listCauHoi[listCauHoiHV[i]].Item1,
+                i + 1,
+                listCauHoi[listCauHoiHV[i]].CauTraLoiKhongHoanVi,
+                listCauHoi[listCauHoiHV[i]].DapAn ?? -1));
+        }
+
+        return result;
+    }
+
+    private List<ChiTietDeThiHoanViCreateBatchRequest> HandleGroupQuestionInChapter(int maChuong, int soLuongDe, IEnumerable<CustomThongTinMaDeThi> allData)
+    {
+        var result = new List<ChiTietDeThiHoanViCreateBatchRequest>();
+
+        var listNhom = allData
+            .Where(p => p.MaChuong == maChuong)
+            .DistinctBy(p => p.ThuTuNhom)
+            .ToDictionary(p => p.ThuTuNhom, p => (p.MaNhom, p.HoanViNhom));
+
+        var listNhomHV = Shuffle(listNhom, x => (x.MaNhom, x.HoanViNhom));
+
+        for (int z = 0; z < soLuongDe; z++)
+        {
+            for (int i = 0; i < listNhomHV.Count; i++)
+            {
+                var maNhom = listNhom[listNhomHV[i]].MaNhom;
+                var cauHoiTrongNhom = HandleQuestion(maNhom, i + 1, allData);
+                result.AddRange(cauHoiTrongNhom);
+            }
+        }
+
+        return result;
+    }
+
+
+    private List<int> Shuffle<TValue>(Dictionary<int, TValue> dictionary, Func<TValue, (int Ma, bool HoanVi)> selector)
+    {
+        // Lấy danh sách các key
+        var originalKeys = dictionary.Keys.ToList();
+
+        // Lọc ra các key được phép hoán vị
+        var keysCanShuffle = originalKeys.Where(k => selector(dictionary[k]).HoanVi).ToList();
+
+        // Shuffle danh sách được phép hoán vị
+        var shuffled = RandomList(keysCanShuffle);
+
+        // Gán lại vào danh sách kết quả theo đúng vị trí cũ
+        var result = new List<int>(originalKeys); // ban đầu giống y chang
+
+        int shuffleIndex = 0;
+        for (int i = 0; i < result.Count; i++)
+        {
+            if (selector(dictionary[result[i]]).HoanVi)
+            {
+                result[i] = shuffled[shuffleIndex++];
+            }
+        }
+
+        return result;
+    }
+
+
+    private void HandleData()
+    {
+        if (customExamInformations == null || customExamInformations.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in customExamInformations)
+        {
+            if (item.MaCauHoi == null) // chương tức là ko chứa câu hỏi (chỉ chứa nhóm câu hỏi)
+            {
+                chapters[item.ThuTuNhom] = (item.MaNhom, item.HoanViNhom);
+            }
+            else
+            {
+                groupQuestions[item.ThuTuNhom] = (item.MaNhom, item.HoanViNhom);
+            }
+
+            if (item.ThuTuCauHoi != null && item.MaCauHoi != null && item.HoanViCauHoi != null && item.DapAn != null)
+            {
+                questions[$"{item.ThuTuCauHoi.Value}-S{item.MaNhom}"] = (item.MaCauHoi.Value, item.HoanViCauHoi.Value, item.DapAn.Value, item.CauTraLoiKhongHoanVi);
+                Console.WriteLine(item.HoanViCauHoi.Value + ", ");
+            }
+
+        }
+
+
+        HandleAnswer(customExamInformations);
+
+        ConvertToUI();
+    }
+
+    private void HandleAnswer(List<CustomThongTinMaDeThi> customThongTinMaDeThis)
+    {
+        HashSet<int> fixedPositions = [];
+        foreach (var item in customThongTinMaDeThis)
+        {
+            if (!string.IsNullOrEmpty(item.CauTraLoiKhongHoanVi))
+            {
+                fixedPositions = item.CauTraLoiKhongHoanVi
+                    .Select(c => int.Parse(c.ToString()))
+                    .ToHashSet();
+            }
+
+            var listCauTraLoi = new Dictionary<int, (int ThuTu, bool HoanVi)>();
+
+            for (int i = 1; i <= 4; i++)
+            {
+                listCauTraLoi[i] = (i, fixedPositions.Contains(i));
+            }
+
+            var listCauTraLoiHV = Shuffle(listCauTraLoi, x => (x.ThuTu, x.HoanVi));
+
+            item.CauTraLoiKhongHoanVi = string.Join("", listCauTraLoiHV);
+        }
+    }
+
+    private void ConvertToUI()
+    {
+        listShuffleChapter = string.Join(" - ", chapters.Where(x => x.Value.HoanVi).Select(x => $"{x.Value.MaChuong}"));
+        listChapter = string.Join(" - ", chapters.Where(x => !x.Value.HoanVi).Select(x => $"{x.Value.MaChuong}"));
+
+        listShuffleGroupQuestion = string.Join(" - ", groupQuestions.Where(x => x.Value.HoanVi).Select(x => $"{x.Value.MaNhom}"));
+        listGroupQuestion = string.Join(" - ", groupQuestions.Where(x => !x.Value.HoanVi).Select(x => $"{x.Value.MaNhom}"));
+
+        listShuffleQuestion = string.Join(" - ", questions.Where(x => x.Value.HoanVi).Select(x => $"{x.Value.MaCauHoi}"));
+        listQuestion = string.Join(" - ", questions.Where(x => !x.Value.HoanVi).Select(x => $"{x.Value.MaCauHoi}"));
+    }
+
+    private List<int> RandomList(List<int> list)
+    {
+        // sử dụng thuật toán Fisher Yates để xáo trộn danh sách (tốc độ 0(n))
+        //Nó đảm bảo mỗi phần tử có xác suất bằng nhau xuất hiện ở bất kỳ vị trí nào trong kết quả.
+        var result = new List<int>(list);
+        int n = result.Count;
+
+        for (int i = n - 1; i > 0; i--)
+        {
+            int j = random.Next(i + 1);
+
+            (result[i], result[j]) = (result[j], result[i]); // swap
+        }
+        return result;
+    }
+
+    private bool CheckValidForm()
+    {
+        if (totalExam <= 0 || string.IsNullOrEmpty(examCode))
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return false;
+        }
+
+        if (examCode.IndexOf('*') == -1)
+        {
+            Snackbar.Add(INVALID_KYHIEUDE, Severity.Error);
+            return false;
+        }
+
+        if (examCode.Count(c => c == '*') >= 2)
+        {
+            Snackbar.Add(INVALID_KYHIEUDE2, Severity.Error);
+            return false;
+
+        }
+
+        return true;
+    }
+
+    private bool CheckMissingAnswer()
+    {
+        // người dùng quên nhập câu trả lời
+        var missingAnswer = customExamInformations?.Where(x => x.DapAn == null && x.MaCauHoi != null).ToList();
+
+        if (missingAnswer != null && missingAnswer.Count != 0)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in missingAnswer)
+            {
+                sb.AppendLine($"Câu hỏi {item.MaCauHoi} chưa có đáp án. Vui lòng kiểm tra");
+            }
+            Snackbar.Add(sb.ToString(), Severity.Error);
+            return false;
+        }
+        return true;
+    }
+
+
+    private async Task<List<CustomThongTinMaDeThi>?> GetExamInformationAPI(int maDeThi)
+    {
+        var response = await SenderAPI.GetAsync<List<CustomThongTinMaDeThi>>($"api/dethis/{maDeThi}/thong-tin-ma-de-thi");
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<bool> Insert_BatchAPI(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+    {
+        var response = await SenderAPI.PostAsync<ChiTietDeThiHoanViDto>($"api/chitietdethihoanvis/batch?maDeThi={maDeThi}&kyHieuDe={kyHieuDe}", chiTietDeThiHoanVis);
+        return response.Success;
+    }
+}

@@ -1,0 +1,201 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.CaThi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4"><MudText>Tên Đợt thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@ExamBatchName</span></MudText></MudItem>
+
+            <MudItem xs="4"><MudText>Môn thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@SubjectName</span></MudText></MudItem>
+
+            <MudItem xs="4"><MudText>Phòng thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@ExamClassroomName</span></MudText></MudItem>
+
+            <MudItem xs="4"><MudText>Lần thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText><span class="title-text">@AttemptNumber</span></MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên Ca thi:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên Ca thi" Required InputType="InputType.Text" @bind-Value="examSessionName"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày thi:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudDatePicker Editable="true" Label="Ngày thi" @bind-Date="startTimeDate" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Thời gian:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudTimePicker Editable="true" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect T="DeThiDto" @bind-Value="selectedExam" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
+                    @if (exams != null)
+                    {
+                        foreach (var item in exams)
+                        {
+                            <MudSelectItem Value="@item">[@item.MaDeThi] @item.TenDeThi</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Thời lượng:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text{
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter] public int? ExamBatchId { get; set; }
+
+    [Parameter] public string? ExamBatchName { get; set; }
+
+    [Parameter] public string? ExamClassroomName { get; set; }
+
+    [Parameter] public string? SubjectName { get; set; }
+
+    [Parameter] public int? AttemptNumber { get; set; }
+
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    [Parameter] public CaThiDto? ExamSession { get; set; }
+
+
+    private string? examSessionName;
+
+    private DateTime? startTimeDate = DateTime.Now;
+
+    private TimeSpan? displayExamDuration = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+
+    private int? examDuration;
+
+    private DeThiDto? selectedExam;
+
+    private List<DeThiDto>? exams;
+
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HandleInputAsync();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleInputAsync()
+    {
+        exams = new();
+        // thêm 1 trường null
+        exams?.Insert(0, new DeThiDto() {MaDeThi = -1, TenDeThi = "Chưa có mã đề"});
+        selectedExam = exams?[0];
+        if(IsEdit && ExamSession != null){
+            examSessionName = ExamSession.TenCaThi;
+            startTimeDate = ExamSession.ThoiGianBatDau;
+            displayExamDuration = new TimeSpan(startTimeDate.Value.Hour, startTimeDate.Value.Minute, startTimeDate.Value.Second);
+            examDuration = ExamSession.ThoiGianThi;
+            selectedExam = await Exam_SelectOneAPI(ExamSession.MaDeThi);
+        }
+    }
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickAddAsync()
+    {
+        if (string.IsNullOrEmpty(examSessionName) || startTimeDate == null || displayExamDuration == null || examDuration == null || selectedExam == null || ExamBatchId == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        startTimeDate = new DateTime(startTimeDate.Value.Year, startTimeDate.Value.Month, startTimeDate.Value.Day, displayExamDuration.Value.Hours, displayExamDuration.Value.Minutes, 0);
+        
+        var result = await InsertAPI(new CaThiCreateRequest { 
+            TenCaThi = examSessionName, 
+            MaChiTietDotThi = (int)ExamBatchId, 
+            ThoiGianBatDau = (DateTime)startTimeDate, 
+            MaDeThi = selectedExam.MaDeThi, 
+            ThoiGianThi = (int)examDuration});
+        
+        if (result != null && result.MaCaThi != 0)
+        {
+			MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (string.IsNullOrEmpty(examSessionName) || startTimeDate == null || displayExamDuration == null || examDuration == null || selectedExam == null || ExamBatchId == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        startTimeDate = new DateTime(startTimeDate.Value.Year, startTimeDate.Value.Month, startTimeDate.Value.Day, displayExamDuration.Value.Hours, displayExamDuration.Value.Minutes, 0);
+        var result = await UpdateAPI(ExamSession?.MaCaThi ?? -1, new CaThiUpdateRequest
+            {
+                TenCaThi = examSessionName,
+                MaChiTietDotThi = (int)ExamBatchId,
+                ThoiGianBatDau = (DateTime)startTimeDate,
+                MaDeThi = selectedExam.MaDeThi,
+                ThoiGianThi = (int)examDuration
+            });
+        if (result != null && result.MaCaThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+
+    private async Task<CaThiDto?> InsertAPI(CaThiCreateRequest caThi){
+        var response = await SenderAPI.PostAsync<CaThiDto>("api/cathis", caThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<CaThiDto?> UpdateAPI(int ma_ca_thi, CaThiUpdateRequest caThi){
+        var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}", caThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<DeThiDto?> Exam_SelectOneAPI(int ma_de_thi)
+    {
+        var response = await SenderAPI.GetAsync<DeThiDto>($"api/dethis/{ma_de_thi}");
+        return (response.Success) ? response.Data : null;
+    }
+
+}

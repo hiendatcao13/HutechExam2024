@@ -1,0 +1,305 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.ChiTietDotThi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 350px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudText>Tên đợt thi: <span class="title-text">@ExamBatchName</span></MudText>
+        <MudGrid>
+            <MudItem xs="9">
+                <MudSelect T="MonHocDto" Label="Môn thi" Value="selectedSubject" Clearable="true" ValueChanged="async (value) => await OnValueChangeSubjectAsync(value)">
+                    @if (subjects != null)
+                    {
+                        foreach (var item in subjects)
+                        {
+                            <MudSelectItem Value="item">@item.TenMonHoc</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="3" Style="align-content: end;">
+                <MudButtonGroup Style="zoom: 0.7">
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickAddSubjectAsync()" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditSubjectAsync()"/>
+                </MudButtonGroup>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid>
+            <MudItem xs="9">
+                <MudSelect T="LopAoDto" Label="Phòng thi (theo môn thi)" @bind-Value="selectedExamRoom" Clearable="true">
+                    @if (examRooms != null)
+                    {
+                        foreach (var item in examRooms)
+                        {
+                            <MudSelectItem Value="item">@item.TenLopAo</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="2" Style="align-content:end;">
+                <MudButtonGroup Style="zoom: 0.7;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickAddExamRoomAsync()" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamRoomAsync()"/>
+                </MudButtonGroup>
+            </MudItem>
+        </MudGrid>
+
+        <MudSelect T="int" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
+            @foreach (var item in attemptNumbers)
+            {
+                <MudSelectItem Value="item">Lần @item</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        @if (IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+    .tools{
+    align-content: end;
+    }
+
+    .title-text {
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter] public string? ExamBatchName { get; set; }
+
+    [Parameter] public int? ExamBatchId { get; set; }
+
+    [Parameter] public ChiTietDotThiDto? ExamBatchDetail { get; set; }
+
+    // hoặc là thêm mới hoặc là chỉnh sửa
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private MonHocDto? selectedSubject;
+
+    private LopAoDto? selectedExamRoom;
+
+    private int selectedLanThi = 1;
+
+    private List<MonHocDto>? subjects;
+
+    private List<LopAoDto>? examRooms;
+
+    private List<int> attemptNumbers = [1, 2, 3, 4, 5];
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+    public void OnClickThoat()
+    {
+        MudDialog?.Close();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HandleInputAsync();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnValueChangeSubjectAsync(MonHocDto monHoc){
+        if(selectedSubject == monHoc)
+            return;
+        selectedSubject = monHoc;
+        selectedExamRoom = null;
+        examRooms = await ExamRoom_SelectBy_SubjectIdAPI(selectedSubject?.MaMonHoc ?? -1);
+    }
+
+    private async Task HandleInputAsync()
+    {
+        subjects = await Subject_GetAllAPI();
+        if (IsEdit)
+        {
+            selectedSubject = ExamBatchDetail?.MaLopAoNavigation.MaMonHocNavigation;
+            examRooms = await ExamRoom_SelectBy_SubjectIdAPI(selectedSubject?.MaMonHoc ?? -1);
+            selectedExamRoom = ExamBatchDetail?.MaLopAoNavigation;
+            selectedLanThi = ExamBatchDetail?.LanThi ?? 1;
+        }
+    }
+
+    private async Task OnClickAddExamBatchDetailAsync(){
+        if (selectedSubject == null || selectedExamRoom == null || selectedLanThi == 0)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+
+        var result = await InsertAPI( new ChiTietDotThiCreateRequest { 
+            MaDotThi = ExamBatchId ?? -1, 
+            TenChiTietDotThi = ExamBatchName ?? string.Empty, 
+            MaLopAo = selectedExamRoom.MaLopAo, 
+            LanThi = selectedLanThi
+        });
+
+        if (result != null && result.MaChiTietDotThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditExamBatchDetailAsync()
+    {
+        if (selectedSubject == null || selectedExamRoom == null || selectedLanThi == 0)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await UpdateAPI(ExamBatchDetail?.MaChiTietDotThi ?? -1, new ChiTietDotThiUpdateRequest
+            {
+                MaDotThi = ExamBatchId ?? -1,
+                TenChiTietDotThi = ExamBatchName ?? string.Empty,
+                MaLopAo = selectedExamRoom.MaLopAo,
+                LanThi = selectedLanThi
+            });
+
+        if (result != null && result.MaChiTietDotThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickAddSubjectAsync()
+    {
+        var result = await OpenSubjectDialog(false);
+        if(result != null && !result.Canceled && subjects != null && result.Data != null)
+        {
+            var monHoc = (MonHocDto)result.Data;
+            if(monHoc != null){
+                subjects.Add(monHoc);
+                selectedSubject = monHoc;
+            }
+        }
+    }
+
+    private async Task OnClickEditSubjectAsync()
+    {
+        var result = await OpenSubjectDialog(true);
+        if (result != null && !result.Canceled && subjects != null && result.Data != null)
+        {
+            var monHoc = (MonHocDto)result.Data;
+            if (monHoc != null && selectedSubject != null)
+            {
+                int index = subjects.FindIndex(m => m.MaMonHoc == selectedSubject.MaMonHoc);
+                if(index != -1)
+                {
+                    subjects[index] = monHoc;
+                    selectedSubject = monHoc;
+                }
+            }
+        }
+    }
+
+    private async Task OnClickAddExamRoomAsync()
+    {
+        if (selectedSubject == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await OpenExamRoomDialog(false);
+        if(result != null && result.Data != null && examRooms != null && !result.Canceled){
+            var lopAo = (LopAoDto)result.Data;
+            if (lopAo != null)
+            {
+                examRooms.Add(lopAo);
+                selectedExamRoom = lopAo;
+            }
+        }
+    }
+
+    private async Task OnClickEditExamRoomAsync()
+    {
+        if (selectedSubject == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await OpenExamRoomDialog(true);
+        if (result != null && result.Data != null && examRooms != null && !result.Canceled)
+        {
+            var lopAo = (LopAoDto)result.Data;
+            if (lopAo != null && selectedExamRoom != null)
+            {
+                int index = examRooms.FindIndex(l => l.MaLopAo == selectedExamRoom.MaLopAo);
+                if(index != -1)
+                {
+                    examRooms[index] = lopAo;
+                    selectedExamRoom = lopAo;
+                }
+            }
+        }
+    }
+
+    private async Task<DialogResult?> OpenSubjectDialog(bool isEdit){
+        var parameters = new DialogParameters<SubjectDialog> 
+        { 
+            { x => x.IsEdit, isEdit},
+            { x => x.Subject, selectedSubject }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        var dialog = await Dialog.ShowAsync<SubjectDialog>((isEdit) ? "SỬA MÔN HỌC" : "THÊM MÔN HỌC", parameters, options);
+        return await dialog.Result;
+    }
+
+    private async Task<DialogResult?> OpenExamRoomDialog(bool isEdit)
+    {
+        var parameters = new DialogParameters<ExamRoomDialog>
+        {
+            { x => x.IsEdit, isEdit},
+            { x => x.ExamRoom, selectedExamRoom },
+            { x => x.SubjectId, selectedSubject?.MaMonHoc ?? -1 }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        var dialog = await Dialog.ShowAsync<ExamRoomDialog>((isEdit) ? "SỬA PHÒNG THI" : "THÊM PHÒNG THI", parameters, options);
+        return await dialog.Result;
+    }
+
+
+
+    private async Task<List<MonHocDto>?> Subject_GetAllAPI()
+    {
+        var response = await SenderAPI.GetAsync<List<MonHocDto>>("api/monhocs");
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<List<LopAoDto>?> ExamRoom_SelectBy_SubjectIdAPI(int ma_mon_hoc)
+    {
+        var response = await SenderAPI.GetAsync<List<LopAoDto>>($"api/lopaos/filter-by-monhoc?maMonHoc={ma_mon_hoc}");
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<ChiTietDotThiDto?> InsertAPI(ChiTietDotThiCreateRequest chiTietDotThi){
+        var response = await SenderAPI.PostAsync<ChiTietDotThiDto>("api/chitietdotthis", chiTietDotThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<ChiTietDotThiDto?> UpdateAPI(int ma_chi_tiet_dot_thi, ChiTietDotThiUpdateRequest chiTietDotThi){
+        var response = await SenderAPI.PutAsync<ChiTietDotThiDto>($"api/chitietdotthis/{ma_chi_tiet_dot_thi}", chiTietDotThi);
+        return (response.Success) ? response.Data : null;
+    }
+}

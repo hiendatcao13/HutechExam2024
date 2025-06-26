@@ -33,19 +33,19 @@ static void Configure(WebApplication app)
         app.UseHsts();
     }
 
-    //// Lấy CancellationToken khi ứng dụng dừng lại
-    //var lifetime = app.Lifetime;
-    //var cancellationToken = lifetime.ApplicationStopping;
+    // Lấy CancellationToken khi ứng dụng dừng lại
+    var lifetime = app.Lifetime;
+    var cancellationToken = lifetime.ApplicationStopping;
 
-    //// Tạo scope để giải quyết dịch vụ scoped
-    //var scope = app.Services.CreateScope();
-    //var consumeService = scope.ServiceProvider.GetRequiredService<AnswerQueueService>();
-    //var consumeService2 = scope.ServiceProvider.GetRequiredService<SubmitQueueService>();
-    //if (consumeService != null)
-    //{
-    //    Task.Run(() => consumeService.ConsumeMessagesAsync(cancellationToken));
-    //    Task.Run(() => consumeService2.ConsumeMessagesAsync(cancellationToken));
-    //}
+    // Tạo scope để giải quyết dịch vụ scoped
+    var scope = app.Services.CreateScope();
+    var consumeService = scope.ServiceProvider.GetRequiredService<AnswerQueueService>();
+    var consumeService2 = scope.ServiceProvider.GetRequiredService<SubmitQueueService>();
+    if (consumeService != null)
+    {
+        Task.Run(() => consumeService.ConsumeMessagesAsync(cancellationToken));
+        Task.Run(() => consumeService2.ConsumeMessagesAsync(cancellationToken));
+    }
 
 
     app.UseResponseCompression();

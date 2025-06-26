@@ -1,4 +1,4 @@
-﻿@page "/admin/accounts"
+﻿@page "/admin/account"
 @using Hutech.Exam.Shared.DTO
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
@@ -12,16 +12,16 @@
 			@if (users != null)
 			{
 				<MudTable Elevation="24" T="UserDto" Items="@users" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedUser" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassUserFunc"
-						  TotalItems="totalRecords_User" RowsPerPage="rowsPerPage_User" CurrentPageChanged="OnCurrentPageChange_User" RowsPerPageChanged="OnRowsPerPageChange_User">
+						  TotalItems="totalRecords_User" RowsPerPage="rowsPerPage_User" CurrentPageChanged="OnCurrentPageChange_UserAsync" RowsPerPageChanged="OnRowsPerPageChange_UserAsync">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin người dùng</MudText>
 						<MudSpacer />
-						<MudTextField @bind-Value="searchString" Placeholder="Nhập email hoặc tên người dùng" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await Filter()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchUsers()">Sync</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemUser()">Thêm</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaUser()">Sửa</MudButton>
+						<MudTextField @bind-Value="searchString" Placeholder="Nhập email hoặc tên người dùng" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchUsersAsync()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddUserAsync()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditUserAsync()">Sửa</MudButton>
 						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Lock" OnClick="async () => await OnClickChangePassword()">Đổi mật khẩu</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaUser()">Xóa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteUserAsync()">Xóa</MudButton>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh>Name</MudTh>
@@ -35,7 +35,7 @@
 						<MudTd DataLabel="Email">@item.Email</MudTd>
 						<MudTd DataLabel="Đăng nhập lần cuối">@(item.LastLoginDate.HasValue == true ? @item.LastLoginDate.Value.ToString("dd/MM/yyyy") : "-")</MudTd>
 						<MudTd DataLabel="Đã khóa?"><MudSwitch ReadOnly @bind-Value="item.IsLockedOut" Color="Color.Success"></MudSwitch></MudTd>
-						<MudTd DataLabel="Đã xóa?"><MudSwitch ReadOnly @bind-Value="item.IsDeleted" Color="Color.Info"></MudSwitch></MudTd>
+						<MudTd DataLabel="Đã xóa?"><MudSwitch ReadOnly @bind-Value="item.IsDeleted" Color="Color.Error"></MudSwitch></MudTd>
 					</RowTemplate>
 					<PagerContent>
 						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
@@ -78,7 +78,7 @@
 
 	private List<int> selectedPages_User = new() { 0 }; // luôn load có trang đầu tiên
 
-	private async Task Filter()
+	private async Task FilterAsync()
 	{
 		if (!string.IsNullOrEmpty(searchString))
 		{
@@ -92,7 +92,7 @@
 		}
 	}
 
-	private async Task OnRowsPerPageChange_User(int rows)
+	private async Task OnRowsPerPageChange_UserAsync(int rows)
 	{
 		if (rows == rowsPerPage_User)
 			return;
@@ -103,7 +103,7 @@
 		(var newUsers, _, _) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
 		PadEmptyRows(newUsers);
 	}
-	private async Task OnCurrentPageChange_User(int page)
+	private async Task OnCurrentPageChange_UserAsync(int page)
 	{
 		if (page == currentPage_User)
 			return;

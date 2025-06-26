@@ -11,13 +11,13 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage
     {
-        private async Task<List<CustomDeThi>?> GetDeThiAPI(long ma_de_hoan_vi)
+        private async Task<List<CustomDeThi>?> ShuffleExam_SelectOneAPI(long ma_de_hoan_vi)
         {
             var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
             return (response.Success) ? response.Data : null;
         }
 
-        private async Task<int> GetSoLanNgheAPI(AudioListenedDto audio)
+        private async Task<int> GetTotalAudioListenedAPI(AudioListenedDto audio)
         {
             var response = await SenderAPI.PutAsync<int>($"api/audios", audio);
             return (response.Success) ? response.Data : -1;

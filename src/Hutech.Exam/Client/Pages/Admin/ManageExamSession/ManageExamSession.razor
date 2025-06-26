@@ -1,0 +1,199 @@
+﻿@page "/admin/control"
+@using Hutech.Exam.Client.Pages.Admin.ExamMonitor
+@using Hutech.Exam.Shared.DTO
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Mange Ca Thi</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+    <MudGrid Style="margin-top: 5px">
+        <MudItem xs="3">
+            <MudSelect Label="Đợt thi" T="DotThiDto" Value=@selectedExamBatch Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamBatchAsync(value))">
+                @if (examBatchs != null)
+                {
+                    foreach (var item in examBatchs)
+                    {
+                        <MudSelectItem Value="item">@item.TenDotThi</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="MonHocDto" Label="Môn thi" Value=@selectedSubject Clearable="true" ValueChanged="@(async (value) => await OnValueChangeSubjectAsync(value))">
+                @if (subjects != null)
+                {
+                    foreach (var item in subjects)
+                    {
+                        <MudSelectItem Value="item">@item.TenMonHoc</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="LopAoDto" Label="Lớp" Value=@selectedExamRoom Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamRoomAsync(value))">
+                @if (examRooms != null)
+                {
+                    foreach (var item in examRooms)
+                    {
+                        <MudSelectItem Value="item">@item.TenLopAo</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="3">
+            <MudSelect T="int" Label="Lần thi" Value=@selectedAttemptNumber Clearable="true" ValueChanged="@(async (value) => await OnValueChangeAttemptNumberAsync(value))">
+                @if (attemptNumber != null)
+                {
+                    foreach (var item in attemptNumber)
+                    {
+                        <MudSelectItem Value="item">@item</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+        @if (examSessions != null)
+        {
+            <MudItem xs="12">
+                <MudTable Items="@examSessions" Elevation="24" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="OnRowsPerPageChangeAsync"
+                          CurrentPage="currentPage" CurrentPageChanged="OnCurrentPageChangeAsync" FixedHeader="true" Striped="true" SortLabel="Sort By">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Thông tin các ca thi</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString" Placeholder="Nhập tên hoặc mã ca thi" OnBlur="FilterAsync" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>STT</MudTh>
+                        <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<CaThiDto, object>(x=>x.MaCaThi)">Mã Ca Thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.TenCaThi ?? string.Empty)">Tên Ca Thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianBatDau)">Thời Gian Bắt Đầu</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianThi)">Thời lượng thi</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.IsActivated)">Kích hoạt</MudTableSortLabel></MudTh>
+                        <MudTh>Chức năng</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="item">
+                        <MudTd DataLabel="STT">@(examSessions.IndexOf(item) + 1)</MudTd>
+                        <MudTd DataLabel="Mã Ca Thi">@item.MaCaThi</MudTd>
+                        <MudTd DataLabel="Tên Ca Thi">@item.TenCaThi</MudTd>
+                        <MudTd DataLabel="Thời Lượng Thi">@item.ThoiGianBatDau</MudTd>
+                        <MudTd DataLabel="Thời Gian Bắt Đầu">@item.ThoiGianThi</MudTd>
+                        <MudTd>
+                            <MudIconButton Icon="@GetActivationIcon(item)" Color="@GetActivationColor(item)" />
+                        </MudTd>
+                        <MudTd>
+                            <MudButtonGroup Style="zoom: 0.7">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="() => OnClickExamSessionDetailAsync(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamSessionAsync(item)" />
+                                @* <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" /> *@
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+                    </PagerContent>
+                </MudTable>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string GetActivationIcon(CaThiDto item) => item.KetThuc ? Icons.Material.Filled.PlayCircleFilled : item.IsActivated ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel;
+    private Color GetActivationColor(CaThiDto item) => item.KetThuc ? Color.Default : item.IsActivated ? Color.Success : Color.Error;
+
+    private string searchString = "";
+    private int currentPage = 0;
+    private int rowsPerPage = 20;
+    private int totalRecords = 20;
+    private int totalPages = 1;
+    private List<int> selectedPages = new() { 0 }; // luôn load có trang đầu tiên
+
+    private DotThiDto? selectedExamBatch;
+    private MonHocDto? selectedSubject;
+    private LopAoDto? selectedExamRoom;
+    private int selectedAttemptNumber = 1;
+
+    private async Task FilterAsync()
+    {
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            (examSessions, totalRecords, totalPages) = await ExamSessions_SelectBy_ExamBatchDetailId_Search_PagedAPI(examBatchDetail?.MaChiTietDotThi ?? -1, searchString, currentPage, rowsPerPage);
+            CreateFakeData();
+        }
+        else
+        {
+            (examSessions, totalRecords, totalPages) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(examBatchDetail?.MaChiTietDotThi ?? -1, currentPage, rowsPerPage);
+            CreateFakeData();
+        }
+    }
+
+    private async Task OnValueChangeExamBatchAsync(DotThiDto dotThi)
+    {
+        selectedExamBatch = dotThi;
+        selectedSubject = null;
+        selectedExamRoom = null;
+        selectedAttemptNumber = 1;
+        await FetchExamSessionAsync();
+    }
+    private async Task OnValueChangeSubjectAsync(MonHocDto monHoc)
+    {
+        selectedExamRoom = null;
+        selectedAttemptNumber = 1;
+        selectedSubject = monHoc;
+        if (monHoc != null)
+            examRooms = await ExamRooms_SelectBy_MaMonHocAPI(monHoc.MaMonHoc);
+        else
+        {
+            examRooms?.Clear();
+        }
+        await FetchExamSessionAsync();
+    }
+    private async Task OnValueChangeExamRoomAsync(LopAoDto lopAo)
+    {
+        selectedAttemptNumber = 1;
+        selectedExamRoom = lopAo;
+        if (selectedExamBatch != null && selectedSubject != null && selectedExamRoom != null)
+        {
+
+        }
+        else
+        {
+            attemptNumber?.Clear();
+        }
+        await FetchExamSessionAsync();
+    }
+    private async Task OnValueChangeAttemptNumberAsync(int lanThi)
+    {
+        selectedAttemptNumber = lanThi;
+        await FetchExamSessionAsync();
+    }
+
+    private async Task OnRowsPerPageChangeAsync(int rows)
+    {
+        if (rows == rowsPerPage)
+            return;
+
+        this.rowsPerPage = rows;
+        currentPage = 0; //Reset về trang đầu tiên
+
+        (var newChiTietCaThis, _, _) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(examBatchDetail?.MaChiTietDotThi ?? -1, currentPage, rowsPerPage);
+        PadEmptyRows(newChiTietCaThis);
+    }
+
+    private async Task OnCurrentPageChangeAsync(int page)
+    {
+        if (page == currentPage)
+            return;
+
+        this.currentPage = page;
+        if (selectedPages.Contains(page))
+            return;
+
+        // chỉ thực hiện load data khi người dùng chọn trang mới
+        (var newChiTietCaThis, _, _) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(examBatchDetail?.MaChiTietDotThi ?? -1, currentPage, rowsPerPage);
+        PadEmptyRows(newChiTietCaThis);
+        selectedPages?.Add(currentPage);
+    }
+
+}

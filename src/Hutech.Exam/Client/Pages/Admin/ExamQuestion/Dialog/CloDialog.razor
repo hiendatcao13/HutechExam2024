@@ -12,7 +12,7 @@
 	<DialogContent>
 		<MudGrid>
 			<MudItem xs="4"><MudText>Tên môn thi:</MudText></MudItem>
-			<MudItem xs="8"><MudText><span class="title-text">@MonHoc?.TenMonHoc</span></MudText></MudItem>
+			<MudItem xs="8"><MudText><span class="title-text">@Subject?.TenMonHoc</span></MudText></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Mã số CLO:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Mã số clo" Required InputType="InputType.Text" @bind-Value="tempClo.MaSoClo" Placeholder="CLO2" /></MudItem>
@@ -31,14 +31,14 @@
 		</MudGrid>
 	</DialogContent>
 	<DialogActions>
-		<MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
 		@if (!IsEdit)
 		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickThem()" Color="Color.Success">Thêm</MudButton>
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
 		}
 		else
 		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSua()" Color="Color.Success">Sửa</MudButton>
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
 		}
 
 	</DialogActions>
@@ -66,7 +66,7 @@
 
 	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-	[Parameter][EditorRequired] public MonHocDto? MonHoc { get; set; }
+	[Parameter][EditorRequired] public MonHocDto? Subject { get; set; }
 
 	[Parameter] public CloDto? Clo { get; set; }
 
@@ -90,20 +90,20 @@
 		}
 		tempClo = new();
 	}
-	private void OnClickThoat()
+	private void OnClickExit()
 	{
 		MudDialog?.Cancel();
 	}
-	private async Task OnClickThem()
+	private async Task OnClickAddAsync()
 	{
 		if (string.IsNullOrEmpty(tempClo.MaSoClo) || string.IsNullOrEmpty(tempClo.TieuDe))
 		{
 			Snackbar.Add(INVALID_FORM, Severity.Error);
 			return;
 		}
-		var result = await InsertCloAPI(new CloCreateRequest
+		var result = await InsertAPI(new CloCreateRequest
 			{
-				MaMonHoc = MonHoc?.MaMonHoc ?? -1,
+				MaMonHoc = Subject?.MaMonHoc ?? -1,
 				MaSoClo = tempClo.MaSoClo,
 				TieuDe = tempClo.TieuDe,
 				SoCau = tempClo.SoCau,
@@ -114,7 +114,7 @@
 			MudDialog?.Close(DialogResult.Ok(result));
 		}
 	}
-	private async Task OnClickSua()
+	private async Task OnClickEditAsync()
 	{
 		if (string.IsNullOrEmpty(tempClo.MaSoClo) || string.IsNullOrEmpty(tempClo.TieuDe))
 		{
@@ -122,9 +122,9 @@
 			return;
 		}
 
-		var result = await UpdateCloAPI(tempClo.MaClo, new CloUpdateRequest
+		var result = await UpdateAPI(tempClo.MaClo, new CloUpdateRequest
 			{
-				MaMonHoc = MonHoc?.MaMonHoc ?? -1,
+				MaMonHoc = Subject?.MaMonHoc ?? -1,
 				MaSoClo = tempClo.MaSoClo,
 				TieuDe = tempClo.TieuDe,
 				SoCau = tempClo.SoCau,
@@ -136,13 +136,13 @@
 		}
 	}
 
-	private async Task<CloDto?> InsertCloAPI(CloCreateRequest clo)
+	private async Task<CloDto?> InsertAPI(CloCreateRequest clo)
 	{
 		var response = await SenderAPI.PostAsync<CloDto>("api/clos", clo);
 		return (response.Success) ? response.Data : null;
 
 	}
-	private async Task<CloDto?> UpdateCloAPI(int maClo, CloUpdateRequest clo)
+	private async Task<CloDto?> UpdateAPI(int maClo, CloUpdateRequest clo)
 	{
 		var response = await SenderAPI.PutAsync<CloDto>($"api/monhocs/{maClo}", clo);
 		return (response.Success) ? response.Data : null;

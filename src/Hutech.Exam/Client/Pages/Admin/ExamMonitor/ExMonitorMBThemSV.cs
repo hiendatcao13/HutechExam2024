@@ -1,8 +1,6 @@
 ﻿using Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog;
-using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
-using Hutech.Exam.Client.Pages.Result;
+using Hutech.Exam.Client.Pages.Admin.ManageExamSession;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.Models;
 using MudBlazor;
 
 
@@ -10,35 +8,35 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor
     {
-        private async Task OnClickThemSV()
+        private async Task OnClickAddStudentAsync()
         {
-            var result = await OpenThemSVDialog();
+            var result = await OpenAddStudentDialogAsync();
             if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
                 chiTietCaThis.Add(newChiTietCaThi);
             }
         }
-        private async Task<DialogResult?> OpenThemSVDialog()
+        private async Task<DialogResult?> OpenAddStudentDialogAsync()
         {
             
             Snackbar.Add(ALERT_ADDSV, Severity.Info);
             string?[] content_texts = [caThi?.TenCaThi ?? "", caThi?.ThoiGianBatDau.ToString() ?? "", caThi?.ThoiGianThi.ToString() ?? ""];
-            var parameters = new DialogParameters<ThemSVDialog>
+            var parameters = new DialogParameters<AddStudentDialog>
             {
-                { x => x.maMSSVs, GetMSSVs() },
-                { x => x.maDeHVs, GetMaDeThis() },
-                { x => x.ma_ca_thi, caThi?.MaCaThi},
-                { x => x.lop, await GetLop()}
+                { x => x.StudentCodes, GetAllStudentCodes() },
+                { x => x.ShuffleExams, GetAllShuffleExamIds() },
+                { x => x.examSessionId, caThi?.MaCaThi},
+                { x => x.classRoom, await GetClassRoom()}
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            var dialog = await Dialog.ShowAsync<ThemSVDialog>("Thêm SV khẩn cấp", parameters, options);
+            var dialog = await Dialog.ShowAsync<AddStudentDialog>("Thêm SV khẩn cấp", parameters, options);
             return await dialog.Result;
         }
 
-        private List<long> GetMaDeThis()
+        private List<long> GetAllShuffleExamIds()
         {
             List<long> result = [];
             if (chiTietCaThis != null)
@@ -51,7 +49,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             return result;
         }
-        private List<string> GetMSSVs()
+        private List<string> GetAllStudentCodes()
         {
             List<string> result = [];
             if (chiTietCaThis != null)
@@ -64,9 +62,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             return result;
         }
-        private async Task<string?> GetLop()
+        private async Task<string?> GetClassRoom()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataMC>("storedDataMC");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataMC");
             return storedData.LopAo?.TenLopAo;
         }
     }

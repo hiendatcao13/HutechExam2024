@@ -2,43 +2,41 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
-using MudBlazor;
 using Hutech.Exam.Shared.DTO.Custom;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamReview
 {
     public partial class ExamReview
     {
+        #region Private Fields
         [Inject] private HttpClient Http { get; set; } = default!;
 
         [Inject] private NavigationManager Nav { get; set; } = default!;
 
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-
-        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
 
-        List<MonHocDto>? monHocs = [];
-        MonHocDto? selectedMonHoc;
+        List<MonHocDto>? subjects = [];
+        MonHocDto? selectedSubject;
 
-        List<DeThiDto>? deThis = [];
-        DeThiDto? selectedDeThi;
+        List<DeThiDto>? exams = [];
+        DeThiDto? selectedExam;
 
         //thống kê report
-        List<CustomThongKeCauHoi> customThongKeCauHois = [];
+        List<CustomThongKeCauHoi> customQuestionReports = [];
 
         // thống kê điểm
-        List<CustomThongKeDiem> customThongKeDiems = [];
-        int tong_sv_thi, tong_sv_duoibang1, tong_sv_duoi5 = 0;
-        double diem_trung_binh = 0;
+        List<CustomThongKeDiem> customScoreReports = [];
+        int totalStudent, totalStudentLessEqual1, totalStudentLess5 = 0;
+        double averageScore = 0;
 
+        #endregion
+
+        #region Initial Methods
         protected async override Task OnInitializedAsync()
         {
             //xác thực người dùng
@@ -52,71 +50,77 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             {
                 Nav.NavigateTo("/admin", true);
             }
-            await Start();
+            await StartAsync();
             await base.OnInitializedAsync();
         }
 
-        private async Task Start()
+        private async Task StartAsync()
         {
-            await FetchMonHocs();
+            await FetchSubjectAsync();
         }
 
+        #endregion
 
-        private async Task FetchMonHocs()
+        #region Fetch Methods
+        private async Task FetchSubjectAsync()
         {
-            (monHocs, totalPages_Mon, totalRecords_Mon) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+            (subjects, totalPages_Subject, totalRecords_Subject) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
             CreateFakeData_MonHoc();
 
-            selectedMonHoc = null;
-            selectedDeThi = null;
+            selectedSubject = null;
+            selectedExam = null;
         }
 
-        private async Task FetchDeThi()
+        private async Task FetchExamAsync()
         {
-            if (selectedMonHoc != null)
+            if (selectedSubject != null)
             {
-                (deThis, totalPages_DeThi, totalRecords_DeThi) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc.MaMonHoc, currentPage_DeThi, rowsPerPage_DeThi);
+                (exams, totalPages_Exam, totalRecords_Exam) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject.MaMonHoc, currentPage_Exam, rowsPerPage_Exam);
                 CreateFakeData_DeThi();
             }
 
-            selectedDeThi = null;
+            selectedExam = null;
         }
 
-        private async Task ThongKeDiem(int maDeThi)
-        {
-            customThongKeDiems = await ThongKeDiem_SelectBy_DeThiAPI(maDeThi);
+        #endregion
 
-            List<double> diems = customThongKeDiems.Select(_ => _.Diem).ToList();
-            tong_sv_thi = diems.Count();
-            diem_trung_binh = (diems.Count != 0) ? diems.Average() : 0;
-            tong_sv_duoibang1 = diems.Count(d => d <= 1);
-            tong_sv_duoi5 = diems.Count(d => d < 5);
+        #region Other Methods
+
+        private async Task ReportScoreAsync(int maDeThi)
+        {
+            customScoreReports = await ScoreReport_SelectBy_ExamAPI(maDeThi);
+
+            List<double> diems = customScoreReports.Select(_ => _.Diem).ToList();
+            totalStudent = diems.Count();
+            averageScore = (diems.Count != 0) ? diems.Average() : 0;
+            totalStudentLessEqual1 = diems.Count(d => d <= 1);
+            totalStudentLess5 = diems.Count(d => d < 5);
         }
 
         private void CreateFakeData_MonHoc()
         {
-            if (monHocs != null && monHocs.Count != 0)
+            if (subjects != null && subjects.Count != 0)
             {
-                int count_fake = totalRecords_Mon - monHocs.Count;
-                bool isFake = totalRecords_Mon > monHocs.Count;
+                int count_fake = totalRecords_Subject - subjects.Count;
+                bool isFake = totalRecords_Subject > subjects.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        monHocs.Add(new MonHocDto());
+                        subjects.Add(new MonHocDto());
                 }
             }
         }
 
         private void CreateFakeData_DeThi()
         {
-            if (deThis != null && deThis.Count != 0)
+            if (exams != null && exams.Count != 0)
             {
-                int count_fake = totalRecords_DeThi - deThis.Count;
-                bool isFake = totalRecords_DeThi > deThis.Count;
+                int count_fake = totalRecords_Exam - exams.Count;
+                bool isFake = totalRecords_Exam > exams.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        deThis.Add(new DeThiDto());
+                        exams.Add(new DeThiDto());
                 }
             }
         }
@@ -125,13 +129,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             if (newMonHocs == null || newMonHocs.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_Mon * rowsPerPage_Mon;
-            if (monHocs != null && monHocs.Count != 0)
+            int startRow = currentPage_Subject * rowsPerPage_Subject;
+            if (subjects != null && subjects.Count != 0)
             {
                 for (int i = 0; i < newMonHocs.Count; i++)
                 {
 
-                    monHocs[startRow++] = newMonHocs[i];
+                    subjects[startRow++] = newMonHocs[i];
                 }
             }
             StateHasChanged();
@@ -142,16 +146,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             if (newDeThis == null || newDeThis.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_DeThi * rowsPerPage_DeThi;
-            if (deThis != null && deThis.Count != 0)
+            int startRow = currentPage_Exam * rowsPerPage_Exam;
+            if (exams != null && exams.Count != 0)
             {
                 for (int i = 0; i < newDeThis.Count; i++)
                 {
 
-                    deThis[startRow++] = newDeThis[i];
+                    exams[startRow++] = newDeThis[i];
                 }
             }
             StateHasChanged();
         }
+
+        #endregion
     }
 }

@@ -2,20 +2,16 @@
 @using Hutech.Exam.Client.Components.Dialogs
 @inject NavigationManager navManager
 @inject IDialogService Dialog
-
 @{
     var currentPath = new Uri(navManager.Uri).AbsolutePath;
     var isLoginPage = currentPath == "/" || currentPath == "/admin";
 }
 
-
 @* Required *@
-<MudThemeProvider />
+<MudThemeProvider Theme="@customTheme" />
 <MudPopoverProvider />
-
 @* Needed for dialogs *@
 <MudDialogProvider />
-
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 <AuthorizeView>
@@ -24,7 +20,6 @@
             @ChildContent
         </main>
     </Authorized>
-
     <NotAuthorized>
         <main>
             @if (isLoginPage)
@@ -38,9 +33,23 @@
         </main>
     </NotAuthorized>
 </AuthorizeView>
-
 @code {
     [Parameter, EditorRequired]
     public RenderFragment? ChildContent { get; set; }
-
+    MudTheme customTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = "#6200EE",
+                Secondary = "#03DAC6",
+                Info = "#2196F3",     // Màu xanh hiện đại hơn
+                Error = "#F44336",    // Màu đỏ chuẩn material
+                Success = "#4CAF50",
+                Warning = "#FF9800",
+                Background = "#F9F9F9",   // Nền chính sáng
+                Surface = "#FFFFFF",      // Bề mặt card/dialog
+                TextPrimary = "#1E1E1E",  // Màu chữ chính
+                TextSecondary = "#5A5A5A" // Màu chữ phụ
+            }
+        };
 }

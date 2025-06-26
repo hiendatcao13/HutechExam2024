@@ -202,3 +202,7 @@
 - Hoàn thành trang user
 - Trang đánh giá đề thi hiện còn thiếu phần đánh giá CLO
 - TODO: Hoàn thiện trang này, sửa lại trang giám sát ca thi, idea thêm table user_hierarchy
+---------------------------------------------------
+26/06/2025 6PM
+- Gần như hoàn thiện trans tiếng Anh cho các trang
+- TODO: Hoàn thành nốt các trang và xử lí lại nghiệp vụ services vs controller, phân quyền

@@ -5,7 +5,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
     public partial class ExamMonitor
     {
-        private async Task CreateHubConnection()
+        private async Task CreateHubConnectionAsync()
         {
             hubConnection = await AdminHub.GetConnectionAsync();
             if (chiTietCaThis != null)
@@ -32,7 +32,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 {
                     if(caThi != null && caThi.MaCaThi == ma_ca_thi)
                     {
-                        await CallLoadUpdateCaThi(ma_ca_thi);
+                        await CallLoadUpdateCaThiAsync(ma_ca_thi);
                         StateHasChanged();
                     }
                 });
@@ -40,7 +40,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 {
                     if(caThi != null && caThi.MaCaThi == ma_ca_thi)
                     {
-                        await CallLoadDeleteCaThi();
+                        await CallLoadDeleteCaThiAsync();
                     }
                 });
 
@@ -82,12 +82,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
         }
 
-        private async Task CallLoadUpdateCaThi(int ma_ca_thi)
+        private async Task CallLoadUpdateCaThiAsync(int ma_ca_thi)
         {
             Snackbar.Add(UPDATE_CA_THI, MudBlazor.Severity.Info);
-            caThi = await CaThi_SelectOneAPI(ma_ca_thi);
+            caThi = await ExamSession_SelectOneAPI(ma_ca_thi);
         }
-        private async Task CallLoadDeleteCaThi()
+
+        private async Task CallLoadDeleteCaThiAsync()
         {
             // xóa ca thi hiện tại, yêu cầu back lại trang web
             Snackbar.Add(DELETE_CA_THI, MudBlazor.Severity.Warning);

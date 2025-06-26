@@ -1,0 +1,119 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.LopAo
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudTextField Label="Tên phòng thi" Required InputType="InputType.Text" @bind-Value="tempExamRoom.TenLopAo" Placeholder="E1.08-09" />
+        <MudDatePicker Editable="true" Label="Ngày bắt đầu" @bind-Date="tempExamRoom.NgayBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    [Parameter][EditorRequired] public int SubjectId { get; set; } = 0;
+
+    [Parameter] public LopAoDto? ExamRoom { get; set; }
+
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    private LopAoDto tempExamRoom = default!;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if (ExamRoom != null && IsEdit)
+        {
+            tempExamRoom = new LopAoDto(ExamRoom);
+        }
+        tempExamRoom = new();
+    }
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickAddAsync()
+    {
+        if (string.IsNullOrEmpty(tempExamRoom.TenLopAo) || tempExamRoom.NgayBatDau == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await InsertAPI( new LopAoCreateRequest{ 
+                TenLopAo = tempExamRoom.TenLopAo,
+                NgayBatDau = (DateTime)tempExamRoom.NgayBatDau,
+            MaMonHoc = SubjectId
+        });
+
+        if (result != null && result.MaLopAo != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (string.IsNullOrEmpty(tempExamRoom.TenLopAo) || tempExamRoom.NgayBatDau == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        var result = await UpdateAPI(ExamRoom?.MaLopAo ?? -1, new LopAoUpdateRequest
+            {
+                TenLopAo = tempExamRoom.TenLopAo,
+                NgayBatDau = (DateTime)tempExamRoom.NgayBatDau,
+                MaMonHoc = SubjectId
+            });
+
+        if (result != null && result.MaLopAo != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<LopAoDto?> InsertAPI(LopAoCreateRequest lopAo)
+    {
+        var response = await SenderAPI.PostAsync<LopAoDto>("api/lopaos", lopAo);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<LopAoDto?> UpdateAPI(int ma_lop_ao, LopAoUpdateRequest lopAo)
+    {
+        var response = await SenderAPI.PutAsync<LopAoDto>($"api/lopaos/{ma_lop_ao}", lopAo);
+		return (response.Success) ? response.Data : null;
+    }
+
+}

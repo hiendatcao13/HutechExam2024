@@ -6,34 +6,42 @@ using System.Net.Http.Headers;
 using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.Pages.Admin.OrganizeExam.Dialog;
-using Microsoft.AspNetCore.SignalR.Client;
 using Hutech.Exam.Client.Components.Dialogs;
-using Hutech.Exam.Client.Pages.Admin.ManageCaThi;
 using Hutech.Exam.Client.API;
-using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Client.Pages.Admin.ManageExamSession;
 
 namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 {
     partial class OrganizeExam
     {
+        #region Private Fields
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
         [Inject] private AdminHubService AdminHub { get; set; } = default!;
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        private List<DotThiDto>? dotThis = [];
-        private List<ChiTietDotThiDto>? chiTietDotThis = [];
-        private List<CaThiDto>? caThis = [];
+        private List<DotThiDto>? examBatchs = [];
+        private List<ChiTietDotThiDto>? examBatchDetails = [];
+        private List<CaThiDto>? examSessions = [];
 
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
         private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
         private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI";
         private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
+
+        #endregion
+
+        #region Initial Methods
 
         protected override async Task OnInitializedAsync()
         {
@@ -49,97 +57,119 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 Nav.NavigateTo("/admin", true);
             }
             //await CreateHubConnection();
-            await GetItemsInSessionStorage();
+            await GetItemsInSessionStorageAsync();
             await base.OnInitializedAsync();
         }
 
-        private async Task Start()
+        private async Task StartAsync()
         {
-            (dotThis, totalPages_DT, totalRecords_DT) = await DotThis_GetAllAPI(currentPage_DT, rowsPerPage_DT);
+            (examBatchs, totalPages_ExamBatch, totalRecords_ExamBatch) = await ExamBatchs_GetAllAPI(currentPage_ExamBatch, rowsPerPage_ExamBatch);
             CreateFakeData_DT();
         }
 
-        private async Task FetchCaThis()
+        #endregion
+
+        #region Fetch Methods
+
+        private async Task FetchAllDataAsync()
         {
-            if (selectedChiTietDotThi != null)
+            if (selectedExamBatch != null)
             {
-                (caThis, totalPages_CT, totalRecords_CT) = await CaThis_SelectBy_MaChiTietDotThi_PagedAPI(selectedChiTietDotThi.MaChiTietDotThi, currentPage_CT, rowsPerPage_CT);
+                await FetchExamBatchDetailAsync();
+                await FetchExamSessionAsync();
+            }
+        }
+        private async Task FetchExamSessionAsync()
+        {
+            if (selectedExamBatchDetail != null)
+            {
+                (examSessions, totalPages_ExamSession, totalRecords_ExamSession) = await ExamSessions_SelectBy_ExamBatchDetailId_PagedAPI(selectedExamBatchDetail.MaChiTietDotThi, currentPage_ExamSession, rowsPerPage_ExamSession);
                 CreateFakeData_CT();
             }
         }
 
-        private async Task FetchCTDotThi()
+        private async Task FetchExamBatchDetailAsync()
         {
-            if (selectedDotThi != null)
+            if (selectedExamBatch != null)
             {
-                (chiTietDotThis, totalPages_CTDT, totalRecords_CTDT) = await ChiTietDotThis_SelectBy_MaDotThi_PagedAPI(selectedDotThi.MaDotThi, currentPage_CTDT, rowsPerPage_CTDT);
+                (examBatchDetails, totalPages_ExamBatchDetail, totalRecords_ExamBatchDetail) = await ExamBatchDetailDetail_SelectBy_ExamBatchId_PagedAPI(selectedExamBatch.MaDotThi, currentPage_ExamBatchDetail, rowsPerPage_ExamBatchDetail);
                 CreateFakeData_CTDT();
             }
         }
 
-        private async Task GetItemsInSessionStorage()
+        #endregion
+
+        #region SessionStorage Methods
+
+        private async Task GetItemsInSessionStorageAsync()
         {
             var storedData = await SessionStorage.GetItemAsync<StoredDataOE>("storedDataOE");
-            await Start();
+            await StartAsync();
             if (storedData != null)
             {
-                selectedDotThi = storedData.DotThi;
-                selectedChiTietDotThi = storedData.ChiTietDotThi;
+                selectedExamBatch = storedData.DotThi;
+                selectedExamBatchDetail = storedData.ChiTietDotThi;
             }
-            await FetchAllData();
-        }
-        private async Task FetchAllData()
-        {
-            if (selectedDotThi != null)
-            {
-                await FetchCTDotThi();
-                await FetchCaThis();
-            }
+            await FetchAllDataAsync();
         }
 
-        private async Task OnClickThemDotThi()
+        private async Task SetItemsInSessionStorageAsync()
         {
-            var result = await OpenDotThiDialog(false);
+            var selectedData = new StoredDataME
+            {
+                DotThi = selectedExamBatch,
+                MonHoc = selectedExamBatchDetail?.MaLopAoNavigation.MaMonHocNavigation,
+                LopAo = selectedExamBatchDetail?.MaLopAoNavigation,
+                LanThi = selectedExamBatchDetail?.LanThi ?? 0
+            };
+            await SessionStorage.SetItemAsync("storedDataEM", selectedData);
+        }
+        private async Task SaveDataAsync()
+        {
+            var selectedData = new StoredDataOE
+            {
+                DotThi = selectedExamBatch,
+                ChiTietDotThi = selectedExamBatchDetail
+            };
+            await SessionStorage.SetItemAsync("storedDataOE", selectedData);
+        }
+
+        #endregion
+
+        #region OnClick Methods
+
+        private async Task OnClickAddExamBatchAsync()
+        {
+            var result = await OpenExamBatchDialogAsync(false);
 
             if (result != null && !result.Canceled && result.Data != null)
             {
                 var newDotThi = (DotThiDto)result.Data;
-                dotThis?.Insert(0, newDotThi); // Thêm vào đầu danh sách
-            }    
+                examBatchs?.Insert(0, newDotThi); // Thêm vào đầu danh sách
+            }
         }
 
 
-        private async Task OnClickSuaDotThi()
+        private async Task OnClickEditExamBatchAsync()
         {
-            var result = await OpenDotThiDialog(true);
+            var result = await OpenExamBatchDialogAsync(true);
 
-            if(result != null && !result.Canceled && result.Data != null && dotThis != null)
+            if (result != null && !result.Canceled && result.Data != null && examBatchs != null)
             {
                 var newDotThi = (DotThiDto)result.Data;
 
-                int index = dotThis.FindIndex(dt => dt.MaDotThi == newDotThi.MaDotThi);
-                if(index != -1)
+                int index = examBatchs.FindIndex(dt => dt.MaDotThi == newDotThi.MaDotThi);
+                if (index != -1)
                 {
-                    dotThis[index] = newDotThi; // Cập nhật đợt thi trong danh sách
-                    selectedDotThi = dotThis[index];
-                }    
-            }    
+                    examBatchs[index] = newDotThi; // Cập nhật đợt thi trong danh sách
+                    selectedExamBatch = examBatchs[index];
+                }
+            }
         }
 
-        private async Task<DialogResult?> OpenDotThiDialog(bool isEdit)
+        private async Task OnClickDeleteExamBatchAsync()
         {
-            var parameters = new DialogParameters<DotThiDialog>
-            {
-                { x => x.DotThi, selectedDotThi ?? new() },
-                { x => x.IsEdit, isEdit }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<DotThiDialog>((isEdit) ? "SỬA ĐỢT THI" : "THÊM ĐỢT THI", parameters, options);
-            return await dialog.Result;
-        }
-        private async Task OnClickDeleteDotThi()
-        {
-            if (selectedDotThi == null)
+            if (selectedExamBatch == null)
             {
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
@@ -147,74 +177,55 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_DOTTHI_MESSAGE },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDotThi(true))   },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDotThi(false))   }
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamBatchAsync(true))   },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamBatchAsync(false))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA ĐỢT THI", parameters, options);
         }
 
-        private async Task HandleDeleteDotThi(bool isForce)
+        private async Task HandleDeleteExamBatchAsync(bool isForce)
         {
-            bool result = (isForce) ? await ForceDeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1) : await DeleteDotThiAPI(selectedDotThi?.MaDotThi ?? -1);
-            if (result && selectedDotThi != null)
+            bool result = (isForce) ? await ExamBatch_ForceDeleteAPI(selectedExamBatch?.MaDotThi ?? -1) : await ExamBatch_DeleteAPI(selectedExamBatch?.MaDotThi ?? -1);
+            if (result && selectedExamBatch != null)
             {
                 Snackbar.Add(WAITING_DELETE, Severity.Warning);
-                dotThis?.Remove(selectedDotThi);
-                selectedDotThi = null;
-                chiTietDotThis = [];
-                caThis = [];
+                examBatchs?.Remove(selectedExamBatch);
+                selectedExamBatch = null;
+                examBatchDetails = [];
+                examSessions = [];
             }
         }
 
-        private async Task OnClickThemCTDotThi()
+        private async Task OnClickAddExamBatchDetailAsync()
         {
-            var result = await OpenChiTietDotThiDialog(false);
+            var result = await OpenExamBatchDetailDialogAsync(false);
 
-            if(result != null && !result.Canceled && result.Data != null && chiTietDotThis != null)
+            if (result != null && !result.Canceled && result.Data != null && examBatchDetails != null)
             {
                 var newChiTietDotThi = (ChiTietDotThiDto)result.Data;
-                chiTietDotThis.Insert(0, newChiTietDotThi); // Thêm vào đầu danh sách
-            }    
+                examBatchDetails.Insert(0, newChiTietDotThi); // Thêm vào đầu danh sách
+            }
         }
-        private async Task OnClickSuaCTDotThi()
+        private async Task OnClickEditExamBatchDetailAsync()
         {
-            var result = await OpenChiTietDotThiDialog(true);
+            var result = await OpenExamBatchDetailDialogAsync(true);
 
-            if (result != null && !result.Canceled && result.Data != null && chiTietDotThis != null)
+            if (result != null && !result.Canceled && result.Data != null && examBatchDetails != null)
             {
                 var newChiTietDotThi = (ChiTietDotThiDto)result.Data;
-                int index = chiTietDotThis.FindIndex(ct => ct.MaChiTietDotThi == newChiTietDotThi.MaChiTietDotThi);
-                if(index != -1)
+                int index = examBatchDetails.FindIndex(ct => ct.MaChiTietDotThi == newChiTietDotThi.MaChiTietDotThi);
+                if (index != -1)
                 {
-                    chiTietDotThis[index] = newChiTietDotThi; // Cập nhật chi tiết đợt thi trong danh sách
-                    selectedChiTietDotThi = chiTietDotThis[index];
+                    examBatchDetails[index] = newChiTietDotThi; // Cập nhật chi tiết đợt thi trong danh sách
+                    selectedExamBatchDetail = examBatchDetails[index];
                 }
             }
         }
 
-        private async Task<DialogResult?> OpenChiTietDotThiDialog(bool isEdit)
+        private async Task OnClickDeleteExamBatchDetailAsync()
         {
-            if (selectedDotThi == null)
-            {
-                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
-                return null;
-            }
-            var parameters = new DialogParameters<CTDotThiDialog>
-            {
-                { x => x.TenDotThi, selectedDotThi.TenDotThi ?? "Không có DL tên"},
-                { x => x.MaDotThi , selectedDotThi.MaDotThi },
-                { x => x.IsEdit, isEdit },
-                { x => x.ChiTietDotThi, selectedChiTietDotThi }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<CTDotThiDialog>((isEdit) ? "SỬA CHI TIẾT ĐỢT THI": "THÊM CHI TIẾT ĐỢT THI", parameters, options);
-            return await dialog.Result;
-        }
-
-        private async Task OnClickDeleteCTDotThi()
-        {
-            if (selectedChiTietDotThi == null)
+            if (selectedExamBatchDetail == null)
             {
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
@@ -222,78 +233,47 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_CTDOTTHI_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCTDotThi(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCTDotThi(true))   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamBatchDetailAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamBatchDetailAsync(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA CHI TIẾT ĐỢT THI", parameters, options);
         }
-        private async Task HandleDeleteCTDotThi(bool isForce)
+
+        private async Task OnClickAddExamSessionAsync()
         {
-            bool result = (isForce) ? await ForceDeleteCTDotThiAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1) : await DeleteCTDotThiAPI(selectedChiTietDotThi?.MaChiTietDotThi ?? -1);
-            if (result && selectedChiTietDotThi != null)
-            {
-                Snackbar.Add(WAITING_DELETE, Severity.Warning);
-                chiTietDotThis?.Remove(selectedChiTietDotThi);
-                selectedChiTietDotThi = null;
-                caThis = [];
-            }
-        }
-        private async Task OnClickThemCaThi()
-        {
-            var result = await OpenCaThiDialog(false);
-            if(result != null && !result.Canceled && result.Data != null && caThis != null)
+            var result = await OpenExamSessionDialogAsync(false);
+            if (result != null && !result.Canceled && result.Data != null && examSessions != null)
             {
                 var newCaThi = (CaThiDto)result.Data;
-                caThis.Insert(0, newCaThi); // Thêm vào cuối danh sách
-            }    
+                examSessions.Insert(0, newCaThi); // Thêm vào cuối danh sách
+            }
         }
-        private async Task OnClickSuaCaThi()
+
+        private async Task OnClickEditExamSessionAsync()
         {
-            if (selectedCaThi == null)
+            if (selectedExamSession == null)
             {
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
             }
 
-            var result = await OpenCaThiDialog(true);
-            if (result != null && !result.Canceled && result.Data != null && caThis != null)
+            var result = await OpenExamSessionDialogAsync(true);
+            if (result != null && !result.Canceled && result.Data != null && examSessions != null)
             {
                 var newCaThi = (CaThiDto)result.Data;
-                int index = caThis.FindIndex(ct => ct.MaCaThi == newCaThi.MaCaThi);
+                int index = examSessions.FindIndex(ct => ct.MaCaThi == newCaThi.MaCaThi);
                 if (index != -1)
                 {
-                    caThis[index] = newCaThi; // Cập nhật ca thi trong danh sách
-                    selectedCaThi = caThis[index];
+                    examSessions[index] = newCaThi; // Cập nhật ca thi trong danh sách
+                    selectedExamSession = examSessions[index];
                 }
             }
         }
 
-        private async Task<DialogResult?> OpenCaThiDialog(bool isEdit)
+        private async Task OnClickDeleteExamSessionAsync()
         {
-            if (selectedChiTietDotThi == null)
-            {
-                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
-                return null;
-            }
-            var parameters = new DialogParameters<CaThiDialog>
-            {
-                { x => x.MaChiTietDotThi, selectedChiTietDotThi.MaChiTietDotThi },
-                { x => x.TenDotThi, selectedDotThi?.TenDotThi ?? "Không có DL tên"},
-                { x => x.TenLopAo , selectedChiTietDotThi.MaLopAoNavigation.TenLopAo },
-                { x => x.TenMonThi, selectedChiTietDotThi.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
-                { x => x.LanThi, selectedChiTietDotThi.LanThi },
-                { x => x.IsEdit, isEdit },
-                { x => x.CaThi, selectedCaThi }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<CaThiDialog>((isEdit) ? "SỬA CA THI" : "THÊM CA THI", parameters, options);
-            return await dialog.Result;
-        }
-
-        private async Task OnClickDeleteCaThi()
-        {
-            if (selectedCaThi == null)
+            if (selectedExamSession == null)
             {
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return;
@@ -302,114 +282,168 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_CATHI_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCaThi(true))   }
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamSessionAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamSessionAsync(true))   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA CA THI", parameters, options);
         }
 
-        private async Task HandleDeleteCaThi(bool isForce)
+        private async Task OnClickShowExamBatchDetailAsync(CaThiDto caThi)
         {
-            bool result = (isForce) ? await ForceDeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1) : await DeleteCaThiAPI(selectedCaThi?.MaCaThi ?? -1);
-            if (result && selectedCaThi != null)
-            {
-                Snackbar.Add(WAITING_DELETE, Severity.Warning);
-                caThis?.Remove(selectedCaThi);
-                selectedCaThi = null;
-            }
+            await SaveDataAsync();
+            // set Ca Thi cho trang EM, ko tốn API lấy lại
+            await SessionStorage.SetItemAsync("CaThi", caThi);
+            // set cho trang Manage Exam 
+            await SetItemsInSessionStorageAsync();
+            Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
         }
 
-        private async Task OnClickCapNhatDeThi(CaThiDto caThi)
+        private async Task OnClickUpdateExamAsync(CaThiDto caThi)
         {
-            var result = await OpenCapNhatDeThiDialog(caThi);
-            if (result != null && result.Data != null && !result.Canceled && caThis != null)
+            var result = await OpenUpdateExamDialogAsync(caThi);
+            if (result != null && result.Data != null && !result.Canceled && examSessions != null)
             {
                 var newCaThi = (CaThiDto)result.Data;
-                int index = caThis.FindIndex(ct => ct.MaCaThi == newCaThi.MaCaThi);
-                if(index != -1)
+                int index = examSessions.FindIndex(ct => ct.MaCaThi == newCaThi.MaCaThi);
+                if (index != -1)
                 {
-                    caThis[index] = newCaThi;
-                }    
+                    examSessions[index] = newCaThi;
+                }
             }
         }
 
-        private async Task OnClickCapNhatSVCaThi()
+        private async Task OnClickUploadStudentListToExamSessionAsync()
         {
 
-            var parameters = new DialogParameters<ThemSVCaThiExcelDialog>{ };
+            var parameters = new DialogParameters<AddStudentExamSessionExcelDialog> { };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<ThemSVCaThiExcelDialog>("THÊM DANH SÁCH SINH VIÊN VÀO CA THI", parameters, options);
+            await Dialog.ShowAsync<AddStudentExamSessionExcelDialog>("THÊM DANH SÁCH SINH VIÊN VÀO CA THI", parameters, options);
         }
-        private async Task<DialogResult?> OpenCapNhatDeThiDialog(CaThiDto caThi)
+
+        #endregion
+
+        #region HandleOnClick Methods
+
+        private async Task HandleDeleteExamBatchDetailAsync(bool isForce)
         {
-            if (selectedChiTietDotThi == null)
+            bool result = (isForce) ? await ExamBatchDetail_ForceDeleteAPI(selectedExamBatchDetail?.MaChiTietDotThi ?? -1) : await ExamBatchDetail_DeleteAPI(selectedExamBatchDetail?.MaChiTietDotThi ?? -1);
+            if (result && selectedExamBatchDetail != null)
+            {
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                examBatchDetails?.Remove(selectedExamBatchDetail);
+                selectedExamBatchDetail = null;
+                examSessions = [];
+            }
+        }
+
+        private async Task HandleDeleteExamSessionAsync(bool isForce)
+        {
+            bool result = (isForce) ? await ExamSession_ForceDeleteAPI(selectedExamSession?.MaCaThi ?? -1) : await ExamSession_DeleteAPI(selectedExamSession?.MaCaThi ?? -1);
+            if (result && selectedExamSession != null)
+            {
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                examSessions?.Remove(selectedExamSession);
+                selectedExamSession = null;
+            }
+        }
+
+
+
+        #endregion
+
+        #region Dialog Methods
+
+        private async Task<DialogResult?> OpenExamBatchDialogAsync(bool isEdit)
+        {
+            var parameters = new DialogParameters<ExamBatchDialog>
+            {
+                { x => x.ExamBatch, selectedExamBatch ?? new() },
+                { x => x.IsEdit, isEdit }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<ExamBatchDialog>((isEdit) ? "SỬA ĐỢT THI" : "THÊM ĐỢT THI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenExamBatchDetailDialogAsync(bool isEdit)
+        {
+            if (selectedExamBatch == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return null;
+            }
+            var parameters = new DialogParameters<ExamBatchDetailDialog>
+            {
+                { x => x.ExamBatchName, selectedExamBatch.TenDotThi ?? "Không có DL tên"},
+                { x => x.ExamBatchId , selectedExamBatch.MaDotThi },
+                { x => x.IsEdit, isEdit },
+                { x => x.ExamBatchDetail, selectedExamBatchDetail }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<ExamBatchDetailDialog>((isEdit) ? "SỬA CHI TIẾT ĐỢT THI" : "THÊM CHI TIẾT ĐỢT THI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenExamSessionDialogAsync(bool isEdit)
+        {
+            if (selectedExamBatchDetail == null)
+            {
+                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+                return null;
+            }
+            var parameters = new DialogParameters<ExamSessionDialog>
+            {
+                { x => x.ExamBatchId, selectedExamBatchDetail.MaChiTietDotThi },
+                { x => x.ExamBatchName, selectedExamBatch?.TenDotThi ?? "Không có DL tên"},
+                { x => x.ExamClassroomName , selectedExamBatchDetail.MaLopAoNavigation.TenLopAo },
+                { x => x.SubjectName, selectedExamBatchDetail.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
+                { x => x.AttemptNumber, selectedExamBatchDetail.LanThi },
+                { x => x.IsEdit, isEdit },
+                { x => x.ExamSession, selectedExamSession }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<ExamSessionDialog>((isEdit) ? "SỬA CA THI" : "THÊM CA THI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenUpdateExamDialogAsync(CaThiDto caThi)
+        {
+            if (selectedExamBatchDetail == null)
             {
                 Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
                 return DialogResult.Cancel();
             }
-            var parameters = new DialogParameters<CapNhatDeThiDialog>
+            var parameters = new DialogParameters<EditExamDialog>
             {
-                { x => x.MaChiTietDotThi, selectedChiTietDotThi.MaChiTietDotThi },
-                { x => x.TenDotThi, selectedDotThi?.TenDotThi ?? "Không có DL tên"},
-                { x => x.TenLopAo , selectedChiTietDotThi.MaLopAoNavigation.TenLopAo },
-                { x => x.TenMonThi, selectedChiTietDotThi.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
-                { x => x.LanThi, selectedChiTietDotThi.LanThi },
-                { x => x.CaThi, caThi }
+                { x => x.ExamBatchDetailId, selectedExamBatchDetail.MaChiTietDotThi },
+                { x => x.ExamBatchName, selectedExamBatch?.TenDotThi ?? "Không có DL tên"},
+                { x => x.ExamRoomName , selectedExamBatchDetail.MaLopAoNavigation.TenLopAo },
+                { x => x.SubjectName, selectedExamBatchDetail.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
+                { x => x.AttemptNumber, selectedExamBatchDetail.LanThi },
+                { x => x.ExamSession, caThi }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<CapNhatDeThiDialog>("UPDATE ĐỀ THI", parameters, options);
+            var dialog = await Dialog.ShowAsync<EditExamDialog>("UPDATE ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 
+        #endregion
 
-
-        private async Task OnClickShowChiTietCaThi(CaThiDto caThi)
-        {
-            await SaveData();
-            // set Ca Thi cho trang EM, ko tốn API lấy lại
-            await SessionStorage.SetItemAsync("CaThi", caThi);
-            // set cho trang Manage Exam 
-            await SetItemsInSessionStorage();
-            Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
-        }
-
-
-
-
-        private async Task SaveData()
-        {
-            var selectedData = new StoredDataOE
-            {
-                DotThi = selectedDotThi,
-                ChiTietDotThi = selectedChiTietDotThi
-            };
-            await SessionStorage.SetItemAsync("storedDataOE", selectedData);
-        }
-        private async Task SetItemsInSessionStorage()
-        {
-            var selectedData = new StoredDataMC
-            {
-                DotThi = selectedDotThi,
-                MonHoc = selectedChiTietDotThi?.MaLopAoNavigation.MaMonHocNavigation,
-                LopAo = selectedChiTietDotThi?.MaLopAoNavigation,
-                LanThi = selectedChiTietDotThi?.LanThi ?? 0
-            };
-            await SessionStorage.SetItemAsync("storedDataEM", selectedData);
-        }
+        #region Other Methods
 
         private void PadEmptyRows(List<DotThiDto>? newDotThis)
         {
             if (newDotThis == null || newDotThis.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_DT * rowsPerPage_DT;
-            if (dotThis != null && dotThis.Count != 0)
+            int startRow = currentPage_ExamBatch * rowsPerPage_ExamBatch;
+            if (examBatchs != null && examBatchs.Count != 0)
             {
                 for (int i = 0; i < newDotThis.Count; i++)
                 {
 
-                    dotThis[startRow++] = newDotThis[i];
+                    examBatchs[startRow++] = newDotThis[i];
                 }
             }
             StateHasChanged();
@@ -420,13 +454,13 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             if (newChiTietDotThis == null || newChiTietDotThis.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_CTDT * rowsPerPage_CTDT;
-            if (chiTietDotThis != null && chiTietDotThis.Count != 0)
+            int startRow = currentPage_ExamBatchDetail * rowsPerPage_ExamBatchDetail;
+            if (examBatchDetails != null && examBatchDetails.Count != 0)
             {
                 for (int i = 0; i < newChiTietDotThis.Count; i++)
                 {
 
-                    chiTietDotThis[startRow++] = newChiTietDotThis[i];
+                    examBatchDetails[startRow++] = newChiTietDotThis[i];
                 }
             }
             StateHasChanged();
@@ -438,13 +472,13 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             if (newCaThis == null || newCaThis.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_CT * rowsPerPage_CT;
-            if (caThis != null && caThis.Count != 0)
+            int startRow = currentPage_ExamSession * rowsPerPage_ExamSession;
+            if (examSessions != null && examSessions.Count != 0)
             {
                 for (int i = 0; i < newCaThis.Count; i++)
                 {
 
-                    caThis[startRow++] = newCaThis[i];
+                    examSessions[startRow++] = newCaThis[i];
                 }
             }
             StateHasChanged();
@@ -453,44 +487,46 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private void CreateFakeData_DT()
         {
-            if (dotThis != null && dotThis.Count != 0)
+            if (examBatchs != null && examBatchs.Count != 0)
             {
-                int count_fake = totalRecords_DT - dotThis.Count;
-                bool isFake = totalRecords_DT > dotThis.Count;
+                int count_fake = totalRecords_ExamBatch - examBatchs.Count;
+                bool isFake = totalRecords_ExamBatch > examBatchs.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        dotThis.Add(new DotThiDto());
+                        examBatchs.Add(new DotThiDto());
                 }
             }
         }
 
         private void CreateFakeData_CTDT()
         {
-            if (chiTietDotThis != null && chiTietDotThis.Count != 0)
+            if (examBatchDetails != null && examBatchDetails.Count != 0)
             {
-                int count_fake = totalRecords_CTDT - chiTietDotThis.Count;
-                bool isFake = totalRecords_CTDT > chiTietDotThis.Count;
+                int count_fake = totalRecords_ExamBatchDetail - examBatchDetails.Count;
+                bool isFake = totalRecords_ExamBatchDetail > examBatchDetails.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        chiTietDotThis.Add(new ChiTietDotThiDto());
+                        examBatchDetails.Add(new ChiTietDotThiDto());
                 }
             }
         }
 
         private void CreateFakeData_CT()
         {
-            if (caThis != null && caThis.Count != 0)
+            if (examSessions != null && examSessions.Count != 0)
             {
-                int count_fake = totalRecords_CT - caThis.Count;
-                bool isFake = totalRecords_CT > caThis.Count;
+                int count_fake = totalRecords_ExamSession - examSessions.Count;
+                bool isFake = totalRecords_ExamSession > examSessions.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        caThis.Add(new CaThiDto());
+                        examSessions.Add(new CaThiDto());
                 }
             }
         }
+
+        #endregion
     }
 }

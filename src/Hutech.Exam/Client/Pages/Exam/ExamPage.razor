@@ -6,54 +6,44 @@
 <PageTitle>Exam Page</PageTitle>
 
 
-<MudPaper Elevation="4" Class="pa-4" Style="background-color: #f9f9f9;">
+<MudPaper Elevation="4" Class="pa-4">
 	<!-- Header Section -->
-	<MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-4" Style="position: sticky; top: 0">
-		<MudItem xs="12" md="4">
-			@*<MudImage Src="images/exam/Logo.svg" Width="150" />*@
-		</MudItem>
-		<MudItem xs="12" md="4" Class="d-flex justify-end">
-		</MudItem>
-		<MudItem xs="12" md="4" Class="d-flex justify-end">
-			<MudText Typo="Typo.h5" Align=Align.Right Style="color: #333; margin-right: 10%">⏰: <b class="time-clock">@DisplayTime</b></MudText>
-			<MudButton Variant="Variant.Filled" Color="Color.Success" Size="MudBlazor.Size.Large" OnClick="async () => await OnClickNopBai()">Nộp Bài</MudButton>
-		</MudItem>
-	</MudGrid>
+
 
 	<MudGrid Class="noselect">
 		<MudItem xs="12" md="9">
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
-				@if (CustomDeThis != null)
+				@if (CustomExams != null)
 				{
-					int current_ma_nhom_cha = -1;
-					int current_ma_nhom = 0;
+					int current_parentGroupQuestion = -1;
+					int current_groupQuestion = 0;
 
-					foreach (var item in CustomDeThis)
+					foreach (var item in CustomExams)
 					{
 						//Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
-						if (current_ma_nhom_cha != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
+						if (current_parentGroupQuestion != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
 						{
-							current_ma_nhom_cha = item.MaNhomCha;
+							current_parentGroupQuestion = item.MaNhomCha;
 							<MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
-								<NoiDungFragment NoiDung="@item.NoiDungCauHoiNhomCha.ToUpper()" isNoiDungCha="true" />
+								<NoiDungFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
 							</MudText>
 						}
 
 						//Hiển thị nội dung câu hỏi nhóm con cấp 2
-						if (current_ma_nhom != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
+						if (current_groupQuestion != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
 						{
-							current_ma_nhom = item.MaNhom;
+							current_groupQuestion = item.MaNhom;
 
 							// xử lí câu hỏi âm thanh
-							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && item.GhiChu != "-1" && DsAudioListened.ContainsKey(item.MaNhom))
+							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && AudioListeneds.ContainsKey(item.MaNhom))
 							{
 								<MudText Typo="Typo.subtitle1" GutterBottom="true">
-									<b><NoiDungFragment NoiDung="@DsAudioListened[item.MaNhom].AudioText" /></b>
+									<b><NoiDungFragment Content="@AudioListeneds[item.MaNhom].AudioText" /></b>
 								</MudText>
 								<span>
 									<br />
-									<audio id="@item.MaNhom" controls controlsList="nodownload" @onplay="async () => await OnPlayAudio(item, item.MaNhom)">
-										<source src="@DsAudioListened[item.MaNhom].AudioUrl" />
+									<audio id="@item.MaNhom" controls controlsList="nodownload" @onplay="async () => await OnPlayAudioAsync(item, item.MaNhom)">
+										<source src="@AudioListeneds[item.MaNhom].AudioUrl" />
 									</audio>
 									@((MarkupString)(item.GhiChu + ""))
 								</span>
@@ -61,7 +51,7 @@
 							else if (item.KieuNoiDungCauHoiNhom != 2)
 							{
 								<MudText Typo="Typo.subtitle1" GutterBottom="true">
-									<b><NoiDungFragment NoiDung="@item.NoiDungCauHoiNhom" /></b>
+									<b><NoiDungFragment Content="@item.NoiDungCauHoiNhom" /></b>
 								</MudText>
 							}
 						}
@@ -70,18 +60,18 @@
 						if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
 						{
 							<MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
-								<b>Câu hỏi @(item.ThuTuCauHoi): <NoiDungFragment NoiDung="@item.NoiDungCauHoi" /></b>
+								<b>Câu hỏi @(item.ThuTuCauHoi): <NoiDungFragment Content="@item.NoiDungCauHoi" /></b>
 							</MudText>
 						}
 
 						// Hiển thị nội dung câu trả lời
 						@if (item.CauTraLois != null)
 						{
-							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi].Item2" ValueChanged="async (value) => await OnClickDapAn(item, value)">
+							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="SelectedAnswers[item.MaCauHoi].Item2" ValueChanged="async (value) => await OnClickAnswerAsync(item, value)">
 								@foreach (var noidung in item.CauTraLois)
 								{
 									<MudItem xs="12" sm="6">
-										<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment NoiDung="@noidung.Value"></NoiDungFragment></MudRadio>
+										<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment Content="@noidung.Value"></NoiDungFragment></MudRadio>
 									</MudItem>
 								}
 							</MudRadioGroup>
@@ -92,23 +82,35 @@
 		</MudItem>
 
 		<!-- Sidebar Info -->
-		<MudItem xs="12" md="3">
+		<MudItem xs="12" md="3" Style=" position: sticky; top: 0; overflow-y: auto; height: 100%">
+			<MudPaper Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
+				<MudGrid>
+					<MudItem xs="6" Style="align-content: center">
+						@* <MudText Typo="Typo.h5" Style="color: #333; margin-right: 10%">⏰: <b class="time-clock">@DisplayTime</b></MudText> *@
+						<Hutech.Exam.Client.Pages.Exam.Components.ClockComponent InitialSeconds="@CalculateTotalSeconds()" OnFinish="EndTimeSubmissionAsync"></Hutech.Exam.Client.Pages.Exam.Components.ClockComponent>
+					</MudItem>
+					<MudItem xs="6">
+						<MudButton Style="margin: 5px" Variant="Variant.Filled" Color="Color.Success" Size="MudBlazor.Size.Large" OnClick="async () => await OnClickSubmitAsync()">Nộp Bài</MudButton>
+					</MudItem>
+				</MudGrid>
+			</MudPaper>
+
 			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
 				<MudImage Src="images/exam/Ellipse 1.svg" Width="120" Class="mb-2" />
 				<MudDivider Class="mb-2" />
-				<MudText Typo="Typo.subtitle2"><b>Tên:</b> @SinhVien?.HoVaTenLot @SinhVien?.TenSinhVien</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @SinhVien?.MaSoSinhVien</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @CaThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
-				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @ChiTietCaThi?.KyHieuDe</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Tên:</b> @Students?.HoVaTenLot @Students?.TenSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @Students?.MaSoSinhVien</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @ExamSession?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
+				<MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @ExamSessionDetail?.KyHieuDe</MudText>
 			</MudPaper>
-			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 10%; max-height: 500px; overflow-y: auto">
+			<MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; max-height: 450px; overflow-y: auto">
 				<MudText Typo="Typo.subtitle2" Class="mb-2"><b>Danh sách câu hỏi</b></MudText>
 				<MudGrid>
 					@{
-						foreach (var item in DSKhoanhDapAn)
+						foreach (var item in SelectedAnswers)
 						{
 							<MudItem xs="2" md="3" Style="padding-left: 15px">
-								<MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value.Item2 != null) ? Color.Success : Color.Default" OnClick="async () => await ScrollToQuestion(item.Key)">
+								<MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value.Item2 != null) ? Color.Success : Color.Default" OnClick="async () => await ScrollToQuestionAsync(item.Key)">
 									@item.Value.Item1
 								</MudButton>
 							</MudItem>
@@ -126,6 +128,7 @@
 	.mud-main-content {
 		padding: 0;
 	}
+
 	.nhomCauHoiCha {
 		border: 1px solid;
 		background-color: antiquewhite;
@@ -190,6 +193,14 @@
 		if (audio) {
 			audio.currentTime = 0;
 			audio.play();
+		}
+	};
+	// Khiến cho audio ngừng ko thể phát (không nên disable vì người nghe có thể bật lại từ inspect trang)
+		window.stopAudio = (id) => {
+		const audio = document.getElementById(id);
+		if (audio) {
+			audio.pause();         // Dừng phát
+			audio.currentTime = 0; // Tua về đầu
 		}
 	};
 

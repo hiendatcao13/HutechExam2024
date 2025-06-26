@@ -5,30 +5,30 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage
     {
-        private async Task CreateHubConnection()
+        private async Task CreateHubConnectionAsync()
         {
             _hubConnection = await StudentHub.GetConnectionAsync(MyData.SinhVien.MaSinhVien);
 
             // trường hợp thay đổi tình trạng ca thi
             _hubConnection.On("ChangeStatusCaThi", () =>
             {
-                CallLoadThayDoiTinhTrangCaThi();
+                CallLoadChangeStatusExamSession();
             });
             _hubConnection.On("ResetLogin", async () =>
             {
-                await CallLoadDangXuat();
+                await CallLoadLogOutAsync();
             });
             _hubConnection.On("SubmitExam", async () =>
             {
                 Snackbar.Add(ADMIN_NOP_BAI, MudBlazor.Severity.Info);
-                await KetThucThoiGianLamBai();
+                await EndTimeSubmissionAsync();
             });
 
             //tham gia vào group mã ca thi
-            await _hubConnection.InvokeAsync("JoinGroupMaCaThi", CaThi?.MaCaThi ?? -1);
+            await _hubConnection.InvokeAsync("JoinGroupMaCaThi", ExamSession?.MaCaThi ?? -1);
         }
 
-        private async Task HandleDangXuat()
+        private async Task HandleLogoutAsync()
         {
             if (await UpdateLogoutAPI(MyData.SinhVien.MaSinhVien))
             {
@@ -38,15 +38,17 @@ namespace Hutech.Exam.Client.Pages.Exam
             }
             Snackbar.Add("Có lỗi xảy ra khi đăng xuất tài khoản", MudBlazor.Severity.Error);
         }
-        private void CallLoadThayDoiTinhTrangCaThi()
+
+        private void CallLoadChangeStatusExamSession()
         {
             Snackbar.Add(DONG_BANG_CA_THI, MudBlazor.Severity.Warning);
             Nav.NavigateTo("/info");
         }
-        private async Task CallLoadDangXuat()
+
+        private async Task CallLoadLogOutAsync()
         {
             Snackbar.Add(RESET_LOGIN, MudBlazor.Severity.Warning);
-            await HandleDangXuat();
+            await HandleLogoutAsync();
         }
     }
 }

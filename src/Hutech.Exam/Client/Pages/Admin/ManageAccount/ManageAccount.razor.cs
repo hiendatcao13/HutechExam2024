@@ -1,39 +1,34 @@
 ﻿using Hutech.Exam.Client.API;
-using Hutech.Exam.Client.DAL;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
-using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
-using Hutech.Exam.Client.Pages.Admin.ManageLop.Dialog;
 using Hutech.Exam.Client.Pages.Admin.ManageAccount.Dialog;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 {
     public partial class ManageAccount
     {
+        #region Private Fields
         [Inject] private HttpClient Http { get; set; } = default!;
 
         [Inject] private NavigationManager Nav { get; set; } = default!;
 
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-        [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-
-        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-
-        [Inject] private AdminHubService AdminHub { get; set; } = default!;
-
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        private List<UserDto> users { get; set; } = [];
+        List<UserDto> users = [];
 
         private const string NO_SELECT = "Vui lòng chọn ít nhất 1 đối tượng";
         private const string DELETE_USER_MESSAGE = "Bạn có chắc chắn muốn xóa người dùng này. Chỉ có phép xóa an toàn";
 
+        #endregion
+
+        #region Initial Methods
 
         protected override async Task OnInitializedAsync()
         {
@@ -48,26 +43,32 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             {
                 Nav.NavigateTo("/admin", true);
             }
-            await Start();
+            await StartAsync();
             await base.OnInitializedAsync();
         }
 
-        private async Task Start()
+        private async Task StartAsync()
         {
-            await FetchUsers();
+            await FetchUsersAsync();
         }
 
+        #endregion
 
-        private async Task FetchUsers()
+        #region Fetch Methods
+        private async Task FetchUsersAsync()
         {
             (users, totalPages_User, totalRecords_User) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
             CreateFakeData_User();
         }
 
-        private async Task OnClickThemUser()
+        #endregion
+
+        #region OnClick Methods
+
+        private async Task OnClickAddUserAsync()
         {
 
-            var result = await OpenThemUserDialog();
+            var result = await OpenAddUserDialogAsync();
 
             if (result != null && !result.Canceled && result.Data is UserDto newUser)
             {
@@ -75,15 +76,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             }
         }
 
-        private async Task<DialogResult?> OpenThemUserDialog()
-        {
-            var parameters = new DialogParameters<ThemUserDialog>{};
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<ThemUserDialog>("THÊM NGƯỜI DÙNG", parameters, options);
-            return await dialog.Result;
-        }
-
-        private async Task OnClickSuaUser()
+        private async Task OnClickEditUserAsync()
         {
             if (selectedUser == null)
             {
@@ -91,7 +84,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
                 return;
             }
 
-            var result = await OpenSuaUserDialog(selectedUser);
+            var result = await OpenEditUserDialogAsync(selectedUser);
 
             if (result != null && !result.Canceled && result.Data is UserDto newUser && users != null)
             {
@@ -101,17 +94,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
                     users[index] = newUser;
                 }
             }
-        }
-
-        private async Task<DialogResult?> OpenSuaUserDialog(UserDto user)
-        {
-            var parameters = new DialogParameters<SuaUserDialog>
-            {
-                { x => x.User, user },
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<SuaUserDialog>("SỬA NGƯỜI DÙNG", parameters, options);
-            return await dialog.Result;
         }
 
         private async Task OnClickChangePassword()
@@ -130,7 +112,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             await Dialog.ShowAsync<ChangePasswordDialog>("THAY ĐỔI MẬT KHẨU", parameters, options);
         }
 
-        private async Task OnClickXoaUser()
+        private async Task OnClickDeleteUserAsync()
         {
             if (selectedUser == null)
             {
@@ -141,7 +123,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_USER_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUser(false))   },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync(false))   },
                 { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, () => { })   }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
@@ -149,7 +131,34 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
         }
 
-        private async Task HandleDeleteUser(bool isForce)
+        #endregion
+
+        #region Dialog Methods
+        private async Task<DialogResult?> OpenAddUserDialogAsync()
+        {
+            var parameters = new DialogParameters<AddUserDialog>{};
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<AddUserDialog>("THÊM NGƯỜI DÙNG", parameters, options);
+            return await dialog.Result;
+        }
+
+
+
+        private async Task<DialogResult?> OpenEditUserDialogAsync(UserDto user)
+        {
+            var parameters = new DialogParameters<EditUserDialog>
+            {
+                { x => x.User, user },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<EditUserDialog>("SỬA NGƯỜI DÙNG", parameters, options);
+            return await dialog.Result;
+        }
+
+        #endregion
+
+        #region HandleDialog Methods
+        private async Task HandleDeleteUserAsync(bool isForce)
         {
             if (selectedUser != null)
             {
@@ -163,6 +172,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             }
         }
 
+        #endregion
+
+        #region Other Methods
         private void CreateFakeData_User()
         {
             if (users != null && users.Count != 0)
@@ -193,5 +205,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             }
             StateHasChanged();
         }
+        #endregion
     }
 }

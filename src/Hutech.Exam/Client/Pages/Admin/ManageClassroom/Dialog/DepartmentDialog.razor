@@ -1,0 +1,132 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.Khoa
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên khoa:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên khoa" Required @bind-Value="@tempDepartment.TenKhoa" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày thành lập:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudDatePicker Editable="true" Label="Ngày thành lập" @bind-Date="@tempDepartment.NgayThanhLap" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (!IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text{
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter][EditorRequired] public bool IsEdit { get; set; } = false;
+
+    [Parameter] public KhoaDto? Department { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    private KhoaDto tempDepartment { get; set; } = default!;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if(IsEdit && Department != null)
+        {
+            tempDepartment = new KhoaDto(Department);
+            return;
+        }
+        tempDepartment = new();
+    }
+
+    private bool CheckValidForm()
+    {
+        return !string.IsNullOrWhiteSpace(tempDepartment.TenKhoa) && tempDepartment.NgayThanhLap != default;
+    }
+
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickAddAsync()
+    {
+        if(!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await InsertAPI(new KhoaCreateRequest
+			{
+				TenKhoa = tempDepartment.TenKhoa ?? string.Empty,
+				NgayThanhLap = tempDepartment.NgayThanhLap ?? DateTime.Now
+			});
+        if(result != null && result.MaKhoa != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await UpdateAPI(tempDepartment.MaKhoa, new KhoaUpdateRequest
+            {
+                TenKhoa = tempDepartment.TenKhoa ?? string.Empty,
+                NgayThanhLap = tempDepartment.NgayThanhLap ?? DateTime.Now
+            });
+        if (result != null && result.MaKhoa != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<KhoaDto?> InsertAPI(KhoaCreateRequest khoa)
+    {
+        var response = await SenderAPI.PostAsync<KhoaDto>("api/khoas", khoa);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<KhoaDto?> UpdateAPI(int id, KhoaUpdateRequest khoa)
+    {
+        var response = await SenderAPI.PutAsync<KhoaDto>($"api/khoas/{id}", khoa);
+        return (response.Success) ? response.Data : null;
+    }
+}

@@ -22,7 +22,7 @@
 
 			<!-- Student Information -->
 			<MudItem Xs="8" Sm="8">
-				@if (CaThi != null && MyData != null && SinhVien != null && ChiTietCaThi != null && ChiTietCaThi.MaCaThiNavigation != null)
+				@if (ExamSession != null && MyData != null && Student != null && ExamSessionDetail != null && ExamSessionDetail.MaCaThiNavigation != null)
 				{
 					@if(IsLoading)
 					{
@@ -30,28 +30,28 @@
 					}
 					else
 					{
-						string? ten_mon_hoc = ChiTietCaThi.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
-						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ca thi: @CaThi.TenCaThi</MudText>
+						string? ten_mon_hoc = ExamSessionDetail.MaCaThiNavigation.MaChiTietDotThiNavigation.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc;
+						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ca thi: @ExamSession.TenCaThi</MudText>
 						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Môn thi: @ten_mon_hoc</MudText>
-						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Mã đề: @ChiTietCaThi.MaDeThi</MudText>
-						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">MSSV: @SinhVien.MaSoSinhVien</MudText>
-						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Họ tên: @(SinhVien.HoVaTenLot) @(SinhVien.TenSinhVien)</MudText>
+						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Mã đề: @ExamSessionDetail.MaDeThi</MudText>
+						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">MSSV: @Student.MaSoSinhVien</MudText>
+						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Họ tên: @(Student.HoVaTenLot) @(Student.TenSinhVien)</MudText>
 						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ngày thi: @CaThi.ThoiGianBatDau</MudText>
-						<MudButton OnClick="OnClickDangXuatAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>
+						<MudButton OnClick="OnClickLogoutAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>
 					}
 				}
 			</MudItem>
 		</MudGrid>
 
 		<!-- Exam Result -->
-		@if (ketQuaDapAn != null)
+		@if (selectedAnswerResults != null)
 		{
 			<MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
-			<MudText Typo="Typo.subtitle1" Class="mt-4">Chi tiết kết quả thi: @so_cau_dung/@ketQuaDapAn.Count</MudText>
-			@for (int index = 1; index <= ketQuaDapAn.Count; index++)
+			<MudText Typo="Typo.subtitle1" Class="mt-4">Chi tiết kết quả thi: @totalRightAnswer/@selectedAnswerResults.Count</MudText>
+			@for (int index = 1; index <= selectedAnswerResults.Count; index++)
 			{
 				string thu_tu = index.ToString();
-				MudBlazor.Color color = ketQuaDapAn[index - 1] == true ? Color.Success : (ketQuaDapAn[index - 1] == false ? Color.Error : Color.Dark);
+				MudBlazor.Color color = selectedAnswerResults[index - 1] == true ? Color.Success : (selectedAnswerResults[index - 1] == false ? Color.Error : Color.Dark);
 				<MudChip Size="Size.Small" T="int" Color="@color">@thu_tu.ToString()</MudChip>
 			}
 		}

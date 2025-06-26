@@ -1,0 +1,162 @@
+﻿@page "/monitor/mocktest"
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+
+<PageTitle>Exam Page</PageTitle>
+
+
+<MudPaper Elevation="4" Class="pa-4">
+    <!-- Header Section -->
+    <MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudItem xs="12" md="4">
+            <MudImage Src="images/exam/Logo.svg" Width="150" />
+        </MudItem>
+        <MudItem xs="12" md="4" Class="d-flex justify-center">
+            <MudText Typo="Typo.h6" Align="Align.Center" Style="color: #333;">⏰ Thời gian còn lại: <b class="time-clock">&infin;</b></MudText>
+        </MudItem>
+        <MudItem xs="12" md="4" Class="d-flex justify-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" Size="MudBlazor.Size.Large" >Nộp bài</MudButton>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid>
+        <MudItem xs="12" md="9">
+            <MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
+                @if (CustomDeThis != null)
+                {
+                    int current_parent_group_id = -1;
+                    int current_group_id = 0;
+
+                    foreach (var item in CustomDeThis)
+                    {
+                        //Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
+                        if (current_parent_group_id != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
+                        {
+                            current_parent_group_id = item.MaNhomCha;
+                            <MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
+                                <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
+                            </MudText>
+                        }
+
+                        //Hiển thị nội dung câu hỏi nhóm con cấp 2
+                        if (current_group_id != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
+                        {
+                            current_group_id = item.MaNhom;
+
+                            // xử lí câu hỏi âm thanh
+                            if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio"))
+                            {
+                                <MudText Typo="Typo.subtitle1" GutterBottom="true">
+                                    <b><Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@("Nội dung audio text")" /></b>
+                                </MudText>
+                                <span>
+                                    <br />
+                                    <audio id="@item.MaNhom" controls controlsList="nodownload">
+                                        <source src="" />
+                                    </audio>
+                                    @((MarkupString)(item.GhiChu + ""))
+                                </span>
+                            }
+                            else if (item.KieuNoiDungCauHoiNhom != 2)
+                            {
+                                <MudText Typo="Typo.subtitle1" GutterBottom="true">
+                                    <b><Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoiNhom" /></b>
+                                </MudText>
+                            }
+                        }
+
+                        //Hiển thị nội dung câu hỏi
+                        if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
+                        {
+                            <MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
+                                <b>(@item.MaSoCLO) (@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoi" /></b>
+                            </MudText>
+                        }
+
+                        // Hiển thị nội dung câu trả lời
+                        @if (item.CauTraLois != null)
+                        {
+                            <MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi].Item2" ReadOnly>
+                                @foreach (var noidung in item.CauTraLois)
+                                {
+                                    DsDapAn.TryGetValue(item.MaCauHoi, out var cau_tra_loi);
+                                    if(cau_tra_loi == noidung.Key)
+                                    {
+                                        <MudItem xs="12" sm="6">
+                                            <MudRadio T="int?" Value="noidung.Key" Style="color: green; font-weight: 900" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@noidung.Value" IsBold="true"></Hutech.Exam.Client.Pages.Exam.NoiDungFragment></MudRadio>
+                                        </MudItem>
+                                    }
+                                    else
+                                    {
+                                        <MudItem xs="12" sm="6">
+                                            <MudRadio T="int?" Value="noidung.Key" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@noidung.Value"></Hutech.Exam.Client.Pages.Exam.NoiDungFragment></MudRadio>
+                                        </MudItem>
+                                    }
+                                }
+                            </MudRadioGroup>
+                        }
+                    }
+                }
+            </MudPaper>
+        </MudItem>
+
+        <!-- Sidebar Info -->
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
+                <MudImage Src="images/exam/Ellipse 1.svg" Width="120" Class="mb-2" />
+                <MudDivider Class="mb-2" />
+                <MudText Typo="Typo.subtitle2"><b>Tên:</b> @SinhVien?.HoVaTenLot @SinhVien?.TenSinhVien</MudText>
+                <MudText Typo="Typo.subtitle2"><b>Mã SV:</b> @SinhVien?.MaSoSinhVien</MudText>
+                <MudText Typo="Typo.subtitle2"><b>Môn thi:</b> @CaThi?.MaChiTietDotThiNavigation?.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc</MudText>
+                <MudText Typo="Typo.subtitle2"><b>Mã đề:</b> @ChiTietCaThi?.MaDeThi?.ToString("D3")</MudText>
+            </MudPaper>
+            <MudPaper Class="pa-4" Style="text-align: center; border: 1px solid #ccc; position: sticky; top: 5%; max-height: 700px; overflow-y: auto">
+                <MudText Typo="Typo.subtitle2" Class="mb-2"><b>Danh sách mã câu hỏi</b></MudText>
+                <MudGrid>
+                    @{
+                        foreach (var item in DSKhoanhDapAn)
+                        {
+                            <MudItem xs="2" md="3" Style="padding-left: 15px">
+                                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value.Item3 == true) ? Color.Success : (item.Value.Item3 == false) ? Color.Error : Color.Default" OnClick="async () => await ScrollToQuestion(item.Key)">
+                                    @item.Key
+                                </MudButton>
+                            </MudItem>
+                        }
+                    }
+                    
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+<style>
+    .mud-main-content{
+        padding: 0;
+    }
+</style>
+<script>
+    window.scrollToElement = (elementId) => {
+    const el = document.getElementById(elementId);
+    if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    };
+</script>
+
+
+
+
+@code {
+
+    private async Task ScrollToQuestion(int questionIndex)
+    {
+        await Js.InvokeVoidAsync("scrollToElement", $"question-{questionIndex}");
+    }
+}

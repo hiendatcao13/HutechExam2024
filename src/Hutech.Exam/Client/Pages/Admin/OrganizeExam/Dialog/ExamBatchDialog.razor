@@ -1,0 +1,182 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Request.DotThi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
+    <DialogContent>
+        @if(tempExamBatch != null)
+        {
+            <MudTextField Label="Tên đợt thi" Required InputType="InputType.Text" @bind-Value="tempExamBatch.TenDotThi" />
+            <MudSelect T="int" Label="Năm học" @bind-Value="nam_hoc" Clearable="true">
+                @if (schoolYears != null)
+                {
+                    foreach (var item in schoolYears)
+                    {
+                        <MudSelectItem Value="item.Key">@item.Key - @item.Value</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudDatePicker Editable="true" Label="Thời gian bắt đầu" @bind-Date="tempExamBatch.ThoiGianBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+            <MudDatePicker Editable="true" Label="Thời gian kết thúc" @bind-Date="tempExamBatch.ThoiGianKetThuc" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if(IsEdit)
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Inject] private ISenderAPI SenderAPI   { get; set; } = default!;
+
+    [Parameter] public DotThiDto? ExamBatch { get; set; }
+
+    // hoặc là thêm mới hoặc là chỉnh sửa
+    [Parameter] public bool IsEdit { get; set; } = false;
+
+    public Dictionary<int, int>? schoolYears = [];
+
+    private int nam_hoc = DateTime.Now.Year;
+
+
+    private DotThiDto? tempExamBatch;
+
+    private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+    private const string ERROR_ENDDATE = "Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu";
+
+    public void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        int nam_hien_tai = DateTime.Now.Year;
+
+        for (int i = 0; i < 5; i++)
+        {
+            schoolYears?.Add(nam_hien_tai + i, nam_hien_tai + i + 1);
+        }
+        if(IsEdit && ExamBatch != null)
+        {
+            tempExamBatch = new DotThiDto(ExamBatch);
+            return;
+        }
+        tempExamBatch = new DotThiDto();
+    }
+
+    private async Task OnClickAddAsync()
+    {
+        if (tempExamBatch == null || tempExamBatch.TenDotThi == null  || tempExamBatch.ThoiGianBatDau == null || tempExamBatch.ThoiGianKetThuc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+        if(!ValidateDate())
+        {
+            return;
+        }
+
+        var result = await AddAPI(new DotThiCreateRequest{ 
+            TenDotThi = tempExamBatch.TenDotThi, 
+            ThoiGianBatDau = (DateTime)tempExamBatch.ThoiGianBatDau, 
+            ThoiGianKetThuc = (DateTime)tempExamBatch.ThoiGianKetThuc,
+            NamHoc = nam_hoc
+        });
+
+        if (result != null && result.MaDotThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (tempExamBatch == null || tempExamBatch.TenDotThi == null || tempExamBatch.ThoiGianBatDau == null || tempExamBatch.ThoiGianKetThuc == null)
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+            return;
+        }
+
+        if (!ValidateDate())
+        {
+            return;
+        }
+
+        var result = await EditAPI(tempExamBatch.MaDotThi, new DotThiUpdateRequest
+            {
+                TenDotThi = tempExamBatch.TenDotThi,
+                ThoiGianBatDau = (DateTime)tempExamBatch.ThoiGianBatDau,
+                ThoiGianKetThuc = (DateTime)tempExamBatch.ThoiGianKetThuc,
+                NamHoc = nam_hoc
+            });
+
+        if(result != null && result.MaDotThi != 0)
+        {
+			MudDialog?.Close(DialogResult.Ok(result));
+        }
+
+    }
+
+    private bool ValidateDate()
+    {
+        if(tempExamBatch == null)
+        {
+            return false;
+        }
+
+        if (tempExamBatch.ThoiGianBatDau > tempExamBatch.ThoiGianKetThuc)
+        {
+            Snackbar.Add(ERROR_ENDDATE, Severity.Error);
+            return false;
+        }
+
+        if ((tempExamBatch.ThoiGianBatDau != null && tempExamBatch.ThoiGianBatDau.Value.Year != nam_hoc) || (tempExamBatch.ThoiGianKetThuc != null && tempExamBatch.ThoiGianKetThuc.Value.Year != nam_hoc + 1))
+        {
+            Snackbar.Add($"Năm học bắt đầu phải {nam_hoc} và năm học kết thục phải {nam_hoc + 1}", Severity.Error);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private async Task<DotThiDto?> AddAPI(DotThiCreateRequest dotThi)
+    {
+        var response = await SenderAPI.PostAsync<DotThiDto>($"api/dotthis", dotThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<DotThiDto?> EditAPI(int ma_dot_thi, DotThiUpdateRequest dotThi)
+    {
+        var response = await SenderAPI.PutAsync<DotThiDto>($"api/dotthis/{ma_dot_thi}", dotThi);
+        return (response.Success) ? response.Data : null;
+    }
+
+}

@@ -49,14 +49,14 @@ namespace Hutech.Exam.Client.Pages.Admin.Login
             }
             await base.OnInitializedAsync();
         }
-        private async Task Enter(KeyboardEventArgs e)
+        private async Task EnterAsync(KeyboardEventArgs e)
         {
             if (e.Code == "Enter" || e.Code == "NumpadEnter")
             {
-                await OnClickDangNhap();
+                await OnClickLoginAsync();
             }
         }
-        private async Task OnClickDangNhap()
+        private async Task OnClickLoginAsync()
         {
             if(username.IsNullOrEmpty() || password.IsNullOrEmpty())
             {

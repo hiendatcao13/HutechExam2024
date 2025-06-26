@@ -1,0 +1,186 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text
+@using Hutech.Exam.Shared.DTO.Request
+@using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
+@inject ISnackbar Snackbar
+
+<MudDialog Style="max-width: 500px">
+	<DialogContent>
+		<MudGrid>
+			@if (tempExamSessionDetail.MaSinhVienNavigation != null)
+			{
+				<MudItem xs="6">
+					<MudTextField Label="MSSV" T="string" @bind-Value="tempExamSessionDetail.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
+				</MudItem>
+
+				<MudItem xs="3">
+					<MudSelect T="long" Label="Mã đề" @bind-Value="shuffleExamId">
+						@if (ShuffleExams != null)
+						{
+							foreach (var item in ShuffleExams)
+							{
+								<MudSelectItem Value="item">@item</MudSelectItem>
+							}
+						}
+					</MudSelect>
+				</MudItem>
+
+				<MudItem xs="6">
+					<MudText Typo="Typo.body1">Họ và lót: <strong>@tempExamSessionDetail.MaSinhVienNavigation.HoVaTenLot</strong></MudText>
+				</MudItem>
+
+				<MudItem xs="6">
+					<MudText Typo="Typo.body1">Tên sinh viên: <strong>@tempExamSessionDetail.MaSinhVienNavigation.TenSinhVien</strong></MudText>
+				</MudItem>
+
+				<MudItem xs="6" Style="padding-top: 0">
+					<MudText Typo="Typo.body1">Phòng thi: <strong>@classRoom</strong></MudText>
+				</MudItem>
+
+				<MudItem xs="6" Style="padding-top: 0">
+					<MudText Typo="Typo.body1">Giới tính: <strong>@(tempExamSessionDetail.MaSinhVienNavigation.GioiTinh == 0 ? "Nam" : "Nữ")</strong></MudText>
+				</MudItem>
+			}
+
+		</MudGrid>
+
+
+		<MudText Color="Color.Warning" Typo="Typo.caption">
+			Lưu ý: Hãy chắc chắn rằng các mã đề hoán vị đã được tạo sẵn và sinh viên đã tồn tại trong bảng sinh viên trước khi đưa vào bảng ca thi.
+		</MudText>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="OnClickExit" Color="Color.Secondary">Thoát</MudButton>
+		@if (!isExist)
+		{
+			<MudButton OnClick="async () => await OnClickCheckAsync()" Color="Color.Info">Kiểm tra</MudButton>
+		}
+		else
+		{
+			<MudButton OnClick="OnClickSaveAsync" Color="Color.Success">Lưu</MudButton>
+		}
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+</style>
+
+@code {
+	[CascadingParameter] public IMudDialogInstance? MudDialog { get; set; }
+
+	[Parameter][EditorRequired] public List<long>? ShuffleExams { get; set; }
+
+	[Parameter][EditorRequired] public List<string>? StudentCodes { get; set; }
+
+	[Parameter][EditorRequired] public int? examSessionId { get; set; }
+
+	[Parameter][EditorRequired] public string? classRoom { get; set; }
+
+	[Inject] private HttpClient Http { get; set; } = default!;
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	private long shuffleExamId = -1;
+
+	private bool isExist = false;
+
+	private ChiTietCaThiDto tempExamSessionDetail = new(); // biến temp để lưu
+
+	private const string NO_SV = "Không tìm thấy sinh viên nào với mã sinh viên này. Vui lòng kiểm tra lại";
+	private const string YES_SV = "Đã tìm thấy sinh viên trong dữ liệu. Vui lòng chọn lưu để thêm";
+	private const string SUCCESS_ADDSV = "Thêm thí sinh thành công";
+	private const string FAILED_ADDSV = "Thêm thí sinh thất bại. Thí sinh không tồn tại trong hệ thống, vui lòng liên hệ phòng đào tạo để thêm thí sinh vào!";
+	private const string ALREADY_EXSIST_MSSV = "Mã thí sinh đã tồn tại trong ca thi. Vui lòng kiểm tra";
+	private const string INVALID_MADETHI = "Vui lòng chọn mã đề";
+	private const string INVALID_MSSV = "Vui lòng nhập mã sinh viên";
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		tempExamSessionDetail.MaSinhVienNavigation = new SinhVienDto(); // thêm thuộc tính sinh viên vào
+
+		await base.OnInitializedAsync();
+	}
+	private void HandleKeyDown(KeyboardEventArgs args)
+	{
+		isExist = false;
+		tempExamSessionDetail.MaSinhVienNavigation = new SinhVienDto();
+	}
+
+	private void OnClickExit()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickSaveAsync()
+	{
+		SinhVienDto student = tempExamSessionDetail.MaSinhVienNavigation ?? new();
+
+		// handle data
+		tempExamSessionDetail.MaCaThi = examSessionId;
+		tempExamSessionDetail.MaDeThi = shuffleExamId;
+
+		if (ShuffleExams != null && examSessionId != null && tempExamSessionDetail.MaCaThi != null && tempExamSessionDetail.MaDeThi != null && tempExamSessionDetail.MaSinhVien != null)
+		{
+			var result = await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
+				{
+					MaCaThi = (int)examSessionId,
+					MaDeThi = (long)tempExamSessionDetail.MaDeThi,
+					MaSinhVien = (long)tempExamSessionDetail.MaSinhVien
+				});
+
+			if(result != null)
+			{
+				MudDialog?.Close(DialogResult.Ok(result));
+			}
+		}
+	}
+	private async Task OnClickCheckAsync()
+	{
+		if (shuffleExamId == -1)
+		{
+			Snackbar.Add(INVALID_MADETHI, Severity.Error);
+			return;
+		}
+		SinhVienDto student = tempExamSessionDetail.MaSinhVienNavigation ?? new();
+		if (string.IsNullOrEmpty(student.MaSoSinhVien))
+		{
+			Snackbar.Add(INVALID_MSSV, Severity.Error);
+			return;
+		}
+		if (student.MaSoSinhVien != null && StudentCodes != null && StudentCodes.Contains(student.MaSoSinhVien))
+		{
+			Snackbar.Add(ALREADY_EXSIST_MSSV, Severity.Error);
+			return;
+		}
+		if (ShuffleExams != null && examSessionId != null)
+		{
+			var result = await CheckStudentAPI(student.MaSoSinhVien ?? string.Empty);
+			if(result == null)
+			{
+				isExist = false;
+				return;
+			}
+
+			isExist = true;
+			tempExamSessionDetail.MaSinhVienNavigation = result;
+			tempExamSessionDetail.MaSinhVien = result.MaSinhVien;
+		}
+
+
+	}
+	private async Task<ChiTietCaThiDto?> InsertChiTietCaThiAPI(ChiTietCaThiCreateRequest chiTietCaThi)
+	{
+		var response = await SenderAPI.PostAsync<ChiTietCaThiDto>($"api/chitietcathis", chiTietCaThi);
+		return (response.Success) ? response.Data : null;
+	}
+	private async Task<SinhVienDto?> CheckStudentAPI(string ma_so_sinh_vien)
+	{
+		var response = await SenderAPI.GetAsync<SinhVienDto>($"api/sinhviens/filter-by-mssv?maSoSinhVien={ma_so_sinh_vien}");
+		return (response.Success) ? response.Data : null;
+	}
+}
+

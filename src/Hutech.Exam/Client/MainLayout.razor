@@ -6,129 +6,129 @@
 @inherits LayoutComponentBase
 @inject IDialogService Dialog
 @{
-    var currentPath = new Uri(Nav.Uri).AbsolutePath;
-    var isAdmin = currentPath.Contains("admin/");
+	var currentPath = new Uri(Nav.Uri).AbsolutePath;
+	var isAdmin = currentPath.Contains("admin/");
 }
 <!--Hoạt động của ErrorBoundary như try catch-->
 <MudLayout>
-    @if (isAdmin)
-    {
+	@if (isAdmin)
+	{
 
-        <MudAppBar Elevation="14" Dense="true" Style="background-color: cadetblue">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-            <MudText Typo="Typo.h6">@tittle</MudText>
-            <MudSpacer />
-            <MudText Typo="Typo.body1" Style="margin-right: 2%">Xin chào, @name</MudText>
-            <MudButton Variant="Variant.Filled" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="onClickDangXuat">Đăng xuất</MudButton>
-            @* <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" /> *@
-        </MudAppBar>
-        <MudDrawer @bind-Open="@_open" Elevation="1" Variant="@DrawerVariant.Persistent">
-            <MudDrawerHeader>
-                <MudText Typo="Typo.h6">Thanh quản lý</MudText>
-            </MudDrawerHeader>
-            <MudNavMenu>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="() => RoutingPage(0)">@names.ElementAt(0).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Badge" OnClick="() => RoutingPage(1)">@names.ElementAt(1).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DocumentScanner" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Checklist" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
-            </MudNavMenu>
-        </MudDrawer>
-    }
-    <MudMainContent Style="overflow:auto; height:100vh;">
-        <ErrorBoundary @ref=_errorBoundary Context="errorContent">
-            <ChildContent>
-                <MainLayoutConent>
-                    @Body
-                </MainLayoutConent>
-            </ChildContent>
-            <ErrorContent>
-                <MainLayoutConent>
-                    @Body
-                </MainLayoutConent>
-                <ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
-            </ErrorContent>
-        </ErrorBoundary>
-    </MudMainContent>
+		<MudAppBar Elevation="14" Dense="true" Style="background-color: cornflowerblue">
+			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+			<MudText Typo="Typo.h6">@tittle</MudText>
+			<MudSpacer />
+			<MudText Typo="Typo.body1" Style="margin-right: 2%">Xin chào, @name</MudText>
+			<MudButton Variant="Variant.Filled" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="onClickDangXuat">Đăng xuất</MudButton>
+			@* <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" /> *@
+		</MudAppBar>
+		<MudDrawer @bind-Open="@_open" Elevation="1" Variant="@DrawerVariant.Persistent">
+			<MudDrawerHeader>
+				<MudText Typo="Typo.h6">Thanh quản lý</MudText>
+			</MudDrawerHeader>
+			<MudNavMenu>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="() => RoutingPage(0)">@names.ElementAt(0).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Badge" OnClick="() => RoutingPage(1)">@names.ElementAt(1).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DocumentScanner" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Checklist" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
+			</MudNavMenu>
+		</MudDrawer>
+	}
+	<MudMainContent Style="overflow:auto; height:100vh;">
+		<ErrorBoundary @ref=_errorBoundary Context="errorContent">
+			<ChildContent>
+				<MainLayoutConent>
+					@Body
+				</MainLayoutConent>
+			</ChildContent>
+			<ErrorContent>
+				<MainLayoutConent>
+					@Body
+				</MainLayoutConent>
+				<ErrorBoundaryContent OnHandle="ResetErrorBoundary" Error="errorContent"></ErrorBoundaryContent>
+			</ErrorContent>
+		</ErrorBoundary>
+	</MudMainContent>
 
 </MudLayout>
 
 @code {
-    private ErrorBoundary? _errorBoundary;
-    // Hiển thị alert báo lỗi -> click ok -> refresh lại page
-    private void ResetErrorBoundary() => _errorBoundary?.Recover();
-    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-    [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-    [Inject] private NavigationManager Nav { get; set; } = default!;
+	private ErrorBoundary? _errorBoundary;
+	// Hiển thị alert báo lỗi -> click ok -> refresh lại page
+	private void ResetErrorBoundary() => _errorBoundary?.Recover();
+	[Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+	[Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+	[Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private string tittle = "Trang chủ";
-    private string name = "";
-    private bool _open = false;
-    private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
-    private Dictionary<string, string> names = new Dictionary<string, string>
-    {
-        { "/admin/home", "Trang chủ" },
-        { "/admin/control", "Quản lý ca thi" },
-        { "/admin/organize", "Tổ chức kì thi" },
-        { "/admin/question", "Tổ chức đề thi" },
-        { "/admin/supervise", "Giám sát phòng thi"},
-        { "/admin/students", "Quản lý sinh viên"},
-        { "/admin/testreview", "Đánh giá đề thi" },
-        { "/admin/accounts", "Quản lý tài khoản" }
-    };
+	private string tittle = "Trang chủ";
+	private string name = "";
+	private bool _open = false;
+	private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
+	private Dictionary<string, string> names = new Dictionary<string, string>
+	{
+		{ "/admin/home", "Trang chủ" },
+		{ "/admin/control", "Quản lý ca thi" },
+		{ "/admin/organize", "Tổ chức kì thi" },
+		{ "/admin/question", "Tổ chức đề thi" },
+		{ "/admin/classroom", "Quản lý lớp học"},
+		{ "/admin/testreview", "Đánh giá đề thi" },
+		{ "/admin/account", "Quản lý tài khoản" },
+		{ "/admin/system", "Hệ thống"}
+	};
 
-    private void ToggleDrawer()
-    {
-        _open = !_open;
-    }
+	private void ToggleDrawer()
+	{
+		_open = !_open;
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        name = await SessionStorage.GetItemAsStringAsync("Name");
-        Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
-        await base.OnInitializedAsync();
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		name = await SessionStorage.GetItemAsStringAsync("Name");
+		Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
+		await base.OnInitializedAsync();
+	}
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        var path = new Uri(e.Location).PathAndQuery; // e.Location là string, ép sang Uri để lấy Path
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		var path = new Uri(e.Location).PathAndQuery; // e.Location là string, ép sang Uri để lấy Path
 
-        tittle = names.ContainsKey(path) ? names[path] : "Trang chủ"; // lấy tên trang dựa vào path
+		tittle = names.ContainsKey(path) ? names[path] : "Trang chủ"; // lấy tên trang dựa vào path
 
-        tittle = (path.Contains("/admin/monitor")) ? "Giám sát ca thi" : tittle;  // riêng trang giám sát thi thì không có trong names
-        StateHasChanged();
-    }
-    private async Task onClickDangXuat()
-    {
-        var parameters = new DialogParameters<Simple_Dialog>
-            {
-                { x => x.ContentText, LOGOUT_MESSAGE },
-                { x => x.ButtonText, "Logout" },
-                { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, handleDangXuat)   }
-            };
+		tittle = (path.Contains("/admin/monitor")) ? "Giám sát ca thi" : tittle;  // riêng trang giám sát thi thì không có trong names
+		StateHasChanged();
+	}
+	private async Task onClickDangXuat()
+	{
+		var parameters = new DialogParameters<Simple_Dialog>
+			{
+				{ x => x.ContentText, LOGOUT_MESSAGE },
+				{ x => x.ButtonText, "Logout" },
+				{ x => x.Color, Color.Error },
+				{ x => x.onHandleSubmit, EventCallback.Factory.Create(this, handleDangXuat)   }
+			};
 
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+		var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-        await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
-    }
+		await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+	}
 
-    private async Task handleDangXuat()
-    {
-        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-        await customAuthStateProvider.UpdateAuthenticationState(null);
-        Nav?.NavigateTo("/admin", true);
+	private async Task handleDangXuat()
+	{
+		var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+		await customAuthStateProvider.UpdateAuthenticationState(null);
+		Nav?.NavigateTo("/admin", true);
 
-    }
+	}
 
-    private void RoutingPage(int index)
-    {
-        var path = names.ElementAt(index).Key;
-        Nav.NavigateTo(path);
-    }
+	private void RoutingPage(int index)
+	{
+		var path = names.ElementAt(index).Key;
+		Nav.NavigateTo(path);
+	}
 }
 
 

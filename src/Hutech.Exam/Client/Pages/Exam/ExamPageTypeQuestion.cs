@@ -7,16 +7,17 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage
     {
-        private void ModifyNhomCauHoi()
+        private bool isFirstTimeGetAudio = true;
+        private void ModifyGroupQuestion()
         {
             int ma_nhom = 0;
-            if (CustomDeThis != null)
+            if (CustomExams != null)
             {
                 int thu_tu_cau_hoi = 0;
-                foreach (var item in CustomDeThis)
+                foreach (var item in CustomExams)
                 {
                     // thêm các câu hỏi vào danh sách check đã khoanh hay chưa?
-                    DSKhoanhDapAn?.Add(item.MaCauHoi, (++thu_tu_cau_hoi, null));
+                    SelectedAnswers?.Add(item.MaCauHoi, (++thu_tu_cau_hoi, null));
 
                     // thêm các chữ A,B,C,D vào nội dung câu trả lời
                     if (item.CauTraLois != null)
@@ -34,10 +35,10 @@ namespace Hutech.Exam.Client.Pages.Exam
                         ma_nhom = item.MaNhom;
 
                         // xử lí audio
-                        if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && ChiTietCaThi != null)
+                        if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && ExamSessionDetail != null)
                         {
                             //xử lí dsAudioListened
-                            DsAudioListened.Add(item.MaNhom, new () { AudioUrl = HandleAudioSource(item.NoiDungCauHoiNhom), AudioText = HandleTextBeforeAudio(item.NoiDungCauHoiNhom)});
+                            AudioListeneds.Add(item.MaNhom, new () { AudioUrl = HandleAudioSource(item.NoiDungCauHoiNhom), AudioText = HandleTextBeforeAudio(item.NoiDungCauHoiNhom)});
                             item.GhiChu = 0 + "";
                         }
                         // xử lí câu hỏi điền khuyết
@@ -88,12 +89,36 @@ namespace Hutech.Exam.Client.Pages.Exam
                 return string.Empty;
             return text.Substring(0, index_audio);
         }
-        private async Task OnPlayAudio(CustomDeThi deThi, int ma_nhom)
+        private async Task OnPlayAudioAsync(CustomDeThi deThi, int ma_nhom)
         {
+            // Nếu lần đầu tiên, gọi API và cập nhật GhiChu
+            if (isFirstTimeGetAudio || deThi.GhiChu != "-1")
+            {
+                var soLanNghe = await GetTotalAudioListenedAPI(new Shared.DTO.AudioListenedDto
+                {
+                    MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi,
+                    MaNhom = ma_nhom
+                });
+
+                deThi.GhiChu = soLanNghe.ToString();
+                isFirstTimeGetAudio = false;
+                TheSateHasChanged();
+
+                // Nếu không còn lượt nghe, dừng lại
+                if (deThi.GhiChu == "-1")
+                {
+                    await Js.InvokeVoidAsync("stopAudio", ma_nhom);
+                    return;
+                }
+            }
+
+            // Nếu không còn lượt nghe, dừng lại
             if (deThi.GhiChu == "-1")
+            {
+                await Js.InvokeVoidAsync("stopAudio", ma_nhom);
                 return;
-            // tăng số lần nghe lên
-            deThi.GhiChu = await GetSoLanNgheAPI( new Shared.DTO.AudioListenedDto { MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaNhom = ma_nhom}) + "";
+            }
+
             await Js.InvokeVoidAsync("playAudioFromStart", ma_nhom);
         }
     }

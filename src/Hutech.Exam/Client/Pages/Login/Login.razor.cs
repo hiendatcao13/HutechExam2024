@@ -12,6 +12,7 @@ namespace Hutech.Exam.Client.Pages.Login
 
     public partial class Login
     {
+        #region Private Fields
         [Inject] private HttpClient Http { get; set; } = default!;
 
         [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -33,6 +34,10 @@ namespace Hutech.Exam.Client.Pages.Login
         private const string ERROR_MESSAGE = "Username và password không trùng khớp";
         private const string LOADING_MESSAGE = "Đang xác thực thông tin...";
 
+        #endregion
+
+        #region Methods
+
         protected override async Task OnInitializedAsync()
         {
             //nếu đã tồn tại người dùng đăng nhập trước đó, chuyển trang
@@ -47,14 +52,16 @@ namespace Hutech.Exam.Client.Pages.Login
             }
             await base.OnInitializedAsync();
         }
-        private async Task Enter(KeyboardEventArgs e)
+
+        private async Task EnterAsync(KeyboardEventArgs e)
         {
             if (e.Code == "Enter" || e.Code == "NumpadEnter")
             {
-                await OnClickDangNhap();
+                await OnClickLoginAsync();
             }
         }
-        private async Task OnClickDangNhap()
+
+        private async Task OnClickLoginAsync()
         {
             if (string.IsNullOrEmpty(Username) || Username != Password)
             {
@@ -82,5 +89,7 @@ namespace Hutech.Exam.Client.Pages.Login
 
             Nav.NavigateTo("/info", true);
         }
+
+        #endregion
     }
 }

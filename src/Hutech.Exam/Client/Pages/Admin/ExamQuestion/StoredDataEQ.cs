@@ -4,11 +4,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
 {
     public class StoredDataEQ
     {
-        public MonHocDto? MonHoc { get; set; }
+        public MonHocDto? Subject { get; set; }
 
-        public DeThiDto? DeThi { get; set; }
+        public DeThiDto? Exam { get; set; }
 
-        public NhomCauHoiDto? NhomCauHoi { get; set; }
+        public NhomCauHoiDto? GroupQuestion { get; set; }
 
         public CloDto? Clo { get; set; }
     }

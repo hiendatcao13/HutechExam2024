@@ -20,36 +20,36 @@
             </MudItem>
             <MudItem xs="8">
                 <MudCardContent Style="padding-bottom:0">
-                    @if (SinhVien != null)
+                    @if (Student != null)
                     {
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Mã số sinh viên: @SinhVien.MaSoSinhVien</MudText>
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Họ và tên: @SinhVien.HoVaTenLot @SinhVien.TenSinhVien</MudText>
-                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Email: @SinhVien.Email</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Mã số sinh viên: @Student.MaSoSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Họ và tên: @Student.HoVaTenLot @Student.TenSinhVien</MudText>
+                        <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Email: @Student.Email</MudText>
                         <MudText Style="margin-bottom: 2%" Align="Align.Left" Typo="Typo.subtitle1">Thời gian hiện tại: @DisplayTime</MudText>
                     }
                 </MudCardContent>
             </MudItem>
         </MudGrid>
         <MudCardActions Style="display: flex; justify-content: center;">
-            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="OnClickDangXuat">Đăng xuất</MudButton>
+            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="OnClickLogoutAsync">Đăng xuất</MudButton>
         </MudCardActions>
 
-        @if (ChiTietCaThis != null && ChiTietCaThis.Count > 0 && ChiTietCaThis[0]?.MaCaThiNavigation != null)
+        @if (ExamSessionDetails != null && ExamSessionDetails.Count > 0 && ExamSessionDetails[0]?.MaCaThiNavigation != null)
         {
             <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
             <MudCardContent Style="padding: 0">
-                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @ChiTietCaThis.Count ca thi. Vui lòng chọn ca thi</MudText>
-                <MudRadioGroup @bind-Value="selectedCTCaThi">
-                    @foreach (var item in ChiTietCaThis)
+                <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @ExamSessionDetails.Count ca thi. Vui lòng chọn ca thi</MudText>
+                <MudRadioGroup @bind-Value="selectedExamSessionDetail">
+                    @foreach (var item in ExamSessionDetails)
                     {
-                        MonHoc = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
-                        CaThi = item.MaCaThiNavigation;
-                        <MudRadio Size="Size.Small" Value="@item">@MonHoc?.TenMonHoc - @CaThi?.TenCaThi</MudRadio>
+                        Subject = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
+                        ExamSession = item.MaCaThiNavigation;
+                        <MudRadio Size="Size.Small" Value="@item">@Subject?.TenMonHoc - @ExamSession?.TenCaThi</MudRadio>
                     }
                 </MudRadioGroup>
             </MudCardContent>
             <MudCardActions Style="display: flex; justify-content: center;">
-                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Filled.Article" Variant="Variant.Filled" Color="Color.Success" OnClick="OnClickBatDauThi">Bắt đầu thi</MudButton>
+                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Filled.Article" Variant="Variant.Filled" Color="Color.Success" OnClick="OnClickStartExamAsync">Bắt đầu thi</MudButton>
             </MudCardActions>
         }
     </MudCard>
@@ -70,5 +70,5 @@
 </style>
 
 @code{
-    private ChiTietCaThiDto? selectedCTCaThi;
+    private ChiTietCaThiDto? selectedExamSessionDetail;
 }

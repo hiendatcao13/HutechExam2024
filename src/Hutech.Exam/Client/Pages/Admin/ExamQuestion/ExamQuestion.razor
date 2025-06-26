@@ -11,17 +11,17 @@
 <MudContainer Class="d-flex justify-center align-center">
     <MudGrid Style="margin-top: 5px">
         <MudItem xs="6" md="5" lg="5">
-            @if (monHocs != null)
+            @if (subjects != null)
             {
-                <MudTable Elevation="24" T="MonHocDto" Items="@monHocs" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedMonHoc(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassMonHocFunc"
-                TotalItems="totalRecords_Mon" RowsPerPage="rowsPerPage_Mon" CurrentPageChanged="OnCurrentPageChange_Mon" RowsPerPageChanged="OnRowsPerPageChange_Mon">
+                <MudTable Elevation="24" T="MonHocDto" Items="@subjects" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedSubject(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSubjectFunc"
+                TotalItems="totalRecords_Subject" RowsPerPage="rowsPerPage_Subject" CurrentPageChanged="OnCurrentPageChange_SubjectAsync" RowsPerPageChanged="OnRowsPerPageChange_SubjectAsync">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin môn thi</MudText>
                         <MudSpacer />
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchMonHocs()">Sync</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemMonThi()">Thêm</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaMonThi()">Sửa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaMonThi()">Xóa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchSubjectAsync()">Sync</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddSubjectAsync()">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditSubjectAsync()">Sửa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteSubjectAsync()">Xóa</MudButton>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>ID</MudTh>
@@ -47,10 +47,10 @@
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin CLO</MudText>
                         <MudSpacer />
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchClo()">Sync</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemClo()">Thêm</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaClo()">Sửa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaClo()">Xóa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCloAsync()">Sync</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddCloAsync()">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditCloAsync()">Sửa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteCloAsync()">Xóa</MudButton>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>ID</MudTh>
@@ -76,18 +76,18 @@
         </MudItem>
 
         <MudItem xs="12" md="12" lg="12">
-            @if (deThis != null)
+            @if (exams != null)
             {
-                <MudTable Elevation="24" T="DeThiDto" Items="@deThis" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedDeThi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassDeThiFunc"
-                TotalItems="totalRecords_DeThi" RowsPerPage="rowsPerPage_DeThi" CurrentPageChanged="OnCurrentPageChange_DeThi" RowsPerPageChanged="OnRowsPerPageChange_DeThi">
+                <MudTable Elevation="24" T="DeThiDto" Items="@exams" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExam(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamFunc"
+                TotalItems="totalRecords_Exam" RowsPerPage="rowsPerPage_Exam" CurrentPageChanged="OnCurrentPageChange_ExamAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamAsync">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin đề thi</MudText>
                         <MudSpacer />
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchDeThi()">Sync</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemDeThi()">Thêm</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaDeThi()">Sửa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaDeThi()">Xóa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Calculate" OnClick="async () => await OnClickTaoMaTranDe()">Tạo ma trận đề</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamAsync()">Sync</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamAsync()">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamAsync()">Sửa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamAsync()">Xóa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamAsync()">Tạo ma trận đề</MudButton>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>ID</MudTh>
@@ -121,15 +121,15 @@
             <MudPaper Elevation="24">
                 @if (customNhomCauHois != null)
                 {
-                    <MudTreeView T="CustomNhomCauHoi" Hover="true" SelectionMode="SelectionMode.SingleSelection" SelectedValueChanged="@(async (value) => await OnValueChangeNhomCauHoi(value))">
+                    <MudTreeView T="CustomNhomCauHoi" Hover="true" SelectionMode="SelectionMode.SingleSelection" SelectedValueChanged="@(async (value) => await OnValueChangeGroupQuestion(value))">
                         <MudText Typo="Typo.h6" Style="margin: 20px; margin-bottom: 5px;">Chương &rarr; Nhóm câu hỏi</MudText>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" Style="margin-left: 2px" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchNhomCauHoi()">Sync</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemNhomCauHoi()">Thêm</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaNhomCauHoi()">Sửa</MudButton>
-                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaNhomCauHoi()">Xóa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" Style="margin-left: 2px" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchGroupExamAsync()">Sync</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddGroupQuestionAsync()">Thêm</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditGroupQuestionAsync()">Sửa</MudButton>
+                        <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteGroupQuestionAsync()">Xóa</MudButton>
                         @foreach (var item in customNhomCauHois)
                         {
-                            <MudTreeViewItem Value="@item" Text="@($"[{item.MaNhom}]: {item.TenNhom}")" Icon="@Icons.Custom.Uncategorized.Folder" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen" @bind-SelectedValue="@selectedNhomCauHoi" Expanded>
+                            <MudTreeViewItem Value="@item" Text="@($"[{item.MaNhom}]: {item.TenNhom}")" Icon="@Icons.Custom.Uncategorized.Folder" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen" @bind-SelectedValue="@selectedGroupQuesion" Expanded>
                                 @foreach (var itemcon in item.NhomCauHoiCons)
                                 {
                                     <MudTreeViewItem Value="@itemcon" Text="@($"[{itemcon.MaNhom}]: {itemcon.TenNhom}")" Icon="@Icons.Custom.Uncategorized.Folder" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen" />
@@ -141,15 +141,15 @@
             </MudPaper>
         </MudItem>
         <MudItem xs="8">
-            <MudTable Elevation="24" T="CauHoiDto" Items="@cauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedCauHoi(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassCauHoiFunc">
+            <MudTable Elevation="24" T="CauHoiDto" Items="@cauHois" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedQuestion(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassQuestionFunc">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Câu hỏi</MudText>
                     <MudSpacer />
                     @* Thêm button chỉnh sửa nội dung, di chuyển nội dung *@
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" Style="margin-left: 2px" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchCauHoi()">Sync</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickThemCauHoi()">Thêm</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickSuaCauHoi()">Sửa</MudButton>
-                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickXoaCauHoi()">Xóa</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" Style="margin-left: 2px" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchQuestionAsync()">Sync</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddQuestionAsync()">Thêm</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditQuestionAsync()">Sửa</MudButton>
+                    <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteQuestionAsync()">Xóa</MudButton>
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>ID</MudTh>
@@ -165,12 +165,12 @@
                     <MudTd DataLabel="Nội dung">@(string.IsNullOrEmpty(item.NoiDung) ? "-" : item.NoiDung)</MudTd>
                     <MudTd DataLabel="Loại câu hỏi">@(item.KieuNoiDung == -1 ? "Thường" : item.KieuNoiDung)</MudTd>
                     <MudTd DataLabel="CLO">@item.MaCloNavigation.MaSoClo</MudTd>
+                    <MudTd DataLabel="Hoán vị"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.HoanVi" Color="Color.Success"></MudSwitch></MudTd>
                     <MudTd DataLabel="Thứ tự">@item.ThuTu</MudTd>
-                    <MudTd DataLabel="Hoán vị"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.HoanVi"></MudSwitch></MudTd>
                     <MudTd DataLabel="Chức năng">
                         <MudButtonGroup Style="zoom: 0.7">
                             <MudTooltip Text="Xem chuyển">
-                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="async () => await OnClickViewNoiDung(item.NoiDung)" Color="Color.Warning" />
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="async () => await OnClickViewQuestionContentAsync(item.NoiDung)" Color="Color.Warning" />
                             </MudTooltip>
                         </MudButtonGroup>
                     </MudTd>
@@ -198,120 +198,120 @@
 @code {
 
     // thông số cho bảng môn thi
-    private int currentPage_Mon = 0;
-    private int rowsPerPage_Mon = 20;
-    private int totalRecords_Mon = 20;
-    private int totalPages_Mon = 1;
+    private int currentPage_Subject = 0;
+    private int rowsPerPage_Subject = 20;
+    private int totalRecords_Subject = 20;
+    private int totalPages_Subject = 1;
 
     // thông số cho bảng đề thi
-    private int currentPage_DeThi = 0;
-    private int rowsPerPage_DeThi = 20;
-    private int totalRecords_DeThi = 20;
-    private int totalPages_DeThi = 1;
+    private int currentPage_Exam = 0;
+    private int rowsPerPage_Exam = 20;
+    private int totalRecords_Exam = 20;
+    private int totalPages_Exam = 1;
 
-    private List<int> selectedPages_Mon = new() { 0 }; // luôn load có trang đầu tiên
-    private List<int> selectedPages_DeThi = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_Subject = new() { 0 }; // luôn load có trang đầu tiên
+    private List<int> selectedPages_Exam = new() { 0 }; // luôn load có trang đầu tiên
 
-    private async Task OnRowsPerPageChange_Mon(int rows)
+    private async Task OnRowsPerPageChange_SubjectAsync(int rows)
     {
-        if (rows == rowsPerPage_Mon)
+        if (rows == rowsPerPage_Subject)
             return;
 
-        this.rowsPerPage_Mon = rows;
-        currentPage_Mon = 0; //Reset về trang đầu tiên
+        this.rowsPerPage_Subject = rows;
+        currentPage_Subject = 0; //Reset về trang đầu tiên
 
-        (var newMons, _, _) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+        (var newMons, _, _) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
         PadEmptyRows(newMons);
     }
-    private async Task OnCurrentPageChange_Mon(int page)
+    private async Task OnCurrentPageChange_SubjectAsync(int page)
     {
-        if (page == currentPage_Mon)
+        if (page == currentPage_Subject)
             return;
 
-        this.currentPage_Mon = page;
-        if (selectedPages_Mon.Contains(page))
+        this.currentPage_Subject = page;
+        if (selectedPages_Subject.Contains(page))
             return;
 
         //chỉ thực hiện load data khi người dùng chọn trang mới
-        (var newMons, _, _) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+        (var newMons, _, _) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
         PadEmptyRows(newMons);
-        selectedPages_Mon?.Add(currentPage_Mon);
+        selectedPages_Subject?.Add(currentPage_Subject);
     }
 
-    private async Task OnRowsPerPageChange_DeThi(int rows)
+    private async Task OnRowsPerPageChange_ExamAsync(int rows)
     {
-        if (rows == rowsPerPage_DeThi)
+        if (rows == rowsPerPage_Exam)
             return;
 
-        this.rowsPerPage_DeThi = rows;
-        currentPage_DeThi = 0; //Reset về trang đầu tiên
+        this.rowsPerPage_Exam = rows;
+        currentPage_Exam = 0; //Reset về trang đầu tiên
 
-        (var newDeThis, _, _) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc?.MaMonHoc ?? -1, currentPage_DeThi, rowsPerPage_DeThi);
+        (var newDeThis, _, _) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject?.MaMonHoc ?? -1, currentPage_Exam, rowsPerPage_Exam);
         PadEmptyRows(newDeThis);
     }
-    private async Task OnCurrentPageChange_DeThi(int page)
+    private async Task OnCurrentPageChange_ExamAsync(int page)
     {
-        if (page == currentPage_DeThi)
+        if (page == currentPage_Exam)
             return;
 
-        this.currentPage_DeThi = page;
-        if (selectedPages_DeThi.Contains(page))
+        this.currentPage_Exam = page;
+        if (selectedPages_Exam.Contains(page))
             return;
 
         //chỉ thực hiện load data khi người dùng chọn trang mới
-        (var newDeThis, _, _) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc?.MaMonHoc ?? -1, currentPage_DeThi, rowsPerPage_DeThi);
+        (var newDeThis, _, _) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject?.MaMonHoc ?? -1, currentPage_Exam, rowsPerPage_Exam);
         PadEmptyRows(newDeThis);
-        selectedPages_DeThi?.Add(currentPage_DeThi);
+        selectedPages_Exam?.Add(currentPage_Exam);
     }
 
-    private async Task OnRowClickedMonHoc(TableRowClickEventArgs<MonHocDto> args)
+    private async Task OnRowClickedSubject(TableRowClickEventArgs<MonHocDto> args)
     {
-        if (args.Item == selectedMonHoc)
+        if (args.Item == selectedSubject)
             return;
 
-        selectedMonHoc = args.Item;
+        selectedSubject = args.Item;
 
-        deThis?.Clear();
+        exams?.Clear();
         customNhomCauHois?.Clear();
         cauHois?.Clear();
         clos?.Clear();
 
-        await FetchClo();
-        await FetchDeThi();
+        await FetchCloAsync();
+        await FetchExamAsync();
         await SaveData();
     }
 
-    private async Task OnRowClickedDeThi(TableRowClickEventArgs<DeThiDto> args)
+    private async Task OnRowClickedExam(TableRowClickEventArgs<DeThiDto> args)
     {
-        if (args.Item == selectedDeThi)
+        if (args.Item == selectedExam)
             return;
 
-        selectedDeThi = args.Item;
+        selectedExam = args.Item;
 
         customNhomCauHois?.Clear();
         cauHois?.Clear();
 
-        await FetchNhomCauHoi();
+        await FetchGroupExamAsync();
         await SaveData();
     }
 
 
-    private async Task OnValueChangeNhomCauHoi(CustomNhomCauHoi nhomCauHoi)
+    private async Task OnValueChangeGroupQuestion(CustomNhomCauHoi nhomCauHoi)
     {
 
-        selectedNhomCauHoi = nhomCauHoi;
+        selectedGroupQuesion = nhomCauHoi;
         cauHois?.Clear();
 
-        await FetchCauHoi();
+        await FetchQuestionAsync();
         await SaveData();
     }
 
-    private async Task OnRowClickedCauHoi(TableRowClickEventArgs<CauHoiDto> args)
+    private async Task OnRowClickedQuestion(TableRowClickEventArgs<CauHoiDto> args)
     {
-        if (args.Item == selectedCauHoi)
+        if (args.Item == selectedQuestion)
             return;
 
-        selectedCauHoi = args.Item;
+        selectedQuestion = args.Item;
 
         await SaveData();
     }
@@ -326,19 +326,19 @@
         await SaveData();
     }
 
-    private string SelectedRowClassMonHocFunc(MonHocDto item, int rowNumber)
+    private string SelectedRowClassSubjectFunc(MonHocDto item, int rowNumber)
     {
-        return item == selectedMonHoc ? "selected-row" : string.Empty;
+        return item == selectedSubject ? "selected-row" : string.Empty;
     }
 
-    private string SelectedRowClassDeThiFunc(DeThiDto item, int rowNumber)
+    private string SelectedRowClassExamFunc(DeThiDto item, int rowNumber)
     {
-        return item == selectedDeThi ? "selected-row" : string.Empty;
+        return item == selectedExam ? "selected-row" : string.Empty;
     }
 
-    private string SelectedRowClassCauHoiFunc(CauHoiDto item, int rowNumber)
+    private string SelectedRowClassQuestionFunc(CauHoiDto item, int rowNumber)
     {
-        return item == selectedCauHoi ? "selected-row" : string.Empty;
+        return item == selectedQuestion ? "selected-row" : string.Empty;
     }
 
     private string SelectedRowClassCloFunc(CloDto item, int rowNumber)

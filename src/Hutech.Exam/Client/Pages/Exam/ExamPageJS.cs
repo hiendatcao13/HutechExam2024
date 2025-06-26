@@ -7,7 +7,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage
     {
-        public async Task<DialogResult?> OpenLostFocusDialog()
+        public async Task<DialogResult?> OpenLostFocusDialogAsync()
         {
             var parameters = new DialogParameters<LostFocusDialog>{};
 
@@ -19,34 +19,34 @@ namespace Hutech.Exam.Client.Pages.Exam
 
 
         [JSInvokable]
-        public async Task OnFocusLost()
+        public async Task OnFocusLostAsync()
         {
-            var result = await OpenLostFocusDialog();
+            var result = await OpenLostFocusDialogAsync();
             if (result != null && !result.Canceled && result.Data != null)
             {
                 if(result.Data is bool and true)
                 {
-                    await KetThucThoiGianLamBai();
+                    await EndTimeSubmissionAsync();
                 }    
             }    
         }
 
         [JSInvokable]
-        public async Task KetThucThoiGianLamBai()
+        public async Task EndTimeSubmissionAsync() // kết thúc thời gian làm bài
         {
-            var DsKhoanh = DSKhoanhDapAn.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
-            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
+            var DsKhoanh = SelectedAnswers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
+            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = Students.MaSinhVien, MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi, MaDeThiHoanVi = ExamSessionDetail.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
 
             // lưu dự phòng ở đây
-            await SaveData(DsKhoanh);
+            await SaveDataAsync(DsKhoanh);
 
             Nav?.NavigateTo("/result");
         }
 
         // save data cho trường hợp lỗi nặng
-        public async Task SaveData(Dictionary<int, int?> dsKhoanh)
+        public async Task SaveDataAsync(Dictionary<int, int?> dsKhoanh)
         {
-            var selectData = new SubmitRequest { IsLanDau = false, MaSinhVien = SinhVien.MaSinhVien, MaChiTietCaThi = ChiTietCaThi.MaChiTietCaThi, MaDeThiHoanVi = ChiTietCaThi.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh, IsRecoverySubmit = true };
+            var selectData = new SubmitRequest { IsLanDau = false, MaSinhVien = Students.MaSinhVien, MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi, MaDeThiHoanVi = ExamSessionDetail.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh, IsRecoverySubmit = true };
             await SessionStorage.SetItemAsync("SubmitRequest", selectData);
         }
     }

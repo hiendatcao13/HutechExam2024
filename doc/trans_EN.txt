@@ -1,0 +1,13 @@
+- thứ tự - order
+- hoán vị - IsShuffle
+- đã duyệt - IsApproved
+- lưu tạm - IsPending
+- bỏ chương phần - IsIgnoreChapter
+- kí hiệu đề - ExamCode
+- MSSV - StudentCode
+- Thống kê câu hỏi - questionreport
+- đợt thi - ExamBatch
+- chi tiết bài thi - ExamSubmissionDetail
+- lớp ảo - examroom
+- lớp - classroom
+- lần thi - attemptNumber

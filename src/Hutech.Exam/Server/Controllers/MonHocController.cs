@@ -29,7 +29,7 @@ namespace Hutech.Exam.Server.Controllers
             if (pageNumber.HasValue && pageSize.HasValue)
             {
                 var pagedResult = await _monHocService.GetAll_Paged(pageNumber.Value, pageSize.Value);
-                return Ok(APIResponse<Paged<MonHocDto>>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
+                return Ok(APIResponse<Paged<MonHocDto>>.SuccessResponse(pagedResult, "Lấy danh sách môn học thành công"));
             }
             else
             {

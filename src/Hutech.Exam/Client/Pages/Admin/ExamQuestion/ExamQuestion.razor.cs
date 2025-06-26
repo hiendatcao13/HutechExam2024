@@ -9,41 +9,41 @@ using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using Hutech.Exam.Client.Pages.Admin.ExamQuestion.Dialog;
 using Hutech.Exam.Client.API;
-using Hutech.Exam.Shared.Models;
-using Hutech.Exam.Client.Pages.Admin.ManageLop;
 using Hutech.Exam.Client.Pages.Admin.OrganizeExam.Dialog;
-using System.Runtime.CompilerServices;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
 {
     public partial class ExamQuestion
     {
+        #region Private Fields
         [Inject] private HttpClient Http { get; set; } = default!;
+
         [Inject] private NavigationManager Nav { get; set; } = default!;
+
         [Inject] private IMapper Mapper { get; set; } = default!;
+
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+        
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-        [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        List<MonHocDto>? monHocs = [];
-        MonHocDto? selectedMonHoc;
+        List<MonHocDto>? subjects = [];
+        MonHocDto? selectedSubject;
 
-        List<DeThiDto>? deThis = [];
-        DeThiDto? selectedDeThi;
+        List<DeThiDto>? exams = [];
+        DeThiDto? selectedExam;
 
-        List<NhomCauHoiDto>? nhomCauHois = []; // ds các nhóm câu hỏi gốc
+        List<NhomCauHoiDto>? groupQuestions = []; // ds các nhóm câu hỏi gốc
         List<CustomNhomCauHoi>? customNhomCauHois = [];
-        CustomNhomCauHoi? selectedNhomCauHoi;
+        CustomNhomCauHoi? selectedGroupQuesion;
 
-        CauHoiDto? selectedCauHoi;
+        CauHoiDto? selectedQuestion;
 
         List<CauHoiDto>? cauHois = [];
 
         List<CloDto>? clos = [];
         CloDto? selectedClo;
-
 
         private const string WARNING_ALREADY_DETHIHOANVI = "Đề thi này đã tạo ra các đề hoán vị. Việc thao tác thêm sẽ không ảnh hưởng đến các bộ đề hoán vị, sửa hoặc xóa nội dung câu hỏi, mã nhóm gốc vẫn được thực hiện.";
         private const string NOT_SELECT_OBJECT = "Vui lòng chọn đối tượng cần thao tác";
@@ -53,13 +53,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             "NHOMCAUHOIHV &rarr; CHITIETDETHIHV, LOPAO &rarr; CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
 
         private const string DELETE_DETHI_MESSAGE = "Bạn có chắc chắn muốn xóa đề thi này không? Mối quan hệ phụ thuộc: NHOMCAUHOI &rarr; CAUHOI &rarr; CAUTRALOI &rarr; DETHIHV &rarr; NHOMCAUHOIHV &rarr; CHITIETDETHIHV";
-
         private const string DELETE_NHOMCAUHOI_MESSAGE = "Bạn có chắc chắn muốn xóa nhóm câu hỏi này không? Mối quan hệ phụ thuộc: CHITIETDETHIHV &rarr; NHOMCAUHOIHV, CAUHOI &rarr; CAUTRALOI";
-
         private const string DELETE_CAUHOI_MESSAGE = "Bạn có chắc chắn muốn xóa câu hỏi này không? Mối quan hệ phụ thuộc: CHITIETDETHIHV, CAUTRALOI";
-
         private const string DELETE_CLO_MESSAGE = "Bạn có chắc chắn muốn xóa CLO này không? Mối quan hệ phụ thuộc: CAUHOI &rarr; CHITIETDETHIHV &rarr; CAUTRALOI";
 
+        #endregion
+
+        #region Initial Methods
         protected override async Task OnInitializedAsync()
         {
             //xác thực người dùng
@@ -73,108 +73,406 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             {
                 Nav.NavigateTo("/admin", true);
             }
-            await Start();
-            await GetItemsInSessionStorage();
+            await StartAsync();
+            await GetItemsInSessionStorageAsync();
             await base.OnInitializedAsync();
         }
 
-        private async Task Start()
+        private async Task StartAsync()
         {
-            await FetchMonHocs();
+            await FetchSubjectAsync();
         }
 
-        private async Task GetItemsInSessionStorage()
-        {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataEQ>("storedDataEQ");
+        #endregion
 
-            if (storedData != null)
-            {
-                selectedMonHoc = storedData.MonHoc;
-                selectedDeThi = storedData.DeThi;
-            }
-            await FetchAllData();
-        }
+        #region Fetch Methods
 
-        private async Task FetchAllData()
+        private async Task FetchAllDataAsync()
         {
-            if (selectedMonHoc != null)
+            if (selectedSubject != null)
             {
-                await FetchClo();
-                await FetchDeThi();
-                await FetchNhomCauHoi();
-                await FetchCauHoi();
+                await FetchCloAsync();
+                await FetchExamAsync();
+                await FetchGroupExamAsync();
+                await FetchQuestionAsync();
             }
         }
 
-        private async Task FetchMonHocs()
+        private async Task FetchSubjectAsync()
         {
-            (monHocs, totalPages_Mon, totalRecords_Mon) = await MonHocs_GetAll_PagedAPI(currentPage_Mon, rowsPerPage_Mon);
+            (subjects, totalPages_Subject, totalRecords_Subject) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
             CreateFakeData_MonHoc();
 
-            selectedMonHoc = null;
+            selectedSubject = null;
             selectedClo = null;
-            selectedDeThi = null;
-            selectedNhomCauHoi = null;
-            selectedCauHoi = null;
+            selectedExam = null;
+            selectedGroupQuesion = null;
+            selectedQuestion = null;
         }
 
-        private async Task FetchDeThi()
+        private async Task FetchExamAsync()
         {
-            if (selectedMonHoc != null)
+            if (selectedSubject != null)
             {
-                (deThis, totalPages_DeThi, totalRecords_DeThi) = await DeThis_SelectBy_MaMonHoc_PagedAPI(selectedMonHoc.MaMonHoc, currentPage_DeThi, rowsPerPage_DeThi);
+                (exams, totalPages_Exam, totalRecords_Exam) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject.MaMonHoc, currentPage_Exam, rowsPerPage_Exam);
                 CreateFakeData_DeThi();
             }
 
-            selectedDeThi = null;
-            selectedNhomCauHoi = null;
-            selectedCauHoi = null;
+            selectedExam = null;
+            selectedGroupQuesion = null;
+            selectedQuestion = null;
         }
 
-        private async Task FetchClo()
+        private async Task FetchCloAsync()
         {
-            if(selectedMonHoc != null)
+            if (selectedSubject != null)
             {
-                clos = await Clos_SelectBy_MaMonHocAPI(selectedMonHoc.MaMonHoc);
+                clos = await Clos_SelectBy_SubjectIdAPI(selectedSubject.MaMonHoc);
             }
 
             selectedClo = null;
-            selectedNhomCauHoi = null;
-            selectedCauHoi = null;
+            selectedGroupQuesion = null;
+            selectedQuestion = null;
         }
 
-        private async Task FetchNhomCauHoi()
+        private async Task FetchGroupExamAsync()
         {
-            if (selectedDeThi != null)
+            if (selectedExam != null)
             {
-                nhomCauHois = await NhomCauHois_SelectAllBy_MaDeThiAPI(selectedDeThi.MaDeThi);
+                groupQuestions = await GroupQuestions_SelectBy_ExamIdAPI(selectedExam.MaDeThi);
                 cauHois?.Clear();
-                selectedCauHoi = null;
+                selectedQuestion = null;
 
                 // convert nhomCauHois to CustomNhomCauHoi
-                if (nhomCauHois != null)
-                    customNhomCauHois = HandleNhomCauHoi(nhomCauHois);
-                if (selectedDeThi.TongSoDeHoanVi > 0)
+                if (groupQuestions != null)
+                    customNhomCauHois = HandleGroupQuestion(groupQuestions);
+                if (selectedExam.TongSoDeHoanVi > 0)
                 {
-                    await OpenDialogAlreadyHasDeThiHoanVi();
+                    await OpenDialogAlreadyHasShuffleExamAsync();
                 }
                 return;
             }
-            selectedNhomCauHoi = null;
-            selectedCauHoi = null;
+            selectedGroupQuesion = null;
+            selectedQuestion = null;
         }
 
-        private async Task FetchCauHoi()
+        private async Task FetchQuestionAsync()
         {
-            if (selectedNhomCauHoi != null)
+            if (selectedGroupQuesion != null)
             {
-                cauHois = await CauHois_SelectBy_MaNhomAPI(selectedNhomCauHoi.MaNhom);
+                cauHois = await Questions_SelectBy_GroupQuestionIdAPI(selectedGroupQuesion.MaNhom);
                 return;
             }
-            selectedCauHoi = null;
+            selectedQuestion = null;
         }
 
-        private List<CustomNhomCauHoi> HandleNhomCauHoi(List<NhomCauHoiDto> nhomCauHoiGoc)
+        #endregion
+
+        #region OnClick Methods
+
+        private async Task OnClickViewQuestionContentAsync(string? text)
+        {
+            var parameters = new DialogParameters<QuestionContentDialog>
+            {
+                { x => x.Text, text},
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<QuestionContentDialog>("XEM CHUYỂN", parameters, options);
+        }
+
+        private async Task OnClickAddSubjectAsync()
+        {
+            var result = await OpenSubjectDialogAsync(false);
+            if (result != null && !result.Canceled && subjects != null && result.Data != null)
+            {
+                var newMonHoc = (MonHocDto)result.Data;
+                if (newMonHoc != null)
+                {
+                    subjects.Insert(0, newMonHoc);
+                    selectedSubject = newMonHoc;
+                }
+            }
+        }
+
+        private async Task OnClickEditSubjectAsync()
+        {
+            var result = await OpenSubjectDialogAsync(true);
+            if (result != null && !result.Canceled && subjects != null && result.Data != null)
+            {
+                var newMonHoc = (MonHocDto)result.Data;
+                if (newMonHoc != null && selectedSubject != null)
+                {
+                    int index = subjects.FindIndex(m => m.MaMonHoc == newMonHoc.MaMonHoc);
+                    if (index != -1)
+                    {
+                        subjects[index] = newMonHoc;
+                        selectedSubject = newMonHoc;
+                    }
+                }
+            }
+        }
+
+        private async Task OnClickDeleteSubjectAsync()
+        {
+            if (selectedSubject == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_MONHOC_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteSubjectAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteSubjectAsync(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
+        }
+
+        private async Task OnClickAddExamAsync()
+        {
+            var result = await OpenExamDialogAsync(false);
+            if (result != null && !result.Canceled && exams != null && result.Data != null)
+            {
+                var newDeThi = (DeThiDto)result.Data;
+                if (exams != null)
+                {
+                    exams.Insert(0, newDeThi);
+                    selectedExam = newDeThi;
+                }
+            }
+        }
+
+        private async Task OnClickEditExamAsync()
+        {
+            var result = await OpenExamDialogAsync(true);
+            if (result != null && !result.Canceled && subjects != null && result.Data != null)
+            {
+                var newdeThi = (DeThiDto)result.Data;
+                if (exams != null && selectedExam != null)
+                {
+                    int index = exams.FindIndex(m => m.MaDeThi == newdeThi.MaDeThi);
+                    if (index != -1)
+                    {
+                        exams[index] = newdeThi;
+                        selectedExam = newdeThi;
+                    }
+                }
+            }
+        }
+
+        private async Task OnClickDeleteExamAsync()
+        {
+            if (selectedExam == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_DETHI_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamAsync(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA ĐỀ THI", parameters, options);
+        }
+
+        private async Task OnClickAddGroupQuestionAsync()
+        {
+            if (selectedExam == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT + "và để biết thêm vào vị trí nào", Severity.Warning);
+                return;
+            }
+            NhomCauHoiDto? nhomCauHoi = groupQuestions?.FirstOrDefault(p => p.MaNhom == selectedGroupQuesion?.MaNhom);
+            var result = await OpenGroupQuestionDialogAsync(false, nhomCauHoi, null, selectedExam);
+            if (result != null && result.Data != null && !result.Canceled)
+            {
+                if (selectedExam != null)
+                {
+                    selectedGroupQuesion = null;
+                    groupQuestions = await GroupQuestions_SelectBy_ExamIdAPI(selectedExam.MaDeThi);
+
+                    // convert nhomCauHois to CustomNhomCauHoi
+                    if (groupQuestions != null)
+                        customNhomCauHois = HandleGroupQuestion(groupQuestions);
+                }
+            }
+        }
+
+        private async Task OnClickEditGroupQuestionAsync()
+        {
+            if (selectedGroupQuesion == null || selectedExam == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+            NhomCauHoiDto? nhomCauHoi = groupQuestions?.FirstOrDefault(p => p.MaNhom == selectedGroupQuesion.MaNhom);
+            var result = await OpenGroupQuestionDialogAsync(true, null, nhomCauHoi, selectedExam);
+            if (result != null && result.Data != null && !result.Canceled)
+            {
+                if (selectedExam != null)
+                {
+                    selectedGroupQuesion = null;
+                    groupQuestions = await GroupQuestions_SelectBy_ExamIdAPI(selectedExam.MaDeThi);
+
+                    // convert nhomCauHois to CustomNhomCauHoi
+                    if (groupQuestions != null)
+                        customNhomCauHois = HandleGroupQuestion(groupQuestions);
+                }
+            }
+        }
+
+        private async Task OnClickDeleteGroupQuestionAsync()
+        {
+            if (selectedGroupQuesion == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_NHOMCAUHOI_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteGroupQuestionAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteGroupQuestionAsync(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA NHÓM CÂU HỎI", parameters, options);
+        }
+
+        private async Task OnClickAddQuestionAsync()
+        {
+            if (selectedGroupQuesion == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+            // không thể thêm câu hỏi cho chương
+            if (selectedGroupQuesion.LaCauHoiNhom == false)
+            {
+                Snackbar.Add(FORBIDDEN_ADD_CAUHOI, Severity.Error);
+                return;
+            }
+            NhomCauHoiDto? nhomCauHoi = groupQuestions?.FirstOrDefault(x => x.MaNhom == selectedGroupQuesion.MaNhom);
+            var result = await OpenQuestionDialogAsync(false, nhomCauHoi);
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                var newCauHoi = (CauHoiDto)result.Data;
+                if (cauHois != null && selectedGroupQuesion != null)
+                {
+                    cauHois.Add(newCauHoi);
+                    selectedQuestion = newCauHoi;
+                }
+            }
+        }
+
+        private async Task OnClickEditQuestionAsync()
+        {
+            if (selectedGroupQuesion == null || selectedQuestion == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+            NhomCauHoiDto? nhomCauHoi = groupQuestions?.FirstOrDefault(x => x.MaNhom == selectedGroupQuesion.MaNhom);
+            var result = await OpenQuestionDialogAsync(true, nhomCauHoi);
+            if (result != null && !result.Canceled && result.Data != null && cauHois != null)
+            {
+                var newCauHoi = (CauHoiDto)result.Data;
+                int index = cauHois.FindIndex(m => m.MaCauHoi == newCauHoi.MaCauHoi);
+                if (index != -1)
+                {
+                    cauHois[index] = newCauHoi;
+                }
+            }
+        }
+
+        private async Task OnClickDeleteQuestionAsync()
+        {
+            if (selectedQuestion == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_CAUHOI_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteQuestionAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteQuestionAsync(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA CÂU HỎI", parameters, options);
+        }
+
+        private async Task OnClickAddCloAsync()
+        {
+            if (selectedSubject == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+            var result = await OpenCloDialogAsync(false);
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                var newClo = (CloDto)result.Data;
+                if (clos != null)
+                {
+                    clos.Insert(0, newClo);
+                    selectedClo = newClo;
+                }
+            }
+        }
+
+        private async Task OnClickEditCloAsync()
+        {
+            if (selectedSubject == null || selectedClo == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+            var result = await OpenCloDialogAsync(true);
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                var newClo = (CloDto)result.Data;
+                if (clos != null && selectedExam != null)
+                {
+                    int index = clos.FindIndex(m => m.MaClo == newClo.MaClo);
+                    if (index != -1)
+                    {
+                        clos[index] = newClo;
+                        selectedClo = newClo;
+                    }
+                }
+            }
+        }
+
+        private async Task OnClickDeleteCloAsync()
+        {
+            if (selectedClo == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, DELETE_CLO_MESSAGE },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCloAsync(false))   },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCloAsync(true))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA CLO", parameters, options);
+        }
+
+        #endregion
+
+        #region HandleOnClick Methods
+
+        private List<CustomNhomCauHoi> HandleGroupQuestion(List<NhomCauHoiDto> nhomCauHoiGoc)
         {
             List<CustomNhomCauHoi> result = new();
             // handle các câu hỏi cha trước
@@ -200,143 +498,37 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             return result;
         }
 
-        private async Task OnClickViewNoiDung(string? text)
-        {
-            var parameters = new DialogParameters<NoiDungCauHoiDialog>
-            {
-                { x => x.Text, text},
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<NoiDungCauHoiDialog>("XEM CHUYỂN", parameters, options);
-        }
 
-        private async Task OnClickThemMonThi()
-        {
-            var result = await OpenMonHocDialog(false);
-            if (result != null && !result.Canceled && monHocs != null && result.Data != null)
-            {
-                var newMonHoc = (MonHocDto)result.Data;
-                if (newMonHoc != null)
-                {
-                    monHocs.Insert(0, newMonHoc);
-                    selectedMonHoc = newMonHoc;
-                }
-            }
-        }
 
-        private async Task OnClickSuaMonThi()
+        private async Task HandleDeleteSubjectAsync(bool isForce)
         {
-            var result = await OpenMonHocDialog(true);
-            if (result != null && !result.Canceled && monHocs != null && result.Data != null)
+            if (selectedSubject != null)
             {
-                var newMonHoc = (MonHocDto)result.Data;
-                if (newMonHoc != null && selectedMonHoc != null)
-                {
-                    int index = monHocs.FindIndex(m => m.MaMonHoc == newMonHoc.MaMonHoc);
-                    if (index != -1)
-                    {
-                        monHocs[index] = newMonHoc;
-                        selectedMonHoc = newMonHoc;
-                    }
-                }
-            }
-        }
-
-        private async Task OnClickXoaMonThi()
-        {
-            if (selectedMonHoc == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_MONHOC_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteMonHoc(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
-        }
-
-        private async Task HandleDeleteMonHoc(bool isForce)
-        {
-            if (selectedMonHoc != null)
-            {
-                var result = (isForce) ? await MonHoc_ForceDeleteAPI(selectedMonHoc.MaMonHoc) : await MonHoc_DeleteAPI(selectedMonHoc.MaMonHoc);
+                var result = (isForce) ? await Subject_ForceDeleteAPI(selectedSubject.MaMonHoc) : await Subject_DeleteAPI(selectedSubject.MaMonHoc);
 
                 if (result)
                 {
-                    monHocs?.Remove(selectedMonHoc);
-                    selectedMonHoc = null;
-                    deThis?.Clear();
+                    subjects?.Remove(selectedSubject);
+                    selectedSubject = null;
+                    exams?.Clear();
                     customNhomCauHois?.Clear();
                     cauHois?.Clear();
                 }
             }
         }
 
-        private async Task OnClickThemDeThi()
-        {
-            var result = await OpenDeThiDialog(false);
-            if (result != null && !result.Canceled && deThis != null && result.Data != null)
-            {
-                var newDeThi = (DeThiDto)result.Data;
-                if (deThis != null)
-                {
-                    deThis.Insert(0, newDeThi);
-                    selectedDeThi = newDeThi;
-                }
-            }
-        }
 
-        private async Task OnClickSuaDeThi()
-        {
-            var result = await OpenDeThiDialog(true);
-            if (result != null && !result.Canceled && monHocs != null && result.Data != null)
-            {
-                var newdeThi = (DeThiDto)result.Data;
-                if (deThis != null && selectedDeThi != null)
-                {
-                    int index = deThis.FindIndex(m => m.MaDeThi == newdeThi.MaDeThi);
-                    if (index != -1)
-                    {
-                        deThis[index] = newdeThi;
-                        selectedDeThi = newdeThi;
-                    }
-                }
-            }
-        }
 
-        private async Task OnClickXoaDeThi()
+        private async Task HandleDeleteExamAsync(bool isForce)
         {
-            if (selectedDeThi == null)
+            if (selectedExam != null)
             {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_DETHI_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDeThi(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteDeThi(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA KHOA", parameters, options);
-        }
-
-        private async Task HandleDeleteDeThi(bool isForce)
-        {
-            if (selectedDeThi != null)
-            {
-                var result = (isForce) ? await DeThi_ForceDeleteAPI(selectedDeThi.MaDeThi) : await DeThi_DeleteAPI(selectedDeThi.MaDeThi);
+                var result = (isForce) ? await Exam_ForceDeleteAPI(selectedExam.MaDeThi) : await Exam_DeleteAPI(selectedExam.MaDeThi);
 
                 if (result)
                 {
-                    deThis?.Remove(selectedDeThi);
-                    selectedDeThi = null;
+                    exams?.Remove(selectedExam);
+                    selectedExam = null;
 
                     customNhomCauHois?.Clear();
                     cauHois?.Clear();
@@ -344,234 +536,41 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             }
         }
 
-        private async Task OnClickTaoMaTranDe()
+
+
+        private async Task HandleDeleteGroupQuestionAsync(bool isForce)
         {
-            if(selectedDeThi == null)
+            if (selectedGroupQuesion != null)
             {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            await OpenTaoDeHVDialog();
-        }
-
-        private async Task OnClickThemNhomCauHoi()
-        {
-            if (selectedDeThi == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT + "và để biết thêm vào vị trí nào", Severity.Warning);
-                return;
-            }
-            NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(p => p.MaNhom == selectedNhomCauHoi?.MaNhom);
-            var result = await OpenNhomCauHoiDialog(false, nhomCauHoi, null, selectedDeThi);
-            if (result != null && result.Data != null && !result.Canceled)
-            {
-                if (selectedDeThi != null)
-                {
-                    selectedNhomCauHoi = null;
-                    nhomCauHois = await NhomCauHois_SelectAllBy_MaDeThiAPI(selectedDeThi.MaDeThi);
-
-                    // convert nhomCauHois to CustomNhomCauHoi
-                    if (nhomCauHois != null)
-                        customNhomCauHois = HandleNhomCauHoi(nhomCauHois);
-                }
-            }
-        }
-
-        private async Task OnClickSuaNhomCauHoi()
-        {
-            if (selectedNhomCauHoi == null || selectedDeThi == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-            NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(p => p.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenNhomCauHoiDialog(true, null, nhomCauHoi, selectedDeThi);
-            if (result != null && result.Data != null && !result.Canceled)
-            {
-                if (selectedDeThi != null)
-                {
-                    selectedNhomCauHoi = null;
-                    nhomCauHois = await NhomCauHois_SelectAllBy_MaDeThiAPI(selectedDeThi.MaDeThi);
-
-                    // convert nhomCauHois to CustomNhomCauHoi
-                    if (nhomCauHois != null)
-                        customNhomCauHois = HandleNhomCauHoi(nhomCauHois);
-                }
-            }
-        }
-
-        private async Task OnClickXoaNhomCauHoi()
-        {
-            if (selectedNhomCauHoi == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_NHOMCAUHOI_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteNhomCauHoi(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteNhomCauHoi(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA NHÓM CÂU HỎI", parameters, options);
-        }
-
-        private async Task HandleDeleteNhomCauHoi(bool isForce)
-        {
-            if (selectedNhomCauHoi != null)
-            {
-                var result = (isForce) ? await NhomCauHoi_ForceDeleteAPI(selectedNhomCauHoi.MaNhom) : await NhomCauHoi_DeleteAPI(selectedNhomCauHoi.MaNhom);
+                var result = (isForce) ? await GroupQuestion_ForceDeleteAPI(selectedGroupQuesion.MaNhom) : await GroupQuestion_DeleteAPI(selectedGroupQuesion.MaNhom);
 
                 if (result)
                 {
-                    await FetchNhomCauHoi();
+                    await FetchGroupExamAsync();
 
                     cauHois?.Clear();
                 }
             }
         }
 
-        private async Task OnClickThemCauHoi()
-        {
-            if (selectedNhomCauHoi == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-            // không thể thêm câu hỏi cho chương
-            if(selectedNhomCauHoi.LaCauHoiNhom == false)
-            {
-                Snackbar.Add(FORBIDDEN_ADD_CAUHOI, Severity.Error);
-                return;
-            }    
-            NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(x => x.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenCauHoiDialog(false, nhomCauHoi);
-            if(result != null && !result.Canceled && result.Data != null)
-            {
-                var newCauHoi = (CauHoiDto)result.Data;
-                if (cauHois != null && selectedNhomCauHoi != null)
-                {
-                    cauHois.Add(newCauHoi);
-                    selectedCauHoi = newCauHoi;
-                }
-            }    
-        }
 
-        private async Task OnClickSuaCauHoi()
-        {
-            if (selectedNhomCauHoi == null || selectedCauHoi == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-            NhomCauHoiDto? nhomCauHoi = nhomCauHois?.FirstOrDefault(x => x.MaNhom == selectedNhomCauHoi.MaNhom);
-            var result = await OpenCauHoiDialog(true, nhomCauHoi);
-            if (result != null && !result.Canceled && result.Data != null && cauHois != null)
-            {
-                var newCauHoi = (CauHoiDto)result.Data;
-                int index = cauHois.FindIndex(m => m.MaCauHoi == newCauHoi.MaCauHoi);
-                if(index != -1)
-                {
-                    cauHois[index] = newCauHoi;
-                }    
-            }
-        }
 
-        private async Task OnClickXoaCauHoi()
+        private async Task HandleDeleteQuestionAsync(bool isForce)
         {
-            if (selectedCauHoi == null)
+            if (selectedQuestion != null)
             {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_CAUHOI_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCauHoi(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteCauHoi(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA CÂU HỎI", parameters, options);
-        }
-
-        private async Task HandleDeleteCauHoi(bool isForce)
-        {
-            if (selectedCauHoi != null)
-            {
-                var result = (isForce) ? await CauHoi_ForceDeleteAPI(selectedCauHoi.MaCauHoi) : await CauHoi_DeleteAPI(selectedCauHoi.MaCauHoi);
+                var result = (isForce) ? await Question_ForceDeleteAPI(selectedQuestion.MaCauHoi) : await Question_DeleteAPI(selectedQuestion.MaCauHoi);
 
                 if (result)
                 {
-                    cauHois?.Remove(selectedCauHoi);
+                    cauHois?.Remove(selectedQuestion);
                 }
             }
         }
 
-        private async Task OnClickThemClo()
-        {
-            if(selectedMonHoc == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }    
-            var result = await OpenCloDialog(false);
-            if (result != null && !result.Canceled && result.Data != null)
-            {
-                var newClo = (CloDto)result.Data;
-                if (clos != null)
-                {
-                    clos.Insert(0, newClo);
-                    selectedClo = newClo;
-                }
-            }
-        }
 
-        private async Task OnClickSuaClo()
-        {
-            if (selectedMonHoc == null || selectedClo == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-            var result = await OpenCloDialog(true);
-            if (result != null && !result.Canceled && result.Data != null)
-            {
-                var newClo = (CloDto)result.Data;
-                if (clos != null && selectedDeThi != null)
-                {
-                    int index = clos.FindIndex(m => m.MaClo == newClo.MaClo);
-                    if (index != -1)
-                    {
-                        clos[index] = newClo;
-                        selectedClo = newClo;
-                    }
-                }
-            }
-        }
 
-        private async Task OnClickXoaClo()
-        {
-            if (selectedClo == null)
-            {
-                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
-                return;
-            }
-
-            var parameters = new DialogParameters<Delete_Dialog>
-            {
-                { x => x.ContentText, DELETE_CLO_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteClo(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteClo(true))   }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            await Dialog.ShowAsync<Delete_Dialog>("XÓA CLO", parameters, options);
-        }
-
-        private async Task HandleDeleteClo(bool isForce)
+        private async Task HandleDeleteCloAsync(bool isForce)
         {
             if (selectedClo != null)
             {
@@ -584,12 +583,43 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             }
         }
 
-        private async Task<DialogResult?> OpenCloDialog(bool isEdit)
+        #endregion
+
+        #region SessionStorage
+        private async Task GetItemsInSessionStorageAsync()
+        {
+            var storedData = await SessionStorage.GetItemAsync<StoredDataEQ>("storedDataEQ");
+
+            if (storedData != null)
+            {
+                selectedSubject = storedData.Subject;
+                selectedExam = storedData.Exam;
+            }
+            await FetchAllDataAsync();
+        }
+
+        private async Task SaveData()
+        {
+            var selectedData = new StoredDataEQ
+            {
+                Subject = selectedSubject,
+                Exam = selectedExam,
+                GroupQuestion = groupQuestions?.FirstOrDefault(x => x.MaNhom == selectedGroupQuesion?.MaNhom),
+                Clo = selectedClo
+            };
+            await SessionStorage.SetItemAsync("storedDataEQ", selectedData);
+        }
+
+        #endregion
+
+        #region Dialog Methods
+
+        private async Task<DialogResult?> OpenCloDialogAsync(bool isEdit)
         {
             var parameters = new DialogParameters<CloDialog>
             {
                 { x => x.IsEdit, isEdit},
-                { x => x.MonHoc, selectedMonHoc },
+                { x => x.Subject, selectedSubject },
                 { x => x.Clo, selectedClo }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
@@ -598,31 +628,31 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
         }
 
 
-        private async Task<DialogResult?> OpenMonHocDialog(bool isEdit)
+        private async Task<DialogResult?> OpenSubjectDialogAsync(bool isEdit)
         {
             var parameters = new DialogParameters<MonHocDialog>
             {
                 { x => x.IsEdit, isEdit},
-                { x => x.MonHoc, selectedMonHoc },
+                { x => x.Subject, selectedSubject },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<MonHocDialog>((isEdit) ? "SỬA MÔN HỌC" : "THÊM MÔN HỌC", parameters, options);
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenDeThiDialog(bool isEdit)
+        private async Task<DialogResult?> OpenExamDialogAsync(bool isEdit)
         {
-            var parameters = new DialogParameters<DeThiDialog>
+            var parameters = new DialogParameters<ExamDialog>
             {
                 { x => x.IsEdit, isEdit},
-                { x => x.DeThi, selectedDeThi }
+                { x => x.Exam, selectedExam }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<DeThiDialog>((isEdit) ? "SỬA ĐỀ THI" : "THÊM ĐỀ THI", parameters, options);
+            var dialog = await Dialog.ShowAsync<ExamDialog>((isEdit) ? "SỬA ĐỀ THI" : "THÊM ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 
-        private async Task OpenDialogAlreadyHasDeThiHoanVi()
+        private async Task OpenDialogAlreadyHasShuffleExamAsync()
         {
             var parameters = new DialogParameters<Simple_Dialog>
             {
@@ -636,64 +666,54 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             await Dialog.ShowAsync<Simple_Dialog>("Thông báo", parameters, options);
         }
 
-        private async Task<DialogResult?> OpenNhomCauHoiDialog(bool isEdit, NhomCauHoiDto? nhomCauHoiCha, NhomCauHoiDto? nhomCauHoi, DeThiDto? deThi)
+        private async Task<DialogResult?> OpenGroupQuestionDialogAsync(bool isEdit, NhomCauHoiDto? nhomCauHoiCha, NhomCauHoiDto? nhomCauHoi, DeThiDto? deThi)
         {
-            var thuTu = (nhomCauHois?.Count ?? 0) + 1;
-            var parameters = new DialogParameters<NhomCauHoiDialog>
+            var thuTu = (groupQuestions?.Count ?? 0) + 1;
+            var parameters = new DialogParameters<GroupQuestionDialog>
             {
-                { x => x.NhomCauHoi, nhomCauHoi },
-                { x => x.NhomCauHoiCha, nhomCauHoiCha },
+                { x => x.GroupQuestion, nhomCauHoi },
+                { x => x.ParentGropQuestion, nhomCauHoiCha },
                 { x => x.IsEdit, isEdit },
-                { x => x.DeThi, deThi},
-                { x => x.BoChuongPhan, selectedDeThi?.BoChuongPhan},
-                { x => x.ThuTu, thuTu + 1}
+                { x => x.Exam, deThi},
+                { x => x.IsIgnoreChaper, selectedExam?.BoChuongPhan},
+                { x => x.Order, thuTu + 1}
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<NhomCauHoiDialog>((isEdit) ? "SỬA CHƯƠNG/NHÓM CÂU HỎI" : "THÊM CHƯƠNG/NHÓM CÂU HỎI", parameters, options);
+            var dialog = await Dialog.ShowAsync<GroupQuestionDialog>((isEdit) ? "SỬA CHƯƠNG/NHÓM CÂU HỎI" : "THÊM CHƯƠNG/NHÓM CÂU HỎI", parameters, options);
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenCauHoiDialog(bool isEdit, NhomCauHoiDto? nhomCauHoi)
+        private async Task<DialogResult?> OpenQuestionDialogAsync(bool isEdit, NhomCauHoiDto? nhomCauHoi)
         {
-            var parameters = new DialogParameters<CauHoiDialog>
+            var parameters = new DialogParameters<QuestionDialog>
             {
-                { x => x.CauHoi, selectedCauHoi },
+                { x => x.Question, selectedQuestion },
                 { x => x.Clos, clos},
-                { x => x.NhomCauHoi, nhomCauHoi },
+                { x => x.GroupExam, nhomCauHoi },
                 { x => x.IsEdit, isEdit },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<CauHoiDialog>((isEdit) ? "SỬA CÂU HỎI" : "THÊM CÂU HỎI", parameters, options);
+            var dialog = await Dialog.ShowAsync<QuestionDialog>((isEdit) ? "SỬA CÂU HỎI" : "THÊM CÂU HỎI", parameters, options);
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenTaoDeHVDialog()
-        {
-            var parameters = new DialogParameters<MaTranDeDialog>
-            {
-                { x => x.DeThi, selectedDeThi }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<MaTranDeDialog>("TẠO MA TRẬN ĐỀ THI", parameters, options);
-            return await dialog.Result;
-        }
+        #endregion
 
-
-
+        #region Other Methods
 
         private void PadEmptyRows(List<MonHocDto>? newMonHocs)
         {
             if (newMonHocs == null || newMonHocs.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_Mon * rowsPerPage_Mon;
-            if (monHocs != null && monHocs.Count != 0)
+            int startRow = currentPage_Subject * rowsPerPage_Subject;
+            if (subjects != null && subjects.Count != 0)
             {
                 for (int i = 0; i < newMonHocs.Count; i++)
                 {
 
-                    monHocs[startRow++] = newMonHocs[i];
+                    subjects[startRow++] = newMonHocs[i];
                 }
             }
             StateHasChanged();
@@ -704,13 +724,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             if (newDeThis == null || newDeThis.Count == 0)
                 return;
             // tìm phần tử đầu tiên của trang đó
-            int startRow = currentPage_DeThi * rowsPerPage_DeThi;
-            if (deThis != null && deThis.Count != 0)
+            int startRow = currentPage_Exam * rowsPerPage_Exam;
+            if (exams != null && exams.Count != 0)
             {
                 for (int i = 0; i < newDeThis.Count; i++)
                 {
 
-                    deThis[startRow++] = newDeThis[i];
+                    exams[startRow++] = newDeThis[i];
                 }
             }
             StateHasChanged();
@@ -718,43 +738,33 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
 
         private void CreateFakeData_MonHoc()
         {
-            if (monHocs != null && monHocs.Count != 0)
+            if (subjects != null && subjects.Count != 0)
             {
-                int count_fake = totalRecords_Mon - monHocs.Count;
-                bool isFake = totalRecords_Mon > monHocs.Count;
+                int count_fake = totalRecords_Subject - subjects.Count;
+                bool isFake = totalRecords_Subject > subjects.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        monHocs.Add(new MonHocDto());
+                        subjects.Add(new MonHocDto());
                 }
             }
         }
 
         private void CreateFakeData_DeThi()
         {
-            if (deThis != null && deThis.Count != 0)
+            if (exams != null && exams.Count != 0)
             {
-                int count_fake = totalRecords_DeThi - deThis.Count;
-                bool isFake = totalRecords_DeThi > deThis.Count;
+                int count_fake = totalRecords_Exam - exams.Count;
+                bool isFake = totalRecords_Exam > exams.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        deThis.Add(new DeThiDto());
+                        exams.Add(new DeThiDto());
                 }
             }
         }
 
-        private async Task SaveData()
-        {
-            var selectedData = new StoredDataEQ
-            {
-                MonHoc = selectedMonHoc,
-                DeThi = selectedDeThi,
-                NhomCauHoi = nhomCauHois?.FirstOrDefault(x => x.MaNhom == selectedNhomCauHoi?.MaNhom),
-                Clo = selectedClo
-            };
-            await SessionStorage.SetItemAsync("storedDataEQ", selectedData);
-        }
+        #endregion
 
     }
 }

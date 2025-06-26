@@ -173,6 +173,7 @@ namespace Hutech.Exam.Server.Controllers
             try
             {
                 await NotifyLogOutToSV(id);
+                await _sinhVienService.Logout(id, DateTime.Now);
                 return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
             }
             catch (Exception ex)
