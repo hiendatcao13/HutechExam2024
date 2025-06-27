@@ -21,6 +21,11 @@ namespace Hutech.Exam.Server.BUS
             return await _customThongKeRepository.ThongKeDiem_SelectBy_DeThi(maDeThi);
         }
 
+        public async Task<CustomThongKeCapBacSV> ThongKeCapBacSV_SelectBy_DeThi(int maDeThi)
+        {
+            return await _customThongKeRepository.ThongKeCapBacSV_SelectBy_DeThi(maDeThi);
+        }
+
         #endregion
     }
 }

@@ -31,6 +31,8 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<UserService>();
             services.AddScoped<CloService>();
 
+            services.AddScoped<BcryptService>();
+
             // sử dụng custom lại đề
             services.AddScoped<CustomDeThiService>();
             services.AddScoped<CustomMaDeThiService>();

@@ -5,6 +5,8 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Client.Authentication;
 using System.Net.Http.Headers;
 using Hutech.Exam.Shared.DTO.Custom;
+using System.Text.Json;
+using Microsoft.JSInterop;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamReview
 {
@@ -19,6 +21,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+        [Inject] private IJSRuntime Js { get; set; } = default!;
+
 
         List<MonHocDto>? subjects = [];
         MonHocDto? selectedSubject;
@@ -26,13 +30,20 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
         List<DeThiDto>? exams = [];
         DeThiDto? selectedExam;
 
-        //thống kê report
+        //thống kê report câu hỏi
         List<CustomThongKeCauHoi> customQuestionReports = [];
+
+        //Thống kê cấp bậc sv top, bottom
+        CustomThongKeCapBacSV customStudentLevelReport = new();
+        bool isFirstRenderLevelReport = true;
 
         // thống kê điểm
         List<CustomThongKeDiem> customScoreReports = [];
         int totalStudent, totalStudentLessEqual1, totalStudentLess5 = 0;
         double averageScore = 0;
+
+
+        private const string NO_SELECT_OBJECT_DETHI = "Vui lòng chọn đề thi";
 
         #endregion
 
@@ -82,7 +93,38 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             selectedExam = null;
         }
 
+        private async Task FetchLevelStudentReportAsync()
+        {
+            if(selectedExam == null)
+            {
+                Snackbar.Add(NO_SELECT_OBJECT_DETHI, MudBlazor.Severity.Warning);
+                return;
+            }
+            
+            customStudentLevelReport = await StudentLevelReport_SelectBy_ExamAPI(selectedExam.MaDeThi);
+   
+            foreach(var item in  customQuestionReports)
+            {
+                item.CustomThongKeCapBacCauHoi = customStudentLevelReport.ThongKeCapBacCauHois.FirstOrDefault(r => r.MaCauHoi == item.MaCauHoi);
+            }    
+        }
+
         #endregion
+
+        private async Task OnClickDownload()
+        {
+            if(customStudentLevelReport.TongSVThamGia == 0)
+            {
+                await FetchLevelStudentReportAsync();
+            } 
+
+            // bỏ trường MaCauHoi, chỉ lấy Guid cho đề
+            customStudentLevelReport.ThongKeCapBacCauHois.ForEach(_ => _.MaCauHoi = null);  
+            var json = JsonSerializer.Serialize(customStudentLevelReport, new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
+
+            // Gọi JS để tải file
+            await Js.InvokeVoidAsync("downloadFileFromText", "student.txt", json);
+        }    
 
         #region Other Methods
 

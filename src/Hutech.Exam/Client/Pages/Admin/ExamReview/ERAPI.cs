@@ -30,5 +30,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 
+        private async Task<CustomThongKeCapBacSV> StudentLevelReport_SelectBy_ExamAPI(int maDeThi)
+        {
+            var response = await SenderAPI.GetAsync<CustomThongKeCapBacSV>($"api/dethis/{maDeThi}/report-capbacsv");
+            return (response.Success && response.Data != null) ? response.Data : new();
+        }
+
     }
 }

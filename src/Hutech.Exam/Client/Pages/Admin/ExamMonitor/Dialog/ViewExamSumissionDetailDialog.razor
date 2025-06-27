@@ -41,7 +41,7 @@
                         {
                             current_parent_group_id = item.MaNhomCha;
                             <MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
-                                <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
+                                <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
                             </MudText>
                         }
 
@@ -54,7 +54,7 @@
                             if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio"))
                             {
                                 <MudText Typo="Typo.subtitle1" GutterBottom="true">
-                                    <b><Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@("Nội dung audio text")" /></b>
+                                    <b><Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@("Nội dung audio text")" /></b>
                                 </MudText>
                                 <span>
                                     <br />
@@ -67,7 +67,7 @@
                             else if (item.KieuNoiDungCauHoiNhom != 2)
                             {
                                 <MudText Typo="Typo.subtitle1" GutterBottom="true">
-                                    <b><Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoiNhom" /></b>
+                                    <b><Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoiNhom" /></b>
                                 </MudText>
                             }
                         }
@@ -76,7 +76,7 @@
                         if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
                         {
                             <MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
-                                <b>(@item.MaSoCLO) (@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@item.NoiDungCauHoi" /></b>
+                                <b>(@item.MaSoCLO) (@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoi" /></b>
                             </MudText>
                         }
 
@@ -90,13 +90,13 @@
                                     if(cau_tra_loi == noidung.Key)
                                     {
                                         <MudItem xs="12" sm="6">
-                                            <MudRadio T="int?" Value="noidung.Key" Style="color: green; font-weight: 900" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@noidung.Value" IsBold="true"></Hutech.Exam.Client.Pages.Exam.NoiDungFragment></MudRadio>
+                                            <MudRadio T="int?" Value="noidung.Key" Style="color: green; font-weight: 900" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value" IsBold="true"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
                                         </MudItem>
                                     }
                                     else
                                     {
                                         <MudItem xs="12" sm="6">
-                                            <MudRadio T="int?" Value="noidung.Key" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.NoiDungFragment Content="@noidung.Value"></Hutech.Exam.Client.Pages.Exam.NoiDungFragment></MudRadio>
+                                            <MudRadio T="int?" Value="noidung.Key" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
                                         </MudItem>
                                     }
                                 }

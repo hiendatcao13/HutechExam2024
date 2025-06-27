@@ -22,6 +22,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public int ThuTu { get; set; }
 
+        public Guid? Guild { get; set; }
+
         public string? GhiChu { get; set; }
 
         public bool? HoanVi { get; set; }

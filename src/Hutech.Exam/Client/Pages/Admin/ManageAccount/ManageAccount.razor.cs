@@ -106,7 +106,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
             var parameters = new DialogParameters<ChangePasswordDialog>
             {
-                { x => x.User, selectedUser },
+                { x => x.User, selectedUser }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<ChangePasswordDialog>("THAY ĐỔI MẬT KHẨU", parameters, options);

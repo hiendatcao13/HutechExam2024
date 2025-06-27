@@ -19,6 +19,8 @@ namespace Hutech.Exam.Shared.DTO
 
         public string TenDeThi { get; set; } = null!;
 
+        public Guid? Guid {  get; set; }
+
         public DateTime NgayTao { get; set; }
 
         public int NguoiTao { get; set; }

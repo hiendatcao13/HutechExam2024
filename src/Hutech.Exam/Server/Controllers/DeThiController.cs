@@ -92,6 +92,13 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<List<CustomThongKeDiem>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         }
 
+        [HttpGet("{id:int}/report-capbacsv")]
+        public async Task<IActionResult> ThongKeCapBacSV_SelectBy_DeThi([FromRoute] int id)
+        {
+            var result = await _customThongKeService.ThongKeCapBacSV_SelectBy_DeThi(id);
+            return Ok(APIResponse<CustomThongKeCapBacSV>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
+        }
+
         #endregion
 
         #region Post Methods

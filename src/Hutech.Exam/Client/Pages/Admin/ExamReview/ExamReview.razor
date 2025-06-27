@@ -1,4 +1,4 @@
-﻿@page "/admin/testreview"
+﻿@page "/admin/test-review"
 @using Hutech.Exam.Shared.DTO
 @using Hutech.Exam.Shared.DTO.Custom
 @using Syncfusion.Blazor.Charts
@@ -97,20 +97,36 @@
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Bảng tần số câu hỏi</MudText>
 						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Download" OnClick="async () => await OnClickDownload()">Download JSON thống kê</MudButton>
+						<MudSwitch Label="Hiển thị cấp bậc SV (27%)" T="bool" Value="isShowLevelStudent" ValueChanged="async (value) => await OnValueChangeShowStudentLevel(value)" Color="Color.Success"></MudSwitch>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh>Mã câu hỏi</MudTh>
+						<MudTh>Mã số CLO</MudTh>
 						<MudTh>SL Đúng</MudTh>
 						<MudTh>SL Sai</MudTh>
+						@if(isShowLevelStudent)
+						{
+							<MudTh>(%) SVTop đúng</MudTh>
+							<MudTh>(%) SVBottom đúng</MudTh>
+						}
 						<MudTh>Tổng SL</MudTh>
 						<MudTh>Tỉ lệ (%)</MudTh>
 					</HeaderContent>
 					<RowTemplate Context="item">
-						<MudTd DataLabel="Mã câu hỏi">@item.MaCauHoiCLO</MudTd>
+						<MudTd DataLabel="Mã câu hỏi">@item.MaCauHoi</MudTd>
+						<MudTd DataLabel="Mã câu hỏi">@item.MaSoCLO</MudTd>
 						<MudTd DataLabel="SL Đúng">@item.TongSLDung</MudTd>
 						<MudTd DataLabel="SL Sai">@item.TongSLSai</MudTd>
+						@if(isShowLevelStudent && item.CustomThongKeCapBacCauHoi != null)
+						{
+							double phanTramSVTop = (item.CustomThongKeCapBacCauHoi.TongSVTop == 0) ? 0 : (float)item.CustomThongKeCapBacCauHoi.TongSVTopDung / item.CustomThongKeCapBacCauHoi.TongSVTop;
+							double phanTramSVBottom = (item.CustomThongKeCapBacCauHoi.TongSVBottom == 0) ? 0 : (float)item.CustomThongKeCapBacCauHoi.TongSVBottomDung / item.CustomThongKeCapBacCauHoi.TongSVBottom;
+							<MudTd DataLabel="(%) SVTop đúng" Style="@GetColorStyle(phanTramSVTop)">@phanTramSVTop</MudTd>
+							<MudTd DataLabel="(%) SVBottom đúng" Style="@GetColorStyle(phanTramSVBottom)">@phanTramSVBottom</MudTd>
+						}
 						<MudTd DataLabel="Tổng SL">@item.TongSLTraLoi</MudTd>
-						<MudTd DataLabel="Tỉ lệ (%)" Style=@GetColorStyle(item.PhanTram)>@item.PhanTram</MudTd>
+						<MudTd DataLabel="Tỉ lệ (%)" Style=@GetColorStyle(item.PhanTramDung)>@item.PhanTramDung</MudTd>
 					</RowTemplate>
 				</MudTable>
 			}
@@ -187,7 +203,6 @@
 <style>
 	.add-button {
 	transform: scale(0.85);
-	margin-bottom: 2%;
 	}
 
 	.final-table-button {
@@ -203,6 +218,16 @@
 	}
 </style>
 
+<script>
+	window.downloadFileFromText = function (fileName, textContent) {
+		const blob = new Blob([textContent], { type: 'application/json' });
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(blob);
+		link.download = fileName;
+		link.click();
+		URL.revokeObjectURL(link.href);
+	};
+</script>
 
 @code {
 	string GetColorStyle(double phanTram) =>
@@ -222,6 +247,8 @@
 
 	private List<int> selectedPages_Subject = new() { 0 }; // luôn load có trang đầu tiên
 	private List<int> selectedPages_Exam = new() { 0 }; // luôn load có trang đầu tiên
+
+	private bool isShowLevelStudent = false;
 
 
 	private async Task OnRowsPerPageChange_Subject(int rows)
@@ -286,6 +313,7 @@
 		exams?.Clear();
 		customQuestionReports.Clear();
 		customScoreReports.Clear();
+		isFirstRenderLevelReport = true;
 		totalStudent = totalStudentLessEqual1 = totalStudentLess5 = 0;
 		averageScore = 0;
 
@@ -303,8 +331,20 @@
 			return;
 
 		customQuestionReports = await QuestionReport_SelectBy_ExamAPI(selectedExam.MaDeThi);
+		isFirstRenderLevelReport = true;
 
 		await ReportScoreAsync(selectedExam.MaDeThi);
+	}
+
+	private async Task OnValueChangeShowStudentLevel(bool value)
+	{
+		isShowLevelStudent = value;
+
+		if(value && isFirstRenderLevelReport)
+		{
+			await FetchLevelStudentReportAsync();
+			isFirstRenderLevelReport = false;
+		}
 	}
 
 

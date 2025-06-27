@@ -18,6 +18,8 @@ namespace Hutech.Exam.Shared.DTO.Request.CaThi
 
         public int ThoiGianThi { get; set; }
 
+        public string MatMa { get; set; } = string.Empty;
+
         public CaThiCreateRequest() { }
 
         public CaThiCreateRequest(string tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, int thoiGianThi)

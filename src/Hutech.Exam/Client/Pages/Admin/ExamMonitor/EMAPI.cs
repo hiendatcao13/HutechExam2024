@@ -24,24 +24,28 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var response = await SenderAPI.GetAsync<Paged<ChiTietCaThiDto>>($"api/chitietcathis/filter-by-cathi-search-paged?maCaThi={ma_ca_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalRecords, response.Data.TotalPages) : ([], 0, 0);
         }
+
         private async Task<bool> ResetLoginAPI(long ma_sinh_vien)
         {
             var response = await SenderAPI.PatchAsync<SinhVienDto>($"api/sinhviens/{ma_sinh_vien}/reset-login", null);
             return response.Success;
         }
+
         private async Task<bool> SubmitAPI(long ma_sinh_vien)
         {
             var response = await SenderAPI.PutAsync<SinhVienDto>($"api/sinhviens/{ma_sinh_vien}/submit-exam", null);
             return response.Success;
         }
-        private async Task<List<KhoaDto>?> Departments_GetAllAPI()
-        {
-            var response = await SenderAPI.GetAsync<List<KhoaDto>>($"api/khoas");
-            return (response.Success) ? response.Data : null;
-        }
+
         private async Task<byte[]?> GetExcelFileAPI(List<ChiTietCaThiDto> chiTietCaThis)
         {
             var response = await SenderAPI.PostAsync<byte[]>("api/chitietcathis/export-excel", chiTietCaThis);
+            return (response.Success) ? response.Data : [];
+        }
+
+        private async Task<byte[]?> GetPdfFileAPI(List<ChiTietCaThiDto> chiTietCaThis)
+        {
+            var response = await SenderAPI.PostAsync<byte[]>("api/chitietcathis/export-pdf", chiTietCaThis);
             return (response.Success) ? response.Data : [];
         }
     }

@@ -12,7 +12,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         private readonly IMapper _mapper = mapper;
 
-        public static readonly int COLUMN_LENGTH = 10; // số lượng cột trong bảng DeThi
+        public static readonly int COLUMN_LENGTH = 11; // số lượng cột trong bảng DeThi
 
         public DeThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
@@ -21,13 +21,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 MaDeThi = dataReader.GetInt32(0 + start),
                 MaMonHoc = dataReader.GetInt32(1 + start),
                 TenDeThi = dataReader.GetString(2 + start),
-                NgayTao = dataReader.GetDateTime(3 + start),
-                NguoiTao = dataReader.GetInt32(4 + start),
-                GhiChu = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
-                LuuTam = dataReader.GetBoolean(6 + start),
-                DaDuyet = dataReader.GetBoolean(7 + start),
-                TongSoDeHoanVi = dataReader.IsDBNull(8 + start) ? null : dataReader.GetInt32(8 + start),
-                BoChuongPhan = dataReader.GetBoolean(9 + start)
+                Guid = dataReader.IsDBNull(3 + start) ? null : dataReader.GetGuid(3 + start),
+                NgayTao = dataReader.GetDateTime(4 + start),
+                NguoiTao = dataReader.GetInt32(5 + start),
+                GhiChu = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
+                LuuTam = dataReader.GetBoolean(7 + start),
+                DaDuyet = dataReader.GetBoolean(8 + start),
+                TongSoDeHoanVi = dataReader.IsDBNull(9 + start) ? null : dataReader.GetInt32(9 + start),
+                BoChuongPhan = dataReader.GetBoolean(10 + start)
             };
             return _mapper.Map<DeThiDto>(deThi);
         }

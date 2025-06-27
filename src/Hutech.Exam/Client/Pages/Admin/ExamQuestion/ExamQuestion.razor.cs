@@ -630,13 +630,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
 
         private async Task<DialogResult?> OpenSubjectDialogAsync(bool isEdit)
         {
-            var parameters = new DialogParameters<MonHocDialog>
+            var parameters = new DialogParameters<SubjectDialog>
             {
                 { x => x.IsEdit, isEdit},
                 { x => x.Subject, selectedSubject },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<MonHocDialog>((isEdit) ? "SỬA MÔN HỌC" : "THÊM MÔN HỌC", parameters, options);
+            var dialog = await Dialog.ShowAsync<SubjectDialog>((isEdit) ? "SỬA MÔN HỌC" : "THÊM MÔN HỌC", parameters, options);
             return await dialog.Result;
         }
 

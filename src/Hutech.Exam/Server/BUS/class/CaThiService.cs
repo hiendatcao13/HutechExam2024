@@ -1,18 +1,16 @@
-﻿using AutoMapper;
-using Hutech.Exam.Server.DAL.Repositories;
+﻿using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.CaThi;
-using Hutech.Exam.Shared.Models;
-using System.Data;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class CaThiService(ICaThiRepository caThiRepository)
+    public class CaThiService(ICaThiRepository caThiRepository, BcryptService bcryptService)
     {
         #region Private Fields
 
         private readonly ICaThiRepository _caThiRepository = caThiRepository;
+        private readonly BcryptService _bcryptService = bcryptService;
 
         #endregion
 
@@ -58,7 +56,12 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<int> Insert(CaThiCreateRequest caThi)
         {
-            return await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+            if(!string.IsNullOrWhiteSpace(caThi.MatMa))
+            {
+                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 8);
+            }  
+            
+            return await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi, caThi.MatMa);
         }
 
         public async Task<bool> Remove(int ma_ca_thi)
@@ -73,7 +76,12 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<bool> Update(int id, CaThiUpdateRequest caThi)
         {
-            return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi);
+            if (!string.IsNullOrWhiteSpace(caThi.MatMa))
+            {
+                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 8);
+            }
+
+            return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi, caThi.MatMa);
         }
         #endregion
     }

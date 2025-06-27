@@ -7,6 +7,7 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Pages.Admin.ManageExamSession.Dialog;
+using Hutech.Exam.Client.Components.Dialogs;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 {
@@ -36,6 +37,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
         private List<LopAoDto>? examRooms; // combobox
 
         private readonly List<int> attemptNumber = [1, 2, 3, 4, 5];
+
+
+        private const string VERIFY_PASSWORD = "Vui lòng nhập mật khẩu cho ca thi";
         #endregion
 
         #region Initial Methods
@@ -90,8 +94,56 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         #region OnClick Methods
 
+        private async Task OnClickEditExamSessionAsync(CaThiDto examSession)
+        {
+            if (!await VerifyPassword(examSession))
+            {
+                return;
+            }
+
+            var result = await OpenExamSessionStatusDialogAsync(examSession);
+
+
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                UpdateExamSession((CaThiDto)result.Data);
+            }
+        }
+
+        private async Task OnClickExamSessionDetailAsync(CaThiDto examSession)
+        {
+            if (!await VerifyPassword(examSession))
+            {
+                return;
+            }
+
+            await SessionStorage.SetItemAsync("CaThi", examSession);
+
+            Nav.NavigateTo($"admin/monitor?ma_ca_thi={examSession.MaCaThi}");
+
+        }
+
+        #endregion
+
+        #region Dialog Methods
+
+        private async Task<DialogResult?> OpenPasswordDialogAsync(CaThiDto examSession)
+        {
+            var parameters = new DialogParameters<Password_Dialog>
+            {
+                { x => x.ContentText, VERIFY_PASSWORD },
+                { x => x.ButtonText, "OK" },
+                { x => x.PlainPassword, examSession.MatMa },
+                { x => x.RecognizeCode, $"ExamSession{examSession.MaCaThi}" },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<Password_Dialog>("XÁC THỰC", parameters, options);
+            return await dialog.Result;
+        }
+
         private async Task<DialogResult?> OpenExamSessionStatusDialogAsync(CaThiDto examSession)
         {
+
             var parameters = new DialogParameters<ExamSessionStatusDialog>
             {
                 { x => x.ExamSession, examSession },
@@ -101,25 +153,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
             var dialog = await Dialog.ShowAsync<ExamSessionStatusDialog>("THÔNG TIN CA THI", parameters, options);
             return await dialog.Result;
-        }
-
-        private async Task OnClickEditExamSessionAsync(CaThiDto caThi)
-        {
-            var result = await OpenExamSessionStatusDialogAsync(caThi);
-
-
-            if (result != null && !result.Canceled && result.Data != null)
-            {
-                UpdateExamSession((CaThiDto)result.Data);
-            }
-        }
-
-        private async Task OnClickExamSessionDetailAsync(CaThiDto caThi)
-        {
-            await SessionStorage.SetItemAsync("CaThi", caThi);
-
-            Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
-
         }
 
         #endregion
@@ -152,6 +185,19 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
         #endregion
 
         #region Other Methods
+
+        private async Task<bool> VerifyPassword(CaThiDto examSession)
+        {
+            var result = await OpenPasswordDialogAsync(examSession);
+
+            if (result != null && !result.Canceled && result.Data != null)
+            {
+                return Convert.ToBoolean(result.Data);
+            }
+
+            return false;
+        }
+
         private void UpdateExamSession(CaThiDto caThi)
         {
             if (caThi == null || examSessions == null) return;

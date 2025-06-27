@@ -12,7 +12,7 @@
 			<MudPaper Elevation="2" Class="pa-4" Style="margin-bottom: 20px">
 				<MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickAddStudentAsync()">Thêm SV</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await OnClickRefreshAsync()">Refresh</MudButton>
-				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Default">Export PDF</MudButton>
+				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Default" OnClick="async () => await OnClickDownloadPdfAsync()">Export PDF</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcelAsync">Export EXCEL</MudButton>
 			</MudPaper>
 

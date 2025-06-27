@@ -153,6 +153,24 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
         }
 
+        private async Task OnClickDownloadPdfAsync()
+        {
+            if (chiTietCaThis != null)
+            {
+                Snackbar.Add("Đang tạo file PDF...", Severity.Info);
+                var pdfData = await GetPdfFileAPI(chiTietCaThis);
+
+                if (pdfData != null)
+                {
+                    var base64 = Convert.ToBase64String(pdfData);
+                    var fileName = $"Bảng điểm ca thi {caThi?.MaCaThi}.pdf";
+
+                    // Tạo link tải xuống
+                    await Js.InvokeVoidAsync("downloadFile", fileName, base64);
+                }
+            }
+        }
+
         private async Task OnClickRefreshAsync()
         {
             searchString = string.Empty;

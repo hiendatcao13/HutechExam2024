@@ -51,6 +51,9 @@
 
             <MudItem xs="4" Style="align-content: center"><MudText>Thời lượng:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Mật mã:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Nhập mật mã" @bind-Value="password" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField></MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -79,7 +82,7 @@
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
     [Parameter] public int? ExamBatchId { get; set; }
 
@@ -95,6 +98,7 @@
 
     [Parameter] public CaThiDto? ExamSession { get; set; }
 
+    private string password = string.Empty;
 
     private string? examSessionName;
 
@@ -110,6 +114,30 @@
 
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    const string INVALID_PASSWORD = "Password không đúng. Vui lòng kiểm tra hoặc liên hệ quản trị viên";
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+            StateHasChanged();
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+            StateHasChanged();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -151,7 +179,9 @@
             MaChiTietDotThi = (int)ExamBatchId, 
             ThoiGianBatDau = (DateTime)startTimeDate, 
             MaDeThi = selectedExam.MaDeThi, 
-            ThoiGianThi = (int)examDuration});
+            ThoiGianThi = (int)examDuration,
+            MatMa = password
+        });
         
         if (result != null && result.MaCaThi != 0)
         {
@@ -173,7 +203,8 @@
                 MaChiTietDotThi = (int)ExamBatchId,
                 ThoiGianBatDau = (DateTime)startTimeDate,
                 MaDeThi = selectedExam.MaDeThi,
-                ThoiGianThi = (int)examDuration
+                ThoiGianThi = (int)examDuration,
+                MatMa = password
             });
         if (result != null && result.MaCaThi != 0)
         {

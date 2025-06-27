@@ -42,21 +42,21 @@
 </MudDialog>
 <style>
 	.my-custom-class {
-	backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
 	}
 
 	.mud-dialog-actions {
-	align-self: center
+		align-self: center
 	}
 
 	.mud-dialog .mud-dialog-title {
-	border-bottom: 1.5px solid black;
-	text-align: center;
+		border-bottom: 1.5px solid black;
+		text-align: center;
 	}
 
 	.content {
-	font-weight: bold;
-	color: royalblue;
+		font-weight: bold;
+		color: royalblue;
 	}
 </style>
 @code {
@@ -129,12 +129,6 @@
 		};
 	}
 
-	public void Dispose()
-	{
-		if (timer != null)
-			timer.Dispose();
-	}
-
 	private async Task OnShowDialogConfirmAsync(string message, string button_message, MudBlazor.Color color, Func<Task> callback)
 	{
 		var parameters = new DialogParameters<Simple_Dialog>
@@ -200,6 +194,12 @@
 			tempExamSession = response.Data;
 			UpdateStatus();
 		}
+	}
+
+	public void Dispose()
+	{
+		if (timer != null)
+			timer.Dispose();
 	}
 
 }

@@ -170,7 +170,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
-        public async Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi, string mat_ma)
         {
             using DatabaseReader sql = new("ca_thi_Insert");
 
@@ -179,6 +179,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau);
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             sql.SqlParams("@ThoiGianThi", SqlDbType.Int, thoi_gian_thi);
+            sql.SqlParams("@MatMa", SqlDbType.NVarChar, mat_ma);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
@@ -200,7 +201,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi)
+        public async Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi, string mat_ma)
         {
             using DatabaseReader sql = new("ca_thi_Update");
 
@@ -210,6 +211,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau);
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             sql.SqlParams("@ThoiGianThi", SqlDbType.Int, thoi_gian_thi);
+            sql.SqlParams("@MatMa", SqlDbType.NVarChar, mat_ma);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

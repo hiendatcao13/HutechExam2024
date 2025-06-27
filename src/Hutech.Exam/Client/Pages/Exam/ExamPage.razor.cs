@@ -53,8 +53,6 @@ namespace Hutech.Exam.Client.Pages.Exam
         // các biến chỉ trong backend
         private HubConnection? _hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
 
-        private System.Timers.Timer? _timer;
-
         private Dictionary<int, ChiTietBaiThiRequest> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
 
         private int _thuTuTraLoi = 0; // thứ tự trả lời câu hỏi cho sv
@@ -258,7 +256,6 @@ namespace Hutech.Exam.Client.Pages.Exam
             await Js.InvokeVoidAsync("window.focusWatcher.dispose");
 
             //await StudentHub.LeaveGroup(CaThi.MaCaThi); // rời khỏi nhóm thi
-            _timer?.Dispose();
         }
 
         #endregion

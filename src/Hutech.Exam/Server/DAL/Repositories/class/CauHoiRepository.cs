@@ -14,7 +14,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         private readonly IMapper _mapper = mapper;
 
-        public static readonly int COLUMN_LENGTH = 9; // số lượng cột trong bảng CauHoi
+        public static readonly int COLUMN_LENGTH = 10; // số lượng cột trong bảng CauHoi
 
         public CauHoiDto GetProperty(IDataReader dataReader, int start = 0)
         {
@@ -27,8 +27,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 KieuNoiDung = dataReader.GetInt32(4 + start),
                 NoiDung = dataReader.IsDBNull(5 + start) ? null : dataReader.GetString(5 + start),
                 ThuTu = dataReader.GetInt32(6 + start),
-                GhiChu = dataReader.IsDBNull(7 + start) ? null : dataReader.GetString(7 + start),
-                HoanVi = dataReader.IsDBNull(8 + start) ? null : dataReader.GetBoolean(8 + start)
+                Guild = dataReader.IsDBNull(7 + start) ? null : dataReader.GetGuid(7 + start),
+                GhiChu = dataReader.IsDBNull(8 + start) ? null : dataReader.GetString(8 + start),
+                HoanVi = dataReader.IsDBNull(9 + start) ? null : dataReader.GetBoolean(9 + start)
             };
             return cauHoi;
         }

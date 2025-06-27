@@ -18,11 +18,14 @@ namespace Hutech.Exam.Shared.DTO.Custom
 
         public int TongSLTraLoi { get; set; }
 
-        public double PhanTram { get; set; }
+        public double PhanTramDung { get; set; }
 
         public int TongSLSai => TongSLTraLoi - TongSLDung;
 
         public string MaCauHoiCLO => $"{MaCauHoi} - {MaSoCLO}";
 
+        // thống kê SL SV top, bottom 27% dựa trên điểm thi
+        public ThongKeCapBacCauHoi? CustomThongKeCapBacCauHoi { get; set; }
     }
+
 }

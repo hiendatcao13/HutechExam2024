@@ -25,7 +25,7 @@
 						{
 							current_parentGroupQuestion = item.MaNhomCha;
 							<MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
-								<NoiDungFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
+								<ContentFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
 							</MudText>
 						}
 
@@ -38,7 +38,7 @@
 							if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && AudioListeneds.ContainsKey(item.MaNhom))
 							{
 								<MudText Typo="Typo.subtitle1" GutterBottom="true">
-									<b><NoiDungFragment Content="@AudioListeneds[item.MaNhom].AudioText" /></b>
+									<b><ContentFragment Content="@AudioListeneds[item.MaNhom].AudioText" /></b>
 								</MudText>
 								<span>
 									<br />
@@ -51,7 +51,7 @@
 							else if (item.KieuNoiDungCauHoiNhom != 2)
 							{
 								<MudText Typo="Typo.subtitle1" GutterBottom="true">
-									<b><NoiDungFragment Content="@item.NoiDungCauHoiNhom" /></b>
+									<b><ContentFragment Content="@item.NoiDungCauHoiNhom" /></b>
 								</MudText>
 							}
 						}
@@ -60,7 +60,7 @@
 						if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
 						{
 							<MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
-								<b>Câu hỏi @(item.ThuTuCauHoi): <NoiDungFragment Content="@item.NoiDungCauHoi" /></b>
+								<b>Câu hỏi @(item.ThuTuCauHoi): <ContentFragment Content="@item.NoiDungCauHoi" /></b>
 							</MudText>
 						}
 
@@ -71,7 +71,7 @@
 								@foreach (var noidung in item.CauTraLois)
 								{
 									<MudItem xs="12" sm="6">
-										<MudRadio T="int?" Value="noidung.Key"><NoiDungFragment Content="@noidung.Value"></NoiDungFragment></MudRadio>
+										<MudRadio T="int?" Value="noidung.Key"><ContentFragment Content="@noidung.Value"></ContentFragment></MudRadio>
 									</MudItem>
 								}
 							</MudRadioGroup>

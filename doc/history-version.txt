@@ -206,3 +206,9 @@
 26/06/2025 6PM
 - Gần như hoàn thiện trans tiếng Anh cho các trang
 - TODO: Hoàn thành nốt các trang và xử lí lại nghiệp vụ services vs controller, phân quyền
+--------------------------------------------------
+27/06/2025 6PM
+- Lên ý tưởng cho trang kiểm tra sức khỏe hệ thống
+- Xây dựng chức năng export file thống kê, file pdf cho trang ca thi
+- Xây dựng chức năng xác thực cho trang quản lí ca thi
+- TODO: Sửa, xóa sinh viên trong ca thi, phân quyền, logic đổi đề thi và xếp đề thi cho thí sinh
