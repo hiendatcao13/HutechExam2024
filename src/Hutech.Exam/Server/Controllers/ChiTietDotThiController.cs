@@ -28,7 +28,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ChiTietDotThiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _chiTietDotThiService.SelectOne(id);
             if (result.MaChiTietDotThi == 0)
@@ -39,26 +39,26 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-dotthi")]
-        public async Task<ActionResult<List<ChiTietDotThiDto>>> SelectBy_MaDotThi([FromQuery] int maDotThi)
+        public async Task<IActionResult> SelectBy_MaDotThi([FromQuery] int maDotThi)
         {
             return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi(maDotThi), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-paged")]
-        public async Task<ActionResult<Paged<ChiTietDotThiDto>>> SelectBy_MaDotThi_Paged([FromQuery] int maDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> SelectBy_MaDotThi_Paged([FromQuery] int maDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             return Ok(APIResponse<Paged<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_Paged(maDotThi, pageNumber, pageSize), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
 
         [HttpGet("filter-by-dotthi-lopao")]
-        public async Task<ActionResult<List<ChiTietDotThiDto>>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo)
+        public async Task<IActionResult> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo)
         {
             return Ok(APIResponse<List<ChiTietDotThiDto>>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo(maDotThi, maLopAo), message: "Lấy danh sách chi tiết đợt thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao-lanthi")]
-        public async Task<ActionResult<ChiTietDotThiDto>> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
+        public async Task<IActionResult> LanThis_SelectBy_MaDotThiMaLopAo([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
         {
             return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(data: await _chiTietDotThiService.SelectBy_MaDotThi_MaLopAo_LanThi(maDotThi, maLopAo, lanThi), message: "Lấy tiết đợt thi thành công"));
         }
@@ -68,7 +68,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<ChiTietDotThiDto>> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
+        public async Task<IActionResult> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<ChiTietDotThiDto>> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
         {
             try
             {
@@ -122,14 +122,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<ChiTietDotThiDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _chiTietDotThiService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Xóa chi tiết đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
             }
@@ -139,19 +139,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<ChiTietDotThiDto>.ErrorResponse(message: "Xóa chi tiết đợt thi không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult<ChiTietDotThiDto>> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _chiTietDotThiService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết đợt thi cần xóa"));
+                    return NotFound(APIResponse<ChiTietDotThiDto>.NotFoundResponse(message: "Xóa chi tiết đợt thi không thành công"));
                 }
                 return Ok(APIResponse<ChiTietDotThiDto>.SuccessResponse(message: "Xóa chi tiết đợt thi thành công"));
             }

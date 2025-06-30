@@ -25,7 +25,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CauTraLoiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _cauTraLoiService.SelectOne(id);
             if (result.MaCauTraLoi == 0)
@@ -36,7 +36,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-cauhoi")]
-        public async Task<ActionResult<List<CauTraLoiDto>>> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
+        public async Task<IActionResult> SelectBy_MaCauHoi([FromQuery] int maCauHoi)
         {
             var result = _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi);
             return Ok(APIResponse<List<CauTraLoiDto>>.SuccessResponse(data: await _cauTraLoiService.SelectBy_MaCauHoi(maCauHoi), message: "Lấy danh sách câu trả lời thành công"));
@@ -47,7 +47,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<CauTraLoiDto>> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
+        public async Task<IActionResult> Insert([FromBody] CauTraLoiCreateRequest cauTraLoi)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<CauTraLoiDto>> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CauTraLoiUpdateRequest cauTraLoi)
         {
             try
             {
@@ -101,14 +101,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<CauTraLoiDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _cauTraLoiService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Không tìm thấy câu trả lời cần xóa"));
+                    return NotFound(APIResponse<CauTraLoiDto>.NotFoundResponse(message: "Xóa câu trả lời không thành công"));
                 }
                 return Ok(APIResponse<CauTraLoiDto>.SuccessResponse(message: "Xóa câu trả lời thành công"));
             }

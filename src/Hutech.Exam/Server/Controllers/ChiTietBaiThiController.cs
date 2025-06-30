@@ -21,7 +21,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("filter-by-chitietcathi")]
-        public async Task<ActionResult<APIResponse<List<ChiTietBaiThiDto>>>> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
+        public async Task<IActionResult> SelectBy_ma_chi_tiet_ca_thi([FromQuery] int maChiTietCaThi)
         {
             var result = await _chiTietBaiThiService.SelectBy_ma_chi_tiet_ca_thi(maChiTietCaThi);
             return Ok(APIResponse<List<ChiTietBaiThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách chi tiết bài thi thành công"));

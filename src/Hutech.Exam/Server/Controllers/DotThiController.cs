@@ -28,7 +28,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> Get([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             if (pageNumber.HasValue && pageSize.HasValue)
             {
@@ -41,7 +41,7 @@ namespace Hutech.Exam.Server.Controllers
 
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<DotThiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Lấy đợt thi thành công"));
         }
@@ -51,7 +51,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<DotThiDto>> Insert([FromBody] DotThiCreateRequest dotThi)
+        public async Task<IActionResult> Insert([FromBody] DotThiCreateRequest dotThi)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<DotThiDto>> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
             try
             {
@@ -106,16 +106,16 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<DotThiDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _dotThiService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
+                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
             }
             catch (SqlException sqlEx)
             {
@@ -128,14 +128,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult<DotThiDto>> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _dotThiService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần xóa"));
+                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Xóa đợt thi không thành công"));
                 }
                 return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
             }
@@ -145,7 +145,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công", errorDetails: ex.Message));
             }
         }
 

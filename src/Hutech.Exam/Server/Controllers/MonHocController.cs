@@ -24,7 +24,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet]
-        public async Task<ActionResult<List<MonHocDto>>> GetAll([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> GetAll([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             if (pageNumber.HasValue && pageSize.HasValue)
             {
@@ -38,7 +38,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<MonHocDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _monHocService.SelectOne(id);
             if (result.MaMonHoc == 0)
@@ -53,7 +53,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<MonHocDto>> Insert([FromBody] MonHocCreateRequest monHoc)
+        public async Task<IActionResult> Insert([FromBody] MonHocCreateRequest monHoc)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<MonHocDto>> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
         {
             try
             {
@@ -107,14 +107,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<MonHocDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _monHocService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
+                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Xóa môn học không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
             }
@@ -124,19 +124,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Xóa môn học không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Xóa môn học không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult<MonHocDto>> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _monHocService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần xóa"));
+                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Xóa môn học không thành công"));
                 }
                 return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
             }

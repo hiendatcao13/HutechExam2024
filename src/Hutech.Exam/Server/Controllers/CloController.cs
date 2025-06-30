@@ -23,7 +23,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CloDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _cloService.SelectOne(id);
             if (result.MaClo == 0)
@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-monhoc")]
-        public async Task<ActionResult<List<CloDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
+        public async Task<IActionResult> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
         {
             return Ok(APIResponse<List<CloDto>>.SuccessResponse(data: await _cloService.SelectBy_MaMonHoc(maMonHoc), message: "Lấy danh sách CLO thành công"));
         }
@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<CloDto>> Insert([FromBody] CloCreateRequest clo)
+        public async Task<IActionResult> Insert([FromBody] CloCreateRequest clo)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<CloDto>> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CloUpdateRequest clo)
         {
             try
             {
@@ -98,14 +98,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _cloService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần xóa"));
+                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Xóa CLO không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok();
             }
@@ -115,19 +115,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CloDto>.ErrorResponse(message: "Xóa CLO không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CloDto>.ErrorResponse(message: "Xóa CLO không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _cloService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Không tìm thấy CLO cần xóa"));
+                    return NotFound(APIResponse<CloDto>.NotFoundResponse(message: "Xóa CLO không thành công"));
                 }
                 return Ok();
             }

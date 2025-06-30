@@ -7,6 +7,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 {
     public partial class ManageExamSession
     {
+        private async Task<bool> VerifyPasswordAPI(int examSessionId, string password)
+        {
+            var response = await SenderAPI.PostAsync<bool>($"api/cathis/{examSessionId}/verify", password);
+            return response.Success;
+        }
+
         private async Task<List<DotThiDto>?> ExamBatchs_GetAllAPI()
         {
             var response = await SenderAPI.GetAsync<List<DotThiDto>>("api/dotthis");

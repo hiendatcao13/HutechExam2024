@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Hutech.Exam.Shared.DTO
@@ -34,6 +35,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public DateTime? ThoiDiemKetThuc { get; set; }
 
+        [JsonIgnore] // không trả về json cho client, chỉ sử dụng cho server
         public string? MatMa { get; set; }
 
         public bool Approved { get; set; }
@@ -42,12 +44,15 @@ namespace Hutech.Exam.Shared.DTO
 
         public virtual ChiTietDotThiDto MaChiTietDotThiNavigation { get; set; } = null!;
 
+        //Phần custom thêm
+        public int TongSV { get; set; }
+
         public override string ToString()
         {
             return TenCaThi ?? "Không tồn tại tên ca thi";
         }
 
-        public CaThiDto(int maCaThi, string? tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, bool isActivated, DateTime? activatedDate, int thoiGianThi, bool ketThuc, DateTime? thoiDiemKetThuc, string? matMa, bool approved, ICollection<ChiTietCaThiDto> chiTietCaThis, ChiTietDotThiDto maChiTietDotThiNavigation)
+        public CaThiDto(int maCaThi, string? tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, bool isActivated, DateTime? activatedDate, int thoiGianThi, bool ketThuc, DateTime? thoiDiemKetThuc, bool approved, ICollection<ChiTietCaThiDto> chiTietCaThis, ChiTietDotThiDto maChiTietDotThiNavigation)
         {
             MaCaThi = maCaThi;
             TenCaThi = tenCaThi;
@@ -59,7 +64,6 @@ namespace Hutech.Exam.Shared.DTO
             ThoiGianThi = thoiGianThi;
             KetThuc = ketThuc;
             ThoiDiemKetThuc = thoiDiemKetThuc;
-            MatMa = matMa;
             Approved = approved;
             ChiTietCaThis = chiTietCaThis;
             MaChiTietDotThiNavigation = maChiTietDotThiNavigation;
@@ -77,7 +81,6 @@ namespace Hutech.Exam.Shared.DTO
             ThoiGianThi = other.ThoiGianThi;
             KetThuc = other.KetThuc;
             ThoiDiemKetThuc = other.ThoiDiemKetThuc;
-            MatMa = other.MatMa;
             Approved = other.Approved;
             ChiTietCaThis = other.ChiTietCaThis;
             MaChiTietDotThiNavigation = other.MaChiTietDotThiNavigation;

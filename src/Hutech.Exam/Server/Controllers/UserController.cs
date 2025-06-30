@@ -56,7 +56,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserSession>> Login([FromBody] UserAuthenticationRequest account)
+        public async Task<IActionResult> Login([FromBody] UserAuthenticationRequest account)
         {
             var userSession = await _jwtAuthenticationManager.GenerateJwtTokenAdmin(account.Username, account.Password);
             if (userSession != null && userSession.NavigateUser != null)
@@ -175,7 +175,7 @@ namespace Hutech.Exam.Server.Controllers
                 var result = await _userService.Remove(id);
                 if (!result)
                 {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Không tìm thấy người dùng cần xóa"));
+                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<UserDto>.SuccessResponse(message: "Xóa người dùng thành công"));
             }
@@ -185,7 +185,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công", errorDetails: ex.Message));
             }
         }
 

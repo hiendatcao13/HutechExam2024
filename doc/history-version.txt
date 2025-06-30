@@ -212,3 +212,7 @@
 - Xây dựng chức năng export file thống kê, file pdf cho trang ca thi
 - Xây dựng chức năng xác thực cho trang quản lí ca thi
 - TODO: Sửa, xóa sinh viên trong ca thi, phân quyền, logic đổi đề thi và xếp đề thi cho thí sinh
+--------------------------------------------------
+30/06/2025 8AM
+- Sửa lại logic nghiệp vụ tạo đề thi hoán vị, hiện thị tổng SL sinh trong ca thi, xác thực khi vào ca thi
+- Đang hoàn thiện chức năng gán mã đề thi cho thí sinh (logic đổi đề cho ca thi)

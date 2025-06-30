@@ -39,7 +39,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-mssv")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SinhVienDto>> SelectBy_MSSV([FromQuery] string maSoSinhVien)
+        public async Task<IActionResult> SelectBy_MSSV([FromQuery] string maSoSinhVien)
         {
             var result = await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien);
             if (result == null || string.IsNullOrEmpty(result.MaSoSinhVien))
@@ -51,7 +51,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-lop-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Paged<SinhVienDto>>> SelectBy_MaLop_Paged([FromQuery] int maLop, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> SelectBy_MaLop_Paged([FromQuery] int maLop, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var result = await _sinhVienService.SelectBy_ma_lop_Paged(maLop, pageNumber, pageSize);
             return Ok(APIResponse<Paged<SinhVienDto>>.SuccessResponse(data: result, message: "Lấy danh sách sinh viên theo lớp thành công"));
@@ -59,7 +59,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-lop-search-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Paged<SinhVienDto>>> SelectBy_MaLop_Paged_Search([FromQuery] int maLop, [FromQuery] string keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> SelectBy_MaLop_Paged_Search([FromQuery] int maLop, [FromQuery] string keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var result = await _sinhVienService.SelectBy_ma_lop_Search_Paged(maLop, keyword, pageNumber, pageSize);
             return Ok(APIResponse<Paged<SinhVienDto>>.SuccessResponse(data: result, message: "Lấy danh sách sinh viên theo lớp thành công"));
@@ -71,7 +71,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SinhVienDto>> Insert([FromBody] SinhVienCreateRequest sinhVien)
+        public async Task<IActionResult> Insert([FromBody] SinhVienCreateRequest sinhVien)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost("batch")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Insert_Batch([FromBody] List<SinhVienDto> sinhViens)
+        public async Task<IActionResult> Insert_Batch([FromBody] List<SinhVienDto> sinhViens)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserSession>> Verify([FromBody] SinhVienAuthenticationRequest account)
+        public async Task<IActionResult> Verify([FromBody] SinhVienAuthenticationRequest account)
         {
             var userSession = await _jwtAuthenticationManager.GenerateJwtTokenSinhVien(account.Username);
             if (userSession != null && userSession.NavigateSinhVien != null && CheckLogin(userSession.NavigateSinhVien))
@@ -124,7 +124,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("{id:long}/logout")]
-        public async Task<ActionResult> UpdateLogout([FromRoute] long id)
+        public async Task<IActionResult> UpdateLogout([FromRoute] long id)
         {
             await _sinhVienService.Logout(id, DateTime.Now);
             await NotifyAuthenticationToAdmin(id, false, DateTime.Now);
@@ -137,7 +137,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPut("{id:long}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SinhVienDto>> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPatch("{id:long}/reset-login")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ResetLogin([FromRoute] long id)
+        public async Task<IActionResult> ResetLogin([FromRoute] long id)
         {
             // liên quan redis nên tốt nhất là try catch
             try
@@ -184,7 +184,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPatch("{id:long}/submit-exam")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> SubmitExam([FromRoute] int id)
+        public async Task<IActionResult> SubmitExam([FromRoute] int id)
         {
             try
             {
@@ -203,14 +203,14 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpDelete("{id:long}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete([FromRoute] long id)
+        public async Task<IActionResult> Delete([FromRoute] long id)
         {
             try
             {
                 var result = await _sinhVienService.Remove(id);
                 if (!result)
                 {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
             }
@@ -220,20 +220,20 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:long}/force")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ForceDelete([FromRoute] long id)
+        public async Task<IActionResult> ForceDelete([FromRoute] long id)
         {
             try
             {
                 var result = await _sinhVienService.ForceRemove(id);
                 if (!result)
                 {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần xóa"));
+                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công"));
                 }
                 return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
             }

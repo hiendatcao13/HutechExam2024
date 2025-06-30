@@ -29,13 +29,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return _mapper.Map<ChiTietDeThiHoanViDto>(chiTietDeThiHoanVi);
         }
 
-        public async Task Insert_Batch(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+        public async Task Insert_Batch(int maDeThi, string kyHieuDe, int soLuongDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
         {
             var dt = DeThiHelper.ToDataTable(chiTietDeThiHoanVis);
             using DatabaseReader sql = new("ChiTietDeThiHoanVi_Insert_Batch");
 
             sql.SqlParams("@MaDeThi", SqlDbType.Int, maDeThi);
             sql.SqlParams("@KyHieuDe", SqlDbType.NVarChar, kyHieuDe);
+            sql.SqlParams("@TongSLDe", SqlDbType.Int, soLuongDe);
             sql.SqlParams("@DanhSachThongTinDeThi", SqlDbType.Structured, dt);
 
             await sql.ExecuteNonQueryAsync();

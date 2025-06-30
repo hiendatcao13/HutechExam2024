@@ -31,7 +31,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _chiTietCaThiService.SelectOne(id);
             if (result.MaChiTietCaThi == 0)
@@ -42,14 +42,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-sinhvien")]
-        public async Task<ActionResult<ChiTietCaThiDto>> SelectBy_MSSVThi([FromQuery] int maSinhVien)
+        public async Task<IActionResult> SelectBy_MSSVThi([FromQuery] int maSinhVien)
         {
             return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaSinhVienThi(maSinhVien), message: "Lấy chi tiết ca thi thành công"));
         }
 
         [HttpGet("filter-by-cathi-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Paged<ChiTietCaThiDto>>> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
+        public async Task<IActionResult> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
             return Ok(APIResponse<Paged<ChiTietCaThiDto>>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Paged(maCaThi, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
@@ -58,7 +58,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("filter-by-cathi-search-paged")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Paged<ChiTietCaThiDto>>> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
+        public async Task<IActionResult> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
             return Ok(APIResponse<Paged<ChiTietCaThiDto>>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaCaThi_Search_Paged(maCaThi, keyword, pageNumber, pageSize), message: "Lấy chi tiết ca thi thành công"));
@@ -70,7 +70,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
+        public async Task<IActionResult> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPost("batch")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<ChiTietCaThiDto>>> InsertBatch([FromBody] List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
+        public async Task<IActionResult> InsertBatch([FromBody] List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("export-excel")]
-        public async Task<ActionResult<byte[]>> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
+        public async Task<IActionResult> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
         {
             // Cấp phép cho EPPlus
             ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
@@ -217,7 +217,7 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
         {
             try
             {
@@ -278,6 +278,49 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Delete Methods
 
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _chiTietCaThiService.Remove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Xóa chi tiết ca thi không thành công hoặc bị ràng buộc khóa ngoại"));
+                }
+                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietCaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietCaThiDto>.ErrorResponse(message: "Xóa chi tiết ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
+        [HttpDelete("{id:int}/force")]
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _chiTietCaThiService.ForceRemove(id);
+                if (!result)
+                {
+                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Xóa chi tiết ca thi không thành công"));
+                }
+                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<ChiTietCaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<ChiTietCaThiDto>.ErrorResponse(message: "Xóa chi tiết ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
 
 
         #endregion

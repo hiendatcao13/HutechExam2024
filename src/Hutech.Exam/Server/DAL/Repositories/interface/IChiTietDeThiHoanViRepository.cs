@@ -8,7 +8,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         ChiTietDeThiHoanViDto GetProperty(IDataReader dataReader, int start = 0);
 
-        Task Insert_Batch(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis);
+        Task Insert_Batch(int maDeThi, string kyHieuDe, int soLuongDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis);
 
         Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV);
 

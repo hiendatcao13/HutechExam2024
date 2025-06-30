@@ -11,16 +11,16 @@
 <MudDialog Style="max-height: auto; overflow: visible">
     <DialogContent>
         <MudGrid>
-            <MudItem xs="4"><MudText>Tên Đợt thi:</MudText></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên Đợt thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text">@ExamBatchName</span></MudText></MudItem>
 
-            <MudItem xs="4"><MudText>Môn thi:</MudText></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Môn thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text">@SubjectName</span></MudText></MudItem>
 
-            <MudItem xs="4"><MudText>Phòng thi:</MudText></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Phòng thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text">@ExamRoomName</span></MudText></MudItem>
 
-            <MudItem xs="4"><MudText>Lần thi:</MudText></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>Lần thi:</MudText></MudItem>
             <MudItem xs="8"><MudText><span class="title-text">@AttemptNumber</span></MudText></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
@@ -35,6 +35,18 @@
                     }
                 </MudSelect>
             </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Hệ thống ghi nhận số lượng thí sinh:</MudText></MudItem>
+            <MudItem xs="8"><MudText>@totalNumberOfStudent</MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Số lượng ngang: </MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Số lượng hàng" Required InputType="InputType.Number" @bind-Value="rowNumber"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Số lượng dọc: </MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên Ca thi" Required InputType="InputType.Number" @bind-Value="colNumber"></MudTextField></MudItem>
+
+            <MudItem xs="6"><MudSwitch Label="Xếp theo MSSV" T="bool" Color="Color.Success" Value="isSortExamCode" ValueChanged="OnValueChangeSortExamCode"></MudSwitch></MudItem>
+            <MudItem xs="6"><MudSwitch Label="Xếp theo Tên" T="bool" Color="Color.Success" Value="isSortExamCode" ValueChanged="OnValueChangeSortName"></MudSwitch></MudItem>
         </MudGrid>
         <MudText><i><small style="color: red; ">@ALERT_TITLE</small></i></MudText>
     </DialogContent>
@@ -52,7 +64,7 @@
 </MudDialog>
 <style>
     .title-text {
-        font-weight: bold;
+    font-weight: bold;
     }
     .my-custom-class {
     backdrop-filter: blur(10px);
@@ -77,13 +89,19 @@
 
     [Parameter] public CaThiDto? ExamSession { get; set; }
 
-    private const string ALERT_TITLE = "Lưu ý: nếu các thí sinh trong ca thi đã được gắn đề, việc cập nhật đề thi lại cho ca thi sẽ xảy ra lỗi không mong muốn. Vui lòng reset toàn bộ đề thi của thí sinh về mặc định và cập nhật lại đề cho thí sinh.";
-
     private DeThiDto? selectedExam;
 
     private List<DeThiDto>? exams;
 
     private bool isSame = true; // nếu người dùng không cập nhật đề mới
+
+    private int rowNumber, colNumber, totalNumberOfStudent;
+
+    private bool isSortExamCode = true, isSortName = false;
+
+    private const string ALERT_TITLE = "Lưu ý: nếu các thí sinh trong ca thi đã được gắn đề, việc cập nhật đề thi lại cho ca thi sẽ reset lại toàn bộ và gán đề thi mới";
+    private const string ERROR_FORMAT = "Không thể gán đề thi cho các thí sinh khi số lượng ngang x dọc bé hơn tổng thí sinh";
+    private const string NO_SHUFFLEEXAM = "Hiện đề thi chưa được tạo các đề hoán vị. Vui lòng tạo trước";
 
     private void OnClickExit()
     {
@@ -104,6 +122,7 @@
 
         if(ExamSession != null && ExamSession.MaDeThi == -1){
             selectedExam = exams?.FirstOrDefault(x => x.MaDeThi == -1);
+            totalNumberOfStudent = ExamSession.TongSV;
         }
         else{
             selectedExam = await Exam_SelectOneAPI(ExamSession?.MaDeThi ?? -1);
@@ -118,6 +137,11 @@
 
     private async Task OnClickEditAsync()
     {
+        if(!ValidateForm())
+        {
+            return;
+        }
+
         if(ExamSession != null && ExamBatchDetailId != null && selectedExam != null){
             var result = await ExamSession_UpdateAPI(ExamSession.MaCaThi, new CaThiUpdateRequest { 
                 TenCaThi = ExamSession.TenCaThi ?? String.Empty, 
@@ -131,6 +155,65 @@
                 MudDialog?.Close(DialogResult.Ok(result));
             }
         }
+    }
+
+    private bool ValidateForm()
+    {
+        if(rowNumber * colNumber < totalNumberOfStudent)
+        {
+            Snackbar.Add(ERROR_FORMAT, Severity.Error);
+            return false;
+        }
+
+        if(selectedExam != null && (selectedExam.TongSoDeHoanVi == null || selectedExam.TongSoDeHoanVi == 0))
+        {
+            Snackbar.Add(NO_SHUFFLEEXAM, Severity.Error);
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<List<long>> ArrageExamForStudentAsync()
+    {
+        var listExamCodes = await GetAllShuffleExamCodeAsync();
+        int totalShuffleExam = listExamCodes.Count;
+
+        List<long> listExamCodeForStudents = [];
+        int studentCounter = 0;
+        for(int i = 0; i < rowNumber; i++)
+        {
+            for(int j = 0; j < colNumber; j++)
+            {
+                if(studentCounter >= totalNumberOfStudent)
+                {
+                    break;
+                }
+
+                listExamCodeForStudents.Add(listExamCodes[(i + j) % totalShuffleExam]);
+            }
+        }
+
+        return listExamCodeForStudents;
+    }
+
+    private async Task<List<long>> GetAllShuffleExamCodeAsync()
+    {
+        var result = await ShuffleExam_SelectBy_ExamAPI(selectedExam!.MaDeThi);
+
+        return result.Select(_ => _.MaDeHv).ToList();
+    }
+
+    private void OnValueChangeSortName(bool value)
+    {
+        isSortName = value;
+        isSortExamCode = !isSortName;
+    }
+
+    private void OnValueChangeSortExamCode(bool value)
+    {
+        isSortExamCode = value;
+        isSortName = !isSortExamCode;
     }
 
     private async Task<List<DeThiDto>?> Exams_GetAll_API()
@@ -150,5 +233,11 @@
     {
         var response = await SenderAPI.GetAsync<DeThiDto>($"api/dethis/{ma_de_thi}");
         return (response.Success) ? response.Data : null;
+    }
+
+    private async Task<List<DeThiHoanViDto>> ShuffleExam_SelectBy_ExamAPI(int maDeThi)
+    {
+        var response = await SenderAPI.GetAsync<List<DeThiHoanViDto>>($"api/dethihoanvis/maDeThi={maDeThi}");
+        return (response.Success && response.Data != null) ? response.Data : [];
     }
 }

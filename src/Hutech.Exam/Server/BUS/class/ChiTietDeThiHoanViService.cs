@@ -14,9 +14,9 @@ namespace Hutech.Exam.Server.BUS
         #endregion
 
         #region Public Methods
-        public async Task Insert_Batch(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+        public async Task Insert_Batch(int maDeThi, string kyHieuDe, int soLuongDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
         {
-            await _chiTietDeThiHoanViRepository.Insert_Batch(maDeThi, kyHieuDe, chiTietDeThiHoanVis);
+            await _chiTietDeThiHoanViRepository.Insert_Batch(maDeThi, kyHieuDe, soLuongDe, chiTietDeThiHoanVis);
         }
 
         public async Task<List<ChiTietDeThiHoanViDto>> SelectBy_MaDeHV(long maDeHV)

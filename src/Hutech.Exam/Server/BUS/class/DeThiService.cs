@@ -40,7 +40,7 @@ namespace Hutech.Exam.Server.BUS
             return await _deThiRepository.SelectOne(ma_de_thi);
         }
 
-        public async Task<DeThiDto> SelectBy_ma_de_hv(long ma_de_hv)
+        public async Task<DeThiDto> SelectBy_DeThiHV(long ma_de_hv)
         {
             return await _deThiRepository.SelectBy_ma_de_hv(ma_de_hv);
         }

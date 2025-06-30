@@ -24,7 +24,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<KhoaDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _khoaService.SelectOne(id);
             if (result == null || result.MaKhoa == 0)
@@ -35,12 +35,12 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Paged<KhoaDto>>> GetAllKhoa([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> GetAllKhoa([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             if (pageNumber.HasValue && pageSize.HasValue)
             {
                 var pagedResult = await _khoaService.GetAll_Paged(pageNumber.Value, pageSize.Value);
-                return Ok(APIResponse<Paged<KhoaDto>>.SuccessResponse(pagedResult, "Lấy danh sách đợt thi thành công"));
+                return Ok(APIResponse<Paged<KhoaDto>>.SuccessResponse(pagedResult, "Lấy danh sách khoa thành công"));
             }
             else
             {
@@ -53,7 +53,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<KhoaDto>> Insert([FromBody] KhoaCreateRequest khoaCreateRequest)
+        public async Task<IActionResult> Insert([FromBody] KhoaCreateRequest khoaCreateRequest)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<KhoaDto>> Update([FromRoute] int id, [FromBody] KhoaUpdateRequest khoa)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] KhoaUpdateRequest khoa)
         {
             try
             {
@@ -107,14 +107,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _khoaService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Không tìm thấy khoa để xóa"));
+                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Xóa khoa không thành công hoặc dính ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<KhoaDto>.SuccessResponse(message: "Xóa khoa thành công"));
             }
@@ -129,14 +129,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _khoaService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Không tìm thấy khoa để xóa"));
+                    return NotFound(APIResponse<KhoaDto>.NotFoundResponse(message: "Xóa khoa không thành công"));
                 }
                 return Ok(APIResponse<KhoaDto>.SuccessResponse(message: "Xóa khoa thành công"));
             }

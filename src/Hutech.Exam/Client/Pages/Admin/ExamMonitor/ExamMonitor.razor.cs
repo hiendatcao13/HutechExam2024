@@ -32,8 +32,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-        private CaThiDto? caThi;
-        private List<ChiTietCaThiDto>? chiTietCaThis = [];
+        private CaThiDto? examSession;
+        private List<ChiTietCaThiDto>? examSessionDetails = [];
         private HubConnection? hubConnection;
 
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
@@ -49,6 +49,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private const string UPDATE_CA_THI = "Ca thi này đã được cập nhật theo yêu cầu của quản trị viên";
         private const string DELETE_CA_THI = "Ca thi này đã được xóa theo yêu cầu của quản trị viên. Vui lòng rời khỏi trang ...";
+
+        private const string CONFIRM_DELETE_STUDENT = "Bạn có chắc chắn muốn xóa sinh viên khỏi ca này không? Mối quan hệ phụ thuộc: CHITIETBAITHI, AUDIOLISTENED ";
+        private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
         #endregion
 
         #region Initial Methods
@@ -60,9 +63,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;
             if (!string.IsNullOrWhiteSpace(token))
             {
-                caThi = await SessionStorage.GetItemAsync<CaThiDto>("CaThi");
+                examSession = await SessionStorage.GetItemAsync<CaThiDto>("CaThi");
                 bool isConvert = int.TryParse(ma_ca_thi, out int maCaThi);
-                if (ma_ca_thi == null || caThi == null && !isConvert || (isConvert && caThi != null && caThi.MaCaThi != maCaThi))
+                if (ma_ca_thi == null || examSession == null && !isConvert || (isConvert && examSession != null && examSession.MaCaThi != maCaThi))
                 {
                     Snackbar.Add(ERROR_PAGE, Severity.Error);
                     Nav.NavigateTo("/admin/control");
@@ -106,11 +109,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task OnClickAddTimeAsync(ChiTietCaThiDto chiTietCaThi)
         {
             var result = await OpenAddTimeDialogAsync(chiTietCaThi);
-            if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
+            if (result != null && !result.Canceled && result.Data != null && examSessionDetails != null)
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
-                int index = chiTietCaThis.FindIndex(p => p.MaChiTietCaThi == newChiTietCaThi.MaChiTietCaThi);
-                chiTietCaThis[index] = newChiTietCaThi;
+                int index = examSessionDetails.FindIndex(p => p.MaChiTietCaThi == newChiTietCaThi.MaChiTietCaThi);
+                examSessionDetails[index] = newChiTietCaThi;
             }
         }
 
@@ -138,14 +141,14 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickDownloadExcelAsync()
         {
-            if (chiTietCaThis != null)
+            if (examSessionDetails != null)
             {
                 Snackbar.Add(WAITING_DOWNLOADEXCEL, Severity.Info);
-                var excelData = await GetExcelFileAPI(chiTietCaThis);
+                var excelData = await GetExcelFileAPI(examSessionDetails);
                 if (excelData != null)
                 {
                     var base64 = Convert.ToBase64String(excelData);
-                    var fileName = $"Bảng điểm ca thi {caThi?.MaCaThi}.xlsx";
+                    var fileName = $"Bảng điểm ca thi {examSession?.MaCaThi}.xlsx";
 
                     // Tạo link tải xuống
                     await Js.InvokeVoidAsync("downloadFile", fileName, base64);
@@ -155,15 +158,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickDownloadPdfAsync()
         {
-            if (chiTietCaThis != null)
+            if (examSessionDetails != null)
             {
                 Snackbar.Add("Đang tạo file PDF...", Severity.Info);
-                var pdfData = await GetPdfFileAPI(chiTietCaThis);
+                var pdfData = await GetPdfFileAPI(examSessionDetails);
 
                 if (pdfData != null)
                 {
                     var base64 = Convert.ToBase64String(pdfData);
-                    var fileName = $"Bảng điểm ca thi {caThi?.MaCaThi}.pdf";
+                    var fileName = $"Bảng điểm ca thi {examSession?.MaCaThi}.pdf";
 
                     // Tạo link tải xuống
                     await Js.InvokeVoidAsync("downloadFile", fileName, base64);
@@ -174,7 +177,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task OnClickRefreshAsync()
         {
             searchString = string.Empty;
-            (chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+            (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
         }
 
         private async Task OnClickViewExamSubmissionDetailAsync(ChiTietCaThiDto chiTietCaThi)
@@ -188,19 +191,42 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             await Js.InvokeVoidAsync("openInNewTab", $"/monitor/mocktest?ma_chi_tiet_ca_thi={chiTietCaThi.MaChiTietCaThi}");
         }
 
+        private async Task OnClickDeleteExamSessionDetailAsync(ChiTietCaThiDto examSessionDetail)
+        {
+
+            var parameters = new DialogParameters<Delete_Dialog>
+            {
+                { x => x.ContentText, CONFIRM_DELETE_STUDENT },
+                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamSessionDetailAsync(examSessionDetail, true))   },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteExamSessionDetailAsync(examSessionDetail, false))   }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            await Dialog.ShowAsync<Delete_Dialog>("XÓA CHI TIẾT CA THI", parameters, options);
+        }
+
+        private async Task HandleDeleteExamSessionDetailAsync(ChiTietCaThiDto examSessionDetail, bool isForce)
+        {
+            bool result = (isForce) ? await ExamSessionDetail_ForceDeleteAPI(examSessionDetail.MaChiTietCaThi) : await ExamSessionDetail_DeleteAPI(examSessionDetail.MaChiTietCaThi);
+            if (result)
+            {
+                Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                examSessionDetails?.Remove(examSessionDetail);
+            }
+        }
+
         #endregion
 
         #region HandleOnClick Methods
         private async Task HandleResetLoginAsync(SinhVienDto sinhVien)
         {
             var result = await ResetLoginAPI(sinhVien.MaSinhVien);
-            if (result && chiTietCaThis != null)
+            if (result && examSessionDetails != null)
             {
-                int index = chiTietCaThis.FindIndex(k => k.MaSinhVien == sinhVien.MaSinhVien);
+                int index = examSessionDetails.FindIndex(k => k.MaSinhVien == sinhVien.MaSinhVien);
                 if (index != -1)
                 {
-                    chiTietCaThis[index].MaSinhVienNavigation!.IsLoggedIn = false;
-                    chiTietCaThis[index].MaSinhVienNavigation!.LastLoggedIn = DateTime.Now;
+                    examSessionDetails[index].MaSinhVienNavigation!.IsLoggedIn = false;
+                    examSessionDetails[index].MaSinhVienNavigation!.LastLoggedIn = DateTime.Now;
                 }
             }
         }
@@ -229,7 +255,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var parameters = new DialogParameters<AddTimeDialog>
             {
                 { x => x.chiTietCaThi, chiTietCaThi },
-                { x => x.caThi, caThi }
+                { x => x.caThi, examSession }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
@@ -244,7 +270,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task StartAsync()
         {
             CreateSchedule();
-            (chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+            (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
             CreateFakeData();
 
 
@@ -253,14 +279,14 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private void CreateFakeData()
         {
-            if (chiTietCaThis != null && chiTietCaThis.Count != 0)
+            if (examSessionDetails != null && examSessionDetails.Count != 0)
             {
-                int count_fake = totalRecords - chiTietCaThis.Count;
-                bool isFake = totalRecords > chiTietCaThis.Count;
+                int count_fake = totalRecords - examSessionDetails.Count;
+                bool isFake = totalRecords > examSessionDetails.Count;
                 if (isFake)
                 {
                     for (int i = 0; i < count_fake; i++)
-                        chiTietCaThis.Add(new ChiTietCaThiDto());
+                        examSessionDetails.Add(new ChiTietCaThiDto());
                 }
             }
         }
@@ -269,11 +295,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         {
             // tìm phần tử đầu tiên của trang đó
             int startRow = currentPage * rowsPerPage;
-            if (chiTietCaThis != null && chiTietCaThis.Count != 0)
+            if (examSessionDetails != null && examSessionDetails.Count != 0)
             {
                 for (int i = 0; i < newChiTietCaThi.Count; i++)
                 {
-                    chiTietCaThis[startRow++] = newChiTietCaThi[i];
+                    examSessionDetails[startRow++] = newChiTietCaThi[i];
                 }
             }
             StateHasChanged();

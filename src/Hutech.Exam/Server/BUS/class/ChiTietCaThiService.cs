@@ -75,6 +75,11 @@ namespace Hutech.Exam.Server.BUS
             return await _chiTietCaThiRepository.Remove(ma_chi_tiet_ca_thi);
         }
 
+        public async Task<bool> ForceRemove(int ma_chi_tiet_ca_thi)
+        {
+            return await _chiTietCaThiRepository.ForceRemove(ma_chi_tiet_ca_thi);
+        }
+
         public async Task<bool> Update(int id, ChiTietCaThiUpdateRequest chiTietCaThi)
         {
             return await _chiTietCaThiRepository.Update(id, chiTietCaThi.MaCaThi, chiTietCaThi.MaSinhVien, chiTietCaThi.MaDeThi, -1);

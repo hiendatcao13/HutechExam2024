@@ -25,9 +25,9 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost("batch")]
-        public async Task<IActionResult> Insert_Batch([FromQuery] int maDeThi, [FromQuery] string kyHieuDe, [FromBody] List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+        public async Task<IActionResult> Insert_Batch([FromQuery] int maDeThi, [FromQuery] string kyHieuDe, [FromQuery] int soLuongDe, [FromBody] List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
         {
-            await _chiTietDeThiHoanViService.Insert_Batch(maDeThi, kyHieuDe, chiTietDeThiHoanVis);
+            await _chiTietDeThiHoanViService.Insert_Batch(maDeThi, kyHieuDe, soLuongDe, chiTietDeThiHoanVis);
             return Ok();
         }
 

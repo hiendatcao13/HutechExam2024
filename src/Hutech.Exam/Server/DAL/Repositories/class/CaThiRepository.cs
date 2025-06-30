@@ -66,7 +66,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using var dataReader = await sql.ExecuteReaderAsync();
             while (dataReader != null && dataReader.Read())
             {
-                result.Add(GetProperty(dataReader));
+                CaThiDto caThi = GetProperty(dataReader);
+                // thêm trường số lượng SV
+                caThi.TongSV = dataReader.GetInt32(COLUMN_LENGTH);
+                result.Add(caThi);
             }
 
             //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
@@ -96,7 +99,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using var dataReader = await sql.ExecuteReaderAsync();
             while (dataReader != null && dataReader.Read())
             {
-                result.Add(GetProperty(dataReader));
+                CaThiDto caThi = GetProperty(dataReader);
+                // thêm trường số lượng SV
+                caThi.TongSV = dataReader.GetInt32(COLUMN_LENGTH);
+                result.Add(caThi);
             }
 
             //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
@@ -212,6 +218,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             sql.SqlParams("@ThoiGianThi", SqlDbType.Int, thoi_gian_thi);
             sql.SqlParams("@MatMa", SqlDbType.NVarChar, mat_ma);
+
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
+
+        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, List<long> dsDeThiHVs)
+        {
+            using DatabaseReader sql = new("ca_thi_UpdateDeThi");
+
+            sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
+            sql.SqlParams("@DsDeThiHoanVi", SqlDbType.NVarChar, string.Join(",", dsDeThiHVs));
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

@@ -8,11 +8,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task CreateHubConnectionAsync()
         {
             hubConnection = await AdminHub.GetConnectionAsync();
-            if (chiTietCaThis != null)
+            if (examSessionDetails != null)
             {
                 hubConnection.On<long, bool, DateTime>("SV_Authentication", (ma_sinh_vien, isLogin, thoi_gian) =>
                 {
-                    if (chiTietCaThis.Exists(p => p.MaSinhVien == ma_sinh_vien))
+                    if (examSessionDetails.Exists(p => p.MaSinhVien == ma_sinh_vien))
                     {
                         CallLoadUpdateSVAuthentication(ma_sinh_vien, isLogin, thoi_gian);
                         StateHasChanged();
@@ -21,7 +21,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
                 hubConnection.On<int, bool, DateTime>("ChangeCTCaThi_SVThi", (ma_chi_tiet_ca_thi, isBDThi, thoi_gian) =>
                 {
-                    if (chiTietCaThis.Exists(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi))
+                    if (examSessionDetails.Exists(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi))
                     {
                         CallLoadUpdateCTCaThi(ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
                         StateHasChanged();
@@ -30,7 +30,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
                 hubConnection.On<int>("UpdateCaThi", async (ma_ca_thi) =>
                 {
-                    if(caThi != null && caThi.MaCaThi == ma_ca_thi)
+                    if(examSession != null && examSession.MaCaThi == ma_ca_thi)
                     {
                         await CallLoadUpdateCaThiAsync(ma_ca_thi);
                         StateHasChanged();
@@ -38,7 +38,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 });
                 hubConnection.On<int>("DeleteCaThi", async (ma_ca_thi) =>
                 {
-                    if(caThi != null && caThi.MaCaThi == ma_ca_thi)
+                    if(examSession != null && examSession.MaCaThi == ma_ca_thi)
                     {
                         await CallLoadDeleteCaThiAsync();
                     }
@@ -49,7 +49,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private void CallLoadUpdateCTCaThi(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
         {
-            ChiTietCaThiDto? existingCTCaThi = chiTietCaThis?.FirstOrDefault(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi);
+            ChiTietCaThiDto? existingCTCaThi = examSessionDetails?.FirstOrDefault(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi);
             if(existingCTCaThi != null)
             {
                 if (isBDThi)
@@ -66,7 +66,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private void CallLoadUpdateSVAuthentication(long ma_sinh_vien, bool isLogin, DateTime thoi_gian)
         {
-            SinhVienDto? exsistingSV = chiTietCaThis?.FirstOrDefault(p => p.MaSinhVien == ma_sinh_vien)?.MaSinhVienNavigation;
+            SinhVienDto? exsistingSV = examSessionDetails?.FirstOrDefault(p => p.MaSinhVien == ma_sinh_vien)?.MaSinhVienNavigation;
             if(exsistingSV != null)
             {
                 if (isLogin)
@@ -85,14 +85,14 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task CallLoadUpdateCaThiAsync(int ma_ca_thi)
         {
             Snackbar.Add(UPDATE_CA_THI, MudBlazor.Severity.Info);
-            caThi = await ExamSession_SelectOneAPI(ma_ca_thi);
+            examSession = await ExamSession_SelectOneAPI(ma_ca_thi);
         }
 
         private async Task CallLoadDeleteCaThiAsync()
         {
             // xóa ca thi hiện tại, yêu cầu back lại trang web
             Snackbar.Add(DELETE_CA_THI, MudBlazor.Severity.Warning);
-            caThi = null;
+            examSession = null;
             await SessionStorage.RemoveItemAsync("CaThi");
             // Viết trang main để hướng dẫn người dùng
             Nav.NavigateTo("/admin/control");

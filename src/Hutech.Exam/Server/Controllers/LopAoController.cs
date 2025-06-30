@@ -23,7 +23,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<LopAoDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _lopAoService.SelectOne(id);
             if (result.MaLopAo == 0)
@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-monhoc")]
-        public async Task<ActionResult<List<LopAoDto>>> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
+        public async Task<IActionResult> SelectBy_MaMonHoc([FromQuery] int maMonHoc)
         {
             return Ok(APIResponse<List<LopAoDto>>.SuccessResponse(data: await _lopAoService.SelectBy_ma_mon_hoc(maMonHoc), message: "Lấy danh sách phòng thi thành công"));
         }
@@ -43,9 +43,8 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Post Methods
 
-
         [HttpPost]
-        public async Task<ActionResult<LopAoDto>> Insert([FromBody] LopAoCreateRequest lopAo)
+        public async Task<IActionResult> Insert([FromBody] LopAoCreateRequest lopAo)
         {
             try
             {
@@ -67,7 +66,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<LopAoDto>> Update([FromRoute] int id, [FromBody] LopAoUpdateRequest lopAo)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] LopAoUpdateRequest lopAo)
         {
             try
             {
@@ -99,14 +98,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _lopAoService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi cần xóa"));
+                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Xóa phòng thi không thành công hoặc dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<LopAoDto>.SuccessResponse("Xóa phòng thi thành công"));
             }
@@ -121,14 +120,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _lopAoService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Không tìm thấy phòng thi cần xóa"));
+                    return NotFound(APIResponse<LopAoDto>.NotFoundResponse(message: "Xóa phòng thi không thành công"));
                 }
                 return Ok(APIResponse<LopAoDto>.SuccessResponse("Xóa phòng thi thành công"));
             }

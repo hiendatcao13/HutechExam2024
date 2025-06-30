@@ -48,5 +48,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var response = await SenderAPI.PostAsync<byte[]>("api/chitietcathis/export-pdf", chiTietCaThis);
             return (response.Success) ? response.Data : [];
         }
+
+        private async Task<bool> ExamSessionDetail_DeleteAPI(int examSessionId)
+        {
+            var response = await SenderAPI.DeleteAsync<ChiTietCaThiDto>($"api/chitietcathis/{examSessionId}");
+            return response.Success;
+        }
+
+        private async Task<bool> ExamSessionDetail_ForceDeleteAPI(int examSessionId)
+        {
+            var response = await SenderAPI.DeleteAsync<ChiTietCaThiDto>($"api/chitietcathis/{examSessionId}/force");
+            return response.Success;
+        }
     }
 }

@@ -159,7 +159,7 @@
         for (int z = 0; z < totalExam; z++)
         {
             string ky_hieu_de = examCode.Replace("*", z + 1 + "");
-            await Insert_BatchAPI(tempExam.MaDeThi, ky_hieu_de, shuffleExamDetails[z]);
+            await Insert_BatchAPI(tempExam.MaDeThi, ky_hieu_de, totalExam, shuffleExamDetails[z]);
         }
     }
 
@@ -451,9 +451,9 @@
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<bool> Insert_BatchAPI(int maDeThi, string kyHieuDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+    private async Task<bool> Insert_BatchAPI(int maDeThi, string kyHieuDe, int soLuongDe, List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
     {
-        var response = await SenderAPI.PostAsync<ChiTietDeThiHoanViDto>($"api/chitietdethihoanvis/batch?maDeThi={maDeThi}&kyHieuDe={kyHieuDe}", chiTietDeThiHoanVis);
+        var response = await SenderAPI.PostAsync<ChiTietDeThiHoanViDto>($"api/chitietdethihoanvis/batch?maDeThi={maDeThi}&kyHieuDe={kyHieuDe}&soLuongDe={soLuongDe}", chiTietDeThiHoanVis);
         return response.Success;
     }
 }

@@ -23,7 +23,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CauHoiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _cauHoiService.SelectOne(id);
             if (result.MaCauHoi == 0)
@@ -34,7 +34,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-nhomcauhoi")]
-        public async Task<ActionResult<List<CauHoiDto>>> SelectBy_MaNhom([FromQuery] int maNhomCauHoi)
+        public async Task<IActionResult> SelectBy_MaNhom([FromQuery] int maNhomCauHoi)
         {
             var result = await _cauHoiService.SelectBy_MaNhom(maNhomCauHoi);
             return Ok(APIResponse<List<CauHoiDto>>.SuccessResponse(data: result, message: "Lấy danh sách câu hỏi thành công"));
@@ -45,7 +45,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<CauHoiDto>> Insert([FromBody] CauHoiCreateRequest cauHoi)
+        public async Task<IActionResult> Insert([FromBody] CauHoiCreateRequest cauHoi)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CauHoiUpdateRequest cauHoi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CauHoiUpdateRequest cauHoi)
         {
             try
             {
@@ -99,14 +99,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _cauHoiService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Không tìm thấy câu hỏi cần xóa"));
+                    return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Xóa câu hỏi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<CauHoiDto>.SuccessResponse(message: "Xóa câu hỏi thành công"));
             }
@@ -116,19 +116,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Xóa câu hỏi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CauHoiDto>.ErrorResponse(message: "Xóa câu hỏi không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _cauHoiService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Không tìm thấy câu hỏi cần xóa"));
+                    return NotFound(APIResponse<CauHoiDto>.NotFoundResponse(message: "Xóa câu hỏi không thành công"));
                 }
                 return Ok(APIResponse<CauHoiDto>.SuccessResponse(message: "Xóa câu hỏi thành công"));
             }

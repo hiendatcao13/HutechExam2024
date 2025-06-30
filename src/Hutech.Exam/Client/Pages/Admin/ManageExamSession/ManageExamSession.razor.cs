@@ -129,11 +129,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         private async Task<DialogResult?> OpenPasswordDialogAsync(CaThiDto examSession)
         {
+            Func<string, Task<bool>> verifyDelegate = async (password) =>
+            {
+                return await VerifyPasswordAPI(examSession.MaCaThi, password);
+            };
+
             var parameters = new DialogParameters<Password_Dialog>
             {
                 { x => x.ContentText, VERIFY_PASSWORD },
                 { x => x.ButtonText, "OK" },
-                { x => x.PlainPassword, examSession.MatMa },
+                { x => x.OnVerifyPassword, (Func<string, Task<bool>>)verifyDelegate },
                 { x => x.RecognizeCode, $"ExamSession{examSession.MaCaThi}" },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };

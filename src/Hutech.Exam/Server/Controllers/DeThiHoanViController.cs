@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Custom;
 using Microsoft.AspNetCore.Authorization;
@@ -26,16 +27,23 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:long}")]//-------------API cho thí sinh----------------------
-        public async Task<ActionResult<List<CustomDeThi>>> GetDeThi([FromRoute] long id)
+        public async Task<IActionResult> GetDeThi([FromRoute] long id)
         {
             return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: await _redisService.GetDeThi(id), message: "Lấy đề thi thành công"));
         }
 
         [HttpGet("{id:long}/dap-an")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Dictionary<int, int>>> SelectByMaDeHV_DapAn([FromRoute] long id)
+        public async Task<IActionResult> SelectByMaDeHV_DapAn([FromRoute] long id)
         {
             return Ok(APIResponse<Dictionary<int, int>>.SuccessResponse(data: await _redisService.GetDapAnAsync(id), message: "Lấy danh sách đáp án thành công"));
+        }
+
+        [HttpGet("filter-by-dethi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SelectBy_DeThi([FromQuery] int maDeThi)
+        {
+            return Ok(APIResponse<List<DeThiHoanViDto>>.SuccessResponse(data: await _deThiHoanViService.SelectBy_MaDeThi(maDeThi), message: "Lấy danh sách đề thi hoán vị thành công"));
         }
 
         #endregion

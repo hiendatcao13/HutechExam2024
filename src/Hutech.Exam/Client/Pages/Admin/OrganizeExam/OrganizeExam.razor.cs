@@ -35,9 +35,9 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
-        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
-        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI";
-        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI";
+        private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
+        private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
+        private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
 
         #endregion
 

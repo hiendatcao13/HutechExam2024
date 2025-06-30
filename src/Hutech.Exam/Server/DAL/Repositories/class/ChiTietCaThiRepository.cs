@@ -267,6 +267,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync());
         }
+
         public async Task<bool> Remove(int ma_chi_tiet_ca_thi)
         {
             using DatabaseReader sql = new("chi_tiet_ca_thi_Remove");
@@ -275,6 +276,16 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
+
+        public async Task<bool> ForceRemove(int ma_chi_tiet_ca_thi)
+        {
+            using DatabaseReader sql = new("chi_tiet_ca_thi_ForceRemove");
+
+            sql.SqlParams("@ma_chi_tiet_ca_thi", SqlDbType.Int, ma_chi_tiet_ca_thi);
+
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
+
         public async Task<bool> Update(int ma_chi_tiet_ca_thi, int? ma_ca_thi, long? ma_sinh_vien, long? ma_de_thi, int? tong_so_cau)
         {
             using DatabaseReader sql = new("chi_tiet_ca_thi_Update");

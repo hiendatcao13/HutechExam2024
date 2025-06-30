@@ -94,6 +94,7 @@
                     <MudTh>Tên Ca Thi</MudTh>
                     <MudTh>Ngày Thi</MudTh>
                     <MudTh>Thời Lượng</MudTh>
+                    <MudTh>Tổng SL thí sinh</MudTh>
                     <MudTh>Có Đề?</MudTh>
                     <MudTh>Kích Hoạt?</MudTh>
                     <MudTh>TG Kích Hoạt</MudTh>
@@ -106,6 +107,7 @@
                     <MudTd DataLabel="Tên Ca Thi">@item?.TenCaThi</MudTd>
                     <MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
                     <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
+                    <MudTd DataLabel="Tổng SL thí sinh">@item?.TongSV</MudTd>
                     <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="Kích Hoạt?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.IsActivated" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>

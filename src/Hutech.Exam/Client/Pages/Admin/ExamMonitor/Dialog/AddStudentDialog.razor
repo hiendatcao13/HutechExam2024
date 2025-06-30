@@ -51,14 +51,14 @@
 		</MudText>
 	</DialogContent>
 	<DialogActions>
-		<MudButton OnClick="OnClickExit" Color="Color.Secondary">Thoát</MudButton>
+		<MudButton OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
 		@if (!isExist)
 		{
-			<MudButton OnClick="async () => await OnClickCheckAsync()" Color="Color.Info">Kiểm tra</MudButton>
+			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickCheckAsync()" Color="Color.Info">Kiểm tra</MudButton>
 		}
 		else
 		{
-			<MudButton OnClick="OnClickSaveAsync" Color="Color.Success">Lưu</MudButton>
+			<MudButton Variant="Variant.Filled" OnClick="OnClickSaveAsync" Color="Color.Success">Lưu</MudButton>
 		}
 	</DialogActions>
 </MudDialog>

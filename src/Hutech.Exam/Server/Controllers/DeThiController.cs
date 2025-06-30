@@ -29,13 +29,13 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet]
-        public async Task<ActionResult<List<DeThiDto>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.GetAll(), message: "Lấy danh sách đề thi thành công"));
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<DeThiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _deThiService.SelectOne(id);
             if (result.MaDeThi == 0)
@@ -46,7 +46,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-monhoc")]
-        public async Task<ActionResult<List<DeThiDto>>> SelectByMonHoc([FromQuery] int maMonHoc, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> SelectByMonHoc([FromQuery] int maMonHoc, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             if (pageNumber.HasValue && pageSize.HasValue)
             {
@@ -57,7 +57,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("{id:int}/thong-tin-ma-de-thi")]
-        public async Task<ActionResult<List<CustomThongTinMaDeThi>>> GetThongTinMaDeThi([FromRoute] int id)
+        public async Task<IActionResult> GetThongTinMaDeThi([FromRoute] int id)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<DeThiDto>> Insert([FromBody] DeThiCreateRequest deThi)
+        public async Task<IActionResult> Insert([FromBody] DeThiCreateRequest deThi)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<DeThiDto>> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
         {
             try
             {
@@ -158,14 +158,14 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<DeThiDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _deThiService.Delete(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi để xóa"));
+                    return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Xóa đề thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
             }
@@ -175,19 +175,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id:int}/force")]
-        public async Task<ActionResult<DeThiDto>> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _deThiService.ForceDelete(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi để xóa"));
+                    return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Xóa đề thi không thành công"));
                 }
                 return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
             }
@@ -197,7 +197,7 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công", errorDetails: ex.Message));
             }
         }
 

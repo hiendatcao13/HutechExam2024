@@ -27,10 +27,10 @@
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Thời gian cộng: </span>@addTime</MudText><br />
 			</MudPaper>
 		</MudItem>
-		@if (chiTietCaThis != null)
+		@if (examSessionDetails != null)
 		{
 			<MudItem xs="10">
-				<MudTable T="ChiTietCaThiDto" Items="@chiTietCaThis" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)"
+				<MudTable T="ChiTietCaThiDto" Items="@examSessionDetails" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)"
 				CurrentPage="currentPage" CurrentPageChanged="async (value) => await OnCurrentPageChange(value)" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true"
 				SortLabel="Sort By" OnRowClick="OnRowClick">
 					<ToolBarContent>
@@ -50,7 +50,7 @@
 						<MudTh>Chức năng</MudTh>
 					</HeaderContent>
 					<RowTemplate Context="item">
-						<MudTd>@(chiTietCaThis.IndexOf(item) + 1)</MudTd>
+						<MudTd>@(examSessionDetails.IndexOf(item) + 1)</MudTd>
 						<MudTd>@item.MaSinhVienNavigation?.MaSoSinhVien</MudTd>
 						<MudTd>@item.MaSinhVienNavigation?.HoVaTenLot @item.MaSinhVienNavigation?.TenSinhVien</MudTd>
 						<MudTd>@($"{item.KyHieuDe} ({item.MaDeThi})")</MudTd>
@@ -67,7 +67,10 @@
 									<MudIconButton Icon="@Icons.Material.Filled.Warning" Color="Color.Info" OnClick="() => OnClickSubmitAsync(item)" />
 								</MudTooltip>
 								<MudTooltip Text="Xem chi tiết bài">
-									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Error" OnClick="async () => await OnClickViewExamSubmissionDetailAsync(item)" />
+									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Primary" OnClick="async () => await OnClickViewExamSubmissionDetailAsync(item)" />
+								</MudTooltip>
+								<MudTooltip Text="Xóa">
+									<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteExamSessionDetailAsync(item)" />
 								</MudTooltip>
 							</MudButtonGroup>
 						</MudTd>
@@ -128,12 +131,12 @@
 	{
 		if (!string.IsNullOrEmpty(searchString))
 		{
-			(chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_Search_PagedAPI(caThi?.MaCaThi ?? -1, searchString, currentPage, rowsPerPage);
+			(examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_Search_PagedAPI(examSession?.MaCaThi ?? -1, searchString, currentPage, rowsPerPage);
 			CreateFakeData();
 		}
 		else
 		{
-			(chiTietCaThis, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+			(examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
 			CreateFakeData();
 		}
 		CreateSchedule();
@@ -162,7 +165,7 @@
 		this.rowsPerPage = rows;
 		currentPage = 0; // Reset về trang đầu tiên
 
-		(var newChiTietCaThis, _, _) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+		(var newChiTietCaThis, _, _) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
 		PadEmptyRows(newChiTietCaThis);
 	}
 	private async Task OnCurrentPageChange(int page)
@@ -175,7 +178,7 @@
 			return;
 
 		// chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newChiTietCaThis, _, _) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(caThi?.MaCaThi ?? -1, currentPage, rowsPerPage);
+		(var newChiTietCaThis, _, _) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
 		PadEmptyRows(newChiTietCaThis);
 		selectedPages?.Add(currentPage);
 	}

@@ -15,10 +15,11 @@ namespace Hutech.Exam.Server.Controllers
     [Route("api/cathis")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class CaThiController(CaThiService caThiService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub) : Controller
+    public class CaThiController(CaThiService caThiService, BcryptService bcryptService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub) : Controller
     {
         #region Private Fields
         private readonly CaThiService _caThiService = caThiService;
+        private readonly BcryptService _bcryptService = bcryptService;
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
@@ -27,7 +28,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CaThiDto>> SelectOne([FromRoute] int id)
+        public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _caThiService.SelectOne(id);
 
@@ -40,14 +41,14 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpGet("{id:int}/is-active")]
         [Authorize] //----------------Đánh dấu thí sinh có thể truy cập
-        public async Task<ActionResult<bool>> IsActiveCaThi([FromRoute] int id)
+        public async Task<IActionResult> IsActiveCaThi([FromRoute] int id)
         {
             CaThiDto caThi = await _caThiService.SelectOne(id);
             return Ok(APIResponse<bool>.SuccessResponse(data: caThi.IsActivated, message: "Lấy thông tin ca thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao-lanthi")]
-        public async Task<ActionResult<List<CaThiDto>>> SelectBy_MaDotThi_MaLopAo_LanThi([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
+        public async Task<IActionResult> SelectBy_MaDotThi_MaLopAo_LanThi([FromQuery] int maDotThi, [FromQuery] int maLopAo, [FromQuery] int lanThi)
         {
             var result = await _caThiService.SelectBy_MaDotThi_MaLop_LanThi(maDotThi, maLopAo, lanThi);
             return Ok(APIResponse<List<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
@@ -55,14 +56,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-chitietdotthi-paged")]
-        public async Task<ActionResult<Paged<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi_Paged([FromQuery] int maChiTietDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> SelectBy_ma_chi_tiet_dot_thi_Paged([FromQuery] int maChiTietDotThi, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Paged(maChiTietDotThi, pageNumber, pageSize);
             return Ok(APIResponse<Paged<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
         }
 
         [HttpGet("filter-by-chitietdotthi-search-paged")]
-        public async Task<ActionResult<Paged<CaThiDto>>> SelectBy_ma_chi_tiet_dot_thi_Search_Paged([FromQuery] int maChiTietDotThi, [FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> SelectBy_ma_chi_tiet_dot_thi_Search_Paged([FromQuery] int maChiTietDotThi, [FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _caThiService.SelectBy_ma_chi_tiet_dot_thi_Search_Paged(maChiTietDotThi, keyword, pageNumber, pageSize);
             return Ok(APIResponse<Paged<CaThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách ca thi thành công"));
@@ -73,7 +74,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        public async Task<ActionResult<CaThiDto>> Insert([FromBody] CaThiCreateRequest caThi)
+        public async Task<IActionResult> Insert([FromBody] CaThiCreateRequest caThi)
         {
             try
             {
@@ -92,12 +93,27 @@ namespace Hutech.Exam.Server.Controllers
 
         }
 
+        [HttpPost("{id:int}/verify")]
+        public async Task<IActionResult> VerifyPassword([FromRoute] int id, [FromBody] string password)
+        {
+            var examSession = await _caThiService.SelectOne(id);
+            var hashPassword = examSession.MatMa;
+            if(string.IsNullOrWhiteSpace(hashPassword) || _bcryptService.VerifyPassword(password, hashPassword) == true)
+            {
+                return Ok(APIResponse<bool>.SuccessResponse(data: true, message: "Xác thực thành công"));
+            }
+            else
+            {
+                return BadRequest(APIResponse<bool>.ErrorResponse(message: "Xác không thành công. Vui lòng liên hệ quản trị viên"));
+            }
+        }
+
         #endregion
 
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<CaThiDto>> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
         {
             try
             {
@@ -125,7 +141,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Patch Methods
 
         [HttpPatch("{id:int}/active")]
-        public async Task<ActionResult> KichHoatCaThi([FromRoute] int id)
+        public async Task<IActionResult> KichHoatCaThi([FromRoute] int id)
         {
             try
             {
@@ -148,7 +164,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:int}/deactive")]
-        public async Task<ActionResult> HuyKichHoatCaThi([FromRoute] int id)
+        public async Task<IActionResult> HuyKichHoatCaThi([FromRoute] int id)
         {
             try
             {
@@ -172,7 +188,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:int}/pause")]
-        public async Task<ActionResult> DungCaThi([FromRoute] int id)
+        public async Task<IActionResult> DungCaThi([FromRoute] int id)
         {
             try
             {
@@ -196,7 +212,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:int}/finish")]
-        public async Task<ActionResult> KetThucCaThi([FromRoute] int id)
+        public async Task<IActionResult> KetThucCaThi([FromRoute] int id)
         {
             try
             {
@@ -219,19 +235,42 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        [HttpPatch("{id:int}/update-dethi")]
+        public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromBody] List<long> dsDeThiHVs)
+        {
+            try
+            {
+                var result = await _caThiService.UpdateDeThi(id, maDeThi, dsDeThiHVs);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));
+                }
+                await NotifyChangeCaThiToAdmin(id, 1);
+                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
         #endregion
 
         #region Delete Methods
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<CaThiDto>> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
             {
                 var result = await _caThiService.Remove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần xóa"));
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Xóa ca thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
                 }
                 await NotifyChangeCaThiToAdmin(id, 2);
                 return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
@@ -242,19 +281,19 @@ namespace Hutech.Exam.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công hoặc đang dính phải ràng buộc khóa ngoại", errorDetails: ex.Message));
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
             }
         }
 
         [HttpDelete("{id}/force")]
-        public async Task<ActionResult<CaThiDto>> ForceDelete([FromRoute] int id)
+        public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try
             {
                 var result = await _caThiService.ForceRemove(id);
                 if (!result)
                 {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần xóa"));
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Xóa ca thi không thành công"));
                 }
                 await NotifyChangeCaThiToAdmin(id, 2);
                 return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));

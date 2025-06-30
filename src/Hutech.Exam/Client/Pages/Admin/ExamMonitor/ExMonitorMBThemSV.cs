@@ -11,22 +11,22 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task OnClickAddStudentAsync()
         {
             var result = await OpenAddStudentDialogAsync();
-            if (result != null && !result.Canceled && result.Data != null && chiTietCaThis != null)
+            if (result != null && !result.Canceled && result.Data != null && examSessionDetails != null)
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
-                chiTietCaThis.Add(newChiTietCaThi);
+                examSessionDetails.Add(newChiTietCaThi);
             }
         }
         private async Task<DialogResult?> OpenAddStudentDialogAsync()
         {
             
             Snackbar.Add(ALERT_ADDSV, Severity.Info);
-            string?[] content_texts = [caThi?.TenCaThi ?? "", caThi?.ThoiGianBatDau.ToString() ?? "", caThi?.ThoiGianThi.ToString() ?? ""];
+            string?[] content_texts = [examSession?.TenCaThi ?? "", examSession?.ThoiGianBatDau.ToString() ?? "", examSession?.ThoiGianThi.ToString() ?? ""];
             var parameters = new DialogParameters<AddStudentDialog>
             {
                 { x => x.StudentCodes, GetAllStudentCodes() },
                 { x => x.ShuffleExams, GetAllShuffleExamIds() },
-                { x => x.examSessionId, caThi?.MaCaThi},
+                { x => x.examSessionId, examSession?.MaCaThi},
                 { x => x.classRoom, await GetClassRoom()}
             };
 
@@ -39,9 +39,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private List<long> GetAllShuffleExamIds()
         {
             List<long> result = [];
-            if (chiTietCaThis != null)
+            if (examSessionDetails != null)
             {
-                foreach (var item in chiTietCaThis)
+                foreach (var item in examSessionDetails)
                 {
                     if (item.MaDeThi != null)
                         result.Add((long)item.MaDeThi);
@@ -52,9 +52,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private List<string> GetAllStudentCodes()
         {
             List<string> result = [];
-            if (chiTietCaThis != null)
+            if (examSessionDetails != null)
             {
-                foreach (var item in chiTietCaThis)
+                foreach (var item in examSessionDetails)
                 {
                     if (item.MaSinhVienNavigation != null && item.MaSinhVienNavigation.MaSoSinhVien != null)
                         result.Add((string)item.MaSinhVienNavigation.MaSoSinhVien);
