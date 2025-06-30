@@ -230,6 +230,20 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return new Paged<SinhVienDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
         }
 
+        public async Task<long> LoginCount()
+        {
+            using DatabaseReader sql = new("sinh_vien_LoginCount");
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+
+            if(dataReader != null && dataReader.Read())
+            {
+                return dataReader.GetInt64(0);
+            }
+
+            return 0;
+        }
+
 
 
 

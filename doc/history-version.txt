@@ -216,3 +216,7 @@
 30/06/2025 8AM
 - Sửa lại logic nghiệp vụ tạo đề thi hoán vị, hiện thị tổng SL sinh trong ca thi, xác thực khi vào ca thi
 - Đang hoàn thiện chức năng gán mã đề thi cho thí sinh (logic đổi đề cho ca thi)
+------------------------------------------------
+30/06/2025 6PM
+- Đang tiến trình trang kiểm tra sức khỏe hệ thống
+- TODO: Hoàn thành trang kiểm tra sức khỏe hệ thống và logic đổi đề cho ca thi, phân quyền, nghiệp vụ lưu đề thi

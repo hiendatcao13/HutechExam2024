@@ -12,5 +12,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
         Task<List<CustomThongKeDiem>> ThongKeDiem_SelectBy_DeThi(int MaDeThi);
 
         Task<CustomThongKeCapBacSV> ThongKeCapBacSV_SelectBy_DeThi(int MaDeThi);
+
+        Task<List<CustomThongKeDoPhanManh>> ThongKeDoPhanManh();
+
+        Task RebuildOrReorganizeChiMuc();
     }
 }

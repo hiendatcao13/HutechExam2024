@@ -234,6 +234,20 @@ namespace Hutech.Exam.Server.BUS
                 return await _customDeThiService.GetDeThi(id);
             }
         }
+
+        public async Task RemoveDeThi(long id)
+        {
+            try
+            {
+                var cacheKey = $"DeThi:{id}";
+
+                await _cacheService.RemoveCacheResponseAsync(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[Redis] An error occurred while removing DeThi.");
+            }
+        }
         #endregion
 
     }

@@ -100,5 +100,35 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             return result;
         }
+
+        public async Task<List<CustomThongKeDoPhanManh>> ThongKeDoPhanManh()
+        {
+            using DatabaseReader sql = new("Custom_ThongKeDoPhanManh");
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<CustomThongKeDoPhanManh> result = [];
+
+            while(dataReader != null && dataReader.Read())
+            {
+                CustomThongKeDoPhanManh doPhanManh = new(){
+                    SchemeName = dataReader.GetString(0),
+                    TableName = dataReader.GetString(1),
+                    IndexName = dataReader.GetString(2),
+                    DoPhanManh = dataReader.GetDouble(3),
+                    SoLuongTrang = dataReader.GetInt64(4)
+                };
+
+                result.Add(doPhanManh);
+            }  
+            
+            return result;
+        }
+
+        public async Task RebuildOrReorganizeChiMuc()
+        {
+            using DatabaseReader sql = new("Custom_RebuildOrReorganizeIndexes");
+
+            using var daReader = await sql.ExecuteReaderAsync();
+        }
     }
 }

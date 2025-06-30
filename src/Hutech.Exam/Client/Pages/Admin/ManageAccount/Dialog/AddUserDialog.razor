@@ -14,7 +14,7 @@
 		<MudGrid>
 			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
 			<MudItem xs="8">
-				<MudSelect Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
+				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
 					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
 					{
 						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
@@ -76,6 +76,7 @@
 	private void HandleInput()
 	{
 		tempUser = new UserDto();
+		tempUser.MaRole = (int)KieuRole.Giam_Thi;
 	}
 	private void OnClickExit()
 	{

@@ -41,6 +41,7 @@ namespace Hutech.Exam.Server.Installers
             services.AddScoped<SelectAnswerService>();
             services.AddScoped<ExamRecoveryService>();
             services.AddScoped<RedisService>();
+            services.AddScoped<SystemService>();
 
         }
     }

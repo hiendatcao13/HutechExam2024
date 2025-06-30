@@ -1,11 +1,14 @@
 ﻿using AspNetCoreRateLimit;
+using HealthChecks.UI.Client;
 using Hutech.Exam.Server.BUS.RabbitServices;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
 using Hutech.Exam.Server.Middleware;
 using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Shared.Profiles;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +68,13 @@ static void Configure(WebApplication app)
     app.MapControllers();
     app.MapFallbackToFile("index.html");
 
+    app.MapHealthChecks("/health", new HealthCheckOptions
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+    app.MapHealthChecksUI();
+
     app.MapHub<AdminHub>("/adminhub");
     app.MapHub<SinhVienHub>("/sinhvienhub");
 
@@ -77,6 +87,6 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.InstallerServicesInAssembly(configuration);
 
 
-    services.AddDbContextPool<ApplicationDbContext>(options =>
-        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+    //services.AddDbContextPool<ApplicationDbContext>(options =>
+    //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 }

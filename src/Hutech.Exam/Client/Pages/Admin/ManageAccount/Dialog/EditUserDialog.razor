@@ -14,7 +14,7 @@
 		<MudGrid>
 			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
 			<MudItem xs="8">
-				<MudSelect Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
+				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
 					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
 					{
 						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
@@ -31,11 +31,11 @@
 			<MudItem xs="4" Style="align-content: center"><MudText>Name:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Name" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.Name" /></MudItem>
 
-			<MudItem xs="4" Style="align-content: center"><MudText>Đã xóa?:</MudText></MudItem>
-			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.IsDeleted" Color="Color.Success"></MudSwitch></MudItem>
-
 			<MudItem xs="4" Style="align-content: center"><MudText>Đã khóa?:</MudText></MudItem>
 			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.IsLockedOut" Color="Color.Info"></MudSwitch></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Đã xóa?:</MudText></MudItem>
+			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.IsDeleted" Color="Color.Error"></MudSwitch></MudItem>
 
 		</MudGrid>
 	</DialogContent>

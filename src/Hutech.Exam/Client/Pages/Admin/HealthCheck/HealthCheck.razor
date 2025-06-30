@@ -1,0 +1,91 @@
+﻿@page "/admin/system"
+@using Hutech.Exam.Shared.DTO
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Manage Student</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+	<MudGrid Style="margin-top: 5px; margin-left: 5px">
+		<MudItem xs="12">
+			@if (healthChecks != null)
+			{
+				<MudTable Elevation="24" Items="@healthChecks" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin các kết nối</MudText>
+						<MudSpacer />
+						<MudText Color="Color.Info">Tự động kết nối lại: 10s</MudText>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh Style="text-align: center">Dịch vụ</MudTh>
+						<MudTh Style="text-align: center">Trạng thái</MudTh>
+						<MudTh Style="text-align: center">Mô tả</MudTh>
+						<MudTh Style="text-align: center">Thời gian kết nối</MudTh>
+						<MudTh Style="text-align: center">Lỗi</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="Dịch vụ">@item.ServiceName</MudTd>
+						<MudTd DataLabel="Trạng thái">@item.Status <MudSwitch Value="GetActivationIcon(item.Status)" Color="Color.Success" UncheckedColor="Color.Error" ReadOnly></MudSwitch></MudTd>
+						<MudTd DataLabel="Mô tả">@item.Description</MudTd>
+						<MudTd DataLabel="Thời gian kết nối">@item.Duration</MudTd>
+						<MudTd DataLabel="Lỗi">@item.Exception</MudTd>
+					</RowTemplate>
+				</MudTable>
+			}
+		</MudItem>
+
+		<MudItem xs="12">
+			@if (healthFragments != null)
+			{
+				<MudTable Elevation="24" Items="@healthFragments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin độ phân mảnh các chỉ mục</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Speed" OnClick="async() => await OnClickReorganizeIndexAsync()">Tự động REORGANIZE, REBUILD</MudButton>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh Style="text-align: center">Bảng</MudTh>
+						<MudTh Style="text-align: center">Tên index</MudTh>
+						<MudTh Style="text-align: center">Độ phân mảnh (%)</MudTh>
+						<MudTh Style="text-align: center">Trạng thái</MudTh>
+						<MudTh Style="text-align: center">Tổng số trang</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="Bảng">@item.TableName</MudTd>
+						<MudTd DataLabel="Tên index">@item.IndexName</MudTd>
+						<MudTd DataLabel="Độ phân mảnh (%)">@item.DoPhanManh</MudTd>
+						<MudTd DataLabel="Trạng thái"><MudSwitch Value="true" Color="GetColorStatusDoPhanManh(item.DoPhanManh)" ReadOnly></MudSwitch></MudTd>
+						<MudTd DataLabel="Tổng số trang">@item.SoLuongTrang</MudTd>
+					</RowTemplate>
+				</MudTable>
+			}
+		</MudItem>
+	</MudGrid>
+</MudContainer>
+
+<style>
+	.adsd-button {
+	transform: scale(0.85);
+	margin-bottom: 2%;
+	}
+
+	.final-table-button {
+	margin-top: 1%;
+	}
+
+	.checkbox {
+	transform: scale(0.85);
+	}
+
+	.selected-row {
+	background-color: lightgray !important;
+	}
+</style>
+
+@code {
+
+	private bool GetActivationIcon(string status) => status == "Healthy" ? true : false;
+
+	private Color GetColorStatusDoPhanManh(double doPhanManh) => (doPhanManh >= 5 && doPhanManh <= 30) ? Color.Warning : (doPhanManh > 30) ? Color.Error : Color.Success;
+}
