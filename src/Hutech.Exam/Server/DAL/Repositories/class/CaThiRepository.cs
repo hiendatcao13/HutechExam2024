@@ -222,12 +222,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, List<long> dsDeThiHVs)
+        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, bool isOrderMSSV, List<long> dsDeThiHVs)
         {
             using DatabaseReader sql = new("ca_thi_UpdateDeThi");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
+            sql.SqlParams("@IsOrderMSSV", SqlDbType.Bit, isOrderMSSV);
             sql.SqlParams("@DsDeThiHoanVi", SqlDbType.NVarChar, string.Join(",", dsDeThiHVs));
 
             return await sql.ExecuteNonQueryAsync() > 0;

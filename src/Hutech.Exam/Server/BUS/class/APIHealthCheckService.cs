@@ -1,4 +1,4 @@
-﻿namespace Hutech.Exam.Server.BUS.internal class
+﻿namespace Hutech.Exam.Server.BUS
 {
     public class APIHealthCheckService
     {

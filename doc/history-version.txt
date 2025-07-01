@@ -220,3 +220,6 @@
 30/06/2025 6PM
 - Đang tiến trình trang kiểm tra sức khỏe hệ thống
 - TODO: Hoàn thành trang kiểm tra sức khỏe hệ thống và logic đổi đề cho ca thi, phân quyền, nghiệp vụ lưu đề thi
+------------------------------------------------
+01/07/2025 7AM
+- Hoàn tất chức năng cập nhật đề thi cho ca thi (cập nhật đề thi cho thí sinh theo thuật toán tô màu đồ thị)

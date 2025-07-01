@@ -302,13 +302,13 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         private async Task OnClickUpdateExamAsync(CaThiDto caThi)
         {
             var result = await OpenUpdateExamDialogAsync(caThi);
+            // lấy data là mã đề thi mới cho ca thi
             if (result != null && result.Data != null && !result.Canceled && examSessions != null)
             {
-                var newCaThi = (CaThiDto)result.Data;
-                int index = examSessions.FindIndex(ct => ct.MaCaThi == newCaThi.MaCaThi);
+                int index = examSessions.FindIndex(ct => ct.MaCaThi == caThi.MaCaThi);
                 if (index != -1)
                 {
-                    examSessions[index] = newCaThi;
+                    examSessions[index].MaDeThi = (int)result.Data;
                 }
             }
         }

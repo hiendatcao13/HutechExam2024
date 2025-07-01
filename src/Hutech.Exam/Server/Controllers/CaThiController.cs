@@ -236,11 +236,11 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:int}/update-dethi")]
-        public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromBody] List<long> dsDeThiHVs)
+        public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromQuery] bool isOrderMSSV, [FromBody] List<long> dsDeThiHVs)
         {
             try
             {
-                var result = await _caThiService.UpdateDeThi(id, maDeThi, dsDeThiHVs);
+                var result = await _caThiService.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
                 if (!result)
                 {
                     return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));

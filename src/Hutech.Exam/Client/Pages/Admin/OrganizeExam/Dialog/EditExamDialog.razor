@@ -143,16 +143,11 @@
         }
 
         if(ExamSession != null && ExamBatchDetailId != null && selectedExam != null){
-            var result = await ExamSession_UpdateAPI(ExamSession.MaCaThi, new CaThiUpdateRequest { 
-                TenCaThi = ExamSession.TenCaThi ?? String.Empty, 
-                MaChiTietDotThi = (int)ExamBatchDetailId, 
-                ThoiGianBatDau = ExamSession.ThoiGianBatDau, 
-                MaDeThi = selectedExam.MaDeThi, 
-                ThoiGianThi = ExamSession.ThoiGianThi
-            });
+            var listShuffleExams = await ArrageExamForStudentAsync();
+            var result = await UpdateExam(ExamSession.MaCaThi, selectedExam.MaDeThi, isSortExamCode, listShuffleExams);
 
-            if(result != null && result.MaCaThi != 0){
-                MudDialog?.Close(DialogResult.Ok(result));
+            if(result){
+                MudDialog?.Close(DialogResult.Ok(selectedExam.MaDeThi));
             }
         }
     }
@@ -191,6 +186,7 @@
                 }
 
                 listExamCodeForStudents.Add(listExamCodes[(i + j) % totalShuffleExam]);
+                studentCounter++;
             }
         }
 
@@ -222,13 +218,6 @@
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<CaThiDto?> ExamSession_UpdateAPI(int ma_ca_thi, CaThiUpdateRequest caThi)
-    {
-        var json = JsonSerializer.Serialize(caThi);
-        var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}", new StringContent(json, Encoding.UTF8, "application/json"));
-        return (response.Success) ? response.Data : null;
-    }
-
     private async Task<DeThiDto?> Exam_SelectOneAPI(int ma_de_thi)
     {
         var response = await SenderAPI.GetAsync<DeThiDto>($"api/dethis/{ma_de_thi}");
@@ -239,5 +228,11 @@
     {
         var response = await SenderAPI.GetAsync<List<DeThiHoanViDto>>($"api/dethihoanvis/maDeThi={maDeThi}");
         return (response.Success && response.Data != null) ? response.Data : [];
+    }
+
+    private async Task<bool> UpdateExam(int examSessionId, int examId, bool isOrderExamCode, List<long> listShuffleExam)
+    {
+        var response = await SenderAPI.PutAsync<bool>($"api/cathis/{examSessionId}/update-dethi?maDeThi={examId}&isOrderMSSV={isOrderExamCode}", listShuffleExam);
+        return response.Success;
     }
 }
