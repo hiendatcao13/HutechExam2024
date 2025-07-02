@@ -119,7 +119,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             } 
 
             // bỏ trường MaCauHoi, chỉ lấy Guid cho đề
-            customStudentLevelReport.ThongKeCapBacCauHois.ForEach(_ => _.MaCauHoi = null);  
+            customStudentLevelReport.ThongKeCapBacCauHois.ForEach(_ => _.MaCauHoi = null);
+            // nhớ là có import file Dlinh thì xóa cái này
+            customStudentLevelReport.ThongKeCapBacCauHois.ForEach(_ => _.GuidCauHoi = Guid.NewGuid());
             var json = JsonSerializer.Serialize(customStudentLevelReport, new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
 
             // Gọi JS để tải file

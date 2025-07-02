@@ -74,19 +74,26 @@ namespace Hutech.Exam.Client.Pages.Result
         }
         protected override async Task OnInitializedAsync()
         {
-            //xác thực người dùng
-            var customAuthStateProvider = (AuthenticationStateProvider != null) ? (CustomAuthenticationStateProvider)AuthenticationStateProvider : null;
-            var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;
-            if (!string.IsNullOrWhiteSpace(token))
+            try
             {
-                Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                //xác thực người dùng
+                var customAuthStateProvider = (AuthenticationStateProvider != null) ? (CustomAuthenticationStateProvider)AuthenticationStateProvider : null;
+                var token = (customAuthStateProvider != null) ? await customAuthStateProvider.GetToken() : null;
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                }
+                else
+                {
+                    Nav.NavigateTo("/");
+                }
+                await CheckPageAsync();
+                await base.OnInitializedAsync();
             }
-            else
+            catch (Exception)
             {
-                Nav.NavigateTo("/");
+                Snackbar.Add("Hệ thống server đang gặp sự cố. Vui lòng liên hệ người giám sát", Severity.Error);
             }
-            await CheckPageAsync();
-            await base.OnInitializedAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

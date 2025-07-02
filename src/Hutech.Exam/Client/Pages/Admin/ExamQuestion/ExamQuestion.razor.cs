@@ -468,6 +468,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             await Dialog.ShowAsync<Delete_Dialog>("XÓA CLO", parameters, options);
         }
 
+        private async Task OnClickCreateShuffleExamAsync()
+        {
+            if (selectedExam == null)
+            {
+                Snackbar.Add(NOT_SELECT_OBJECT, Severity.Warning);
+                return;
+            }
+
+            await OpenCreateShuffleExamDialogAsync();
+        }
+
         #endregion
 
         #region HandleOnClick Methods
@@ -695,6 +706,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamQuestion
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<QuestionDialog>((isEdit) ? "SỬA CÂU HỎI" : "THÊM CÂU HỎI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenCreateShuffleExamDialogAsync()
+        {
+            var parameters = new DialogParameters<MatrixExamDialog>
+            {
+                { x => x.Exam, selectedExam }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<MatrixExamDialog>("TẠO MA TRẬN ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 

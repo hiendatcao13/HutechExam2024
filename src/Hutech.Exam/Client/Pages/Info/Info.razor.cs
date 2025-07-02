@@ -77,7 +77,7 @@ namespace Hutech.Exam.Client.Pages.Info
                 HandleTime();
                 await base.OnInitializedAsync();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Snackbar.Add("Hệ thống server đang gặp sự cố. Vui lòng liên hệ người giám sát", Severity.Error);
             }

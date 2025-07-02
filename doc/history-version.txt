@@ -223,3 +223,7 @@
 ------------------------------------------------
 01/07/2025 7AM
 - Hoàn tất chức năng cập nhật đề thi cho ca thi (cập nhật đề thi cho thí sinh theo thuật toán tô màu đồ thị)
+-----------------------------------------------
+03/07/2025 6AM
+- Sửa tên thống nhất cho toàn bộ database
+- TODO: Clear các thành phần table dư thừa, thêm field report

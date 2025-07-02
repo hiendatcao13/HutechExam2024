@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Server.BUS;
+using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<IActionResult> Insert_Batch([FromQuery] int maDeThi, [FromQuery] string kyHieuDe, [FromQuery] int soLuongDe, [FromBody] List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
         {
             await _chiTietDeThiHoanViService.Insert_Batch(maDeThi, kyHieuDe, soLuongDe, chiTietDeThiHoanVis);
-            return Ok();
+            return Ok(APIResponse<bool>.SuccessResponse(message: "Tạo mã đề hoán vị thành công"));
         }
 
         #endregion

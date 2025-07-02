@@ -32,7 +32,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="3">
-            <MudSelect T="LopAoDto" Label="Lớp" Value=@selectedExamRoom Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamRoomAsync(value))">
+            <MudSelect T="LopAoDto" Label="Phòng thi" Value=@selectedExamRoom Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamRoomAsync(value))">
                 @if (examRooms != null)
                 {
                     foreach (var item in examRooms)

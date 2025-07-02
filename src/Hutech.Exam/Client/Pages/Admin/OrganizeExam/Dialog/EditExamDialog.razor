@@ -30,35 +30,35 @@
                     {
                         foreach (var item in exams)
                         {
-                            <MudSelectItem Value="@item">[@item.MaDeThi] @item.TenDeThi</MudSelectItem>
+                                    <MudSelectItem Value="@item">[@item.MaDeThi] @item.TenDeThi</MudSelectItem>
                         }
                     }
                 </MudSelect>
             </MudItem>
 
-            <MudItem xs="4" Style="align-content: center"><MudText>Hệ thống ghi nhận số lượng thí sinh:</MudText></MudItem>
-            <MudItem xs="8"><MudText>@totalNumberOfStudent</MudText></MudItem>
+            <MudItem xs="4" Style="align-content: center"><MudText>SL thí sinh:</MudText></MudItem>
+            <MudItem xs="8"><MudText>@ExamSession?.TongSV</MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Số lượng dọc: </MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Số lượng dọc" Required InputType="InputType.Number" @bind-Value="colNumber"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Số lượng ngang: </MudText></MudItem>
             <MudItem xs="8"><MudTextField Label="Số lượng hàng" Required InputType="InputType.Number" @bind-Value="rowNumber"></MudTextField></MudItem>
 
-            <MudItem xs="4" Style="align-content: center"><MudText>Số lượng dọc: </MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên Ca thi" Required InputType="InputType.Number" @bind-Value="colNumber"></MudTextField></MudItem>
-
             <MudItem xs="6"><MudSwitch Label="Xếp theo MSSV" T="bool" Color="Color.Success" Value="isSortExamCode" ValueChanged="OnValueChangeSortExamCode"></MudSwitch></MudItem>
-            <MudItem xs="6"><MudSwitch Label="Xếp theo Tên" T="bool" Color="Color.Success" Value="isSortExamCode" ValueChanged="OnValueChangeSortName"></MudSwitch></MudItem>
+            <MudItem xs="6"><MudSwitch Label="Xếp theo Tên" T="bool" Color="Color.Success" Value="isSortName" ValueChanged="OnValueChangeSortName"></MudSwitch></MudItem>
         </MudGrid>
         <MudText><i><small style="color: red; ">@ALERT_TITLE</small></i></MudText>
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
-        @if(!isSame)
+        @if (!isSame)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickEditAsync()">Cập nhật</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickEditAsync()">Cập nhật</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="true">Cập nhật</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="true">Cập nhật</MudButton>
         }
     </DialogActions>
 </MudDialog>
@@ -72,7 +72,7 @@
 </style>
 
 
-@code{
+@code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
     [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
@@ -102,6 +102,7 @@
     private const string ALERT_TITLE = "Lưu ý: nếu các thí sinh trong ca thi đã được gắn đề, việc cập nhật đề thi lại cho ca thi sẽ reset lại toàn bộ và gán đề thi mới";
     private const string ERROR_FORMAT = "Không thể gán đề thi cho các thí sinh khi số lượng ngang x dọc bé hơn tổng thí sinh";
     private const string NO_SHUFFLEEXAM = "Hiện đề thi chưa được tạo các đề hoán vị. Vui lòng tạo trước";
+    private const string NO_EXAM = "Đề thi này hiện chưa tạo ra các đề hoán vị. Vui lòng kiểm tra và tạo mã đề tại trang tổ chức đề thi";
 
     private void OnClickExit()
     {
@@ -120,11 +121,13 @@
         // thêm 1 trường null
         exams?.Insert(0, new DeThiDto() { MaDeThi = -1, TenDeThi = "Chưa có mã đề" });
 
-        if(ExamSession != null && ExamSession.MaDeThi == -1){
+        if (ExamSession != null && ExamSession.MaDeThi == -1)
+        {
             selectedExam = exams?.FirstOrDefault(x => x.MaDeThi == -1);
             totalNumberOfStudent = ExamSession.TongSV;
         }
-        else{
+        else
+        {
             selectedExam = await Exam_SelectOneAPI(ExamSession?.MaDeThi ?? -1);
         }
 
@@ -137,16 +140,23 @@
 
     private async Task OnClickEditAsync()
     {
-        if(!ValidateForm())
+        if (!ValidateForm())
         {
             return;
         }
 
-        if(ExamSession != null && ExamBatchDetailId != null && selectedExam != null){
+        if (ExamSession != null && ExamBatchDetailId != null && selectedExam != null)
+        {
             var listShuffleExams = await ArrageExamForStudentAsync();
+            if (listShuffleExams.Count == 0)
+            {
+                return;
+            }
+
             var result = await UpdateExam(ExamSession.MaCaThi, selectedExam.MaDeThi, isSortExamCode, listShuffleExams);
 
-            if(result){
+            if (result)
+            {
                 MudDialog?.Close(DialogResult.Ok(selectedExam.MaDeThi));
             }
         }
@@ -154,13 +164,13 @@
 
     private bool ValidateForm()
     {
-        if(rowNumber * colNumber < totalNumberOfStudent)
+        if (rowNumber * colNumber < totalNumberOfStudent)
         {
             Snackbar.Add(ERROR_FORMAT, Severity.Error);
             return false;
         }
 
-        if(selectedExam != null && (selectedExam.TongSoDeHoanVi == null || selectedExam.TongSoDeHoanVi == 0))
+        if (selectedExam != null && (selectedExam.TongSoDeHoanVi == null || selectedExam.TongSoDeHoanVi == 0))
         {
             Snackbar.Add(NO_SHUFFLEEXAM, Severity.Error);
             return false;
@@ -172,15 +182,21 @@
     private async Task<List<long>> ArrageExamForStudentAsync()
     {
         var listExamCodes = await GetAllShuffleExamCodeAsync();
+
+        if (listExamCodes.Count == 0)
+        {
+            Snackbar.Add(NO_EXAM, Severity.Error);
+            return [];
+        }
         int totalShuffleExam = listExamCodes.Count;
 
         List<long> listExamCodeForStudents = [];
         int studentCounter = 0;
-        for(int i = 0; i < rowNumber; i++)
+        for (int i = 0; i < rowNumber; i++)
         {
-            for(int j = 0; j < colNumber; j++)
+            for (int j = 0; j < colNumber; j++)
             {
-                if(studentCounter >= totalNumberOfStudent)
+                if (studentCounter >= totalNumberOfStudent)
                 {
                     break;
                 }
@@ -226,13 +242,13 @@
 
     private async Task<List<DeThiHoanViDto>> ShuffleExam_SelectBy_ExamAPI(int maDeThi)
     {
-        var response = await SenderAPI.GetAsync<List<DeThiHoanViDto>>($"api/dethihoanvis/maDeThi={maDeThi}");
+        var response = await SenderAPI.GetAsync<List<DeThiHoanViDto>>($"api/dethihoanvis/filter-by-dethi?maDeThi={maDeThi}");
         return (response.Success && response.Data != null) ? response.Data : [];
     }
 
     private async Task<bool> UpdateExam(int examSessionId, int examId, bool isOrderExamCode, List<long> listShuffleExam)
     {
-        var response = await SenderAPI.PutAsync<bool>($"api/cathis/{examSessionId}/update-dethi?maDeThi={examId}&isOrderMSSV={isOrderExamCode}", listShuffleExam);
+        var response = await SenderAPI.PatchAsync<bool>($"api/cathis/{examSessionId}/update-dethi?maDeThi={examId}&isOrderMSSV={isOrderExamCode}", listShuffleExam);
         return response.Success;
     }
 }

@@ -42,7 +42,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-sinhvien")]
-        public async Task<IActionResult> SelectBy_MSSVThi([FromQuery] int maSinhVien)
+        public async Task<IActionResult> SelectBy_MSSVThi([FromQuery] long maSinhVien)
         {
             return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaSinhVienThi(maSinhVien), message: "Lấy chi tiết ca thi thành công"));
         }
