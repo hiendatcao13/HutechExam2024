@@ -42,7 +42,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop);
             sql.SqlParams("@LanThi", SqlDbType.Int, lan_thi);
 
-            using var dataReader =  await sql.ExecuteReaderAsync();
+            using var dataReader = await sql.ExecuteReaderAsync();
             while (await dataReader!.ReadAsync())
             {
                 result.Add(GetProperty(dataReader));
@@ -230,5 +230,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
+        public async Task<bool> UpdateLichSuHoatDong(int ma_ca_thi, string lichSuHoatDong)
+        {
+            using DatabaseReader sql = new("CaThi_UpdateLichSuHoatDong");
+            sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
+            return await sql.ExecuteNonQueryAsync() > 0;
+
+        }
     }
 }

@@ -2,11 +2,11 @@
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 using Hutech.Exam.Shared.DTO.Request.Custom;
-using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Shared.DTO;
 using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 using System.Data.SqlClient;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
 namespace Hutech.Exam.Server.BUS
 {

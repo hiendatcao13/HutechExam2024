@@ -2,13 +2,14 @@
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.User;
+using Hutech.Exam.Shared.Models;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
 {
     public interface IUserRepository
     {
-        UserDto GetProperty(IDataReader dataReader, int start = 0);
+        User GetProperty(IDataReader dataReader, int start = 0);
 
         Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize);
 
@@ -20,7 +21,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<UserDto> SelectByLoginName(string loginName);
 
-        Task<List<string>> Login(string loginName);
+        Task<User> Login(string loginName);
 
         Task<bool> LoginSuccess(Guid userId);
 

@@ -60,5 +60,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             var response = await SenderAPI.DeleteAsync<ChiTietCaThiDto>($"api/chitietcathis/{examSessionId}/force");
             return response.Success;
         }
+
+        private async Task<bool> ExamSession_UpdateAudit(int examSessionId, string history_action)
+        {
+            var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/update-audit", history_action);
+            return response.Success;
+        }
     }
 }

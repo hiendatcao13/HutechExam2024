@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
-using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 

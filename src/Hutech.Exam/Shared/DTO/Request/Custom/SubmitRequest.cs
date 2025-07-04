@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 using MessagePack;
 
 namespace Hutech.Exam.Shared.DTO.Request.Custom

@@ -88,6 +88,11 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
         }
+
+        public async Task<bool> UpdateLichSuHoatDong(int ma_ca_thi, string lichSuHoatDong)
+        {
+            return await _caThiRepository.UpdateLichSuHoatDong(ma_ca_thi, lichSuHoatDong);
+        }
         #endregion
     }
 }

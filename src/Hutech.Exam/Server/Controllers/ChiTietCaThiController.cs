@@ -244,11 +244,11 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPatch("{id:int}/cong-gio")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromBody] ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+        public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromQuery] int gioCongThem)
         {
             try
             {
-                var result = await _chiTietCaThiService.CongGio(id, chiTietCaThi);
+                var result = await _chiTietCaThiService.CongGio(id, gioCongThem);
                 if (!result)
                 {
                     return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));

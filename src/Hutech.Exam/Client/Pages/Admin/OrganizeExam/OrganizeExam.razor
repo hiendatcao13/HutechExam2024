@@ -13,15 +13,15 @@
             <MudItem xs="6">
                 @if (examBatchs != null)
                 {
-                    <MudTable Elevation="24" T="DotThiDto" Items="@examBatchs" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchFunc"
+                    <MudTable Class="my-custom-table" Elevation="24" T="DotThiDto" Items="@examBatchs" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchFunc"
                               TotalItems="totalRecords_ExamBatch" RowsPerPage="rowsPerPage_ExamBatch" CurrentPageChanged="OnCurrentPageChange_ExamBatchAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamBatchAsync">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await StartAsync()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchAsync()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchAsync()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchAsync()">Xóa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await StartAsync()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchAsync()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchAsync()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchAsync()">Xóa</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -46,15 +46,15 @@
             <MudItem xs="6">
                 @if (examBatchDetails != null)
                 {
-                    <MudTable Elevation="24" T="ChiTietDotThiDto" Items="@examBatchDetails" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchDetailAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchDetailFunc"
+                    <MudTable Class="my-custom-table" Elevation="24" T="ChiTietDotThiDto" Items="@examBatchDetails" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExamBatchDetailAsync(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamBatchDetailFunc"
                               TotalItems="totalRecords_ExamBatchDetail" RowsPerPage="rowsPerPage_ExamBatchDetail" CurrentPageChanged="OnCurrentPageChange_ExamBachDetailAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamBatchDetailAsync">
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamBatchDetailAsync()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchDetailAsync()">Xóa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamBatchDetailAsync()">Sync</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
+                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchDetailAsync()">Xóa</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -77,16 +77,16 @@
         </MudGrid>
         @if (examSessions != null)
         {
-            <MudTable Elevation="24" T="CaThiDto" Items="@examSessions" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedExamSessionAsync" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionFunc"
+            <MudTable Class="my-custom-table" Elevation="24" T="CaThiDto" Items="@examSessions" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedExamSessionAsync" Style="margin-top: 5%" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionFunc"
                       TotalItems="totalRecords_ExamSession" RowsPerPage="rowsPerPage_ExamSession" CurrentPageChanged="OnCurrentPageChange_ExamSessionAsync" RowsPerPageChanged="OnRowsPerPageChange_ExamSessionAsync">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                     <MudSpacer />
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickUploadStudentListToExamSessionAsync()">Cập nhật sinh viên vào ca thi</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamSessionAsync()">Sync</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamSessionAsync()">Thêm</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamSessionAsync()">Sửa</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamSessionAsync()">Xóa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickUploadStudentListToExamSessionAsync()">Cập nhật sinh viên vào ca thi</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamSessionAsync()">Sync</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamSessionAsync()">Thêm</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamSessionAsync()">Sửa</MudButton>
+                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamSessionAsync()">Xóa</MudButton>
                     <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                 </ToolBarContent>
                 <HeaderContent>
@@ -142,8 +142,19 @@
 
 
     .selected-row {
-        background-color: lightgray !important;
+        background-color: #e0f7fa !important;
+        font-weight: bold;
     }
+
+    .my-custom-table {
+        border: 1px solid #ccc !important;
+        border-radius: 6px !important;
+    }
+
+        .my-custom-table .mud-table-row:hover {
+            background-color: #f1f1f1 !important;
+            cursor: pointer !important;
+        }
 </style>
 
 @code {

@@ -1,0 +1,74 @@
+﻿@using Hutech.Exam.Shared.Enums
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 400px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4"><MudText>Hành động:</MudText></MudItem>
+            <MudItem xs="8"><MudText><strong>@_tittle</strong></MudText></MudItem>
+
+            <MudItem xs="4"><MudText>Lý do:</MudText></MudItem>
+            <MudItem xs="8"> <MudTextField Label="Lý do" Required InputType="InputType.Text" @bind-Value="_reason" Variant="Variant.Outlined" /></MudItem>
+            <MudText Typo="Typo.subtitle2"></MudText>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Thoát</MudButton>
+        <MudButton Color="Color.Info" Variant="Variant.Filled" OnClick="Submit">Xác nhận</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+</style>
+
+@code{
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public KieuHanhDong Action { get; set; }
+
+    private string? _tittle = string.Empty;
+    private string? _reason = string.Empty;
+
+    const string Message = "Hệ thống sẽ ghi nhận toàn bộ các hoạt động của bạn";
+    const string InvalidForm = "Không thể xác nhận khi lý do không được điền đầy đủ!";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tittle = Action.GetDisplayName();
+        await base.OnInitializedAsync();
+    }
+
+    private void Cancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private void Submit()
+    {
+        if(!ValidateForm())
+        {
+            return;
+        }
+
+		MudDialog?.Close(DialogResult.Ok(_reason));
+    }
+
+
+    private bool ValidateForm()
+    {
+        if(string.IsNullOrWhiteSpace(_reason))
+        {
+            Snackbar.Add(InvalidForm, Severity.Error);
+            return false;
+        }
+
+        return true;
+    }
+
+}

@@ -11,15 +11,15 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (departments != null)
 			{
-				<MudTable Elevation="24" T="KhoaDto" Items="@departments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedKhoa(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassKhoaFunc"
+				<MudTable Class="my-custom-table" Elevation="24" T="KhoaDto" Items="@departments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedKhoa(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassKhoaFunc"
 						  TotalItems="totalRecords_Department" RowsPerPage="rowsPerPage_Department" CurrentPageChanged="OnCurrentPageChange_DepartmentAsync" RowsPerPageChanged="OnRowsPerPageChange_DepartmentAsync">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin khoa</MudText>
 						<MudSpacer />
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchDepartmentAsync()">Sync</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddDepartment()">Thêm</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditDepartmentAsync()">Sửa</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDepartmentAsync()">Xóa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchDepartmentAsync()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddDepartment()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditDepartmentAsync()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteDepartmentAsync()">Xóa</MudButton>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh>ID</MudTh>
@@ -40,15 +40,15 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (classrooms != null)
 			{
-				<MudTable Elevation="24" T="LopDto" Items="@classrooms" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedLop(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassLopFunc"
+				<MudTable Class="my-custom-table" Elevation="24" T="LopDto" Items="@classrooms" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedLop(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassLopFunc"
 						  TotalItems="totalRecords_Classroom" RowsPerPage="rowsPerPage_Classroom" CurrentPageChanged="OnCurrentPageChange_Lop" RowsPerPageChanged="OnRowsPerPageChange_Classroom">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin lớp học</MudText>
 						<MudSpacer />
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchClassroomAsync()">Sync</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddClassroomAsync()">Thêm</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditClassroomAsync()">Sửa</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteClassroomAsync()">Xóa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchClassroomAsync()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddClassroomAsync()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditClassroomAsync()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteClassroomAsync()">Xóa</MudButton>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh>ID</MudTh>
@@ -69,16 +69,16 @@
 		<MudItem xs="12" md="12" lg="12">
 			@if (students != null)
 			{
-				<MudTable Elevation="24" T="SinhVienDto" Items="@students" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="(value) => OnRowClickedSinhVien(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSinhVienFunc"
+				<MudTable Class="my-custom-table" Elevation="24" T="SinhVienDto" Items="@students" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="(value) => OnRowClickedSinhVien(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSinhVienFunc"
 						  TotalItems="totalRecords_Student" RowsPerPage="rowsPerPage_Student" CurrentPageChanged="OnCurrentPageChange_SinhVien" RowsPerPageChanged="OnRowsPerPageChange_SinhVien">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin sinh viên</MudText>
 						<MudSpacer />
-						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.PeopleAlt" OnClick="async () => await OnClickAddStudentExcelAsync()">Thêm danh sách Excel</MudButton>
-						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchStudentAsync()">Sync</MudButton>
-						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddStudentAsync()">Thêm</MudButton>
-						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditStudentAsync()">Sửa</MudButton>
-						<MudButton Class="add-button final-table-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteStudentAsync()">Xóa</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.PeopleAlt" OnClick="async () => await OnClickAddStudentExcelAsync()">Thêm danh sách Excel</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchStudentAsync()">Sync</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddStudentAsync()">Thêm</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditStudentAsync()">Sửa</MudButton>
+						<MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteStudentAsync()">Xóa</MudButton>
 						<MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập họ tên hoặc mã số sinh viên" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
 					</ToolBarContent>
 					<HeaderContent>
@@ -127,8 +127,19 @@
 	}
 
 	.selected-row {
-		background-color: lightgray !important;
+		background-color: #e0f7fa !important;
+		font-weight: bold;
 	}
+
+	.my-custom-table {
+		border: 1px solid #ccc !important;
+		border-radius: 6px !important;
+	}
+
+		.my-custom-table .mud-table-row:hover {
+			background-color: #f1f1f1 !important;
+			cursor: pointer !important;
+		}
 </style>
 
 

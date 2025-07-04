@@ -54,9 +54,9 @@ namespace Hutech.Exam.Server.BUS
             return await _chiTietCaThiRepository.UpdateKetThuc(id, chiTietCaThi.ThoiGianKetThuc, chiTietCaThi.Diem, chiTietCaThi.SoCauDung, chiTietCaThi.TongSoCau);
         }
 
-        public async Task<bool> CongGio(int id, ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+        public async Task<bool> CongGio(int id, int gioCongThem)
         {
-            return await _chiTietCaThiRepository.CongGio(id, chiTietCaThi.GioCongThem, chiTietCaThi.ThoiDiemCong, chiTietCaThi.LyDoCong);
+            return await _chiTietCaThiRepository.CongGio(id, gioCongThem);
         }
 
         public async Task<int> Insert(ChiTietCaThiCreateRequest chiTietCaThi)

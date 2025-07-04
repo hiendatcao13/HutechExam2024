@@ -232,3 +232,8 @@
 - Hoàn thành chỉnh sửa, thống nhất tên các field, table và xóa các table không cần thiết
 - App đã chạy được nhưng cần test các APIs lại
 - TODO: Hoàn thành việc tương thích database
+-------------------------------------------------
+04/07/2025 6PM
+- Hoàn thành chỉnh sửa database (thêm trường LichSuHoatDong) cũng như test APIs, store procedure
+- Đã viết audit lưu lại hoạt động của user trong ca thi
+- TODO: Hoàn thành nốt audit, phân quyền

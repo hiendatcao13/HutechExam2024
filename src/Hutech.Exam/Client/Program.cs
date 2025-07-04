@@ -2,7 +2,6 @@ using Blazored.SessionStorage;
 using Hutech.Exam.Client;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Authentication;
-using Hutech.Exam.Client.BUS;
 using Hutech.Exam.Client.DAL;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -35,11 +34,11 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 // them MudBlazor
 builder.Services.AddMudServices(config =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
 
     //Gi?i h?n s? l??ng Snackbar
-    config.SnackbarConfiguration.MaxDisplayedSnackbars = 3;
+    config.SnackbarConfiguration.MaxDisplayedSnackbars = 5;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 
-builder.Services.AddScoped<ApiService>();
 await builder.Build().RunAsync();

@@ -21,7 +21,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         private readonly IMapper _mapper = mapper;
 
-        public static readonly int COLUMN_LENGTH = 14; // số lượng cột trong bảng ChiTietCaThi
+        public static readonly int COLUMN_LENGTH = 12; // số lượng cột trong bảng ChiTietCaThi
 
         public ChiTietCaThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
@@ -38,9 +38,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 Diem = dataReader.GetDouble(8 + start),
                 TongSoCau = dataReader.IsDBNull(9 + start) ? null : dataReader.GetInt32(9 + start),
                 SoCauDung = dataReader.IsDBNull(10 + start) ? null : dataReader.GetInt32(10 + start),
-                GioCongThem = dataReader.GetInt32(11 + start),
-                ThoiDiemCong = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
-                LyDoCong = dataReader.IsDBNull(13 + start) ? null : dataReader.GetString(13 + start)
+                GioCongThem = dataReader.GetInt32(11 + start)
             };
             return _mapper.Map<ChiTietCaThiDto>(chiTietCaThi);
         }
@@ -223,13 +221,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them, DateTime? thoi_diem_cong, string? ly_do_cong)
+        public async Task<bool> CongGio(int ma_chi_tiet_ca_thi, int gio_cong_them)
         {
             using DatabaseReader sql = new("ChiTietCaThi_CongGio");
 
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
             sql.SqlParams("@GioCongThem", SqlDbType.Int, gio_cong_them);
-            sql.SqlParams("@ThoiDiemCong", SqlDbType.DateTime, thoi_diem_cong ?? (Object)DBNull.Value);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

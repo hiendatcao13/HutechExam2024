@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="BUS\" />
     <Folder Include="wwwroot\css\exam\" />
     <Folder Include="wwwroot\images\admin\monitor\" />
     <Folder Include="wwwroot\images\exam\" />

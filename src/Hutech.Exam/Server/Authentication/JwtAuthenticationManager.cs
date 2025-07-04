@@ -5,16 +5,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Hutech.Exam.Shared.DTO;
-using Microsoft.AspNetCore.Components;
 using Hutech.Exam.Server.Configurations;
 using Microsoft.Extensions.Options;
+using Hutech.Exam.Shared.Models;
+using AutoMapper;
 
 namespace Hutech.Exam.Server.Authentication
 {
-    public class JwtAuthenticationManager(IOptions<JwtConfiguration> jwtConfig, SinhVienService sinhVienService, UserService userService)
+    public class JwtAuthenticationManager(IOptions<JwtConfiguration> jwtConfig, IMapper mapper, SinhVienService sinhVienService, UserService userService)
     {
 
         private readonly JwtConfiguration _jwtConfig = jwtConfig.Value;
+        private readonly IMapper _mapper = mapper;
 
         private readonly SinhVienService _sinhVienService = sinhVienService;
         private readonly UserService _userService = userService;
@@ -77,30 +79,25 @@ namespace Hutech.Exam.Server.Authentication
                 return null;
             }
             /*Xác thực user có tồn tại trong database không ?*/
-            List<string> user = await _userService.Login(username);
-            if (user == null || user.Count == 0)
+            User user = await _userService.Login(username);
+            if (user == null || string.IsNullOrEmpty(user.TenDangNhap))
             {
                 return null;
             }
             // Kiểm tra mật khẩu có đúng không ?
-            if(!VerifyPassword(password, user[2]))
+            if(!VerifyPassword(password, user.MatKhau))
             {
-                await UpdateLoginFail(Guid.Parse(user[0]));
+                await UpdateLoginFail(user.MaNguoiDung);
                 return null;
             }
-            UserDto navigateUser = await _userService.SelectByLoginName(username);
-            //// kiểm tra xem tài khoản có bị khóa hoặc bị xóa không ?
-            //if(navigateUser.IsLockedOut || navigateUser.IsDeleted)
-            //{
-            //    return null;
-            //}
+
             /*Tạo JWT token*/
             var tokenExpiryTimeStamp = DateTime.Now.AddMinutes(_jwtConfig.TokenValidityMinutes_Admin);
             var tokenKey = Encoding.ASCII.GetBytes(_jwtConfig.SecurityKey);
             var claimsIdentity = new ClaimsIdentity(new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, user[0]), // lưu id
-                new(ClaimTypes.Name, user[1]), // lưu tên
+                new(ClaimTypes.NameIdentifier, user.MaNguoiDung.ToString()), // lưu id
+                new(ClaimTypes.Name, user.Ten), // lưu tên
                 new(ClaimTypes.Role, "Admin") // nhận biết là admin hay sinh viên
             });
             var sigingCredentials = new SigningCredentials(
@@ -120,11 +117,11 @@ namespace Hutech.Exam.Server.Authentication
             /*Trả dữ liệu về UserSession*/
             var userSession = new UserSession
             {
-                Name = user[1],
-                Username = user[0],
+                Name = user.Ten,
+                Username = string.IsNullOrWhiteSpace(user.TenDangNhap) ? user.Email : user.TenDangNhap,
                 Token = token,
                 ExpireIn = (int)tokenExpiryTimeStamp.Subtract(DateTime.Now).TotalSeconds,
-                NavigateUser = navigateUser,
+                NavigateUser = _mapper.Map<UserDto>(user),
                 Role = "Admin"
             };
             return userSession;

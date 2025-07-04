@@ -38,6 +38,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public DateTime? ThoiDiemCong { get; set; }
 
+        // không nằm trong database, chỉ thêm vào
         public string? LyDoCong { get; set; }
 
         public virtual ICollection<ChiTietBaiThiDto> ChiTietBaiThis { get; set; } = new List<ChiTietBaiThiDto>();
@@ -62,7 +63,6 @@ namespace Hutech.Exam.Shared.DTO
             SoCauDung = other.SoCauDung;
             GioCongThem = other.GioCongThem;
             ThoiDiemCong = other.ThoiDiemCong;
-            LyDoCong = other.LyDoCong;
         }
     }
 }

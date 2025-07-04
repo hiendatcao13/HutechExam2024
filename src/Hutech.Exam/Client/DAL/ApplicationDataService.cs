@@ -1,6 +1,6 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Custom;
-using Hutech.Exam.Shared.DTO.Request;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Hutech.Exam.Client.DAL

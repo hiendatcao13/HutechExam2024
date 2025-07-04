@@ -16,7 +16,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public static readonly int COLUMN_LENGTH = 17;
 
-        public UserDto GetProperty(IDataReader dataReader, int start = 0)
+        public User GetProperty(IDataReader dataReader, int start = 0)
         {
             User user = new()
             {
@@ -38,7 +38,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 GhiChu = dataReader.IsDBNull(15 + start) ? null : dataReader.GetString(15 + start),
                 LaNguoiDungHeThong = dataReader.GetBoolean(16 + start)
             };
-            return _mapper.Map<UserDto>(user);
+            return user;
         }
 
         public async Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize)
@@ -52,9 +52,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<UserDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
-                UserDto user = GetProperty(dataReader);
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
                 user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 result.Add(user);
             }
@@ -84,16 +84,16 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<UserDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
-                UserDto user = GetProperty(dataReader);
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
                 user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 result.Add(user);
             }
             //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
             if (dataReader != null && dataReader.NextResult())
             {
-                while (dataReader.Read())
+                while (await dataReader.ReadAsync())
                 {
                     tong_so_ban_ghi = dataReader.GetInt32(0);
                     tong_so_trang = dataReader.GetInt32(1);
@@ -113,9 +113,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using var dataReader = await sql.ExecuteReaderAsync();
             UserDto user = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
-                user = GetProperty(dataReader);
+                user = _mapper.Map<UserDto>(GetProperty(dataReader));
             }
 
             return user;
@@ -138,35 +138,34 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<UserDto> SelectByLoginName(string loginName)
         {
-            using DatabaseReader sql = new("NguoiDung_SelectByLoginName");
+            using DatabaseReader sql = new("NguoiDung_SelectBy_TenDangNhap");
 
             sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             UserDto user = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
-                user = GetProperty(dataReader);
+                user = _mapper.Map<UserDto>(GetProperty(dataReader));
             }
 
             return user;
         }
 
-        public async Task<List<string>> Login(string loginName)
+        public async Task<User> Login(string loginName)
         {
             using DatabaseReader sql = new("NguoiDung_Login");
 
             sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            List<string> user = [];
+            User user = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
-                user.Add(dataReader.GetGuid(0).ToString());
-                user.Add(dataReader.GetString(1));
-                user.Add(dataReader.GetString(2));
+                user = GetProperty(dataReader);
+                user.MaRoleNavigation = _mapper.Map<Role>(_roleRepository.GetProperty(dataReader, COLUMN_LENGTH));
             }
 
             return user;

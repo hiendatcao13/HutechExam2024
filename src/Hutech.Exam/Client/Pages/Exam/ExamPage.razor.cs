@@ -5,13 +5,13 @@ using Microsoft.JSInterop;
 using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO;
 using Microsoft.AspNetCore.SignalR.Client;
-using Hutech.Exam.Shared.DTO.Request;
 using Hutech.Exam.Client.Authentication;
 using MudBlazor;
 using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
 using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.API;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
 namespace Hutech.Exam.Client.Pages.Exam
 {

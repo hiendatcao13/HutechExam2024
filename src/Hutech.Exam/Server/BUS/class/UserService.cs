@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.BUS
             return await _userRepository.SelectByLoginName(loginName);
         }
 
-        public async Task<List<string>> Login(string loginName)
+        public async Task<User> Login(string loginName)
         {
             return await _userRepository.Login(loginName);
         }

@@ -258,6 +258,28 @@ namespace Hutech.Exam.Server.Controllers
             }
         }
 
+        [HttpPatch("{id:int}/update-audit")]
+        public async Task<IActionResult> UpdateAudit([FromRoute] int id, [FromBody] string lichSuHoatDong)
+        {
+            try
+            {
+                var result = await _caThiService.UpdateLichSuHoatDong(id, lichSuHoatDong);
+                if (!result)
+                {
+                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));
+                }
+                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật lịch sử ca thi thành công"));
+            }
+            catch (SqlException sqlEx)
+            {
+                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật lịch sử ca thi không thành công", errorDetails: ex.Message));
+            }
+        }
+
         #endregion
 
         #region Delete Methods

@@ -1,4 +1,4 @@
-﻿using Hutech.Exam.Shared.DTO.Request;
+﻿using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
 namespace Hutech.Exam.Server.BUS
 {

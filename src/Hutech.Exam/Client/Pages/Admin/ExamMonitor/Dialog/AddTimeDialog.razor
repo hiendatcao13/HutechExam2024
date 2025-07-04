@@ -2,28 +2,27 @@
 @using Hutech.Exam.Shared.DTO
 @using System.Text.Json
 @using System.Text
-@using System.Text.Json.Serialization
 @using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
+@using Hutech.Exam.Shared.Enums
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
-<MudDialog Style="max-width: 500px">
+<MudDialog Style="max-width: 400px; max-height: auto; overflow: visible">
 	<DialogContent>
-		@if (tempCaThi != null && tempChiTietCaThi != null)
-		{
-			string ten = tempChiTietCaThi.MaSinhVienNavigation?.HoVaTenLot + tempChiTietCaThi.MaSinhVienNavigation?.TenSinhVien;
-			<MudText>Sinh viên: <strong>@ten</strong></MudText>
-			<MudText>MSSV: <strong>@tempChiTietCaThi.MaSinhVienNavigation?.MaSoSinhVien</strong></MudText>
-			<MudText>Ca Thi: <strong>@tempCaThi?.TenCaThi</strong></MudText>
-			<MudText>Ngày thi: <strong>@tempCaThi?.ThoiGianBatDau phút</strong></MudText>
-			<MudText>Thời lượng thi: <strong> @tempCaThi?.ThoiGianThi</strong></MudText>
-			<MudTextField Label="Thời gian cộng (phút)" InputType="InputType.Number" Required @bind-Value="tempChiTietCaThi.GioCongThem" Variant="Variant.Outlined" />
-			<MudTextField Label="Lý do cộng" Required InputType="InputType.Text" Placeholder="treo máy" @bind-Value="tempChiTietCaThi.LyDoCong" Variant="Variant.Outlined" />
-		}
+		<MudGrid>
+			<MudItem xs="4"><MudText>Tên thí sinh:</MudText></MudItem>
+			<MudItem xs="8"><MudText><strong>@ChiTietCaThi.MaSinhVienNavigation?.HoVaTenLot @ChiTietCaThi.MaSinhVienNavigation?.TenSinhVien</strong></MudText></MudItem>
+
+			<MudItem xs="4"><MudText>Thời gian cộng (phút):</MudText></MudItem>
+			<MudItem xs="8"> <MudTextField Label="Thời gian cộng (phút)" Required InputType="InputType.Number" @bind-Value="tempChiTietCaThi.GioCongThem" Variant="Variant.Outlined" /></MudItem>
+
+			<MudItem xs="4"><MudText>Lý do cộng:</MudText></MudItem>
+			<MudItem xs="8"> <MudTextField Label="Lý do cộng" Required Placeholder="treo máy" InputType="InputType.Text" @bind-Value="lyDoCong" Variant="Variant.Outlined" /></MudItem>
+		</MudGrid>
 	</DialogContent>
 	<DialogActions>
 		<MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Cancel</MudButton>
-		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSaveAsync()" Color="Color.Success">Save</MudButton>
+		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSaveAsync()" Color="Color.Success">Lưu</MudButton>
 	</DialogActions>
 </MudDialog>
 <style>
@@ -37,14 +36,15 @@
 
 	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
-	[Parameter] [EditorRequired] public ChiTietCaThiDto chiTietCaThi { get; set; } = default!;
+	[Parameter] [EditorRequired] public ChiTietCaThiDto ChiTietCaThi { get; set; } = default!;
 
-	[Parameter] [EditorRequired] public CaThiDto caThi { get; set; } = default!;
+	[Parameter] [EditorRequired] public CaThiDto CaThi { get; set; } = default!;
 
 
 	private ChiTietCaThiDto tempChiTietCaThi = default!;
 
 	private CaThiDto tempCaThi = default!;
+	private string? lyDoCong;
 
 
 	private const string ALERT_ADDTIME = "Cộng giờ thêm được dùng trong trường hợp thí sinh bị treo máy hoặc nguyên nhân thích đáng khác";
@@ -52,9 +52,9 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		tempCaThi = new CaThiDto(caThi);
+		tempCaThi = new CaThiDto(CaThi);
 
-		tempChiTietCaThi = new ChiTietCaThiDto(chiTietCaThi);
+		tempChiTietCaThi = new ChiTietCaThiDto(ChiTietCaThi);
 
 		await base.OnInitializedAsync();
 	}
@@ -64,31 +64,52 @@
 	}
 	public async Task OnClickSaveAsync()
 	{
-		Snackbar.Add(ALERT_ADDTIME, Severity.Info);
+		if (!ValidateForm())
+		{
+			return;
+		}
+
 		if (tempChiTietCaThi != null)
 		{
-			var result = await AddTimeAPI(tempChiTietCaThi.MaChiTietCaThi, new ChiTietCaThiUpdateCongGioRequest
-				{
-					GioCongThem = tempChiTietCaThi.GioCongThem,
-					ThoiDiemCong = DateTime.Now,
-					LyDoCong = tempChiTietCaThi.LyDoCong ?? string.Empty
-				});
+			var result = await AddTimeAPI(tempChiTietCaThi.MaChiTietCaThi, tempChiTietCaThi.GioCongThem);
 
 			if(result != null)
 			{
+				// riêng lý do cộng được thêm vào để update cho ca thi trả về
+				result.LyDoCong = lyDoCong;
 				MudDialog?.Close(DialogResult.Ok(result));
 			}
 			return;
 		}
 	}
 
-
-
-
-	private async Task<ChiTietCaThiDto?> AddTimeAPI(int maChiTietCaThi, ChiTietCaThiUpdateCongGioRequest chiTietCaThi)
+	public bool ValidateForm()
 	{
-		var response = await SenderAPI.PatchAsync<ChiTietCaThiDto>($"api/chitietcathis/{maChiTietCaThi}/cong-gio", chiTietCaThi);
+		if (tempChiTietCaThi.GioCongThem <= 0)
+		{
+			Snackbar.Add("Thời gian cộng phải lớn hơn 0", Severity.Error);
+			return false;
+		}
+
+		if(string.IsNullOrWhiteSpace(lyDoCong))
+		{
+			Snackbar.Add("Lý do cộng giờ không được để trống", Severity.Error);
+			return false;
+		}
+
+		return true;
+	}
+
+	private async Task<ChiTietCaThiDto?> AddTimeAPI(int maChiTietCaThi, int gioCongThem)
+	{
+		var response = await SenderAPI.PatchAsync<ChiTietCaThiDto>($"api/chitietcathis/{maChiTietCaThi}/cong-gio?gioCongThem={gioCongThem}", null);
 		return (response.Success) ? response.Data : null;
 
+	}
+
+	private async Task<bool> ExamSession_UpdateAudit(int examSessionId, string history_action)
+	{
+		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/update-audit", history_action);
+		return response.Success;
 	}
 }

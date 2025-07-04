@@ -3,6 +3,7 @@ using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace Hutech.Exam.Server.Installers
@@ -32,7 +33,10 @@ namespace Hutech.Exam.Server.Installers
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtConfig?.SecurityKey ?? "")),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
                 };
 
                 // Cấu hình để SignalR nhận JWT từ query string khi kết nối WebSocket

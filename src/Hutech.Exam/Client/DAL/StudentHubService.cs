@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Text.Json;
 using System.Text;
-using Hutech.Exam.Shared.DTO.Request;
 using AutoMapper;
 using Hutech.Exam.Shared.DTO.Request.Custom;
 using Blazored.SessionStorage;
+using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
 namespace Hutech.Exam.Client.DAL
 {
