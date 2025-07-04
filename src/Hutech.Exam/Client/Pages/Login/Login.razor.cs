@@ -24,15 +24,16 @@ namespace Hutech.Exam.Client.Pages.Login
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
 
         // biến binding với UI
-        private string? Username { get; set; } = string.Empty;
-        private string? Password { get; set; } = string.Empty;
+        private string Username { get; set; } = string.Empty;
+
+        private string Password { get; set; } = string.Empty;
 
         // biến nội bộ
         private UserSession? _userSession;
 
-        private const string FAILED_MESSSAGE = "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết";
-        private const string ERROR_MESSAGE = "Username và password không trùng khớp";
-        private const string LOADING_MESSAGE = "Đang xác thực thông tin...";
+        private const string FailedMessage = "Không thể xác thực người dùng hoặc tài khoản đang được người khác sử dụng.Vui lòng kiểm tra lại và báo cho người giám sát nếu cần thiết";
+        private const string ErrorMesaage = "Username và password không trùng khớp";
+        private const string LoadingMessage = "Đang xác thực thông tin...";
 
         #endregion
 
@@ -47,7 +48,7 @@ namespace Hutech.Exam.Client.Pages.Login
             {
                 Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
                 var authState = await AuthenticationState;
-                Username = authState?.User.Identity?.Name;
+                Username = authState?.User.Identity?.Name ?? string.Empty;
                 Nav?.NavigateTo("/info", true);
             }
             await base.OnInitializedAsync();
@@ -65,10 +66,10 @@ namespace Hutech.Exam.Client.Pages.Login
         {
             if (string.IsNullOrEmpty(Username) || Username != Password)
             {
-                Snackbar.Add(ERROR_MESSAGE, Severity.Error);
+                Snackbar.Add(ErrorMesaage, Severity.Error);
                 return;
             }
-            Snackbar.Add(LOADING_MESSAGE, Severity.Info);
+            Snackbar.Add(LoadingMessage, Severity.Info);
 
             _userSession = await LoginAPI(new SinhVienAuthenticationRequest { Username = Username, Password = Password});
 
@@ -80,7 +81,7 @@ namespace Hutech.Exam.Client.Pages.Login
             var customAuthenticationStateProvider = AuthenticationStateProvider as CustomAuthenticationStateProvider;
             if (customAuthenticationStateProvider == null)
             {
-                Snackbar.Add(FAILED_MESSSAGE, Severity.Error);
+                Snackbar.Add(FailedMessage, Severity.Error);
                 return;
             }
 

@@ -14,7 +14,6 @@ namespace Hutech.Exam.Shared.DTO
         {
         }
 
-        // loại bỏ ApprovedComments, ApprovedDate
         public int MaCaThi { get; set; }
 
         public string? TenCaThi { get; set; }
@@ -23,11 +22,11 @@ namespace Hutech.Exam.Shared.DTO
 
         public DateTime ThoiGianBatDau { get; set; }
 
-        public int MaDeThi { get; set; }
+        public bool DaGanDe { get; set; }
 
-        public bool IsActivated { get; set; }
+        public bool KichHoat { get; set; }
 
-        public DateTime? ActivatedDate { get; set; }
+        public DateTime? ThoiGianKichHoat { get; set; }
 
         public int ThoiGianThi { get; set; }
 
@@ -38,7 +37,9 @@ namespace Hutech.Exam.Shared.DTO
         [JsonIgnore] // không trả về json cho client, chỉ sử dụng cho server
         public string? MatMa { get; set; }
 
-        public bool Approved { get; set; }
+        public bool DaDuyet { get; set; }
+
+        public string? LichSuHoatDong { get; set; }
 
         public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
 
@@ -52,36 +53,19 @@ namespace Hutech.Exam.Shared.DTO
             return TenCaThi ?? "Không tồn tại tên ca thi";
         }
 
-        public CaThiDto(int maCaThi, string? tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, bool isActivated, DateTime? activatedDate, int thoiGianThi, bool ketThuc, DateTime? thoiDiemKetThuc, bool approved, ICollection<ChiTietCaThiDto> chiTietCaThis, ChiTietDotThiDto maChiTietDotThiNavigation)
-        {
-            MaCaThi = maCaThi;
-            TenCaThi = tenCaThi;
-            MaChiTietDotThi = maChiTietDotThi;
-            ThoiGianBatDau = thoiGianBatDau;
-            MaDeThi = maDeThi;
-            IsActivated = isActivated;
-            ActivatedDate = activatedDate;
-            ThoiGianThi = thoiGianThi;
-            KetThuc = ketThuc;
-            ThoiDiemKetThuc = thoiDiemKetThuc;
-            Approved = approved;
-            ChiTietCaThis = chiTietCaThis;
-            MaChiTietDotThiNavigation = maChiTietDotThiNavigation;
-        }
-
         public CaThiDto(CaThiDto other)
         {
             MaCaThi = other.MaCaThi;
             TenCaThi = other.TenCaThi;
             MaChiTietDotThi = other.MaChiTietDotThi;
             ThoiGianBatDau = other.ThoiGianBatDau;
-            MaDeThi = other.MaDeThi;
-            IsActivated= other.IsActivated;
-            ActivatedDate = other.ActivatedDate;
+            DaGanDe = other.DaGanDe;
+            KichHoat= other.KichHoat;
+            ThoiGianKichHoat = other.ThoiGianKichHoat;
             ThoiGianThi = other.ThoiGianThi;
             KetThuc = other.KetThuc;
             ThoiDiemKetThuc = other.ThoiDiemKetThuc;
-            Approved = other.Approved;
+            DaDuyet = other.DaDuyet;
             ChiTietCaThis = other.ChiTietCaThis;
             MaChiTietDotThiNavigation = other.MaChiTietDotThiNavigation;
         }

@@ -22,13 +22,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<bool> Ketthuc(int ma_ca_thi);
 
-        Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi, string mat_ma);
+        Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int thoi_gian_thi, string mat_ma);
 
         Task<bool> Remove(int ma_ca_thi);
 
         Task<bool> ForceRemove(int ma_ca_thi);
 
-        Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int ma_de_thi, int thoi_gian_thi, string mat_ma);
+        Task<bool> Update(int ma_ca_thi, string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int thoi_gian_thi, string mat_ma);
 
         Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, bool isOrderMSSV, List<long> dsDeThiHVs);
 

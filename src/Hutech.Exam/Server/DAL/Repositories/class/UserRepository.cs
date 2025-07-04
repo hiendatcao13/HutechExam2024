@@ -14,39 +14,36 @@ namespace Hutech.Exam.Server.DAL.Repositories
         private readonly IMapper _mapper = mapper;
         private readonly IRoleRepository _roleRepository = roleRepository;
 
-        public static readonly int COLUMN_LENGTH = 20;
+        public static readonly int COLUMN_LENGTH = 17;
 
         public UserDto GetProperty(IDataReader dataReader, int start = 0)
         {
             User user = new()
             {
-                UserId = dataReader.GetGuid(0 + start),
-                LoginName = dataReader.GetString(1 + start),
+                MaNguoiDung = dataReader.GetGuid(0 + start),
+                TenDangNhap = dataReader.GetString(1 + start),
                 Email = dataReader.GetString(2 + start),
-                Name = dataReader.GetString(3 + start),
-                Password = dataReader.GetString(4 + start),
-                MaRole = dataReader.GetInt32(5 + start),
-                DateCreated = dataReader.GetDateTime(6 + start),
-                IsDeleted = dataReader.GetBoolean(7 + start),
-                IsLockedOut = dataReader.GetBoolean(8 + start),
-                LastActivityDate = dataReader.IsDBNull(9 + start) ? null : dataReader.GetDateTime(9 + start),
-                LastLoginDate = dataReader.IsDBNull(10 + start) ? null : dataReader.GetDateTime(10 + start),
-                LastPasswordChangedDate = dataReader.IsDBNull(11 + start) ? null : dataReader.GetDateTime(11 + start),
-                LastLockoutDate = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
-                FailedPwdAttemptCount = dataReader.IsDBNull(13 + start) ? null : dataReader.GetInt32(13 + start),
-                FailedPwdAttemptWindowStart = dataReader.IsDBNull(14 + start) ? null : dataReader.GetDateTime(14 + start),
-                FailedPwdAnswerCount = dataReader.IsDBNull(15 + start) ? null : dataReader.GetInt32(15 + start),
-                FailedPwdAnswerWindowStart = dataReader.IsDBNull(16 + start) ? null : dataReader.GetDateTime(16 + start),
-                PasswordSalt = dataReader.IsDBNull(17 + start) ? null : dataReader.GetString(17 + start),
-                Comment = dataReader.IsDBNull(18 + start) ? null : dataReader.GetString(18 + start),
-                IsBuildInUser = dataReader.GetBoolean(19 + start)
+                Ten = dataReader.GetString(3 + start),
+                MatKhau = dataReader.GetString(4 + start),
+                MaVaiTro = dataReader.GetInt32(5 + start),
+                NgayTao = dataReader.GetDateTime(6 + start),
+                DaXoa = dataReader.GetBoolean(7 + start),
+                DaKhoa = dataReader.GetBoolean(8 + start),
+                ThoiGianHoatDong = dataReader.IsDBNull(9 + start) ? null : dataReader.GetDateTime(9 + start),
+                ThoiGianDangXuat = dataReader.IsDBNull(10 + start) ? null : dataReader.GetDateTime(10 + start),
+                ThoiGianDoiMatKhau = dataReader.IsDBNull(11 + start) ? null : dataReader.GetDateTime(11 + start),
+                ThoiGianKhoa = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
+                SoLanDangNhapSai = dataReader.IsDBNull(13 + start) ? null : dataReader.GetInt32(13 + start),
+                ThoiGianDangNhapSai = dataReader.IsDBNull(14 + start) ? null : dataReader.GetDateTime(14 + start),
+                GhiChu = dataReader.IsDBNull(15 + start) ? null : dataReader.GetString(15 + start),
+                LaNguoiDungHeThong = dataReader.GetBoolean(16 + start)
             };
             return _mapper.Map<UserDto>(user);
         }
 
         public async Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("User_GetAll_Paged");
+            using DatabaseReader sql = new("NguoiDung_GetAll_Paged");
 
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
@@ -77,7 +74,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Paged<UserDto>> GetAll_Search_Paged(string keyword, int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("User_GetAll_Search_Paged");
+            using DatabaseReader sql = new("NguoiDung_GetAll_Search_Paged");
 
             sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
@@ -109,9 +106,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<UserDto> SelectOne(Guid userId)
         {
-            using DatabaseReader sql = new("User_SelectOne");
+            using DatabaseReader sql = new("NguoiDung_SelectOne");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, userId);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             UserDto user = new();
@@ -126,24 +123,24 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Guid> Insert(UserCreateRequest user)
         {
-            using DatabaseReader sql = new("User_Insert");
+            using DatabaseReader sql = new("NguoiDung_Insert");
 
-            sql.SqlParams("@MaRole", SqlDbType.Int, user.MaRole);
-            sql.SqlParams("@LoginName", SqlDbType.NVarChar, user.LoginName);
+            sql.SqlParams("@MaVaiTro", SqlDbType.Int, user.MaRole);
+            sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, user.LoginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, user.Email);
-            sql.SqlParams("@Name", SqlDbType.NVarChar, user.Name);
+            sql.SqlParams("@Ten", SqlDbType.NVarChar, user.Name);
             sql.SqlParams("@Password", SqlDbType.NVarChar, user.Password);
             sql.SqlParams("@DateCreated", SqlDbType.DateTime, user.DateCreated);
-            sql.SqlParams("@Comment", SqlDbType.NVarChar, user.Comment);
+            sql.SqlParams("@GhiChu", SqlDbType.NVarChar, user.Comment);
 
             return (Guid)(await sql.ExecuteScalarAsync() ?? new Guid());
         }
 
         public async Task<UserDto> SelectByLoginName(string loginName)
         {
-            using DatabaseReader sql = new("User_SelectByLoginName");
+            using DatabaseReader sql = new("NguoiDung_SelectByLoginName");
 
-            sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
+            sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             UserDto user = new();
@@ -158,9 +155,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<List<string>> Login(string loginName)
         {
-            using DatabaseReader sql = new("User_Login");
+            using DatabaseReader sql = new("NguoiDung_Login");
 
-            sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
+            sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             List<string> user = [];
@@ -177,52 +174,52 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> LoginSuccess(Guid userId)
         {
-            using DatabaseReader sql = new("User_LoginSuccess");
+            using DatabaseReader sql = new("NguoiDung_LoginSuccess");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, userId);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> LoginFail(Guid userId)
         {
-            using DatabaseReader sql = new("User_LoginFail");
+            using DatabaseReader sql = new("NguoiDung_LoginFail");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, userId);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> UpdateLastActivity(Guid userId, DateTime lastActivityDate)
         {
-            using DatabaseReader sql = new("User_UpdateLastActivity");
+            using DatabaseReader sql = new("NguoiDung_UpdateLastActivity");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, userId);
-            sql.SqlParams("@LastActivityDate", SqlDbType.DateTime, lastActivityDate);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, userId);
+            sql.SqlParams("@ThoiGianHoatDong", SqlDbType.DateTime, lastActivityDate);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> Update(Guid id, UserUpdateRequest user)
         {
-            using DatabaseReader sql = new("User_Update");
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, id);
-            sql.SqlParams("MaRole", SqlDbType.Int, user.MaRole);
-            sql.SqlParams("@LoginName", SqlDbType.NVarChar, user.LoginName);
+            using DatabaseReader sql = new("NguoiDung_Update");
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, id);
+            sql.SqlParams("MaVaiTro", SqlDbType.Int, user.MaRole);
+            sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, user.LoginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, user.Email);
-            sql.SqlParams("Name", SqlDbType.NVarChar, user.Name);
-            sql.SqlParams("IsDeleted", SqlDbType.Bit, user.IsDeleted);
-            sql.SqlParams("@IsLockedOut", SqlDbType.Bit, user.IsLockedOut);
-            sql.SqlParams("Comment", SqlDbType.NVarChar, user.Comment);
+            sql.SqlParams("@Ten", SqlDbType.NVarChar, user.Name);
+            sql.SqlParams("@DaXoa", SqlDbType.Bit, user.IsDeleted);
+            sql.SqlParams("@DaKhoa", SqlDbType.Bit, user.IsLockedOut);
+            sql.SqlParams("@GhiChu", SqlDbType.NVarChar, user.Comment);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> UpdatePassword(Guid id, UserUpdatePasswordRequest user)
         {
-            using DatabaseReader sql = new("User_UpdatePassword");
+            using DatabaseReader sql = new("NguoiDung_UpdatePassword");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, id);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, id);
             sql.SqlParams("@Password", SqlDbType.NVarChar, user.Password);
             sql.SqlParams("@LastPasswordChangedDate", SqlDbType.DateTime, user.LastPasswordChangedDate);
 
@@ -231,18 +228,18 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> Delete(Guid id)
         {
-            using DatabaseReader sql = new("User_Delete");
+            using DatabaseReader sql = new("NguoiDung_Delete");
 
-            sql.SqlParams("@UserId", SqlDbType.UniqueIdentifier, id);
+            sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, id);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> CheckExistName(string loginName, string email)
         {
-            using DatabaseReader sql = new("User_CheckName");
+            using DatabaseReader sql = new("NguoiDung_CheckName");
 
-            sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
+            sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, email);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync()) == 1;

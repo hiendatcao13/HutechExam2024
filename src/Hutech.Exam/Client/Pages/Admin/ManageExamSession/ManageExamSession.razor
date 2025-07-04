@@ -69,7 +69,7 @@
                         <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.TenCaThi ?? string.Empty)">Tên Ca Thi</MudTableSortLabel></MudTh>
                         <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianBatDau)">Thời Gian Bắt Đầu</MudTableSortLabel></MudTh>
                         <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.ThoiGianThi)">Thời lượng thi</MudTableSortLabel></MudTh>
-                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.IsActivated)">Kích hoạt</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<CaThiDto, object>(x=>x.KichHoat)">Kích hoạt</MudTableSortLabel></MudTh>
                         <MudTh>Chức năng</MudTh>
                     </HeaderContent>
                     <RowTemplate Context="item">
@@ -99,8 +99,8 @@
 </MudContainer>
 
 @code {
-    private string GetActivationIcon(CaThiDto item) => item.KetThuc ? Icons.Material.Filled.PlayCircleFilled : item.IsActivated ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel;
-    private Color GetActivationColor(CaThiDto item) => item.KetThuc ? Color.Default : item.IsActivated ? Color.Success : Color.Error;
+    private string GetActivationIcon(CaThiDto item) => item.KetThuc ? Icons.Material.Filled.PlayCircleFilled : item.KichHoat ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel;
+    private Color GetActivationColor(CaThiDto item) => item.KetThuc ? Color.Default : item.KichHoat ? Color.Success : Color.Error;
 
     private string searchString = "";
     private int currentPage = 0;

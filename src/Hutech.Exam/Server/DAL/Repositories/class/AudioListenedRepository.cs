@@ -16,25 +16,24 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             AudioListened audioListened = new()
             {
-                ListenId = dataReader.GetInt64(0 + start),
+                MaNghe = dataReader.GetInt64(0 + start),
                 MaChiTietCaThi = dataReader.GetInt32(1 + start),
-                MaNhom = dataReader.GetInt32(2 + start),
-                FileName = dataReader.IsDBNull(3 + start) ? null : dataReader.GetString(3 + start),
-                ListenedCount = dataReader.GetInt32(4 + start)
+                TenFile = dataReader.IsDBNull(2 + start) ? null : dataReader.GetString(3 + start),
+                SoLanNghe = dataReader.GetInt32(3 + start)
             };
             return _mapper.Map<AudioListenedDto>(audioListened);
         }
 
-        public async Task<int> SelectOne(int ma_chi_tiet_ca_thi, string fileName)
+        public async Task<int> SelectOneAsync(int examSessionDetailId, string fileName)
         {
             int listenedCount = 0;
 
-            using DatabaseReader sql = new("AudioListened_SelectOne");
-            sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@FileName", SqlDbType.NVarChar, fileName);
+            using DatabaseReader sql = new("Audio_SelectOne");
+            sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, examSessionDetailId);
+            sql.SqlParams("@TenFile", SqlDbType.NVarChar, fileName);
 
             using var dataReader =  await sql.ExecuteReaderAsync();
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 listenedCount = dataReader.GetInt32(0);
             }
@@ -42,11 +41,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return listenedCount;
         }
 
-        public async Task<int> Save(int ma_chi_tiet_ca_thi, int ma_nhom)
+        public async Task<int> UpdateAsync(int examSessionDetailId, string fileName)
         {
-            using DatabaseReader sql = new("AudioListened_Save");
-            sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@MaNhom", SqlDbType.Int, ma_nhom);
+            using DatabaseReader sql = new("Audio_Update");
+            sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, examSessionDetailId);
+            sql.SqlParams("@TenFile", SqlDbType.Int, fileName);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync());
         }

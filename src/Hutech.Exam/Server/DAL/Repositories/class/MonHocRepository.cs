@@ -26,14 +26,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<MonHocDto> SelectOne(int ma_mon_hoc)
         {
-            using DatabaseReader sql = new("mon_hoc_SelectOne");
+            using DatabaseReader sql = new("MonHoc_SelectOne");
 
-            sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
+            sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             MonHocDto monHoc = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 monHoc = GetProperty(dataReader);
             }
@@ -43,12 +43,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<List<MonHocDto>> GetAll()
         {
-            using DatabaseReader sql = new("mon_hoc_GetAll");
+            using DatabaseReader sql = new("MonHoc_GetAll");
 
             using var dataReader = await sql.ExecuteReaderAsync();
             List<MonHocDto> result = [];
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 result.Add(GetProperty(dataReader));
             }
@@ -58,7 +58,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Paged<MonHocDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("mon_hoc_GetAll_Paged");
+            using DatabaseReader sql = new("MonHoc_GetAll_Paged");
 
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
@@ -67,7 +67,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<MonHocDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 result.Add(GetProperty(dataReader));
             }
@@ -87,39 +87,39 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<int> Insert(string ma_so_mon_hoc, string ten_mon_hoc)
         {
-            using DatabaseReader sql = new("mon_hoc_Insert");
+            using DatabaseReader sql = new("MonHoc_Insert");
 
-            sql.SqlParams("@ma_so_mon_hoc", SqlDbType.NVarChar, ma_so_mon_hoc);
-            sql.SqlParams("@ten_mon_hoc", SqlDbType.NVarChar, ten_mon_hoc);
+            sql.SqlParams("@MaSoMonHoc", SqlDbType.NVarChar, ma_so_mon_hoc);
+            sql.SqlParams("@TenMonHoc", SqlDbType.NVarChar, ten_mon_hoc);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
         public async Task<bool> Update(int ma_mon_hoc, string ma_so_mon_hoc, string ten_mon_hoc)
         {
-            using DatabaseReader sql = new("mon_hoc_Update");
+            using DatabaseReader sql = new("MonHoc_Update");
 
-            sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
-            sql.SqlParams("@ma_so_mon_hoc", SqlDbType.NVarChar, ma_so_mon_hoc);
-            sql.SqlParams("@ten_mon_hoc", SqlDbType.NVarChar, ten_mon_hoc);
+            sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
+            sql.SqlParams("@MaSoMonHoc", SqlDbType.NVarChar, ma_so_mon_hoc);
+            sql.SqlParams("@TenMonHoc", SqlDbType.NVarChar, ten_mon_hoc);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> Remove(int ma_mon_hoc)
         {
-            using DatabaseReader sql = new("mon_hoc_Remove");
+            using DatabaseReader sql = new("MonHoc_Remove");
 
-            sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
+            sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> ForceRemove(int ma_mon_hoc)
         {
-            using DatabaseReader sql = new("mon_hoc_ForceRemove");
+            using DatabaseReader sql = new("MonHoc_ForceRemove");
 
-            sql.SqlParams("@ma_mon_hoc", SqlDbType.Int, ma_mon_hoc);
+            sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

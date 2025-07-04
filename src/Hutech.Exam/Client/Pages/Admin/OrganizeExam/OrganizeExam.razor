@@ -108,9 +108,9 @@
                     <MudTd DataLabel="Ngày Thi">@item?.ThoiGianBatDau</MudTd>
                     <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
                     <MudTd DataLabel="Tổng SL thí sinh">@item?.TongSV</MudTd>
-                    <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="@(item.MaDeThi == -1 ? false : true)" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
-                    <MudTd DataLabel="Kích Hoạt?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.IsActivated" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
-                    <MudTd DataLabel="TG Kích Hoạt">@item?.ActivatedDate</MudTd>
+                    <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="item.DaGanDe" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
+                    <MudTd DataLabel="Kích Hoạt?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.KichHoat" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
+                    <MudTd DataLabel="TG Kích Hoạt">@item?.ThoiGianKichHoat</MudTd>
                     <MudTd DataLabel="Kết Thúc?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.KetThuc" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
                     <MudTd>

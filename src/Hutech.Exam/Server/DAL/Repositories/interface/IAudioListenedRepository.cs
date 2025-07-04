@@ -7,8 +7,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         AudioListenedDto GetProperty(IDataReader dataReader, int start = 0);
 
-        Task<int> SelectOne(int ma_chi_tiet_ca_thi, string fileName);
+        Task<int> SelectOneAsync(int examSessionDetailId, string fileName);
 
-        Task<int> Save(int ma_chi_tiet_ca_thi, int ma_nhom);
+        Task<int> UpdateAsync(int examSessionDetailId, string fileName);
     }
 }

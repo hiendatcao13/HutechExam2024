@@ -1,6 +1,4 @@
-﻿
-using Hutech.Exam.Server.DAL.Repositories;
-using Hutech.Exam.Shared.DTO.Custom;
+﻿using Hutech.Exam.Server.DAL.Repositories;
 
 namespace Hutech.Exam.Server.Installers
 {
@@ -11,31 +9,19 @@ namespace Hutech.Exam.Server.Installers
             // Them cac repository vao
             services.AddScoped<IAudioListenedRepository, AudioListenedRepository>();
             services.AddScoped<ICaThiRepository, CaThiRepository>();
-            services.AddScoped<ICauHoiRepository, CauHoiRepository>();
-            services.AddScoped<ICauTraLoiRepository, CauTraLoiRepository>();
             services.AddScoped<IChiTietBaiThiRepository, ChiTietBaiThiRepository>();
             services.AddScoped<IChiTietCaThiRepository, ChiTietCaThiRepository>();
-            services.AddScoped<IChiTietDeThiHoanViRepository, ChiTietDeThiHoanViRepository>();
-            services.AddScoped<IChiTietDeThiRepository, ChiTietDeThiRepository>();
             services.AddScoped<IChiTietDotThiRepository, ChiTietDotThiRepository>();
-            services.AddScoped<IDeThiHoanViRepository, DeThiHoanViRepository>();
             services.AddScoped<IDeThiRepository, DeThiRepository>();
             services.AddScoped<IDotThiRepository, DotThiRepository>();
             services.AddScoped<IKhoaRepository, KhoaRepository>();
             services.AddScoped<ILopAoRepository, LopAoRepository>();
             services.AddScoped<ILopRepository, LopRepository>();
             services.AddScoped<IMonHocRepository, MonHocRepository>();
-            services.AddScoped<INhomCauHoiHoanViRepository, NhomCauHoiHoanViRepository>();
-            services.AddScoped<INhomCauHoiRepository, NhomCauHoiRepository>();
             services.AddScoped<ISinhVienRepository, SinhVienRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<ICloRepository, CloRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
 
-
-            services.AddScoped<ICustomDeThiRepository, CustomDeThiRepository>();
-            services.AddScoped<ICustomMaDeThiRepository, CustomMaDeThiRepository>();
-            services.AddScoped<ICustomThongKeRepository, CustomThongKeRepository>();
         }
     }
 }

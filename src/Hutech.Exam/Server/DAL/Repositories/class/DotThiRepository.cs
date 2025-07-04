@@ -28,12 +28,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<List<DotThiDto>> GetAll()
         {
-            using DatabaseReader sql = new("dot_thi_GetAll");
+            using DatabaseReader sql = new("DotThi_GetAll");
 
             using var dataReader = await sql.ExecuteReaderAsync();
             List<DotThiDto> result = [];
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 DotThiDto dotThi = GetProperty(dataReader);
                 result.Add(dotThi);
@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Paged<DotThiDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("dot_thi_GetAll_Paged");
+            using DatabaseReader sql = new("DotThi_GetAll_Paged");
 
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
@@ -62,7 +62,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
             if (dataReader != null && dataReader.NextResult())
             {
-                while (dataReader.Read())
+                while (await dataReader.ReadAsync())
                 {
                     tong_so_ban_ghi = dataReader.GetInt32(0);
                     tong_so_trang = dataReader.GetInt32(1);
@@ -74,14 +74,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<DotThiDto> SelectOne(int ma_dot_thi)
         {
-            using DatabaseReader sql = new("dot_thi_SelectOne");
+            using DatabaseReader sql = new("DotThi_SelectOne");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             DotThiDto dotThi = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 dotThi = GetProperty(dataReader);
             }
@@ -91,22 +91,22 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<int> Insert(string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {
-            DatabaseReader sql = new("dot_thi_Insert");
-            sql.SqlParams("@ten_dot_thi", SqlDbType.NVarChar, ten_dot_thi);
-            sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau);
-            sql.SqlParams("@thoi_gian_ket_thuc", SqlDbType.DateTime, thoi_gian_ket_thuc);
+            DatabaseReader sql = new("DotThi_Insert");
+            sql.SqlParams("@TenDotThi", SqlDbType.NVarChar, ten_dot_thi);
+            sql.SqlParams("@ThoiGianBatDau", SqlDbType.DateTime, thoi_gian_bat_dau);
+            sql.SqlParams("@ThoiGianKetThuc", SqlDbType.DateTime, thoi_gian_ket_thuc);
             sql.SqlParams("@NamHoc", SqlDbType.Int, nam_hoc);
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
         public async Task<bool> Update(int ma_dot_thi, string ten_dot_thi, DateTime thoi_gian_bat_dau, DateTime thoi_gian_ket_thuc, int nam_hoc)
         {
-            using DatabaseReader sql = new("dot_thi_Update");
+            using DatabaseReader sql = new("DotThi_Update");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
-            sql.SqlParams("@ten_dot_thi", SqlDbType.NVarChar, ten_dot_thi);
-            sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau);
-            sql.SqlParams("@thoi_gian_ket_thuc", SqlDbType.DateTime, thoi_gian_ket_thuc);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@TenDotThi", SqlDbType.NVarChar, ten_dot_thi);
+            sql.SqlParams("@ThoiGianBatDau", SqlDbType.DateTime, thoi_gian_bat_dau);
+            sql.SqlParams("@ThoiGianKetThuc", SqlDbType.DateTime, thoi_gian_ket_thuc);
             sql.SqlParams("@NamHoc", SqlDbType.Int, nam_hoc);
 
             return await sql.ExecuteNonQueryAsync() > 0;
@@ -114,18 +114,18 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> Remove(int ma_dot_thi)
         {
-            using DatabaseReader sql = new("dot_thi_Remove");
+            using DatabaseReader sql = new("DotThi_Remove");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> ForceRemove(int ma_dot_thi)
         {
-            using DatabaseReader sql = new("dot_thi_ForceRemove");
+            using DatabaseReader sql = new("DotThi_ForceRemove");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

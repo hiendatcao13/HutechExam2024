@@ -9,7 +9,7 @@ namespace Hutech.Exam.Server.DAL.Helper
         {
             var dt = new DataTable();
 
-            dt.Columns.Add("ma_chi_tiet_ca_thi", typeof(int));
+            dt.Columns.Add("MaChiTietCaThi", typeof(int));
             dt.Columns.Add("MaDeHV", typeof(long));
             dt.Columns.Add("MaNhom", typeof(int));
             dt.Columns.Add("MaCauHoi", typeof(int));

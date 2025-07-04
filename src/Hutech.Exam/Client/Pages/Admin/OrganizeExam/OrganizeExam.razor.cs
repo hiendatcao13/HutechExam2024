@@ -301,16 +301,16 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private async Task OnClickUpdateExamAsync(CaThiDto caThi)
         {
-            var result = await OpenUpdateExamDialogAsync(caThi);
-            // lấy data là mã đề thi mới cho ca thi
-            if (result != null && result.Data != null && !result.Canceled && examSessions != null)
-            {
-                int index = examSessions.FindIndex(ct => ct.MaCaThi == caThi.MaCaThi);
-                if (index != -1)
-                {
-                    examSessions[index].MaDeThi = (int)result.Data;
-                }
-            }
+            //var result = await OpenUpdateExamDialogAsync(caThi);
+            //// lấy data là mã đề thi mới cho ca thi
+            //if (result != null && result.Data != null && !result.Canceled && examSessions != null)
+            //{
+            //    int index = examSessions.FindIndex(ct => ct.MaCaThi == caThi.MaCaThi);
+            //    if (index != -1)
+            //    {
+            //        examSessions[index].MaDeThi = (int)result.Data;
+            //    }
+            //}
         }
 
         private async Task OnClickUploadStudentListToExamSessionAsync()
@@ -407,26 +407,26 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenUpdateExamDialogAsync(CaThiDto caThi)
-        {
-            if (selectedExamBatchDetail == null)
-            {
-                Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
-                return DialogResult.Cancel();
-            }
-            var parameters = new DialogParameters<EditExamDialog>
-            {
-                { x => x.ExamBatchDetailId, selectedExamBatchDetail.MaChiTietDotThi },
-                { x => x.ExamBatchName, selectedExamBatch?.TenDotThi ?? "Không có DL tên"},
-                { x => x.ExamRoomName , selectedExamBatchDetail.MaLopAoNavigation.TenLopAo },
-                { x => x.SubjectName, selectedExamBatchDetail.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
-                { x => x.AttemptNumber, selectedExamBatchDetail.LanThi },
-                { x => x.ExamSession, caThi }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<EditExamDialog>("UPDATE ĐỀ THI", parameters, options);
-            return await dialog.Result;
-        }
+        //private async Task<DialogResult?> OpenUpdateExamDialogAsync(CaThiDto caThi)
+        //{
+        //    if (selectedExamBatchDetail == null)
+        //    {
+        //        Snackbar.Add(NO_CHOOSE_OBJECT, Severity.Info);
+        //        return DialogResult.Cancel();
+        //    }
+        //    var parameters = new DialogParameters<EditExamDialog>
+        //    {
+        //        { x => x.ExamBatchDetailId, selectedExamBatchDetail.MaChiTietDotThi },
+        //        { x => x.ExamBatchName, selectedExamBatch?.TenDotThi ?? "Không có DL tên"},
+        //        { x => x.ExamRoomName , selectedExamBatchDetail.MaLopAoNavigation.TenLopAo },
+        //        { x => x.SubjectName, selectedExamBatchDetail.MaLopAoNavigation.MaMonHocNavigation?.TenMonHoc },
+        //        { x => x.AttemptNumber, selectedExamBatchDetail.LanThi },
+        //        { x => x.ExamSession, caThi }
+        //    };
+        //    var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+        //    var dialog = await Dialog.ShowAsync<EditExamDialog>("UPDATE ĐỀ THI", parameters, options);
+        //    return await dialog.Result;
+        //}
 
         #endregion
 

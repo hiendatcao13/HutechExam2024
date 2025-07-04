@@ -16,26 +16,8 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<CaThi, CaThiDto>();
             CreateMap<CaThiDto, CaThi>();
 
-            CreateMap<CauHoi, CauHoiDto>();
-            CreateMap<CauHoiDto, CauHoi>();
-
             CreateMap<Role, RoleDto>();
             CreateMap<RoleDto, Role>();
-
-            CreateMap<LoaiCauHoi,  LoaiCauHoiDto>();
-            CreateMap<LoaiCauHoiDto, LoaiCauHoi>();
-
-            CreateMap<LoiDeThi, LoiDeThiDto>();
-            CreateMap<LoiDeThiDto, LoiDeThi>();
-
-            CreateMap<SinhVienDuPhong, SinhVienDuPhongDto>();
-            CreateMap<SinhVienDuPhongDto, SinhVienDuPhong>();
-
-            CreateMap<ThongBao, ThongBaoDto>();
-            CreateMap<ThongBaoDto, ThongBao>();
-
-            CreateMap<CauTraLoi, CauTraLoiDto>();
-            CreateMap<CauTraLoiDto, CauTraLoi>();
 
             CreateMap<ChiTietBaiThi, ChiTietBaiThiDto>();
             CreateMap<ChiTietBaiThiDto, ChiTietBaiThi>();
@@ -43,20 +25,11 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<ChiTietCaThi, ChiTietCaThiDto>();
             CreateMap<ChiTietCaThiDto, ChiTietCaThi>();
 
-            CreateMap<ChiTietDeThi,  ChiTietDeThiDto>();
-            CreateMap<ChiTietDeThiDto, ChiTietDeThi>();
-
-            CreateMap<ChiTietDeThiHoanVi, ChiTietDeThiHoanViDto>();
-            CreateMap<ChiTietDeThiHoanViDto, ChiTietDeThiHoanVi>();
-
             CreateMap<ChiTietDotThi, ChiTietDotThiDto>();
             CreateMap<ChiTietDotThiDto, ChiTietDotThi>();
 
             CreateMap<DeThi, DeThiDto>();
             CreateMap<DeThiDto, DeThi>();
-
-            CreateMap<DeThiHoanVi, DeThiHoanViDto>();
-            CreateMap<DeThiHoanViDto, DeThiHoanVi>();
 
             CreateMap<DotThi, DotThiDto>();
             CreateMap<DotThiDto, DotThi>();
@@ -73,38 +46,20 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<MonHoc, MonHocDto>();
             CreateMap<MonHocDto, MonHoc>();
 
-            CreateMap<NhomCauHoi, NhomCauHoiDto>();
-            CreateMap<NhomCauHoiHoanViDto, NhomCauHoi>();
-
-            CreateMap<NhomCauHoiHoanVi, NhomCauHoiHoanViDto>();
-            CreateMap<NhomCauHoiHoanViDto, NhomCauHoiHoanVi>();
-
             CreateMap<SinhVien, SinhVienDto>();
             CreateMap<SinhVienDto, SinhVien>();
 
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
 
-            CreateMap<Clo, CloDto>();
-            CreateMap<CloDto, Clo>();
-
             // ánh xạ giữa CustomChiTietBaiThi và ChiTietBaiThiDto (không có CustomDeThi)
             CreateMap<ChiTietBaiThiRequest, ChiTietBaiThiDto>();
             CreateMap<ChiTietBaiThiDto, ChiTietBaiThiRequest>();
 
-            CreateMap<CustomNhomCauHoi, NhomCauHoiDto>();
-            CreateMap<NhomCauHoiDto, CustomNhomCauHoi>();
-
             // ánh xạ Request vs Dto ---------------------------------------------------------------------
-            CreateMap<CauHoiRequest, CauHoiDto>();
-            CreateMap<CauHoiDto, CauHoiRequest>();
 
             CreateMap<ChiTietCaThiRequest, ChiTietCaThiDto>();
             CreateMap<ChiTietCaThiDto, ChiTietCaThiRequest>();
-
-
-            CreateMap<CauTraLoiRequest, CauTraLoiDto>();
-            CreateMap<CauTraLoiDto, CauTraLoiRequest>();
 
         }
     }

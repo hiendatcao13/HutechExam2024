@@ -88,7 +88,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
             if (result != null && !result.Canceled && result.Data is UserDto newUser && users != null)
             {
-                int index = users.FindIndex(k => k.UserId == newUser.UserId);
+                int index = users.FindIndex(k => k.MaNguoiDung == newUser.MaNguoiDung);
                 if (index != -1)
                 {
                     users[index] = newUser;
@@ -162,7 +162,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
         {
             if (selectedUser != null)
             {
-                var result = await User_DeleteAPI(selectedUser.UserId);
+                var result = await User_DeleteAPI(selectedUser.MaNguoiDung);
 
                 if (result)
                 {

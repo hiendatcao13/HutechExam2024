@@ -13,28 +13,12 @@ namespace Hutech.Exam.Shared.DTO
         {
         }
 
-        public int MaRole { get; set; }
+        public int MaVaiTro { get; set; }
 
-        public string TenRole { get; set; } = null!;
+        public string TenVaiTro { get; set; } = null!;
 
         public string? MoTa { get; set; }
 
         public virtual ICollection<User> Users { get; set; } = new List<User>();
-
-        public RoleDto(int maRole, string tenRole, string? moTa, ICollection<User> users)
-        {
-            MaRole = maRole;
-            TenRole = tenRole;
-            MoTa = moTa;
-            Users = users;
-        }
-
-        public RoleDto(RoleDto other)
-        {
-            MaRole = other.MaRole;
-            TenRole = other.TenRole;
-            MoTa = other.MoTa;
-            Users = other.Users;
-        }
     }
 }

@@ -15,8 +15,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             Role role = new()
             {
-                MaRole = dataReader.GetInt32(0 + start),
-                TenRole = dataReader.GetString(1 + start),
+                MaVaiTro = dataReader.GetInt32(0 + start),
+                TenVaiTro = dataReader.GetString(1 + start),
                 MoTa = dataReader.GetString(2 + start)
             };
 

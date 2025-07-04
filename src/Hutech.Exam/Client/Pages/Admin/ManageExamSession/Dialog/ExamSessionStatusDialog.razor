@@ -22,12 +22,12 @@
 			<MudItem xs="2">
 				<MudText>Ca thi:</MudText>
 				<MudText>Thời lượng:</MudText>
-				<MudText>@(tempExamSession.KetThuc ? "Giờ kết thúc" : tempExamSession.IsActivated ? "Giờ kích hoạt" : "Giờ hủy kích hoạt")</MudText>
+				<MudText>@(tempExamSession.KetThuc ? "Giờ kết thúc" : tempExamSession.KichHoat ? "Giờ kích hoạt" : "Giờ hủy kích hoạt")</MudText>
 			</MudItem>
 			<MudItem xs="4" Style="font-weight: bold">
 				<MudText Class="content">@tempExamSession?.TenCaThi</MudText>
 				<MudText Class="content">@tempExamSession?.ThoiGianThi phút</MudText>
-				<MudText Class="content">@(tempExamSession.KetThuc ? tempExamSession.ThoiDiemKetThuc : tempExamSession.ActivatedDate)</MudText>
+				<MudText Class="content">@(tempExamSession.KetThuc ? tempExamSession.ThoiDiemKetThuc : tempExamSession.ThoiGianKichHoat)</MudText>
 			</MudItem>
 		</MudGrid>
 	</DialogContent>
@@ -145,7 +145,7 @@
 
 	private void UpdateStatus()
 	{
-		status = tempExamSession.KetThuc ? 2 : tempExamSession.IsActivated ? 0 : 1;
+		status = tempExamSession.KetThuc ? 2 : tempExamSession.KichHoat ? 0 : 1;
 	}
 
 	private async Task ActiveAPI(int ma_ca_thi)
@@ -180,7 +180,7 @@
 
 	private async Task FinishAPI(int ma_ca_thi)
 	{
-		if (tempExamSession.IsActivated)
+		if (tempExamSession.KichHoat)
 		{
 			Snackbar.Add(FAILED_KETTHUC_HUY, Severity.Error);
 			return;

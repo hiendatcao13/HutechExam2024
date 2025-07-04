@@ -27,14 +27,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<KhoaDto> SelectOne(int ma_khoa)
         {
-            using DatabaseReader sql = new("khoa_SelectOne");
+            using DatabaseReader sql = new("Khoa_SelectOne");
 
-            sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
+            sql.SqlParams("@MaKhoa", SqlDbType.Int, ma_khoa);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             KhoaDto khoa = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 khoa = GetProperty(dataReader);
             }
@@ -43,51 +43,51 @@ namespace Hutech.Exam.Server.DAL.Repositories
         }
         public async Task<int> Insert(string ten_khoa, DateTime ngay_thanh_lap)
         {
-            using DatabaseReader sql = new("khoa_Insert");
+            using DatabaseReader sql = new("Khoa_Insert");
 
-            sql.SqlParams("@ten_khoa", SqlDbType.NVarChar, ten_khoa);
-            sql.SqlParams("@ngay_thanh_lap", SqlDbType.DateTime, ngay_thanh_lap);
+            sql.SqlParams("@TenKhoa", SqlDbType.NVarChar, ten_khoa);
+            sql.SqlParams("@NgayThanhLap", SqlDbType.DateTime, ngay_thanh_lap);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
         public async Task<bool> Update(int ma_khoa, string ten_khoa, DateTime ngay_thanh_lap)
         {
-            using DatabaseReader sql = new("khoa_Update");
+            using DatabaseReader sql = new("Khoa_Update");
 
-            sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
-            sql.SqlParams("@ten_khoa", SqlDbType.NVarChar, ten_khoa);
-            sql.SqlParams("@ngay_thanh_lap", SqlDbType.DateTime, ngay_thanh_lap);
+            sql.SqlParams("@MaKhoa", SqlDbType.Int, ma_khoa);
+            sql.SqlParams("@TenKhoa", SqlDbType.NVarChar, ten_khoa);
+            sql.SqlParams("@NgayThanhLap", SqlDbType.DateTime, ngay_thanh_lap);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> Remove(int ma_khoa)
         {
-            using DatabaseReader sql = new("khoa_Remove");
+            using DatabaseReader sql = new("Khoa_Remove");
 
-            sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
+            sql.SqlParams("@MaKhoa", SqlDbType.Int, ma_khoa);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> ForceRemove(int ma_khoa)
         {
-            using DatabaseReader sql = new("khoa_ForceRemove");
+            using DatabaseReader sql = new("Khoa_ForceRemove");
 
-            sql.SqlParams("@ma_khoa", SqlDbType.Int, ma_khoa);
+            sql.SqlParams("@MaKhoa", SqlDbType.Int, ma_khoa);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<List<KhoaDto>> GetAll()
         {
-            using DatabaseReader sql = new("khoa_GetAll");
+            using DatabaseReader sql = new("Khoa_GetAll");
 
             using var dataReader = await sql.ExecuteReaderAsync();
             List<KhoaDto> results = [];
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 results.Add(GetProperty(dataReader));
             }
@@ -97,7 +97,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Paged<KhoaDto>> GetAll_Paged(int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("khoa_GetAll_Paged");
+            using DatabaseReader sql = new("Khoa_GetAll_Paged");
 
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
@@ -106,7 +106,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<KhoaDto> results = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 results.Add(GetProperty(dataReader));
             }

@@ -68,7 +68,7 @@ namespace Hutech.Exam.Server.BUS
                 Dictionary<int, ChiTietBaiThiRequest> data = await _redisService.GetChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
 
                 // xử lí cho recovery xảy ra
-                if(submitRequest.IsRecoverySubmit)
+                if (submitRequest.IsRecoverySubmit)
                 {
                     await HandleRecoverySubmit(submitRequest, dapAns);
                     await _redisService.RemoveSubmitAsync(submitRequest.MaChiTietCaThi);
@@ -105,7 +105,7 @@ namespace Hutech.Exam.Server.BUS
                 await _redisService.RemoveSubmitAsync(submitRequest.MaChiTietCaThi);
 
             }
-            catch(SqlException sqlEx)
+            catch (SqlException sqlEx)
             {
                 _logger.LogError(sqlEx, "[SQL] Error while saving ChiTietBaiThi for MaChiTietCaThi: {MaChiTietCaThi}", submitRequest.MaChiTietCaThi);
                 throw; // ném ra để rabbitMQ đẩy lại vào hàng đợi, xử lí lại
@@ -122,7 +122,7 @@ namespace Hutech.Exam.Server.BUS
         // hàm sử dụng khi thí sinh bị mất bài nộp hoặc thiếu bài nộp
         private async Task HandleRecoverySubmit(SubmitRequest request, Dictionary<int, int> dapAns)
         {
-            if(request.DsDapAnDuPhong != null && request.DsDapAnDuPhong.Count != 0)
+            if (request.DsDapAnDuPhong != null && request.DsDapAnDuPhong.Count != 0)
             {
                 //cập nhật đúng sai cho từng câu
                 _chiTietBaiThiService.UpdateDungSai_SelectByListCTBT_DapAn(request.DsDapAnDuPhong, dapAns);
@@ -132,7 +132,7 @@ namespace Hutech.Exam.Server.BUS
 
                 // xóa dữ liệu khi đã lưu xong thành công
                 await _redisService.RemoveChiTietBaiThiAsync(request.MaChiTietCaThi);
-            }    
+            }
         }
 
         // hàm hỗ trợ cho việc redis cache dữ liệu bị thiếu sót hoặc có vấn đề xảy ra khi vượt quá số lần bị fail

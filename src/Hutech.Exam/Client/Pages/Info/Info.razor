@@ -39,7 +39,7 @@
             <MudDivider DividerType="DividerType.Middle" Class="my-3" Style="background-color: black" />
             <MudCardContent Style="padding: 0">
                 <MudText Style="font-weight:bold" Typo="Typo.subtitle1">Sinh viên hiện tại đang có @ExamSessionDetails.Count ca thi. Vui lòng chọn ca thi</MudText>
-                <MudRadioGroup @bind-Value="selectedExamSessionDetail">
+                <MudRadioGroup @bind-Value="SelectedExamSessionDetail">
                     @foreach (var item in ExamSessionDetails)
                     {
                         Subject = item.MaCaThiNavigation?.MaChiTietDotThiNavigation?.MaLopAoNavigation?.MaMonHocNavigation;
@@ -68,7 +68,3 @@
         border-radius: 50%;
     }
 </style>
-
-@code{
-    private ChiTietCaThiDto? selectedExamSessionDetail;
-}

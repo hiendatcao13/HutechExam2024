@@ -13,11 +13,11 @@ public partial class CaThi
 
     public DateTime ThoiGianBatDau { get; set; }
 
-    public int MaDeThi { get; set; }
+    public bool DaGanDe { get; set; }
 
-    public bool IsActivated { get; set; }
+    public bool KichHoat { get; set; }
 
-    public DateTime? ActivatedDate { get; set; }
+    public DateTime? ThoiGianKichHoat { get; set; }
 
     public int ThoiGianThi { get; set; }
 
@@ -27,11 +27,9 @@ public partial class CaThi
 
     public string? MatMa { get; set; }
 
-    public bool Approved { get; set; }
+    public bool DaDuyet { get; set; }
 
-    public DateTime? ApprovedDate { get; set; }
-
-    public string? ApprovedComments { get; set; }
+    public string? LichSuHoatDong { get; set; }
 
     public virtual ICollection<ChiTietCaThi> ChiTietCaThis { get; set; } = new List<ChiTietCaThi>();
 

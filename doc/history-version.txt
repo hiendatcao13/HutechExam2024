@@ -227,3 +227,8 @@
 03/07/2025 6AM
 - Sửa tên thống nhất cho toàn bộ database
 - TODO: Clear các thành phần table dư thừa, thêm field report
+-------------------------------------------------
+03/07/2025 6PM
+- Hoàn thành chỉnh sửa, thống nhất tên các field, table và xóa các table không cần thiết
+- App đã chạy được nhưng cần test các APIs lại
+- TODO: Hoàn thành việc tương thích database

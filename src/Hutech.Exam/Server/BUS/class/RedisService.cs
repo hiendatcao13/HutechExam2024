@@ -9,18 +9,18 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class RedisService(DeThiHoanViService deThiHoanViService, CustomDeThiService customDeThiService, IResponseCacheService cacheService, ILogger<RedisService> logger)
+    public class RedisService(IResponseCacheService cacheService, ILogger<RedisService> logger)
     {
-        #region Private Fields
-        private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
-        private readonly CustomDeThiService _customDeThiService = customDeThiService;
+        //#region Private Fields
+        //private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
+        //private readonly CustomDeThiService _customDeThiService = customDeThiService;
 
         private readonly IResponseCacheService _cacheService = cacheService;
 
         private readonly ILogger _logger = logger;
-        #endregion
+        //#endregion
 
-        #region Public Methods
+        //#region Public Methods
         public async Task SetConnectionIdAsync(long ma_sinh_vien, string connectionId)
         {
             try
@@ -112,7 +112,7 @@ namespace Hutech.Exam.Server.BUS
         {
             try
             {
-                return await _cacheService.GetAllFieldsFromHashAsync<int,TData>(key);
+                return await _cacheService.GetAllFieldsFromHashAsync<int, TData>(key);
             }
             catch (Exception ex)
             {
@@ -178,77 +178,78 @@ namespace Hutech.Exam.Server.BUS
 
         public async Task<Dictionary<int, int>> GetDapAnAsync(long maDeHV)
         {
-            try
-            {
-                var cacheKey = $"DapAn:{maDeHV}";
+            return [];
+            //try
+            //{
+            //    var cacheKey = $"DapAn:{maDeHV}";
 
-                // Kiểm tra xem có dữ liệu trong cache không
-                var cachedData = await _cacheService.GetCacheResponseAsync<Dictionary<int, int>>(cacheKey);
+            //    // Kiểm tra xem có dữ liệu trong cache không
+            //    var cachedData = await _cacheService.GetCacheResponseAsync<Dictionary<int, int>>(cacheKey);
 
-                if (cachedData != null && cachedData.Count != 0)
-                {
-                    return cachedData;
-                }
+            //    if (cachedData != null && cachedData.Count != 0)
+            //    {
+            //        return cachedData;
+            //    }
 
-                // Nếu không có, thực hiện logic lấy dữ liệu từ database
-                Dictionary<int, int> listDapAn = await _deThiHoanViService.DapAn(maDeHV);
+            //    // Nếu không có, thực hiện logic lấy dữ liệu từ database
+            //    Dictionary<int, int> listDapAn = await _deThiHoanViService.DapAn(maDeHV);
 
-                // Lưu vào cache
-                await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(150));
+            //    // Lưu vào cache
+            //    await _cacheService.SetCacheResponseAsync(cacheKey, listDapAn, TimeSpan.FromMinutes(150));
 
-                return listDapAn;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
-                return await _deThiHoanViService.DapAn(maDeHV);
-            }
+            //    return listDapAn;
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
+            //    return await _deThiHoanViService.DapAn(maDeHV);
+            //}
 
         }
 
-        public async Task<List<CustomDeThi>> GetDeThi(long id)
-        {
-            try
-            {
-                var cacheKey = $"DeThi:{id}";
+        //public async Task<List<CustomDeThi>> GetDeThi(long id)
+        //{
+        //    try
+        //    {
+        //        var cacheKey = $"DeThi:{id}";
 
-                // Kiểm tra xem có dữ liệu trong cache không
-                var cachedData = await _cacheService.GetCacheResponseAsync<List<CustomDeThi>>(cacheKey);
+        //        // Kiểm tra xem có dữ liệu trong cache không
+        //        var cachedData = await _cacheService.GetCacheResponseAsync<List<CustomDeThi>>(cacheKey);
 
-                if (cachedData != null && cachedData.Count != 0)
-                {
-                    return cachedData;
-                }
+        //        if (cachedData != null && cachedData.Count != 0)
+        //        {
+        //            return cachedData;
+        //        }
 
-                // Nếu không có, thực hiện logic lấy dữ liệu từ database
-                List<CustomDeThi> result = await _customDeThiService.GetDeThi(id);
+        //        // Nếu không có, thực hiện logic lấy dữ liệu từ database
+        //        List<CustomDeThi> result = await _customDeThiService.GetDeThi(id);
 
-                // Lưu vào cache
-                await _cacheService.SetCacheResponseAsync(cacheKey, result, TimeSpan.FromMinutes(150));
+        //        // Lưu vào cache
+        //        await _cacheService.SetCacheResponseAsync(cacheKey, result, TimeSpan.FromMinutes(150));
 
-                return result;
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving DeThi.");
-                return await _customDeThiService.GetDeThi(id);
-            }
-        }
+        //        return result;
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        _logger.LogError(ex, "[Redis] An error occurred while retrieving DeThi.");
+        //        return await _customDeThiService.GetDeThi(id);
+        //    }
+        //}
 
-        public async Task RemoveDeThi(long id)
-        {
-            try
-            {
-                var cacheKey = $"DeThi:{id}";
+        //public async Task RemoveDeThi(long id)
+        //{
+        //    try
+        //    {
+        //        var cacheKey = $"DeThi:{id}";
 
-                await _cacheService.RemoveCacheResponseAsync(cacheKey);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[Redis] An error occurred while removing DeThi.");
-            }
-        }
-        #endregion
+        //        await _cacheService.RemoveCacheResponseAsync(cacheKey);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "[Redis] An error occurred while removing DeThi.");
+        //    }
+        //}
+        //#endregion
 
     }
 }

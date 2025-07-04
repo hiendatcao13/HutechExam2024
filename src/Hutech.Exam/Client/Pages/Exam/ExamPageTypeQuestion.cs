@@ -97,7 +97,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 var soLanNghe = await GetTotalAudioListenedAPI(new Shared.DTO.AudioListenedDto
                 {
                     MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi,
-                    MaNhom = ma_nhom
+                    TenFile = AudioListeneds[ma_nhom].AudioUrl
                 });
 
                 deThi.GhiChu = soLanNghe.ToString();

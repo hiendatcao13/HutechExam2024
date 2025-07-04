@@ -33,12 +33,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             List<ChiTietDotThiDto> result = [];
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_SelectBy_ma_dot_thi");
+            using DatabaseReader sql = new("ChiTietDotThi_SelectBy_MaDotThi");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                 chiTietDotThi.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
@@ -54,14 +54,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<ChiTietDotThiDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_SelectBy_ma_dot_thi_Paged");
+            using DatabaseReader sql = new("ChiTietDotThi_SelectBy_MaDotThi_Paged");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 ChiTietDotThiDto chiTietDotThi = GetProperty(dataReader);
                 chiTietDotThi.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
@@ -86,13 +86,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             List<ChiTietDotThiDto> result = [];
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_SelectBy_MaDotThi_MaLopAo");
+            using DatabaseReader sql = new("ChiTietDotThi_SelectBy_MaDotThi_MaLopAo");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
-            sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 result.Add(GetProperty(dataReader));
             }
@@ -104,14 +104,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             ChiTietDotThiDto result = new();
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_SelectBy_MaDotThi_MaLopAo_LanThi");
+            using DatabaseReader sql = new("ChiTietDotThi_SelectBy_MaDotThi_MaLopAo_LanThi");
 
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
-            sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
-            sql.SqlParams("lan_thi", SqlDbType.NVarChar, lan_thi);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
+            sql.SqlParams("@LanThi", SqlDbType.NVarChar, lan_thi);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 result = GetProperty(dataReader);
             }
@@ -123,11 +123,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             ChiTietDotThiDto result = new();
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_SelectOne");
-            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            using DatabaseReader sql = new("ChiTietDotThi_SelectOne");
+            sql.SqlParams("@MaChiTietDotThi", SqlDbType.Int, ma_chi_tiet_dot_thi);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 result = GetProperty(dataReader);
                 result.MaLopAoNavigation = _lopAoRepository.GetProperty(dataReader, COLUMN_LENGTH);
@@ -140,10 +140,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             List<ChiTietDotThiDto> result = [];
 
-            using DatabaseReader sql = new("chi_tiet_dot_thi_GetAll");
+            using DatabaseReader sql = new("ChiTietDotThi_GetAll");
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 result.Add(GetProperty(dataReader));
             }
@@ -152,41 +152,41 @@ namespace Hutech.Exam.Server.DAL.Repositories
         }
         public async Task<int> Insert(string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
-            using DatabaseReader sql = new("chi_tiet_dot_thi_Insert");
+            using DatabaseReader sql = new("ChiTietDotThi_Insert");
 
             sql.SqlParams("@ten_chi_tiet_dot_thi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
-            sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
-            sql.SqlParams("@lan_thi", SqlDbType.NVarChar, lan_thi);
+            sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@LanThi", SqlDbType.NVarChar, lan_thi);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
         public async Task<bool> Update(int ma_chi_tiet_dot_thi, string ten_chi_tiet_dot_thi, int ma_lop_ao, int ma_dot_thi, int lan_thi)
         {
-            using DatabaseReader sql = new("chi_tiet_dot_thi_Update");
+            using DatabaseReader sql = new("ChiTietDotThi_Update");
 
-            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            sql.SqlParams("@MaChiTietDotThi", SqlDbType.Int, ma_chi_tiet_dot_thi);
             sql.SqlParams("@ten_chi_tiet_dot_thi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
-            sql.SqlParams("@ma_lop_ao", SqlDbType.Int, ma_lop_ao);
-            sql.SqlParams("@ma_dot_thi", SqlDbType.Int, ma_dot_thi);
-            sql.SqlParams("@lan_thi", SqlDbType.NVarChar, lan_thi);
+            sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
+            sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
+            sql.SqlParams("@LanThi", SqlDbType.NVarChar, lan_thi);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
         public async Task<bool> Remove(int ma_chi_tiet_dot_thi)
         {
-            using DatabaseReader sql = new("chi_tiet_dot_thi_Remove");
+            using DatabaseReader sql = new("ChiTietDotThi_Remove");
 
-            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            sql.SqlParams("@MaChiTietDotThi", SqlDbType.Int, ma_chi_tiet_dot_thi);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> ForceRemove(int ma_chi_tiet_dot_thi)
         {
-            using DatabaseReader sql = new("chi_tiet_dot_thi_ForceRemove");
+            using DatabaseReader sql = new("ChiTietDotThi_ForceRemove");
 
-            sql.SqlParams("@ma_chi_tiet_dot_thi", SqlDbType.Int, ma_chi_tiet_dot_thi);
+            sql.SqlParams("@MaChiTietDotThi", SqlDbType.Int, ma_chi_tiet_dot_thi);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

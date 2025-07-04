@@ -240,9 +240,9 @@
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<List<DeThiHoanViDto>> ShuffleExam_SelectBy_ExamAPI(int maDeThi)
+    private async Task<List<DeThiDto>> ShuffleExam_SelectBy_ExamAPI(int maDeThi)
     {
-        var response = await SenderAPI.GetAsync<List<DeThiHoanViDto>>($"api/dethihoanvis/filter-by-dethi?maDeThi={maDeThi}");
+        var response = await SenderAPI.GetAsync<List<DeThiDto>>($"api/dethihoanvis/filter-by-dethi?maDeThi={maDeThi}");
         return (response.Success && response.Data != null) ? response.Data : [];
     }
 

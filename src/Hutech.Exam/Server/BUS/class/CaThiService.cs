@@ -58,10 +58,10 @@ namespace Hutech.Exam.Server.BUS
         {
             if(!string.IsNullOrWhiteSpace(caThi.MatMa))
             {
-                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 8);
+                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 10);
             }  
             
-            return await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi, caThi.MatMa);
+            return await _caThiRepository.Insert(caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.ThoiGianThi, caThi.MatMa);
         }
 
         public async Task<bool> Remove(int ma_ca_thi)
@@ -78,10 +78,10 @@ namespace Hutech.Exam.Server.BUS
         {
             if (!string.IsNullOrWhiteSpace(caThi.MatMa))
             {
-                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 8);
+                caThi.MatMa = _bcryptService.HashPassword(caThi.MatMa, 10);
             }
 
-            return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi, caThi.MatMa);
+            return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.ThoiGianThi, caThi.MatMa);
         }
 
         public async Task<bool> UpdateDeThi(int id, int maDeThi, bool isOrderMSSV, List<long> dsDeThiHVs)

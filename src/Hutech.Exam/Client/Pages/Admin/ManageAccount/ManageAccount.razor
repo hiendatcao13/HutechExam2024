@@ -32,12 +32,12 @@
 						<MudTh>Đã xóa?</MudTh>
 					</HeaderContent>
 					<RowTemplate Context="item">
-						<MudTd DataLabel="Name">@item.Name</MudTd>
+						<MudTd DataLabel="Name">@item.Ten</MudTd>
 						<MudTd DataLabel="Email">@item.Email</MudTd>
-						<MudTd DataLabel="Vai trò">@item.MaRoleNavigation.TenRole</MudTd>
-						<MudTd DataLabel="Đăng nhập lần cuối">@(item.LastLoginDate.HasValue == true ? @item.LastLoginDate.Value.ToString("dd/MM/yyyy") : "-")</MudTd>
-						<MudTd DataLabel="Đã khóa?"><MudSwitch ReadOnly @bind-Value="item.IsLockedOut" Color="Color.Success"></MudSwitch></MudTd>
-						<MudTd DataLabel="Đã xóa?"><MudSwitch ReadOnly @bind-Value="item.IsDeleted" Color="Color.Error"></MudSwitch></MudTd>
+						<MudTd DataLabel="Vai trò">@item.MaRoleNavigation.TenVaiTro</MudTd>
+						<MudTd DataLabel="Đăng nhập lần cuối">@(item.ThoiGianDangNhap.HasValue == true ? @item.ThoiGianDangNhap.Value.ToString("dd/MM/yyyy") : "-")</MudTd>
+						<MudTd DataLabel="Đã khóa?"><MudSwitch ReadOnly @bind-Value="item.DaKhoa" Color="Color.Success"></MudSwitch></MudTd>
+						<MudTd DataLabel="Đã xóa?"><MudSwitch ReadOnly @bind-Value="item.DaXoa" Color="Color.Error"></MudSwitch></MudTd>
 					</RowTemplate>
 					<PagerContent>
 						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />

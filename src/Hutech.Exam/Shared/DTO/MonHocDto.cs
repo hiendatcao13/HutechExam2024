@@ -19,20 +19,18 @@ namespace Hutech.Exam.Shared.DTO
         public string? TenMonHoc { get; set; }
 
         public virtual ICollection<LopAoDto> LopAos { get; set; } = new List<LopAoDto>();
-        public virtual ICollection<CloDto> Clos { get; set; } = new List<CloDto>();
 
         public override string ToString()
         {
             return TenMonHoc ?? "Không tồn tại tên môn học";
         }
 
-        public MonHocDto(int maMonHoc, string? maSoMonHoc, string? tenMonHoc, ICollection<LopAoDto> lopAos, ICollection<CloDto> clos)
+        public MonHocDto(int maMonHoc, string? maSoMonHoc, string? tenMonHoc, ICollection<LopAoDto> lopAos)
         {
             MaMonHoc = maMonHoc;
             MaSoMonHoc = maSoMonHoc;
             TenMonHoc = tenMonHoc;
             LopAos = lopAos;
-            Clos = clos;
         }
 
         public MonHocDto(MonHocDto other)
@@ -41,7 +39,6 @@ namespace Hutech.Exam.Shared.DTO
             MaSoMonHoc = other.MaSoMonHoc;
             TenMonHoc = other.TenMonHoc;
             LopAos = other.LopAos;
-            Clos = other.Clos;
         }
     }
 }

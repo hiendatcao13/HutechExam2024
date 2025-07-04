@@ -14,7 +14,7 @@
 		<MudGrid>
 			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
 			<MudItem xs="8">
-				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaRole">
+				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaVaiTro">
 					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
 					{
 						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
@@ -23,19 +23,19 @@
 			</MudItem>
 
 			<MudItem xs="4"><MudText>LoginName:</MudText></MudItem>
-			<MudItem xs="8"><MudText><span class="title-text">@tempUser.LoginName</span></MudText></MudItem>
+			<MudItem xs="8"><MudText><span class="title-text">@tempUser.TenDangNhap</span></MudText></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Email" Required InputType="InputType.Email" @bind-Value="tempUser.Email" Placeholder="example@mail.com" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Name:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Name" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.Name" /></MudItem>
+			<MudItem xs="8"><MudTextField Label="Name" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.Ten" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Đã khóa?:</MudText></MudItem>
-			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.IsLockedOut" Color="Color.Info"></MudSwitch></MudItem>
+			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.DaKhoa" Color="Color.Info"></MudSwitch></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Đã xóa?:</MudText></MudItem>
-			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.IsDeleted" Color="Color.Error"></MudSwitch></MudItem>
+			<MudItem xs="8"><MudSwitch @bind-Value="tempUser.DaXoa" Color="Color.Error"></MudSwitch></MudItem>
 
 		</MudGrid>
 	</DialogContent>
@@ -83,7 +83,7 @@
 
 	private async Task OnClickEditAsync()
 	{
-		if (string.IsNullOrEmpty(tempUser.Email) || string.IsNullOrEmpty(tempUser.Name))
+		if (string.IsNullOrEmpty(tempUser.Email) || string.IsNullOrEmpty(tempUser.Ten))
 		{
 			Snackbar.Add(INVALID_FORM, Severity.Error);
 			return;
@@ -95,18 +95,18 @@
 			return;
 		}
 
-		var result = await UpdateUserAPI(tempUser.UserId, new UserUpdateRequest
+		var result = await UpdateUserAPI(tempUser.MaNguoiDung, new UserUpdateRequest
 		{
-			MaRole = tempUser.MaRole,
-			LoginName = tempUser.LoginName,
+			MaRole = tempUser.MaVaiTro,
+			LoginName = tempUser.TenDangNhap,
 			Email = tempUser.Email,
-			Name = tempUser.Name, 
-			IsDeleted = tempUser.IsDeleted,
-			IsLockedOut = tempUser.IsLockedOut,
+			Name = tempUser.Ten, 
+			IsDeleted = tempUser.DaXoa,
+			IsLockedOut = tempUser.DaKhoa,
 			Comment = string.Empty
 		});
 
-		if (result != null && !string.IsNullOrEmpty(result.LoginName))
+		if (result != null && !string.IsNullOrEmpty(result.TenDangNhap))
 		{
 			MudDialog?.Close(DialogResult.Ok(result));
 		}

@@ -10,9 +10,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
 {
     public class SinhVienRepository(IMapper mapper) : ISinhVienRepository
     {
+        #region Private Fields
         private readonly IMapper _mapper = mapper;
 
         public static readonly int COLUMN_LENGTH = 15; // số lượng cột trong bảng SinhVien
+
+        #endregion
 
         public SinhVienDto GetProperty(IDataReader dataReader, int start = 0)
         {
@@ -40,18 +43,18 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public async Task<long> Insert(string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh, DateTime? ngay_sinh, int? ma_lop,
             string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien, Guid? student_id)
         {
-            using DatabaseReader sql = new("sinh_vien_Insert");
+            using DatabaseReader sql = new("SinhVien_Insert");
 
-            sql.SqlParams("@ho_va_ten_lot", SqlDbType.NVarChar, ho_va_ten_lot ?? (object)DBNull.Value);
-            sql.SqlParams("@ten_sinh_vien", SqlDbType.NVarChar, ten_sinh_vien ?? (object)DBNull.Value);
-            sql.SqlParams("@gioi_tinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
-            sql.SqlParams("@ngay_sinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
-            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@dia_chi", SqlDbType.Text, dia_chi ?? (object)DBNull.Value);
-            sql.SqlParams("@email", SqlDbType.NVarChar, email ?? (object)DBNull.Value);
-            sql.SqlParams("@dien_thoai", SqlDbType.NVarChar, dien_thoai ?? (object)DBNull.Value);
-            sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
-            sql.SqlParams("@student_id", SqlDbType.UniqueIdentifier, student_id ?? (object)DBNull.Value);
+            sql.SqlParams("@HoVaTenLot", SqlDbType.NVarChar, ho_va_ten_lot ?? (object)DBNull.Value);
+            sql.SqlParams("@TenSinhVien", SqlDbType.NVarChar, ten_sinh_vien ?? (object)DBNull.Value);
+            sql.SqlParams("@GioiTinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
+            sql.SqlParams("@NgaySinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
+            sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
+            sql.SqlParams("@DiaChi", SqlDbType.Text, dia_chi ?? (object)DBNull.Value);
+            sql.SqlParams("@Email", SqlDbType.NVarChar, email ?? (object)DBNull.Value);
+            sql.SqlParams("@DienThoai", SqlDbType.NVarChar, dien_thoai ?? (object)DBNull.Value);
+            sql.SqlParams("@MaSoSinhVien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
+            sql.SqlParams("@Guid", SqlDbType.UniqueIdentifier, student_id ?? (object)DBNull.Value);
 
             return Convert.ToInt64(await sql.ExecuteScalarAsync() ?? -1);
         }
@@ -59,7 +62,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public async Task Insert_Batch(List<SinhVienDto> sinhVienDtos)
         {
             var dt = SinhVienHelper.ToDataTable(sinhVienDtos);
-            using DatabaseReader sql = new("sinh_vien_Insert_Batch");
+            using DatabaseReader sql = new("SinhVien_Insert_Batch");
             sql.SqlParams("@DanhSachSinhVien", SqlDbType.Structured, dt);
 
             await sql.ExecuteNonQueryAsync();
@@ -67,35 +70,35 @@ namespace Hutech.Exam.Server.DAL.Repositories
         public async Task<bool> Update(long ma_sinh_vien, string? ho_va_ten_lot, string? ten_sinh_vien, int? gioi_tinh,
             DateTime? ngay_sinh, int? ma_lop, string? dia_chi, string? email, string? dien_thoai, string? ma_so_sinh_vien)
         {
-            using DatabaseReader sql = new("sinh_vien_Update");
+            using DatabaseReader sql = new("SinhVien_Update");
 
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
-            sql.SqlParams("@ho_va_ten_lot", SqlDbType.NVarChar, NormalizeString(ho_va_ten_lot) ?? (object)DBNull.Value);
-            sql.SqlParams("@ten_sinh_vien", SqlDbType.NVarChar, NormalizeString(ten_sinh_vien) ?? (object)DBNull.Value);
-            sql.SqlParams("@gioi_tinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
-            sql.SqlParams("@ngay_sinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
-            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@dia_chi", SqlDbType.Text, NormalizeString(dia_chi) ?? (object)DBNull.Value);
-            sql.SqlParams("@email", SqlDbType.NVarChar, NormalizeString(email) ?? (object)DBNull.Value);
-            sql.SqlParams("@dien_thoai", SqlDbType.NVarChar, NormalizeString(dien_thoai) ?? (object)DBNull.Value);
-            sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
+            sql.SqlParams("@HoVaTenLot", SqlDbType.NVarChar, NormalizeString(ho_va_ten_lot) ?? (object)DBNull.Value);
+            sql.SqlParams("@TenSinhVien", SqlDbType.NVarChar, NormalizeString(ten_sinh_vien) ?? (object)DBNull.Value);
+            sql.SqlParams("@GioiTinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
+            sql.SqlParams("@NgaySinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
+            sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
+            sql.SqlParams("@DiaChi", SqlDbType.Text, NormalizeString(dia_chi) ?? (object)DBNull.Value);
+            sql.SqlParams("@Email", SqlDbType.NVarChar, NormalizeString(email) ?? (object)DBNull.Value);
+            sql.SqlParams("@DienThoai", SqlDbType.NVarChar, NormalizeString(dien_thoai) ?? (object)DBNull.Value);
+            sql.SqlParams("@MaSoSinhVien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
         public async Task<bool> Remove(long ma_sinh_vien)
         {
-            using DatabaseReader sql = new("sinh_vien_Remove");
+            using DatabaseReader sql = new("SinhVien_Remove");
 
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> ForceRemove(long ma_sinh_vien)
         {
-            using DatabaseReader sql = new("sinh_vien_ForceRemove");
+            using DatabaseReader sql = new("SinhVien_ForceRemove");
 
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
@@ -103,12 +106,12 @@ namespace Hutech.Exam.Server.DAL.Repositories
         // lấy thông tin của 1 SV từ maSV
         public async Task<SinhVienDto> SelectOne(long ma_sinh_vien)
         {
-            using DatabaseReader sql = new("sinh_vien_SelectOne");
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
+            using DatabaseReader sql = new("SinhVien_SelectOne");
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
             using var dataReader = await sql.ExecuteReaderAsync();
             SinhVienDto sv = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 sv = GetProperty(dataReader);
             }
@@ -119,14 +122,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
         // lấy mã SV từ mã số SV
         public async Task<SinhVienDto> SelectBy_ma_so_sinh_vien(string ma_so_sinh_vien)
         {
-            using DatabaseReader sql = new("sinh_vien_SelectBy_ma_so_sinh_vien");
+            using DatabaseReader sql = new("SinhVien_SelectBy_MaSoSinhVien");
 
-            sql.SqlParams("@ma_so_sinh_vien", SqlDbType.NVarChar, ma_so_sinh_vien);
+            sql.SqlParams("@MaSoSinhVien", SqlDbType.NVarChar, ma_so_sinh_vien);
 
             using var dataReader = await sql.ExecuteReaderAsync();
             SinhVienDto sv = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
                 sv = GetProperty(dataReader);
             }
@@ -136,11 +139,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<List<SinhVienDto>> GetAll()
         {
-            using DatabaseReader sql = new("sinh_vien_GetAll");
+            using DatabaseReader sql = new("SinhVien_GetAll");
 
             using var dataReader = await sql.ExecuteReaderAsync();
             List<SinhVienDto> result = [];
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 SinhVienDto sv = GetProperty(dataReader);
                 result.Add(sv);
@@ -151,29 +154,29 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> Login(long ma_sinh_vien, DateTime last_log_in)
         {
-            using DatabaseReader sql = new("sinh_vien_Login");
+            using DatabaseReader sql = new("SinhVien_Login");
 
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
-            sql.SqlParams("@last_logged_in", SqlDbType.DateTime, last_log_in);
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
+            sql.SqlParams("@ThoiGianDangNhap", SqlDbType.DateTime, last_log_in);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<bool> Logout(long ma_sinh_vien, DateTime last_log_out)
         {
-            using DatabaseReader sql = new("sinh_vien_Logout");
+            using DatabaseReader sql = new("SinhVien_Logout");
 
-            sql.SqlParams("@ma_sinh_vien", SqlDbType.BigInt, ma_sinh_vien);
-            sql.SqlParams("@last_logged_out", SqlDbType.DateTime, last_log_out);
+            sql.SqlParams("@MaSinhVien", SqlDbType.BigInt, ma_sinh_vien);
+            sql.SqlParams("@ThoiGianDangXuat", SqlDbType.DateTime, last_log_out);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
         public async Task<Paged<SinhVienDto>> SelectBy_ma_lop_Search_Paged(int ma_lop, string keyword, int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("sinh_vien_SelectBy_ma_lop_Search_Paged");
+            using DatabaseReader sql = new("SinhVien_SelectBy_MaLop_Search_Paged");
 
-            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+            sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop);
             sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
@@ -182,7 +185,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<SinhVienDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 SinhVienDto sv = GetProperty(dataReader);
                 result.Add(sv);
@@ -202,9 +205,9 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<Paged<SinhVienDto>> SelectBy_ma_lop_Paged(int ma_lop, int pageNumber, int pageSize)
         {
-            using DatabaseReader sql = new("sinh_vien_SelectBy_ma_lop_Paged");
+            using DatabaseReader sql = new("SinhVien_SelectBy_MaLop_Paged");
 
-            sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
+            sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop);
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
             sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
 
@@ -212,7 +215,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             List<SinhVienDto> result = [];
             int tong_so_ban_ghi = 0, tong_so_trang = 0;
 
-            while (dataReader != null && dataReader.Read())
+            while (await dataReader!.ReadAsync())
             {
                 SinhVienDto sv = GetProperty(dataReader);
                 result.Add(sv);
@@ -232,20 +235,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<long> LoginCount()
         {
-            using DatabaseReader sql = new("sinh_vien_LoginCount");
+            using DatabaseReader sql = new("SinhVien_LoginCount");
 
             using var dataReader = await sql.ExecuteReaderAsync();
 
-            if(dataReader != null && dataReader.Read())
+            if(await dataReader!.ReadAsync())
             {
                 return dataReader.GetInt64(0);
             }
 
             return 0;
         }
-
-
-
 
 
 

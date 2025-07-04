@@ -13,21 +13,8 @@ public partial class DeThi
 
     public Guid? Guid { get; set; }
 
+    public string KyHieuDe { get; set; } = string.Empty;
+
     public DateTime NgayTao { get; set; }
 
-    public int NguoiTao { get; set; }
-
-    public string? GhiChu { get; set; }
-
-    public bool LuuTam { get; set; }
-
-    public bool DaDuyet { get; set; }
-
-    public int? TongSoDeHoanVi { get; set; }
-
-    public bool BoChuongPhan { get; set; }
-
-    public virtual ICollection<DeThiHoanVi> DeThiHoanVis { get; set; } = new List<DeThiHoanVi>();
-
-    public virtual ICollection<NhomCauHoi> NhomCauHois { get; set; } = new List<NhomCauHoi>();
 }

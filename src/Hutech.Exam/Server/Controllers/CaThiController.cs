@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.Controllers
         public async Task<IActionResult> IsActiveCaThi([FromRoute] int id)
         {
             CaThiDto caThi = await _caThiService.SelectOne(id);
-            return Ok(APIResponse<bool>.SuccessResponse(data: caThi.IsActivated, message: "Lấy thông tin ca thi thành công"));
+            return Ok(APIResponse<bool>.SuccessResponse(data: caThi.KichHoat, message: "Lấy thông tin ca thi thành công"));
         }
 
         [HttpGet("filter-by-dotthi-lopao-lanthi")]

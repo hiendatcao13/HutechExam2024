@@ -22,13 +22,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 MaMonHoc = dataReader.GetInt32(1 + start),
                 TenDeThi = dataReader.GetString(2 + start),
                 Guid = dataReader.IsDBNull(3 + start) ? null : dataReader.GetGuid(3 + start),
-                NgayTao = dataReader.GetDateTime(4 + start),
-                NguoiTao = dataReader.GetInt32(5 + start),
-                GhiChu = dataReader.IsDBNull(6 + start) ? null : dataReader.GetString(6 + start),
-                LuuTam = dataReader.GetBoolean(7 + start),
-                DaDuyet = dataReader.GetBoolean(8 + start),
-                TongSoDeHoanVi = dataReader.IsDBNull(9 + start) ? null : dataReader.GetInt32(9 + start),
-                BoChuongPhan = dataReader.GetBoolean(10 + start)
+                KyHieuDe = dataReader.GetString(4 + start),
+                NgayTao = dataReader.GetDateTime(5 + start),
             };
             return _mapper.Map<DeThiDto>(deThi);
         }

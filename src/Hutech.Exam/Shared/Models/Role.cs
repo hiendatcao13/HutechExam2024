@@ -8,9 +8,9 @@ namespace Hutech.Exam.Shared.Models
 {
     public partial class Role
     {
-        public int MaRole { get; set; }
+        public int MaVaiTro { get; set; }
 
-        public string TenRole { get; set; } = null!;
+        public string TenVaiTro { get; set; } = null!;
 
         public string? MoTa { get; set; }
 

@@ -14,22 +14,12 @@ namespace Hutech.Exam.Shared.DTO.Request.CaThi
 
         public DateTime ThoiGianBatDau { get; set; }
 
-        public int MaDeThi { get; set; }
-
         public int ThoiGianThi { get; set; }
 
         public string MatMa { get; set; } = string.Empty;
 
         public CaThiCreateRequest() { }
 
-        public CaThiCreateRequest(string tenCaThi, int maChiTietDotThi, DateTime thoiGianBatDau, int maDeThi, int thoiGianThi)
-        {
-            TenCaThi = tenCaThi;
-            MaChiTietDotThi = maChiTietDotThi;
-            ThoiGianBatDau = thoiGianBatDau;
-            MaDeThi = maDeThi;
-            ThoiGianThi = thoiGianThi;
-        }
 
     }
 }

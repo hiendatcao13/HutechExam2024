@@ -5,13 +5,11 @@ namespace Hutech.Exam.Shared.Models;
 
 public partial class AudioListened
 {
-    public long ListenId { get; set; }
-
-    public int MaNhom { get; set; }
+    public long MaNghe { get; set; }
 
     public int MaChiTietCaThi { get; set; }
 
-    public string? FileName { get; set; }
+    public string? TenFile { get; set; }
 
-    public int ListenedCount { get; set; }
+    public int SoLanNghe { get; set; }
 }

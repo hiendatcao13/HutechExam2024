@@ -61,15 +61,15 @@ namespace Hutech.Exam.Server.Controllers
             var userSession = await _jwtAuthenticationManager.GenerateJwtTokenAdmin(account.Username, account.Password);
             if (userSession != null && userSession.NavigateUser != null)
             {
-                if (userSession.NavigateUser.IsLockedOut)
+                if (userSession.NavigateUser.DaKhoa)
                 {
                     return BadRequest(APIResponse<UserSession>.ErrorResponse(message: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên!"));
                 }
-                if (userSession.NavigateUser.IsDeleted)
+                if (userSession.NavigateUser.DaXoa)
                 {
                     return BadRequest(APIResponse<UserSession>.ErrorResponse(message: "Tài khoản đã bị xóa. Vui lòng liên hệ quản trị viên!"));
                 }
-                await UpdateLoginSuccess(userSession.NavigateUser.UserId);
+                await UpdateLoginSuccess(userSession.NavigateUser.MaNguoiDung);
                 return Ok(APIResponse<UserSession>.SuccessResponse(data: userSession, message: "Xác thực danh tính thành công"));
             }
             else
