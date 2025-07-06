@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BUS\**" />
     <Compile Remove="Pages\Admin\System\**" />
+    <Content Remove="BUS\**" />
     <Content Remove="Pages\Admin\System\**" />
+    <EmbeddedResource Remove="BUS\**" />
     <EmbeddedResource Remove="Pages\Admin\System\**" />
+    <None Remove="BUS\**" />
     <None Remove="Pages\Admin\System\**" />
   </ItemGroup>
 
@@ -42,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BUS\" />
     <Folder Include="wwwroot\css\exam\" />
     <Folder Include="wwwroot\images\admin\monitor\" />
     <Folder Include="wwwroot\images\exam\" />

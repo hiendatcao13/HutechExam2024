@@ -25,6 +25,8 @@ namespace Hutech.Exam.Server.Controllers
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
 
+        private const string NotFoundMessage = "Không tìm thấy chi tiết ca thi";
+
         #endregion
 
         #region Get Methods
@@ -72,38 +74,16 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
         {
-            try
-            {
-                var id = await _chiTietCaThiService.Insert(chiTietCaThi);
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Thêm chi tiết ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
+            var id = await _chiTietCaThiService.Insert(chiTietCaThi);
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Thêm chi tiết ca thi thành công"));
         }
 
         [HttpPost("batch")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> InsertBatch([FromBody] List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
         {
-            try
-            {
-                await _chiTietCaThiService.Insert_Batch(chiTietCaThis);
-                return Ok(APIResponse<List<ChiTietCaThiDto>>.SuccessResponse(message: "Thêm danh sách chi tiết ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm danh sách chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
+            await _chiTietCaThiService.Insert_Batch(chiTietCaThis);
+            return Ok(APIResponse<List<ChiTietCaThiDto>>.SuccessResponse(message: "Thêm danh sách chi tiết ca thi thành công"));
         }
 
         [HttpPost("export-excel")]
@@ -219,23 +199,12 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
         {
-            try
+            var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
+            if (!result)
             {
-                var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
-                if (!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cập nhật"));
-                }
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cập nhật chi tiết ca thi thành công"));
+                return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cập nhật chi tiết ca thi thành công"));
         }
 
         #endregion
@@ -246,23 +215,12 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromQuery] int gioCongThem)
         {
-            try
+            var result = await _chiTietCaThiService.CongGio(id, gioCongThem);
+            if (!result)
             {
-                var result = await _chiTietCaThiService.CongGio(id, gioCongThem);
-                if (!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Không tìm thấy chi tiết ca thi cần cộng giờ"));
-                }
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cộng giờ cho thí sinh thành công"));
+                return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cộng giờ cho thí sinh không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectOne(id), message: "Cộng giờ cho thí sinh thành công"));
 
         }
 
@@ -281,45 +239,23 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            var result = await _chiTietCaThiService.Remove(id);
+            if (!result)
             {
-                var result = await _chiTietCaThiService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Xóa chi tiết ca thi không thành công hoặc bị ràng buộc khóa ngoại"));
-                }
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
+                return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<ChiTietCaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<ChiTietCaThiDto>.ErrorResponse(message: "Xóa chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
         }
 
         [HttpDelete("{id:int}/force")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
-            try
+            var result = await _chiTietCaThiService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _chiTietCaThiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: "Xóa chi tiết ca thi không thành công"));
-                }
-                return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
+                return NotFound(APIResponse<ChiTietCaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<ChiTietCaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<ChiTietCaThiDto>.ErrorResponse(message: "Xóa chi tiết ca thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(message: "Xóa chi tiết ca thi thành công"));
         }
 
 

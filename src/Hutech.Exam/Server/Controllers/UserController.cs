@@ -25,6 +25,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
+        private const string NotFoundMessage = "Không tìm thấy người dùng";
+
         #endregion
 
         #region Get Methods
@@ -81,24 +83,13 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Insert([FromBody] UserCreateRequest user)
         {
-            try
+            bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
+            if (isExist)
             {
-                bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
-                if (isExist)
-                {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Tên đăng nhập hoặc email đã tồn tại. Vui lòng kiểm tra"));
-                }    
-                var id = await _userService.Insert(user);
-                return Ok(APIResponse<UserDto>.SuccessResponse(data: await _userService.SelectOne(id), message: "Thêm người dùng thành công"));
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Tên đăng nhập hoặc email đã tồn tại. Vui lòng kiểm tra"));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Thêm người dùng không thành công", errorDetails: ex.Message));
-            }
+            var id = await _userService.Insert(user);
+            return Ok(APIResponse<UserDto>.SuccessResponse(data: await _userService.SelectOne(id), message: "Thêm người dùng thành công"));
         }
 
         #endregion
@@ -108,31 +99,20 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("{id:Guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UserUpdateRequest user)
         {
-            try
+            bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
+            if (isExist)
             {
-                bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
-                if (isExist)
-                {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Tên đăng nhập hoặc email đã tồn tại. Vui lòng kiểm tra"));
-                }
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Tên đăng nhập hoặc email đã tồn tại. Vui lòng kiểm tra"));
+            }
 
-                var result = await _userService.Update(id, user);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Không tìm thấy người dùng cần cập nhật"));
-                }
-                else
-                {
-                    return Ok(APIResponse<UserDto>.SuccessResponse(data: await _userService.SelectOne(id), message: "Cập nhật người dùng thành công"));
-                }
-            }
-            catch (SqlException sqlEx)
+            var result = await _userService.Update(id, user);
+            if (!result)
             {
-                return SQLExceptionHelper<UserDto>.HandleSqlException(sqlEx);
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Không tìm thấy người dùng cần cập nhật"));
             }
-            catch (Exception ex)
+            else
             {
-                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Cập nhật người dùng không thành công", errorDetails: ex.Message));
+                return Ok(APIResponse<UserDto>.SuccessResponse(data: await _userService.SelectOne(id), message: "Cập nhật người dùng thành công"));
             }
         }
 
@@ -144,23 +124,12 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPatch("{id:Guid}/change-pasword")]
         public async Task<IActionResult> ChangePassword([FromRoute] Guid id, [FromBody] UserUpdatePasswordRequest user)
         {
-            try
+            var result = await _userService.UpdatePassword(id, user);
+            if (!result)
             {
-                var result = await _userService.UpdatePassword(id, user);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Không tìm thấy người dùng cần cập nhật mật khẩu"));
-                }
-                return Ok(APIResponse<UserDto>.SuccessResponse(message: "Cập nhật mậu khẩu người dùng thành công"));
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Không tìm thấy người dùng cần cập nhật mật khẩu"));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<UserDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Cập nhật mậu khẩu người dùng không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<UserDto>.SuccessResponse(message: "Cập nhật mậu khẩu người dùng thành công"));
         }
 
         #endregion
@@ -170,23 +139,12 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            try
+            var result = await _userService.Remove(id);
+            if (!result)
             {
-                var result = await _userService.Remove(id);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-                }
-                return Ok(APIResponse<UserDto>.SuccessResponse(message: "Xóa người dùng thành công"));
+                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<UserDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<UserDto>.ErrorResponse(message: "Xóa người dùng không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<UserDto>.SuccessResponse(message: "Xóa người dùng thành công"));
         }
 
         #endregion

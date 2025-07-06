@@ -148,29 +148,32 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return result;
         }
 
-        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<bool> KichHoat(int ma_ca_thi, bool kich_hoat, string actionHistory)
         {
-            using DatabaseReader sql = new("CaThi_Activate");
+            using DatabaseReader sql = new("CaThi_KichHoat");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
-            sql.SqlParams("KichHoat", SqlDbType.Bit, IsActivated);
+            sql.SqlParams("@KichHoat", SqlDbType.Bit, kich_hoat);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, actionHistory);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> HuyKichHoat(int ma_ca_thi)
+        public async Task<bool> HuyKichHoat(int ma_ca_thi, string actionHistory)
         {
             using DatabaseReader sql = new("CaThi_HuyKichHoat");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, actionHistory);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
-        public async Task<bool> Ketthuc(int ma_ca_thi)
+        public async Task<bool> Ketthuc(int ma_ca_thi, string actionHistory)
         {
             using DatabaseReader sql = new("CaThi_Ketthuc");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, actionHistory);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

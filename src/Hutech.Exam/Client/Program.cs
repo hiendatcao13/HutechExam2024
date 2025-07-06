@@ -38,7 +38,7 @@ builder.Services.AddMudServices(config =>
 
     //Gi?i h?n s? l??ng Snackbar
     config.SnackbarConfiguration.MaxDisplayedSnackbars = 5;
-    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
 });
 
 await builder.Build().RunAsync();

@@ -18,7 +18,7 @@
             </MudItem>
 
             <MudItem xs="12">
-                <MudTextField Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="totalStudentCodeNumber" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" HelperText="không check vui lòng để -1" />
+                <MudTextField Variant="Variant.Outlined" Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="totalStudentCodeNumber" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" HelperText="không check vui lòng để -1" />
             </MudItem>
 
             <MudItem xs="6" Style="padding-top: 10px">
@@ -39,14 +39,14 @@
 
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (isReadyToSave)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled>Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled>Lưu</MudButton>
         }
     </DialogActions>
 </MudDialog>

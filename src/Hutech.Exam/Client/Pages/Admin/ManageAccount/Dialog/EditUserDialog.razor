@@ -27,7 +27,7 @@
 			<MudItem xs="8"><MudText><span class="title-text">@tempUser.TenDangNhap</span></MudText></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
-			<MudItem xs="8"><MudTextField Label="Email" Required InputType="InputType.Email" @bind-Value="tempUser.Email" Placeholder="example@mail.com" /></MudItem>
+			<MudItem xs="8"><MudTextField Label="Email" Variant="Variant.Outlined" Required InputType="InputType.Email" @bind-Value="tempUser.Email" Placeholder="example@mail.com" /></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Name:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Name" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.Ten" /></MudItem>
@@ -41,8 +41,8 @@
 		</MudGrid>
 	</DialogContent>
 	<DialogActions>
-		<MudButton Variant="Variant.Filled" OnClick="OnClickEdit" Color="Color.Default">Thoát</MudButton>
-		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickEdit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
 
 	</DialogActions>
 </MudDialog>

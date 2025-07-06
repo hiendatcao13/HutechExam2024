@@ -13,7 +13,7 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (subjects != null)
 			{
-				<MudTable Elevation="24" T="MonHocDto" Items="@subjects" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedSubject(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSubjectFunc"
+				<MudTable Elevation="3" T="MonHocDto" Items="@subjects" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedSubject(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSubjectFunc"
 				TotalItems="totalRecords_Subject" RowsPerPage="rowsPerPage_Subject" CurrentPageChanged="OnCurrentPageChange_Subject" RowsPerPageChanged="OnRowsPerPageChange_Subject">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin môn thi</MudText>
@@ -39,7 +39,7 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (exams != null)
 			{
-				<MudTable Elevation="24" T="DeThiDto" Items="@exams" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExam(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamFunc"
+				<MudTable Elevation="3" T="DeThiDto" Items="@exams" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExam(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamFunc"
 				TotalItems="totalRecords_Exam" RowsPerPage="rowsPerPage_Exam" CurrentPageChanged="OnCurrentPageChange_Exam" RowsPerPageChanged="OnRowsPerPageChange_Exam">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin đề thi</MudText>
@@ -93,7 +93,7 @@
 		<MudItem xs="12">
 			@if (customQuestionReports != null)
 			{
-				<MudTable Elevation="24" T="CustomThongKeCauHoi" Items="@customQuestionReports" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+				<MudTable Elevation="3" T="CustomThongKeCauHoi" Items="@customQuestionReports" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Bảng tần số câu hỏi</MudText>
 						<MudSpacer />
@@ -133,28 +133,28 @@
 		</MudItem>
 
 		<MudItem xs="3">
-			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)" Elevation="3">
 				<MudText Typo="Typo.h5" Align="Align.Center">Tổng số thí sinh</MudText>
 				<MudText Typo="Typo.h3" Align="Align.Center">@totalStudent.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))</MudText>
 			</MudPaper>
 		</MudItem>
 
 		<MudItem xs="3">
-			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)" Elevation="3">
 				<MudText Typo="Typo.h5" Align="Align.Center">Điểm trung bình</MudText>
 				<MudText Typo="Typo.h3" Align="Align.Center">@averageScore.ToString("0.00")</MudText>
 			</MudPaper>
 		</MudItem>
 
 		<MudItem xs="3">
-			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)" Elevation="3">
 				<MudText Typo="Typo.h5" Align="Align.Center">Điểm &lt;= 1</MudText>
 				<MudText Typo="Typo.h3" Align="Align.Center">@totalStudentLessEqual1</MudText>
 			</MudPaper>
 		</MudItem>
 
 		<MudItem xs="3">
-			<MudPaper Class="box-text" Style="transform: scale(0.8)">
+			<MudPaper Class="box-text" Style="transform: scale(0.8)" Elevation="3">
 				<MudText Typo="Typo.h5" Align="Align.Center">Điểm &lt; 5</MudText>
 				<MudText Typo="Typo.h3" Align="Align.Center">@totalStudentLess5</MudText>
 			</MudPaper>
@@ -180,7 +180,7 @@
 		<MudItem xs="12">
 			@if (customScoreReports != null)
 			{
-				<MudTable Elevation="24" T="CustomThongKeDiem" Items="@customScoreReports" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+				<MudTable Elevation="3" T="CustomThongKeDiem" Items="@customScoreReports" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Bảng tần số điểm</MudText>
 						<MudSpacer />

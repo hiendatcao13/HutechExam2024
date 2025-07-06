@@ -108,7 +108,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
                 var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-                await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất cho thí sinh", parameters, options);
+                await Dialog.ShowAsync<Simple_Dialog>("RESET ĐĂNG NHẬP", parameters, options);
 
             }
             else
@@ -126,17 +126,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
                 var sinhVien = chiTietCaThi.MaSinhVienNavigation;
                 //cập nhật audit cho ca thi
-                var updateHistory = new LichSuHoatDong()
-                {
-                    HanhDong = KieuHanhDong.CongGioChoThiSinh,
-                    ChiTiet = $"MSSV {sinhVien?.MaSoSinhVien} thí sinh {sinhVien?.HoVaTenLot} {sinhVien?.TenSinhVien}",
-                    UserId = userId,
-                    NguoiThucHien = name ?? string.Empty,
-                    LyDo = newChiTietCaThi.LyDoCong ?? string.Empty
-                };
-
-                var jsonText = ConvertActionHistory(updateHistory);
-                if(await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
+                var jsonText = CreateActionHistory(KieuHanhDong.CongGioChoThiSinh, $"MSSV {sinhVien?.MaSoSinhVien} thí sinh {sinhVien?.HoVaTenLot} {sinhVien?.TenSinhVien}", newChiTietCaThi.LyDoCong!);
+                if (await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
                 {
                     await UpdateViewHistory(jsonText);
                 }
@@ -236,7 +227,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickDeleteExamSessionDetailAsync(ChiTietCaThiDto examSessionDetail)
         {
-
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, CONFIRM_DELETE_STUDENT },
@@ -249,11 +239,21 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task HandleDeleteExamSessionDetailAsync(ChiTietCaThiDto examSessionDetail, bool isForce)
         {
-            bool result = (isForce) ? await ExamSessionDetail_ForceDeleteAPI(examSessionDetail.MaChiTietCaThi) : await ExamSessionDetail_DeleteAPI(examSessionDetail.MaChiTietCaThi);
-            if (result)
+            var reason = await OpenAuditDialogAsync(KieuHanhDong.XoaThiSinh);
+            if (reason != null && !reason.Canceled && reason.Data != null)
             {
-                Snackbar.Add(WAITING_DELETE, Severity.Warning);
-                examSessionDetails?.Remove(examSessionDetail);
+                string jsonText = CreateActionHistory(KieuHanhDong.XoaThiSinh, $"MSSV {examSessionDetail.MaSinhVienNavigation?.MaSoSinhVien} thí sinh {examSessionDetail.MaSinhVienNavigation?.HoVaTenLot} {examSessionDetail.MaSinhVienNavigation?.TenSinhVien}", reason.Data.ToString()!);
+                if (await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
+                {
+                    await UpdateViewHistory(jsonText);
+                }
+
+                bool result = (isForce) ? await ExamSessionDetail_ForceDeleteAPI(examSessionDetail.MaChiTietCaThi) : await ExamSessionDetail_DeleteAPI(examSessionDetail.MaChiTietCaThi);
+                if (result)
+                {
+                    Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                    examSessionDetails?.Remove(examSessionDetail);
+                }
             }
         }
 
@@ -268,33 +268,27 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 var reason = await OpenAuditDialogAsync(KieuHanhDong.ResetDangNhap);
                 if (reason != null && !reason.Canceled && reason.Data != null)
                 {
-                    string jsonText = ConvertActionHistory(new LichSuHoatDong
-                    {
-                        HanhDong = Shared.Enums.KieuHanhDong.ResetDangNhap,
-                        ChiTiet = $"MSSV {sinhVien.MaSoSinhVien} thí sinh {sinhVien.HoVaTenLot} {sinhVien.TenSinhVien}",
-                        UserId = userId,
-                        NguoiThucHien = name ?? string.Empty,
-                        LyDo = reason.Data.ToString()!
-                    });
+                    string jsonText = CreateActionHistory(KieuHanhDong.ResetDangNhap, $"MSSV {sinhVien.MaSoSinhVien} thí sinh {sinhVien.HoVaTenLot} {sinhVien.TenSinhVien}", reason.Data.ToString()!);
 
-                    if (await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
+                    var result = await ResetLoginAPI(sinhVien.MaSinhVien);
+                    if (result && examSessionDetails != null)
                     {
-                        await UpdateViewHistory(jsonText);
+                        int index = examSessionDetails.FindIndex(k => k.MaSinhVien == sinhVien.MaSinhVien);
+                        if (index != -1)
+                        {
+                            examSessionDetails[index].MaSinhVienNavigation!.IsLoggedIn = false;
+                            examSessionDetails[index].MaSinhVienNavigation!.LastLoggedIn = DateTime.Now;
+                        }
+
+                        if (await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
+                        {
+                            await UpdateViewHistory(jsonText);
+                        }
                     }
 
                 }
             }
 
-            var result = await ResetLoginAPI(sinhVien.MaSinhVien);
-            if (result && examSessionDetails != null)
-            {
-                int index = examSessionDetails.FindIndex(k => k.MaSinhVien == sinhVien.MaSinhVien);
-                if (index != -1)
-                {
-                    examSessionDetails[index].MaSinhVienNavigation!.IsLoggedIn = false;
-                    examSessionDetails[index].MaSinhVienNavigation!.LastLoggedIn = DateTime.Now;
-                }
-            }
         }
 
         private async Task HandleSubmitAsync(ChiTietCaThiDto chiTietCaThi)
@@ -360,6 +354,21 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
 
             await CreateHubConnectionAsync();
+        }
+
+        private string CreateActionHistory(KieuHanhDong kieuHanhDong, string chiTiet, string lyDo)
+        {
+            var updateHistory = new LichSuHoatDong()
+            {
+                HanhDong = kieuHanhDong,
+                ChiTiet = chiTiet,
+                UserId = userId,
+                NguoiThucHien = name ?? string.Empty,
+                LyDo = lyDo
+            };
+
+            var jsonText = ConvertActionHistory(updateHistory);
+            return jsonText;
         }
 
         private string ConvertActionHistory(LichSuHoatDong actionHistory)

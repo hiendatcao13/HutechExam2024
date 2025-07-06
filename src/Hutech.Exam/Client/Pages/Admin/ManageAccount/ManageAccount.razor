@@ -11,17 +11,17 @@
 		<MudItem xs="12">
 			@if (users != null)
 			{
-				<MudTable Elevation="24" T="UserDto" Items="@users" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedUser" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassUserFunc"
+				<MudTable Elevation="3" T="UserDto" Items="@users" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="OnRowClickedUser" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassUserFunc"
 						  TotalItems="totalRecords_User" RowsPerPage="rowsPerPage_User" CurrentPageChanged="OnCurrentPageChange_UserAsync" RowsPerPageChanged="OnRowsPerPageChange_UserAsync">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin người dùng</MudText>
 						<MudSpacer />
 						<MudTextField @bind-Value="searchString" Placeholder="Nhập email hoặc tên người dùng" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchUsersAsync()">Sync</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddUserAsync()">Thêm</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditUserAsync()">Sửa</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Lock" OnClick="async () => await OnClickChangePassword()">Đổi mật khẩu</MudButton>
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteUserAsync()">Xóa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchUsersAsync()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddUserAsync()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditUserAsync()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Lock" OnClick="async () => await OnClickChangePassword()">Đổi mật khẩu</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteUserAsync()">Xóa</MudButton>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh>Name</MudTh>

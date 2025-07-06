@@ -9,18 +9,25 @@
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
 	<DialogContent>
-		<MudTextField Label="Mã số môn học" Required InputType="InputType.Text" @bind-Value="tempSubject.MaSoMonHoc" Placeholder="CMP123" />
-		<MudTextField Label="Tên môn học" Required InputType="InputType.Text" @bind-Value="tempSubject.TenMonHoc" />
+		<MudGrid>
+			<MudItem xs="4" Style="align-content: center"><MudText>Mã số môn:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Mã số môn" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempSubject.MaSoMonHoc" Placeholder="CMP123" /></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Tên môn:</MudText></MudItem>
+			<MudItem xs="8"><MudTextField Label="Tên môn" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempSubject.TenMonHoc" /></MudItem>
+		</MudGrid>
+		
+
 	</DialogContent>
 	<DialogActions>
-		<MudButton Variant="Variant.Filled" OnClick="OnClickEdit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickEdit" Color="Color.Default">Thoát</MudButton>
 		@if (!IsEdit)
 		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+			<MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
 		}
 		else
 		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+			<MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
 		}
 
 	</DialogActions>

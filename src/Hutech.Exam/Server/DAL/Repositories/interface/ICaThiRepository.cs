@@ -16,11 +16,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<List<CaThiDto>> GetAll();
 
-        Task<bool> Activate(int ma_ca_thi, bool IsActivated);
+        Task<bool> KichHoat(int ma_ca_thi, bool kich_hoat, string actionHistory);
 
-        Task<bool> HuyKichHoat(int ma_ca_thi);
+        Task<bool> HuyKichHoat(int ma_ca_thi, string actionHistory);
 
-        Task<bool> Ketthuc(int ma_ca_thi);
+        Task<bool> Ketthuc(int ma_ca_thi, string actionHistory);
 
         Task<int> Insert(string ten_ca_thi, int ma_chi_tiet_dot_thi, DateTime thoi_gian_bat_dau, int thoi_gian_thi, string mat_ma);
 

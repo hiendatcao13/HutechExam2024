@@ -15,43 +15,43 @@
             <MudItem xs="8"><MudText><span class="title-text">@Classroom?.TenLop</span></MudText></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>MSSV:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="MSSV" Required @bind-Value="@tempStudent.MaSoSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="MSSV" Required @bind-Value="@tempStudent.MaSoSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Họ lót:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Họ lót" @bind-Value="@tempStudent.HoVaTenLot" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Họ lót" @bind-Value="@tempStudent.HoVaTenLot" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Tên:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên" Required @bind-Value="@tempStudent.TenSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Tên" Required @bind-Value="@tempStudent.TenSinhVien" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Giới tính:</MudText></MudItem>
             <MudItem xs="8"><MudCheckBox @bind-Value="@isMale">Nam</MudCheckBox></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Ngày sinh:</MudText></MudItem>
             <MudItem xs="8">
-                <MudDatePicker Editable="true" Label="Ngày sinh" @bind-Date="@tempStudent.NgaySinh" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+                <MudDatePicker Variant="Variant.Outlined" Editable="true" Label="Ngày sinh" @bind-Date="@tempStudent.NgaySinh" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Email" @bind-Value="@tempStudent.Email" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Email" @bind-Value="@tempStudent.Email" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Địa chỉ:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Địa chỉ" @bind-Value="@tempStudent.DiaChi" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Địa chỉ" @bind-Value="@tempStudent.DiaChi" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Điện thoại:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Điện thoại" @bind-Value="@tempStudent.DienThoai" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Điện thoại" @bind-Value="@tempStudent.DienThoai" InputType="InputType.Text"></MudTextField></MudItem>
 
 
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (!IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
 
     </DialogActions>

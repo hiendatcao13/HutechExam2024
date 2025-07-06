@@ -13,7 +13,7 @@
 <MudDialog Style="max-width: 400px; overflow: visible">
 	<DialogContent>
 		<MudGrid>
-			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
+			<MudItem xs="4" Style="align-content: center"><MudText>Vai trò:</MudText></MudItem>
 			<MudItem xs="8">
 				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaVaiTro">
 					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
@@ -23,7 +23,7 @@
 				</MudSelect>
 			</MudItem>
 
-			<MudItem xs="4"><MudText>LoginName:</MudText></MudItem>
+			<MudItem xs="4" Style="align-content: center"><MudText>LoginName:</MudText></MudItem>
 			<MudItem xs="8"><MudText><MudTextField Label="Email" Variant="Variant.Outlined" Required InputType="InputType.Text" @bind-Value="tempUser.TenDangNhap" Placeholder="example@mail.com" /></MudText></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
@@ -41,8 +41,8 @@
 		</MudGrid>
 	</DialogContent>
 	<DialogActions>
-		<MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
-		<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
 
 	</DialogActions>
 </MudDialog>

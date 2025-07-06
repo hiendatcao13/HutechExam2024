@@ -203,6 +203,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
             return false;
         }
 
+
         private void UpdateExamSession(CaThiDto caThi)
         {
             if (caThi == null || examSessions == null) return;

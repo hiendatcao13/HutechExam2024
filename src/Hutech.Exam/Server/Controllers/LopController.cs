@@ -20,6 +20,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly LopService _lopService = lopService;
 
+        private const string NotFoundMessage = "Không tìm thấy lớp học";
+
         #endregion
 
         #region Get Methods
@@ -49,19 +51,8 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Insert([FromBody] LopCreateRequest lop)
         {
-            try
-            {
-                var id = await _lopService.Insert(lop);
-                return Ok(APIResponse<LopDto>.SuccessResponse(data: await _lopService.SelectOne(id), message: "Thêm lớp học thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Thêm lớp học không thành công", errorDetails: ex.Message));
-            }
+            var id = await _lopService.Insert(lop);
+            return Ok(APIResponse<LopDto>.SuccessResponse(data: await _lopService.SelectOne(id), message: "Thêm lớp học thành công"));
         }
 
         #endregion
@@ -71,23 +62,12 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] LopUpdateRequest lop)
         {
-            try
+            var result = await _lopService.Update(id, lop);
+            if (!result)
             {
-                var result = await _lopService.Update(id, lop);
-                if (!result)
-                {
-                    return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Không tìm thấy lớp học"));
-                }
-                return Ok(APIResponse<LopDto>.SuccessResponse(data: await _lopService.SelectOne(id), message: "Cập nhật lớp học thành công"));
+                return NotFound(APIResponse<LopDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Cập nhật lớp học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<LopDto>.SuccessResponse(data: await _lopService.SelectOne(id), message: "Cập nhật lớp học thành công"));
         }
 
         #endregion
@@ -103,46 +83,24 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            var result = await _lopService.Remove(id);
+            if (!result)
             {
-                var result = await _lopService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Xóa lớp học không thành công hoặc dính phải các khóa ràng buộc"));
-                }
-                return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
+                return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Xóa lớp học không thành công hoặc dính phải các khóa ràng buộc"));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Xóa lớp học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
 
         }
 
         [HttpDelete("{id}/force")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
-            try
+            var result = await _lopService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _lopService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<LopDto>.NotFoundResponse(message: "Xóa lớp học không thành công"));
-                }
-                return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
+                return NotFound(APIResponse<LopDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<LopDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<LopDto>.ErrorResponse(message: "Xóa lớp học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<LopDto>.SuccessResponse(message: "Xóa lớp học thành công"));
 
         }
 

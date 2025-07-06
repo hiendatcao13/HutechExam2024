@@ -11,11 +11,11 @@
 			@if (tempExamSessionDetail.MaSinhVienNavigation != null)
 			{
 				<MudItem xs="6">
-					<MudTextField Label="MSSV" T="string" @bind-Value="tempExamSessionDetail.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
+					<MudTextField Variant="Variant.Outlined" Label="MSSV" T="string" @bind-Value="tempExamSessionDetail.MaSinhVienNavigation.MaSoSinhVien" OnKeyDown="HandleKeyDown" />
 				</MudItem>
 
 				<MudItem xs="3">
-					<MudSelect T="long" Label="Mã đề" @bind-Value="shuffleExamId">
+					<MudSelect Variant="Variant.Outlined" T="long" Label="Mã đề" @bind-Value="shuffleExamId">
 						@if (ShuffleExams != null)
 						{
 							foreach (var item in ShuffleExams)
@@ -54,11 +54,11 @@
 		<MudButton OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
 		@if (!isExist)
 		{
-			<MudButton Variant="Variant.Filled" OnClick="async () => await OnClickCheckAsync()" Color="Color.Info">Kiểm tra</MudButton>
+			<MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickCheckAsync()" Color="Color.Info">Kiểm tra</MudButton>
 		}
 		else
 		{
-			<MudButton Variant="Variant.Filled" OnClick="OnClickSaveAsync" Color="Color.Success">Lưu</MudButton>
+			<MudButton Variant="Variant.Outlined" OnClick="OnClickSaveAsync" Color="Color.Success">Lưu</MudButton>
 		}
 	</DialogActions>
 </MudDialog>

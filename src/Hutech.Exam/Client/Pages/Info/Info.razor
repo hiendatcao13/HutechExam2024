@@ -7,7 +7,7 @@
 <PageTitle>Student Information</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
-    <MudCard Class="pa-6" Elevation="21" Style="margin: auto; text-align: center; background-color: #eaeaea; width: 100%">
+    <MudCard Class="pa-6" Elevation="3" Style="margin: auto; text-align: center; width: 100%">
         <!-- Logo -->
         <MudCardContent Class="d-flex justify-center">
             <MudImage Src="images/exam/Logo.svg" Width="200" />
@@ -31,7 +31,7 @@
             </MudItem>
         </MudGrid>
         <MudCardActions Style="display: flex; justify-content: center;">
-            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="OnClickLogoutAsync">Đăng xuất</MudButton>
+            <MudButton Variant="Variant.Outlined" Size="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="OnClickLogoutAsync">Đăng xuất</MudButton>
         </MudCardActions>
 
         @if (ExamSessionDetails != null && ExamSessionDetails.Count > 0 && ExamSessionDetails[0]?.MaCaThiNavigation != null)
@@ -49,7 +49,7 @@
                 </MudRadioGroup>
             </MudCardContent>
             <MudCardActions Style="display: flex; justify-content: center;">
-                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Filled.Article" Variant="Variant.Filled" Color="Color.Success" OnClick="OnClickStartExamAsync">Bắt đầu thi</MudButton>
+                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Filled.Article" Variant="Variant.Outlined" Color="Color.Success" OnClick="OnClickStartExamAsync">Bắt đầu thi</MudButton>
             </MudCardActions>
         }
     </MudCard>

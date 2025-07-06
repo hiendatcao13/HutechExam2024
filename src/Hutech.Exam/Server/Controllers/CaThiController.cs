@@ -5,6 +5,7 @@ using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.Audit;
 using Hutech.Exam.Shared.DTO.Request.CaThi;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _adminHub = adminHub;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
+
+        private const string NotFoundMessage = "Không tìm thấy ca thi";
         #endregion
 
         #region Get Methods
@@ -76,21 +79,9 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Insert([FromBody] CaThiCreateRequest caThi)
         {
-            try
-            {
-                var id = await _caThiService.Insert(caThi);
-                await NotifyChangeCaThiToAdmin(id, 0);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), "Thêm ca thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm ca thi không thành công", errorDetails: ex.Message));
-            }
-
+            var id = await _caThiService.Insert(caThi);
+            await NotifyChangeCaThiToAdmin(id, 0);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), "Thêm ca thi thành công"));
         }
 
         [HttpPost("{id:int}/verify")]
@@ -98,7 +89,7 @@ namespace Hutech.Exam.Server.Controllers
         {
             var examSession = await _caThiService.SelectOne(id);
             var hashPassword = examSession.MatMa;
-            if(string.IsNullOrWhiteSpace(hashPassword) || _bcryptService.VerifyPassword(password, hashPassword) == true)
+            if (string.IsNullOrWhiteSpace(hashPassword) || _bcryptService.VerifyPassword(password, hashPassword) == true)
             {
                 return Ok(APIResponse<bool>.SuccessResponse(data: true, message: "Xác thực thành công"));
             }
@@ -115,25 +106,13 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
         {
-            try
+            var result = await _caThiService.Update(id, caThi);
+            if (!result)
             {
-                var result = await _caThiService.Update(id, caThi);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật ca thi thành công"));
-
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật ca thi thành công"));
         }
 
         #endregion
@@ -141,143 +120,78 @@ namespace Hutech.Exam.Server.Controllers
         #region Patch Methods
 
         [HttpPatch("{id:int}/active")]
-        public async Task<IActionResult> KichHoatCaThi([FromRoute] int id)
+        public async Task<IActionResult> KichHoatCaThi([FromRoute] int id, [FromBody] string lichSuHoatDong)
         {
-            try
+            var result = await _caThiService.Activate(id, true, lichSuHoatDong);
+            if (!result)
             {
-                var result = await _caThiService.Activate(id, true);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần kích hoạt"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Kích hoạt ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Kích hoạt ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Kích hoạt ca thi thành công"));
+
         }
 
         [HttpPatch("{id:int}/deactive")]
-        public async Task<IActionResult> HuyKichHoatCaThi([FromRoute] int id)
+        public async Task<IActionResult> HuyKichHoatCaThi([FromRoute] int id, [FromBody] string lichSuHoatDong)
         {
-            try
+            var result = await _caThiService.HuyKichHoat(id, lichSuHoatDong);
+            if (!result)
             {
-                var result = await _caThiService.HuyKichHoat(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần hủy kích hoạt"));
-                }
-                await NotifyChangeStatusCaThiToSV(id);
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Hủy kích hoạt ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Hủy kích hoạt ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeStatusCaThiToSV(id);
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Hủy kích hoạt ca thi thành công"));
         }
 
         [HttpPatch("{id:int}/pause")]
-        public async Task<IActionResult> DungCaThi([FromRoute] int id)
+        public async Task<IActionResult> DungCaThi([FromRoute] int id, [FromBody] string lichSuHoatDong)
         {
-            try
+            var result = await _caThiService.Activate(id, false, lichSuHoatDong);
+            if (!result)
             {
-                var result = await _caThiService.Activate(id, false);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần dừng"));
-                }
-                await NotifyChangeStatusCaThiToSV(id);
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Dừng ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Dừng ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeStatusCaThiToSV(id);
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Dừng ca thi thành công"));
         }
 
         [HttpPatch("{id:int}/finish")]
-        public async Task<IActionResult> KetThucCaThi([FromRoute] int id)
+        public async Task<IActionResult> KetThucCaThi([FromRoute] int id, [FromBody] string lichSuHoatDong)
         {
-            try
+            var result = await _caThiService.Ketthuc(id, lichSuHoatDong);
+            if (!result)
             {
-                var result = await _caThiService.Ketthuc(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần kết thúc"));
-                }
-                await NotifyChangeStatusCaThiToSV(id);
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Kết thúc ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Kết thúc ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeStatusCaThiToSV(id);
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Kết thúc ca thi thành công"));
         }
 
         [HttpPatch("{id:int}/update-dethi")]
         public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromQuery] bool isOrderMSSV, [FromBody] List<long> dsDeThiHVs)
         {
-            try
+            var result = await _caThiService.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
+            if (!result)
             {
-                var result = await _caThiService.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 1);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật ca thi thành công"));
         }
 
         [HttpPatch("{id:int}/update-audit")]
         public async Task<IActionResult> UpdateAudit([FromRoute] int id, [FromBody] string lichSuHoatDong)
         {
-            try
+            var result = await _caThiService.UpdateLichSuHoatDong(id, lichSuHoatDong);
+            if (!result)
             {
-                var result = await _caThiService.UpdateLichSuHoatDong(id, lichSuHoatDong);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Không tìm thấy ca thi cần cập nhật"));
-                }
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật lịch sử ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật lịch sử ca thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật lịch sử hoạt động ca thi thành công"));
         }
 
         #endregion
@@ -287,47 +201,25 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            var result = await _caThiService.Remove(id);
+            if (!result)
             {
-                var result = await _caThiService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Xóa ca thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 2);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeCaThiToAdmin(id, 2);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
         }
 
         [HttpDelete("{id}/force")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
-            try
+            var result = await _caThiService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _caThiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: "Xóa ca thi không thành công"));
-                }
-                await NotifyChangeCaThiToAdmin(id, 2);
-                return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<object>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa ca thi không thành công", errorDetails: ex.Message));
-            }
+            await NotifyChangeCaThiToAdmin(id, 2);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Xóa ca thi thành công"));
         }
 
 

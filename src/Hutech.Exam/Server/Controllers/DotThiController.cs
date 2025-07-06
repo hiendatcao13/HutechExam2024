@@ -23,6 +23,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly IHubContext<AdminHub> _mainHub = mainHub;
 
+        private const string NotFoundMessage = "Không tìm thấy đợt thi";
+
         #endregion
 
         #region Get Methods
@@ -53,19 +55,8 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Insert([FromBody] DotThiCreateRequest dotThi)
         {
-            try
-            {
-                var id = await _dotThiService.Insert(dotThi);
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Thêm đợt thi không thành công", errorDetails: ex.Message));
-            }
+            var id = await _dotThiService.Insert(dotThi);
+            return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Thêm đợt thi thành công"));
         }
 
         #endregion
@@ -75,23 +66,12 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
-            try
+            var result = await _dotThiService.Update(id, dotThi);
+            if (!result)
             {
-                var result = await _dotThiService.Update(id, dotThi);
-                if (!result)
-                {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Không tìm thấy đợt thi cần cập nhật"));
-                }
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Cập nhật đợt thi thành công"));
+                return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Cập nhật đợt thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<DotThiDto>.SuccessResponse(data: await _dotThiService.SelectOne(id), message: "Cập nhật đợt thi thành công"));
         }
 
 
@@ -108,45 +88,23 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            var result = await _dotThiService.Remove(id);
+            if (!result)
             {
-                var result = await _dotThiService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Xóa đợt thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-                }
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
+                return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
         }
 
         [HttpDelete("{id:int}/force")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
-            try
+            var result = await _dotThiService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _dotThiService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: "Xóa đợt thi không thành công"));
-                }
-                return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
+                return NotFound(APIResponse<DotThiDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<CaThiDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<CaThiDto>.ErrorResponse(message: "Xóa đợt thi không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<DotThiDto>.SuccessResponse(message: "Xóa đợt thi thành công"));
         }
 
         #endregion

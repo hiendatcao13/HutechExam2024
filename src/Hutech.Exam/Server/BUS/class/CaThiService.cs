@@ -39,19 +39,19 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.GetAll();
         }
-        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated, string lichSuHoatDong)
         {
-            return await _caThiRepository.Activate(ma_ca_thi, IsActivated);
+            return await _caThiRepository.KichHoat(ma_ca_thi, IsActivated, lichSuHoatDong);
         }
 
-        public async Task<bool> HuyKichHoat(int ma_ca_thi)
+        public async Task<bool> HuyKichHoat(int ma_ca_thi, string lichSuHoatDong)
         {
-            return await _caThiRepository.HuyKichHoat(ma_ca_thi);
+            return await _caThiRepository.HuyKichHoat(ma_ca_thi, lichSuHoatDong);
         }
 
-        public async Task<bool> Ketthuc(int ma_ca_thi)
+        public async Task<bool> Ketthuc(int ma_ca_thi, string lichSuHoatDong)
         {
-            return await _caThiRepository.Ketthuc(ma_ca_thi);
+            return await _caThiRepository.Ketthuc(ma_ca_thi, lichSuHoatDong);
         }
 
         public async Task<int> Insert(CaThiCreateRequest caThi)

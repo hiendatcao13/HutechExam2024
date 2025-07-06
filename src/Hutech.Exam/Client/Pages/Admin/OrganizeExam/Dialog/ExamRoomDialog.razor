@@ -9,18 +9,23 @@
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
-        <MudTextField Label="Tên phòng thi" Required InputType="InputType.Text" @bind-Value="tempExamRoom.TenLopAo" Placeholder="E1.08-09" />
-        <MudDatePicker Editable="true" Label="Ngày bắt đầu" @bind-Date="tempExamRoom.NgayBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên phòng thi:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Tên phòng thi" Required InputType="InputType.Text" @bind-Value="tempExamRoom.TenLopAo" Placeholder="E1.08-09" /></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ngày bắt đầu:</MudText></MudItem>
+            <MudItem xs="8"><MudDatePicker Variant="Variant.Outlined" Editable="true" Label="Ngày bắt đầu" @bind-Date="tempExamRoom.NgayBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" /></MudItem>
+        </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
     </DialogActions>
 </MudDialog>

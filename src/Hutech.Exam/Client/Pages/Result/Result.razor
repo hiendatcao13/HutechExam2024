@@ -10,7 +10,7 @@
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center">
 	<!-- Main Result -->
-	<MudPaper Class="pa-4 mt-4" Elevation="4">
+	<MudPaper Class="pa-4 mt-4" Elevation="3">
 		<MudCardContent Class="d-flex justify-center">
 			<MudImage Src="images/exam/Logo.svg" Width="200" />
 		</MudCardContent>
@@ -37,7 +37,7 @@
 						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">MSSV: @Student.MaSoSinhVien</MudText>
 						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Họ tên: @(Student.HoVaTenLot) @(Student.TenSinhVien)</MudText>
 						<MudText Style="margin-bottom: 2%" Typo="Typo.subtitle2">Ngày thi: @ExamSession.ThoiGianBatDau</MudText>
-						<MudButton OnClick="OnClickLogoutAsync" Color="Color.Error" Variant="Variant.Filled" Style="margin-top: 2%">Đăng xuất</MudButton>
+						<MudButton OnClick="OnClickLogoutAsync" Color="Color.Error" Variant="Variant.Outlined" Style="margin-top: 2%">Đăng xuất</MudButton>
 					}
 				}
 			</MudItem>
@@ -52,7 +52,7 @@
 			{
 				string thu_tu = index.ToString();
 				MudBlazor.Color color = selectedAnswerResults[index - 1] == true ? Color.Success : (selectedAnswerResults[index - 1] == false ? Color.Error : Color.Dark);
-				<MudChip Size="Size.Small" T="int" Color="@color">@thu_tu.ToString()</MudChip>
+				<MudChip Variant="Variant.Filled" Size="Size.Small" T="int" Color="@color">@thu_tu.ToString()</MudChip>
 			}
 		}
 	</MudPaper>

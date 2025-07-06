@@ -30,11 +30,9 @@
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="() => RoutingPage(0)">@names.ElementAt(0).Value</MudNavLink>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(1)">@names.ElementAt(1).Value</MudNavLink>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DocumentScanner" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.HealthAndSafety" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
 			</MudNavMenu>
 		</MudDrawer>
 	}
@@ -73,11 +71,11 @@
 		{ "/admin/home", "Trang chủ" },
 		{ "/admin/control", "Quản lý ca thi" },
 		{ "/admin/organize", "Tổ chức kì thi" },
-		{ "/admin/question", "Tổ chức đề thi" },
+		//{ "/admin/question", "Tổ chức đề thi" },
 		{ "/admin/classroom", "Quản lý lớp học"},
 		{ "/admin/test-review", "Đánh giá đề thi" },
 		{ "/admin/account", "Quản lý tài khoản" },
-		{ "/admin/system", "Kiểm tra sức khỏe"}
+		//{ "/admin/system", "Kiểm tra sức khỏe"}
 	};
 
 	private void ToggleDrawer()

@@ -4,7 +4,7 @@
 
 <PageTitle>Login</PageTitle>
 
-<MudPaper Elevation="4" Class="pa-4" Style="height: 102vh; padding: 0 !important">
+<MudPaper Elevation="3" Class="pa-4" Style="height: 102vh; padding: 0 !important">
     <MudGrid Style="height: 100%">
         <MudItem xs="6" Style="align-content: center">
             <video autoplay loop muted playsinline class="video-background" style="width: 80%">
@@ -31,7 +31,7 @@
                                           @bind-Value="Password" @onkeyup="EnterAsync" Required="true" RequiredError="Vui lòng nhập mật khẩu!" />
                         </MudItem>
                         <MudItem xs="12" Class="d-flex justify-center">
-                            <MudButton Variant="Variant.Filled" Style="background-color: rgb(0,107,179); color: white" OnClick="OnClickLoginAsync">Đăng nhập</MudButton>
+                            <MudButton Variant="Variant.Outlined" Style="background-color: rgb(0,107,179); color: white" OnClick="OnClickLoginAsync">Đăng nhập</MudButton>
                         </MudItem>
                     </MudGrid>
                 </MudCardContent>

@@ -237,3 +237,7 @@
 - Hoàn thành chỉnh sửa database (thêm trường LichSuHoatDong) cũng như test APIs, store procedure
 - Đã viết audit lưu lại hoạt động của user trong ca thi
 - TODO: Hoàn thành nốt audit, phân quyền
+-----------------------------------------------
+06-07-2025 9PM
+- Đã hoàn thành chức năng report
+- TODO: Phân quyền, định dạng file export Excel, Word

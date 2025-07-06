@@ -24,21 +24,21 @@
             <MudItem xs="8"><MudText><span class="title-text">@AttemptNumber</span></MudText></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Tên Ca thi:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên Ca thi" Required InputType="InputType.Text" @bind-Value="examSessionName"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Tên Ca thi" Required InputType="InputType.Text" @bind-Value="examSessionName"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Ngày thi:</MudText></MudItem>
             <MudItem xs="8">
-                <MudDatePicker Editable="true" Label="Ngày thi" @bind-Date="startTimeDate" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+                <MudDatePicker Editable="true" Variant="Variant.Outlined" Label="Ngày thi" @bind-Date="startTimeDate" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Thời gian:</MudText></MudItem>
             <MudItem xs="8">
-                <MudTimePicker Editable="true" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
+                <MudTimePicker Editable="true" Variant="Variant.Outlined" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
             <MudItem xs="8">
-                <MudSelect T="DeThiDto" @bind-Value="selectedExam" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
+                <MudSelect T="DeThiDto" Variant="Variant.Outlined" @bind-Value="selectedExam" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
                     @if (exams != null)
                     {
                         foreach (var item in exams)
@@ -50,21 +50,21 @@
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Thời lượng:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mật mã:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Label="Nhập mật mã" @bind-Value="password" Variant="Variant.Outlined" HelperText="Nếu không thay đổi thì bỏ qua" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField></MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (!IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
 
     </DialogActions>

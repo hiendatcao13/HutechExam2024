@@ -11,7 +11,7 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (departments != null)
 			{
-				<MudTable Class="my-custom-table" Elevation="24" T="KhoaDto" Items="@departments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedKhoa(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassKhoaFunc"
+				<MudTable Class="my-custom-table" Elevation="3" T="KhoaDto" Items="@departments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedKhoa(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassKhoaFunc"
 						  TotalItems="totalRecords_Department" RowsPerPage="rowsPerPage_Department" CurrentPageChanged="OnCurrentPageChange_DepartmentAsync" RowsPerPageChanged="OnRowsPerPageChange_DepartmentAsync">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin khoa</MudText>
@@ -40,7 +40,7 @@
 		<MudItem xs="12" md="6" lg="6">
 			@if (classrooms != null)
 			{
-				<MudTable Class="my-custom-table" Elevation="24" T="LopDto" Items="@classrooms" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedLop(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassLopFunc"
+				<MudTable Class="my-custom-table" Elevation="3" T="LopDto" Items="@classrooms" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedLop(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassLopFunc"
 						  TotalItems="totalRecords_Classroom" RowsPerPage="rowsPerPage_Classroom" CurrentPageChanged="OnCurrentPageChange_Lop" RowsPerPageChanged="OnRowsPerPageChange_Classroom">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin lớp học</MudText>
@@ -69,7 +69,7 @@
 		<MudItem xs="12" md="12" lg="12">
 			@if (students != null)
 			{
-				<MudTable Class="my-custom-table" Elevation="24" T="SinhVienDto" Items="@students" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="(value) => OnRowClickedSinhVien(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSinhVienFunc"
+				<MudTable Class="my-custom-table" Elevation="3" T="SinhVienDto" Items="@students" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="(value) => OnRowClickedSinhVien(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSinhVienFunc"
 						  TotalItems="totalRecords_Student" RowsPerPage="rowsPerPage_Student" CurrentPageChanged="OnCurrentPageChange_SinhVien" RowsPerPageChanged="OnRowsPerPageChange_SinhVien">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin sinh viên</MudText>

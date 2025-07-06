@@ -19,6 +19,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly MonHocService _monHocService = monHocService;
 
+        private const string NotFoundMessage = "Không tìm thấy môn học";
+
         #endregion
 
         #region Get Methods
@@ -55,19 +57,8 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Insert([FromBody] MonHocCreateRequest monHoc)
         {
-            try
-            {
-                var id = await _monHocService.Insert(monHoc);
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Thêm môn học không thành công", errorDetails: ex.Message));
-            }
+            var id = await _monHocService.Insert(monHoc);
+            return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Thêm môn học thành công"));
         }
 
         #endregion
@@ -77,23 +68,12 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MonHocUpdateRequest monHoc)
         {
-            try
+            var result = await _monHocService.Update(id, monHoc);
+            if (!result)
             {
-                var result = await _monHocService.Update(id, monHoc);
-                if (!result)
-                {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Không tìm thấy môn học cần cập nhật"));
-                }
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Cập nhật môn học thành công"));
+                return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Cập nhật môn học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<MonHocDto>.SuccessResponse(data: await _monHocService.SelectOne(id), message: "Cập nhật môn học thành công"));
         }
 
         #endregion
@@ -109,45 +89,23 @@ namespace Hutech.Exam.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            var result = await _monHocService.Remove(id);
+            if (!result)
             {
-                var result = await _monHocService.Remove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Xóa môn học không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-                }
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
+                return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Xóa môn học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
         }
 
         [HttpDelete("{id:int}/force")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
-            try
+            var result = await _monHocService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _monHocService.ForceRemove(id);
-                if (!result)
-                {
-                    return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: "Xóa môn học không thành công"));
-                }
-                return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
+                return NotFound(APIResponse<MonHocDto>.NotFoundResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<MonHocDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<MonHocDto>.ErrorResponse(message: "Xóa môn học không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<MonHocDto>.SuccessResponse(message: "Xóa môn học thành công"));
         }
 
         #endregion

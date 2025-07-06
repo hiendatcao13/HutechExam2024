@@ -2,6 +2,7 @@
 using Hutech.Exam.Shared.API;
 using Hutech.Exam.Shared.DTO.API;
 using Hutech.Exam.Shared.DTO.API.Response;
+using System.Data.SqlClient;
 using System.Net;
 using System.Text.Json;
 
@@ -37,21 +38,49 @@ namespace Hutech.Exam.Server.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            var (statusCode, message, errorCode, errorDetails) = exception switch
+            int statusCode;
+            string message;
+            string errorCode = "UNKNOWN_ERROR";
+            string? errorDetails = null;
+
+            switch (exception)
             {
-                NotFoundException =>
-                    ((int)HttpStatusCode.NotFound, exception.Message, "RESOURCE_NOT_FOUND", null),
+                case SqlException sqlEx:
+                    (statusCode, message, errorCode) = sqlEx.Number switch
+                    {
+                        2601 or 2627 => (StatusCodes.Status409Conflict, "Dữ liệu bị trùng khóa hoặc vi phạm trường unique", "DUPLICATE_KEY"),
+                        547 => (StatusCodes.Status400BadRequest, "Vi phạm khóa ngoại", "FOREIGN_KEY_VIOLATION"),
+                        8152 => (StatusCodes.Status400BadRequest, "Dữ liệu quá dài", "DATA_TOO_LONG"),
+                        _ => (StatusCodes.Status500InternalServerError, "Lỗi cơ sở dữ liệu không xác định", "UNKNOWN_SQL_ERROR")
+                    };
+                    errorDetails = env.IsDevelopment() ? sqlEx.ToString() : null;
+                    break;
 
-                UnauthorizedAccessException =>
-                    ((int)HttpStatusCode.Unauthorized, "Bạn không có quyền truy cập.", "UNAUTHORIZED", null),
+                case UnauthorizedAccessException:
+                    statusCode = StatusCodes.Status401Unauthorized;
+                    message = "Bạn không có quyền truy cập.";
+                    errorCode = "UNAUTHORIZED";
+                    break;
 
-                AppException appEx =>
-                    ((int)appEx.ErrorCode.StatusCode, appEx.ErrorCode.Message, appEx.ErrorCode.Code.ToString(), null),
+                case NotFoundException:
+                    statusCode = StatusCodes.Status404NotFound;
+                    message = exception.Message;
+                    errorCode = "RESOURCE_NOT_FOUND";
+                    break;
 
-                _ =>
-                    ((int)HttpStatusCode.InternalServerError, "Đã có lỗi xảy ra. Vui lòng thử lại sau.", "INTERNAL_SERVER_ERROR",
-                        env.IsDevelopment() ? exception.ToString() : null)
-            };
+                case AppException appEx:
+                    statusCode = (int)appEx.ErrorCode.StatusCode;
+                    message = appEx.ErrorCode.Message!;
+                    errorCode = appEx.ErrorCode.Code.ToString();
+                    break;
+
+                default:
+                    statusCode = StatusCodes.Status500InternalServerError;
+                    message = "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
+                    errorCode = "INTERNAL_SERVER_ERROR";
+                    errorDetails = env.IsDevelopment() ? exception.ToString() : null;// nếu đang chạy phát triển thì có thể xem lỗi được
+                    break;
+            }
 
             var response = new APIResponse<object>(
                 success: false,

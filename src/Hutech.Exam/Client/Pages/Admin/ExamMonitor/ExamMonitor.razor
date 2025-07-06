@@ -9,7 +9,7 @@
 <MudContainer Class="d-flex justify-center align-center">
 	<MudGrid Style="margin-top: 5px">
 		<MudItem xs="2">
-			<MudPaper Elevation="2" Class="pa-4" Style="margin-bottom: 20px">
+			<MudPaper Elevation="3" Class="pa-4" Style="margin-bottom: 20px">
 				<MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickAddStudentAsync()">Thêm SV</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await OnClickRefreshAsync()">Refresh</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Default" OnClick="async () => await OnClickDownloadPdfAsync()">Export PDF</MudButton>
@@ -18,7 +18,7 @@
 			</MudPaper>
 
 
-			<MudPaper Elevation="2" Class="pa-4" Style="position: sticky; top: 15%">
+			<MudPaper Elevation="3" Class="pa-4" Style="position: sticky; top: 15%">
 				<MudText Typo="Typo.body1" Inline="false"><b style="color: brown">THỜI GIAN BIỂU</b></MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Tên thí sinh:</span><br />@studentName</MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Đăng nhập: </span>@loginTime</MudText><br />
@@ -30,7 +30,7 @@
 		@if (examSessionDetails != null)
 		{
 			<MudItem xs="10">
-				<MudTable T="ChiTietCaThiDto" Items="@examSessionDetails" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionDetailFunc" OnRowClick="(value) => OnRowClickedExamSessionDetailAsync(value)"
+				<MudTable Elevation="3" T="ChiTietCaThiDto" Items="@examSessionDetails" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionDetailFunc" OnRowClick="(value) => OnRowClickedExamSessionDetailAsync(value)"
 				CurrentPage="currentPage" CurrentPageChanged="async (value) => await OnCurrentPageChange(value)" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true"
 				SortLabel="Sort By">
 					<ToolBarContent>

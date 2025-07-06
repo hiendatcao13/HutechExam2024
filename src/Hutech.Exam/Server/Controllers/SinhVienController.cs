@@ -33,6 +33,8 @@ namespace Hutech.Exam.Server.Controllers
 
         private readonly JwtAuthenticationManager _jwtAuthenticationManager = jwtAuthenticationManager;
 
+        private const string NotFoundMessage = "Không tìm thấy sinh viên";
+
         #endregion
 
         #region Get Methods
@@ -73,38 +75,16 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Insert([FromBody] SinhVienCreateRequest sinhVien)
         {
-            try
-            {
-                var id = await _sinhVienService.Insert(sinhVien);
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Thêm sinh viên thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Thêm sinh viên không thành công", errorDetails: ex.Message));
-            }
+            var id = await _sinhVienService.Insert(sinhVien);
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Thêm sinh viên thành công"));
         }
 
         [HttpPost("batch")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Insert_Batch([FromBody] List<SinhVienDto> sinhViens)
         {
-            try
-            {
-                await _sinhVienService.Insert_Batch(sinhViens);
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Thêm danh sách sinh viên thành công"));
-            }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Thêm danh sách sinh viên không thành công", errorDetails: ex.Message));
-            }
+            await _sinhVienService.Insert_Batch(sinhViens);
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Thêm danh sách sinh viên thành công"));
         }
 
         [HttpPost("login")]
@@ -139,25 +119,14 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
         {
-            try
+            var result = await _sinhVienService.Update(id, sinhVien);
+            if (!result)
             {
-                var result = await _sinhVienService.Update(id, sinhVien);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Không tìm thấy sinh viên cần cập nhật"));
-                }
-                else
-                {
-                    return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Cập nhật sinh viên thành công"));
-                }
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
+            else
             {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Cập nhật sinh viên không thành công", errorDetails: ex.Message));
+                return Ok(APIResponse<SinhVienDto>.SuccessResponse(data: await _sinhVienService.SelectOne(id), message: "Cập nhật sinh viên thành công"));
             }
         }
 
@@ -169,32 +138,17 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ResetLogin([FromRoute] long id)
         {
-            // liên quan redis nên tốt nhất là try catch
-            try
-            {
-                await NotifyLogOutToSV(id);
-                await _sinhVienService.Logout(id, DateTime.Now);
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Cố lỗi khi cố gắng truy cập redis", errorDetails: ex.Message));
-            }
+            await NotifyLogOutToSV(id);
+            await _sinhVienService.Logout(id, DateTime.Now);
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Đăng xuất tài khoản cho thí sinh thành công"));
         }
 
         [HttpPatch("{id:long}/submit-exam")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SubmitExam([FromRoute] int id)
         {
-            try
-            {
-                await NotifyNopBaiToSV(id);
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Có lỗi khi cố gắng truy cập vào redis", errorDetails: ex.Message));
-            }
+            await NotifyNopBaiToSV(id);
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse("Nộp bài cho thí sinh thành công"));
         }
 
         #endregion
@@ -205,46 +159,24 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] long id)
         {
-            try
+            var result = await _sinhVienService.Remove(id);
+            if (!result)
             {
-                var result = await _sinhVienService.Remove(id);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-                }
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
         }
 
         [HttpDelete("{id:long}/force")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ForceDelete([FromRoute] long id)
         {
-            try
+            var result = await _sinhVienService.ForceRemove(id);
+            if (!result)
             {
-                var result = await _sinhVienService.ForceRemove(id);
-                if (!result)
-                {
-                    return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công"));
-                }
-                return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
+                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: NotFoundMessage));
             }
-            catch (SqlException sqlEx)
-            {
-                return SQLExceptionHelper<SinhVienDto>.HandleSqlException(sqlEx);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(APIResponse<SinhVienDto>.ErrorResponse(message: "Xóa sinh viên không thành công", errorDetails: ex.Message));
-            }
+            return Ok(APIResponse<SinhVienDto>.SuccessResponse(message: "Xóa sinh viên thành công"));
         }
 
         #endregion
