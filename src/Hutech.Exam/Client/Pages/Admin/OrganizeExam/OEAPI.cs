@@ -46,6 +46,12 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords) : ([], 0, 0);
         }
 
+        private async Task<CaThiDto> ExamSession_UpdateApprove(int ma_ca_thi, string lichSuHoatDong)
+        {
+            var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}/duyet-de", lichSuHoatDong);
+            return (response.Success && response.Data != null) ? response.Data : new();
+        }
+
 
 
         private async Task<bool> ExamBatch_DeleteAPI(int ma_dot_thi)

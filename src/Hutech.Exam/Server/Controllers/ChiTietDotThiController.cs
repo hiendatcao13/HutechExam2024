@@ -14,7 +14,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/chitietdotthis")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class ChiTietDotThiController(ChiTietDotThiService chiTietDotThiService, IHubContext<AdminHub> mainHub) : Controller
     {
         #region Private Fields
@@ -70,6 +70,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Insert([FromBody] ChiTietDotThiCreateRequest chiTietDotThi)
         {
             var id = await _chiTietDotThiService.Insert(chiTietDotThi);
@@ -81,6 +82,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ChiTietDotThiUpdateRequest chiTietDotThi)
         {
             var result = await _chiTietDotThiService.Update(id, chiTietDotThi);
@@ -102,6 +104,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var result = await _chiTietDotThiService.Remove(id);
@@ -113,6 +116,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             var result = await _chiTietDotThiService.ForceRemove(id);

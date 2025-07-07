@@ -12,7 +12,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/monhocs")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class MonHocController(MonHocService monHocService) : Controller
     {
         #region Private Fields

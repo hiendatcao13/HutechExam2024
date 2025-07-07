@@ -15,7 +15,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/cathis")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class CaThiController(CaThiService caThiService, BcryptService bcryptService, IHubContext<AdminHub> adminHub, IHubContext<SinhVienHub> sinhVienHub) : Controller
     {
         #region Private Fields
@@ -77,6 +77,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Insert([FromBody] CaThiCreateRequest caThi)
         {
             var id = await _caThiService.Insert(caThi);
@@ -104,6 +105,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CaThiUpdateRequest caThi)
         {
             var result = await _caThiService.Update(id, caThi);
@@ -172,6 +174,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:int}/update-dethi")]
+        [Authorize(Roles = "KhaoThi")]
         public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromQuery] bool isOrderMSSV, [FromBody] List<long> dsDeThiHVs)
         {
             var result = await _caThiService.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
@@ -194,11 +197,25 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Cập nhật lịch sử hoạt động ca thi thành công"));
         }
 
+        [HttpPatch("{id:int}/duyet-de")]
+        [Authorize(Roles = "CNTT")]
+        public async Task<IActionResult> DuyetDeThi([FromRoute] int id, [FromBody] string lichSuHoatDong)
+        {
+            var result = await _caThiService.DuyetDe(id, lichSuHoatDong);
+            if (!result)
+            {
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
+            }
+            await NotifyChangeCaThiToAdmin(id, 1);
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Duyệt đề thi thành công"));
+        }
+
         #endregion
 
         #region Delete Methods
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var result = await _caThiService.Remove(id);
@@ -211,6 +228,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id}/force")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             var result = await _caThiService.ForceRemove(id);

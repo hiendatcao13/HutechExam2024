@@ -35,5 +35,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         Task<List<CaThiDto>> SelectBy_MaDotThi_MaLop_LanThi(int ma_dot_thi, int ma_lop, int lan_thi);
 
         Task<bool> UpdateLichSuHoatDong(int ma_ca_thi, string lichSuHoatDong);
+
+        Task<bool> DuyetDe(int ma_ca_thi, string lichSuHoatDong);
     }
 }

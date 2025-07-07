@@ -44,6 +44,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private string? name;
         private Guid userId;
+        private string roleName = string.Empty;
 
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
         private const string SUCCESS_NOPBAI = "Nộp bài của thí sinh thành công";
@@ -88,6 +89,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             }
             await StartAsync();
             await base.OnInitializedAsync();
+        }
+
+        private async Task StartAsync()
+        {
+            await GetIdentityUserName();
+            CreateSchedule();
+            (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
+            CreateFakeData();
+
+
+            await CreateHubConnectionAsync();
         }
 
         #endregion
@@ -239,6 +251,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task HandleDeleteExamSessionDetailAsync(ChiTietCaThiDto examSessionDetail, bool isForce)
         {
+            // nếu ca thi đó chưa được kích hoạt lần nào và là phòng đào tạo, admin thì không cần audit
+            if(examSession != null && examSession.ThoiGianKichHoat == null && examSession.KichHoat == false && (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString())))
+            {
+                bool result = (isForce) ? await ExamSessionDetail_ForceDeleteAPI(examSessionDetail.MaChiTietCaThi) : await ExamSessionDetail_DeleteAPI(examSessionDetail.MaChiTietCaThi);
+                if (result)
+                {
+                    Snackbar.Add(WAITING_DELETE, Severity.Warning);
+                    examSessionDetails?.Remove(examSessionDetail);
+                }
+                return;
+            }
+
             var reason = await OpenAuditDialogAsync(KieuHanhDong.XoaThiSinh);
             if (reason != null && !reason.Canceled && reason.Data != null)
             {
@@ -345,17 +369,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         #region Other Methods
 
-        private async Task StartAsync()
-        {
-            await GetIdentityUserName();
-            CreateSchedule();
-            (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
-            CreateFakeData();
-
-
-            await CreateHubConnectionAsync();
-        }
-
         private string CreateActionHistory(KieuHanhDong kieuHanhDong, string chiTiet, string lyDo)
         {
             var updateHistory = new LichSuHoatDong()
@@ -394,6 +407,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 name = await SessionStorage.GetItemAsStringAsync("Name");
                 Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
             }
         }
 

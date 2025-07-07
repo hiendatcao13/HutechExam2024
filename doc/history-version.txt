@@ -241,3 +241,7 @@
 06-07-2025 9PM
 - Đã hoàn thành chức năng report
 - TODO: Phân quyền, định dạng file export Excel, Word
+-----------------------------------------------
+08-07-2025 6AM
+- Đã hoàn thành phân quyền
+- TODO: đã có dữ liệu test API từ Dlinh, tạo chức năng và mock test

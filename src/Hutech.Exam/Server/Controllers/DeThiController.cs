@@ -13,7 +13,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/dethis")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class DeThiController() : Controller
     {
         //#region Private Fields

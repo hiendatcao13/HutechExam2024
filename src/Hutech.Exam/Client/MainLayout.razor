@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @using System.Net.Http.Headers
 @using Hutech.Exam.Client.DAL
+@using Hutech.Exam.Shared.Enums
 @inherits LayoutComponentBase
 @inject IDialogService Dialog
 @{
@@ -29,10 +30,19 @@
 			<MudNavMenu>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="() => RoutingPage(0)">@names.ElementAt(0).Value</MudNavLink>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(1)">@names.ElementAt(1).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
+				@if (!roleName.Contains(KieuVaiTro.GiamThi.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
+				}
+				@if(roleName.Contains(KieuVaiTro.DaoTao.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
+				}
+				@if(roleName.Contains(KieuVaiTro.Admin.ToString()) || roleName.Contains(KieuVaiTro.DaoTao.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
+				}
 			</MudNavMenu>
 		</MudDrawer>
 	}
@@ -58,24 +68,29 @@
 	private ErrorBoundary? _errorBoundary;
 	// Hiển thị alert báo lỗi -> click ok -> refresh lại page
 	private void ResetErrorBoundary() => _errorBoundary?.Recover();
+
 	[Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
 	[Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
 	[Inject] private NavigationManager Nav { get; set; } = default!;
+
+	[CascadingParameter] Task<AuthenticationState>? AuthenticationState { get; set; }
 
 	private string tittle = "Trang chủ";
 	private string name = "";
 	private bool _open = false;
 	private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
+	private string roleName = "";
+
 	private Dictionary<string, string> names = new Dictionary<string, string>
 	{
 		{ "/admin/home", "Trang chủ" },
-		{ "/admin/control", "Quản lý ca thi" },
+		{ "/admin/control", "Giám sát ca thi" },
 		{ "/admin/organize", "Tổ chức kì thi" },
-		//{ "/admin/question", "Tổ chức đề thi" },
 		{ "/admin/classroom", "Quản lý lớp học"},
 		{ "/admin/test-review", "Đánh giá đề thi" },
 		{ "/admin/account", "Quản lý tài khoản" },
-		//{ "/admin/system", "Kiểm tra sức khỏe"}
 	};
 
 	private void ToggleDrawer()
@@ -85,7 +100,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		name = await SessionStorage.GetItemAsStringAsync("Name");
+		await GetIdentityRoleName();
 		Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
 		await base.OnInitializedAsync();
 	}
@@ -126,6 +141,20 @@
 	{
 		var path = names.ElementAt(index).Key;
 		Nav.NavigateTo(path);
+	}
+
+	private async Task GetIdentityRoleName()
+	{
+		var authState = AuthenticationState != null ? await AuthenticationState : null;
+		if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+		{
+			foreach (var claim in authState.User.Claims)
+			{
+				roleName += claim.Value + ",";
+			}
+
+            name = authState.User.FindFirst(ClaimTypes.Name)?.Value ?? "Người dùng";
+		}
 	}
 }
 

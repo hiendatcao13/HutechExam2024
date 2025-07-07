@@ -11,7 +11,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/lopaos")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class LopAoController(LopAoService lopAoService) : Controller
     {
         #region Private Fields

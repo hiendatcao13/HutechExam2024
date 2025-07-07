@@ -41,7 +41,7 @@ namespace Hutech.Exam.Server.Authentication
             {
                 // claim lưu là mã sinh viên
                 new Claim(ClaimTypes.Name, sinhVien.MaSinhVien.ToString()),
-                new Claim(ClaimTypes.Role, "User"), // nhận biết là admin hay sinh viên
+                new Claim(ClaimTypes.Role, "SinhVien"), // nhận biết là sinh viên hay nhóm quản trị nội bộ
                 new Claim(ClaimTypes.NameIdentifier, sinhVien.MaSinhVien.ToString())
             });
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -67,7 +67,7 @@ namespace Hutech.Exam.Server.Authentication
                 Token = token,
                 ExpireIn = (int)tokenExpiryTimeStamp.Subtract(DateTime.Now).TotalSeconds,
                 NavigateSinhVien = sinhVien,
-                Role = "User"
+                Roles = ["SinhVien"]
             };
             return userSession;
         }
@@ -98,7 +98,8 @@ namespace Hutech.Exam.Server.Authentication
             {
                 new(ClaimTypes.NameIdentifier, user.MaNguoiDung.ToString()), // lưu id
                 new(ClaimTypes.Name, user.Ten), // lưu tên
-                new(ClaimTypes.Role, "Admin") // nhận biết là admin hay sinh viên
+                new(ClaimTypes.Role, "QuanTri"), // nhận biết là sinh viên hay nhóm quản trị nội bộ
+                new(ClaimTypes.Role, user.MaRoleNavigation.TenVaiTro) // lưu vai trò
             });
             var sigingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
@@ -118,11 +119,11 @@ namespace Hutech.Exam.Server.Authentication
             var userSession = new UserSession
             {
                 Name = user.Ten,
-                Username = string.IsNullOrWhiteSpace(user.TenDangNhap) ? user.Email : user.TenDangNhap,
+                Username = user.MaNguoiDung.ToString(),
                 Token = token,
                 ExpireIn = (int)tokenExpiryTimeStamp.Subtract(DateTime.Now).TotalSeconds,
                 NavigateUser = _mapper.Map<UserDto>(user),
-                Role = "Admin"
+                Roles = ["QuanTri", user.MaRoleNavigation.TenVaiTro]
             };
             return userSession;
         }

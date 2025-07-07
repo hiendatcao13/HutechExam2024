@@ -113,6 +113,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                 chiTietCaThi.MaSinhVienNavigation = _sinhVienRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH);
+                chiTietCaThi.TenLop = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH + 1) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH + 1);
                 result.Add(chiTietCaThi);
             }
 
@@ -145,6 +146,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 ChiTietCaThiDto chiTietCaThi = GetProperty(dataReader);
                 chiTietCaThi.MaSinhVienNavigation = _sinhVienRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 chiTietCaThi.KyHieuDe = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH);
+                chiTietCaThi.TenLop = dataReader.IsDBNull(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH + 1) ? null : dataReader.GetString(COLUMN_LENGTH + SinhVienRepository.COLUMN_LENGTH + 1);
                 result.Add(chiTietCaThi);
             }
 

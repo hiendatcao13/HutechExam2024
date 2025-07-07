@@ -1,8 +1,9 @@
 ﻿@page "/admin/account"
 @using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.Enums
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Admin,DaoTao")]
 
 <PageTitle>Manage Student</PageTitle>
 
@@ -84,12 +85,16 @@
 	{
 		if (!string.IsNullOrEmpty(searchString))
 		{
-			(users, totalRecords_User, totalPages_User) = await Users_GetAll_Search_PagedAPI(searchString, currentPage_User, rowsPerPage_User);
+			(users, totalRecords_User, totalPages_User) = (!roleName.Contains(KieuVaiTro.Admin.ToString())) 
+				? await Users_GetAll_Search_Supervisor_PagedAPI(searchString, currentPage_User, rowsPerPage_User)
+				: await Users_GetAll_Search_PagedAPI(searchString, currentPage_User, rowsPerPage_User);
 			CreateFakeData_User();
 		}
 		else
 		{
-			(users, totalPages_User, totalRecords_User) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
+			(users, totalPages_User, totalRecords_User) = (!roleName.Contains(KieuVaiTro.Admin.ToString())) 
+				? await Users_GetAll_Supervisor_PagedAPI(currentPage_User, rowsPerPage_User)
+				: await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
 			CreateFakeData_User();
 		}
 	}
@@ -102,7 +107,9 @@
 		this.rowsPerPage_User = rows;
 		currentPage_User = 0; //Reset về trang đầu tiên
 
-		(var newUsers, _, _) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
+		(var newUsers, _, _) = (!roleName.Contains(KieuVaiTro.Admin.ToString()))
+			? await Users_GetAll_Supervisor_PagedAPI(currentPage_User, rowsPerPage_User)
+			: await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
 		PadEmptyRows(newUsers);
 	}
 	private async Task OnCurrentPageChange_UserAsync(int page)
@@ -115,7 +122,9 @@
 			return;
 
 		//chỉ thực hiện load data khi người dùng chọn trang mới
-		(var newUsers, _, _) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
+		(var newUsers, _, _) = (!roleName.Contains(KieuVaiTro.Admin.ToString()))
+			? await Users_GetAll_Supervisor_PagedAPI(currentPage_User, rowsPerPage_User)
+			: await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
 		PadEmptyRows(newUsers);
 		selectedPages_User?.Add(currentPage_User);
 	}

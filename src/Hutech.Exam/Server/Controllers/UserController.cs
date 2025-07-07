@@ -16,7 +16,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class UserController(UserService userService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
         #region Private Fields
@@ -32,24 +32,35 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _userService.GetAll_Paged(pageNumber, pageSize);
             return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
         }
 
+        [HttpGet("supervisor")]
+        [Authorize(Roles = "DaoTao")]
+        public async Task<IActionResult> GetAll_GiamThi_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var result = await _userService.GetAll_GiamThi_Paged(pageNumber, pageSize);
+            return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
+        }
+
         [HttpGet("search")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll_Search_Paged([FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _userService.GetAll_Search_Paged(keyword, pageNumber, pageSize);
             return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
         }
 
-        [HttpGet("check-exist")]
-        public async Task<IActionResult> CheckExistName([FromQuery] string loginName, [FromQuery] string email)
+        [HttpGet("search/supervisor")]
+        [Authorize(Roles = "DaoTao")]
+        public async Task<IActionResult> GetAll_Search_GiamThi_Paged([FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var result = await _userService.CheckExistName(loginName, email);
-            return Ok(APIResponse<bool>.SuccessResponse(data: result, message: ""));
+            var result = await _userService.GetAll_Search_GiamThi_Paged(keyword, pageNumber, pageSize);
+            return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
         }
 
         #endregion
@@ -81,6 +92,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert([FromBody] UserCreateRequest user)
         {
             bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
@@ -97,6 +109,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:Guid}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UserUpdateRequest user)
         {
             bool isExist = await _userService.CheckExistName(user.LoginName, user.Email);
@@ -121,7 +134,8 @@ namespace Hutech.Exam.Server.Controllers
 
         #region Patch Methods
 
-        [HttpPatch("{id:Guid}/change-pasword")]
+        [HttpPatch("{id:Guid}/change-password")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> ChangePassword([FromRoute] Guid id, [FromBody] UserUpdatePasswordRequest user)
         {
             var result = await _userService.UpdatePassword(id, user);
@@ -137,6 +151,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:Guid}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var result = await _userService.Remove(id);

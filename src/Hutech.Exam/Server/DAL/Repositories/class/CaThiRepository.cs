@@ -241,5 +241,13 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
 
         }
+
+        public async Task<bool> DuyetDe(int ma_ca_thi, string lichSuHoatDong)
+        {
+            using DatabaseReader sql = new("CaThi_DuyetDe");
+            sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
     }
 }

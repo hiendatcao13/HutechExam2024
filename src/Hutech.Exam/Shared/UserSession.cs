@@ -12,7 +12,7 @@ namespace Hutech.Exam.Shared
     {
         public string? Name { get; set; }
         public string? Username { get; set; }
-        public string? Role { get; set; } // phân biệt sinh viên và admin/monitor ( "" or "Admin")
+        public string[]? Roles { get; set; } // phân biệt sinh viên và admin/monitor ( "" or "Admin")
         public string? Token { get; set; }
         public int ExpireIn { get; set; }
         public DateTime ExpiryTimeStamp { get; set; }

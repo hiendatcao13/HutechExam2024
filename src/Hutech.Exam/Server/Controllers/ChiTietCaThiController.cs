@@ -11,7 +11,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using Syncfusion.PdfExport;
+using System.Drawing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -32,7 +36,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectOne([FromRoute] int id)
         {
             var result = await _chiTietCaThiService.SelectOne(id);
@@ -44,13 +48,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-sinhvien")]
+        [Authorize(Roles = "SinhVien")]
         public async Task<IActionResult> SelectBy_MSSVThi([FromQuery] long maSinhVien)
         {
             return Ok(APIResponse<ChiTietCaThiDto>.SuccessResponse(data: await _chiTietCaThiService.SelectBy_MaSinhVienThi(maSinhVien), message: "Lấy chi tiết ca thi thành công"));
         }
 
         [HttpGet("filter-by-cathi-paged")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_MaCaThi_Paged([FromQuery] int maCaThi, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
@@ -59,7 +64,7 @@ namespace Hutech.Exam.Server.Controllers
 
 
         [HttpGet("filter-by-cathi-search-paged")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_MaCaThi_Search_Paged([FromQuery] int maCaThi, [FromQuery] string keyword, [FromQuery] int pageNumber, int pageSize)
         {
             // note: sẽ không có thông tin ca thi ở đây, vì là list, tối ưu lại, tránh lặp ca thi nhiều lần
@@ -71,7 +76,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> Insert([FromBody] ChiTietCaThiCreateRequest chiTietCaThi)
         {
             var id = await _chiTietCaThiService.Insert(chiTietCaThi);
@@ -79,7 +84,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("batch")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> InsertBatch([FromBody] List<ChiTietCaThiCreateBatchRequest> chiTietCaThis)
         {
             await _chiTietCaThiService.Insert_Batch(chiTietCaThis);
@@ -87,6 +92,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("export-excel")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
         {
             // Cấp phép cho EPPlus
@@ -95,35 +101,91 @@ namespace Hutech.Exam.Server.Controllers
             using (var package = new ExcelPackage())
             {
                 // Tạo worksheet
-                var worksheet = package.Workbook.Worksheets.Add("Data");
+                var ws = package.Workbook.Worksheets.Add("Data");
+
+                //// Chèn Logo HUTECH
+                //// Load ảnh bằng ImageSharp
+                //var imagePath = "./images/exam/ava.jpg";
+                //using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(imagePath);
+
+                //// Chuyển ảnh thành stream
+                //using var ms = new MemoryStream();
+                //image.SaveAsPng(ms); // có thể dùng SaveAsJpeg nếu là jpg
+                //ms.Position = 0;
+
+                //// Chèn vào Excel
+                //var picture = ws.Drawings.AddPicture("LogoHutech", ms);
+                //picture.SetPosition(0, 0, 0, 0); // Dòng 1, cột A
+
+                // Merge Tiêu đề Viện Hợp Tác
+                ws.Cells["C1:H1"].Merge = true;
+                ws.Cells["C1"].Value = "VIỆN HỢP TÁC VÀ PHÁT TRIỂN ĐÀO TẠO";
+                ws.Cells["C1"].Style.Font.Bold = true;
+                ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws.Cells["C2:H2"].Merge = true;
+                ws.Cells["C2"].Value = "(Đề thi có 9 trang)";
+                ws.Cells["C2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                // Tiêu đề ĐỀ THI
+                ws.Cells["D4:H4"].Merge = true;
+                ws.Cells["D4"].Value = "ĐỀ THI KẾT THÚC HỌC PHẦN";
+                ws.Cells["D4"].Style.Font.Bold = true;
+                ws.Cells["D4"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws.Cells["D5:H5"].Merge = true;
+                ws.Cells["D5"].Value = "HỌC KỲ II NĂM HỌC 2024 - 2025";
+                ws.Cells["D5"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                // Thông tin chi tiết
+                ws.Cells["A7"].Value = "Ngành/Lớp:";
+                ws.Cells["A8"].Value = "Tên học phần:";
+                ws.Cells["A9"].Value = "Mã học phần:";
+                ws.Cells["A10"].Value = "Ngày thi:";
+                ws.Cells["A11"].Value = "Thời gian làm bài:";
+                ws.Cells["A12"].Value = "Mã đề:";
+
+                ws.Cells["D7"].Value = "24TXTHB1 + 24TXTHC1";
+                ws.Cells["D8"].Value = "Lập trình Hướng đối tượng";
+                ws.Cells["D9"].Value = "ECMP167… Số TC: 3";
+                ws.Cells["D11"].Value = "60 phút";
+
+                // Checkbox sử dụng tài liệu
+                ws.Cells["A13"].Value = "SỬ DỤNG TÀI LIỆU:";
+                ws.Cells["C13"].Value = "CÓ □";
+                ws.Cells["E13"].Value = "KHÔNG ☑";
+
+                // Định dạng các ô
+                ws.Cells["A1:H15"].Style.Font.Name = "Times New Roman";
+                ws.Cells["A1:H15"].Style.Font.Size = 11;
 
                 // Thêm dữ liệu
-                worksheet.Cells[1, 1].Value = "ISTT";
-                worksheet.Cells[1, 2].Value = "MSSV";
-                worksheet.Cells[1, 3].Value = "HoVaTenLot";
-                worksheet.Cells[1, 4].Value = "TenSinhVien";
-                worksheet.Cells[1, 5].Value = "Diem";
+                ws.Cells[17, 1].Value = "STT";
+                ws.Cells[17, 2].Value = "MSSV";
+                ws.Cells[17, 3].Value = "HoVaTenLot";
+                ws.Cells[17, 4].Value = "TenSinhVien";
+                ws.Cells[17, 5].Value = "Diem";
 
                 if (chiTietCaThis != null)
                 {
-                    int rowIndex = 2; // Bắt đầu từ hàng thứ 2 (dòng dữ liệu)
+                    int rowIndex = 18; // Bắt đầu từ hàng thứ 18 (dòng dữ liệu)
                     foreach (var item in chiTietCaThis)
                     {
                         SinhVienDto? sv = item.MaSinhVienNavigation;
                         if (sv != null)
                         {
-                            worksheet.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
-                            worksheet.Cells[rowIndex, 2].Value = sv.MaSoSinhVien;
-                            worksheet.Cells[rowIndex, 3].Value = sv.HoVaTenLot;
-                            worksheet.Cells[rowIndex, 4].Value = sv.TenSinhVien;
-                            worksheet.Cells[rowIndex, 5].Value = item.Diem;
+                            ws.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
+                            ws.Cells[rowIndex, 2].Value = sv.MaSoSinhVien;
+                            ws.Cells[rowIndex, 3].Value = sv.HoVaTenLot;
+                            ws.Cells[rowIndex, 4].Value = sv.TenSinhVien;
+                            ws.Cells[rowIndex, 5].Value = item.Diem;
                             rowIndex++;
                         }
                     }
                 }
 
                 // Tự động điều chỉnh cột
-                worksheet.Cells.AutoFitColumns();
+                ws.Cells.AutoFitColumns();
 
                 // Trả về dữ liệu Excel dưới dạng mảng byte
                 var result = await Task.FromResult(package.GetAsByteArray());
@@ -132,6 +194,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("export-pdf")]
+        [Authorize(Roles = "QuanTri")]
         public Task<IActionResult> ExportToPdf([FromBody] List<ChiTietCaThiDto> data)
         {
             using var document = new PdfDocument();
@@ -147,7 +210,7 @@ namespace Hutech.Exam.Server.Controllers
             string title = "BẢNG ĐIỂM THÍ SINH";
             // Tạo brush màu đen
             PdfBrush blackBrush = new PdfSolidBrush(new PdfColor(0, 0, 0));
-            page.Graphics.DrawString(title, titleFont, blackBrush, new PointF(180, 20));
+            page.Graphics.DrawString(title, titleFont, blackBrush, new System.Drawing.PointF(180, 20));
 
             // Tạo PdfGrid và định nghĩa số cột
             PdfGrid pdfGrid = new PdfGrid();
@@ -181,7 +244,7 @@ namespace Hutech.Exam.Server.Controllers
             headerRow.Style.BackgroundBrush = new PdfSolidBrush(new PdfColor(173, 216, 230));
 
             // Vẽ bảng cách tiêu đề khoảng 50px
-            pdfGrid.Draw(page, new PointF(0, 60));
+            pdfGrid.Draw(page, new System.Drawing.PointF(0, 60));
 
             using var stream = new MemoryStream();
             document.Save(stream);
@@ -196,7 +259,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ChiTietCaThiUpdateRequest chiTietCaThi)
         {
             var result = await _chiTietCaThiService.Update(id, chiTietCaThi);
@@ -212,7 +275,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Patch Methods
 
         [HttpPatch("{id:int}/cong-gio")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<ActionResult<ChiTietCaThiDto>> CongGioSinhVien([FromRoute] int id, [FromQuery] int gioCongThem)
         {
             var result = await _chiTietCaThiService.CongGio(id, gioCongThem);
@@ -237,6 +300,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var result = await _chiTietCaThiService.Remove(id);
@@ -248,6 +312,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             var result = await _chiTietCaThiService.ForceRemove(id);

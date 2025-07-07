@@ -33,7 +33,13 @@ namespace Hutech.Exam.Shared.Enums
         ThemThiSinhKhanCap = 7,
 
         [Display(Name = "Xóa thí sinh khỏi ca thi")]
-        XoaThiSinh = 8
+        XoaThiSinh = 8,
+
+        [Display(Name = "Gán đề thi")]
+        GanDeThi = 9,
+
+        [Display(Name = "Duyệt đề thi")]
+        DuyetDeThi = 10,
 
     }
 }

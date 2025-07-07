@@ -9,6 +9,11 @@ using Hutech.Exam.Client.Pages.Admin.OrganizeExam.Dialog;
 using Hutech.Exam.Client.Components.Dialogs;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Pages.Admin.ManageExamSession;
+using System.Security.Claims;
+using Hutech.Exam.Shared.Models;
+using Hutech.Exam.Shared.Enums;
+using Hutech.Exam.Shared.DTO.Request.Audit;
+using System.Text.Json;
 
 namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 {
@@ -33,11 +38,16 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         private List<ChiTietDotThiDto>? examBatchDetails = [];
         private List<CaThiDto>? examSessions = [];
 
+        private string? name;
+        private Guid userId;
+        string roleName = string.Empty;
+
         private const string NO_CHOOSE_OBJECT = "Vui lòng chọn 1 đối tượng để tiếp tục!";
         private const string WAITING_DELETE = "Việc xóa thực thể sẽ tốn thời gian tùy thuộc vào độ phức tạp của dữ liệu. Vui lòng chờ...";
         private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
         private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
         private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
+        private const string CONFIRM_APPROVE = "Bạn có chắc chắn muốn duyệt cho ca thi này không? Sau khi duyệt, ca thi sẽ không thể thay đổi được nữa. Nếu muốn thay đổi, bạn phải xóa và tạo lại ca thi mới.";
 
         #endregion
 
@@ -63,8 +73,20 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
 
         private async Task StartAsync()
         {
+            await GetIdentityUserName();
             (examBatchs, totalPages_ExamBatch, totalRecords_ExamBatch) = await ExamBatchs_GetAllAPI(currentPage_ExamBatch, rowsPerPage_ExamBatch);
             CreateFakeData_DT();
+        }
+
+        private async Task GetIdentityUserName()
+        {
+            var authState = AuthenticationState != null ? await AuthenticationState : null;
+            if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+            {
+                name = await SessionStorage.GetItemAsStringAsync("Name");
+                Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+            }
         }
 
         #endregion
@@ -321,6 +343,29 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             await Dialog.ShowAsync<AddStudentExamSessionExcelDialog>("THÊM DANH SÁCH SINH VIÊN VÀO CA THI", parameters, options);
         }
 
+        private async Task OnClickApproveExamSession(CaThiDto examSession)
+        {
+            selectedExamSession = examSession;
+            if (examSession.DaGanDe == false)
+            {
+                Snackbar.Add("Không thể duyệt ca thi chưa được gán đề thi!", Severity.Error);
+                return;
+            }
+
+            var parameters = new DialogParameters<Simple_Dialog>
+            {
+                { x => x.ContentText, CONFIRM_APPROVE },
+                { x => x.ButtonText, "Xác nhận" },
+                { x => x.Color, Color.Error },
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleApprove())   }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+
+            await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+
+        }
+
         #endregion
 
         #region HandleOnClick Methods
@@ -346,6 +391,25 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 examSessions?.Remove(selectedExamSession);
                 selectedExamSession = null;
             }
+        }
+
+        private async Task HandleApprove()
+        {
+            var reason = await OpenAuditDialogAsync(KieuHanhDong.DuyetDeThi);
+            if (reason != null && !reason.Canceled && reason.Data != null)
+            {
+                string jsonText = CreateActionHistory(KieuHanhDong.XoaThiSinh, "", reason.Data.ToString()!);
+                var result = await ExamSession_UpdateApprove(selectedExamSession!.MaCaThi, jsonText);
+                if(result != null)
+                {
+                    int index = examSessions!.FindIndex(ct => ct.MaCaThi == result.MaCaThi);
+                    if (index != -1)
+                    {
+                        examSessions[index] = result; // Cập nhật ca thi trong danh sách
+                        selectedExamSession = examSessions[index];
+                    }
+                }
+            }    
         }
 
 
@@ -407,6 +471,17 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             return await dialog.Result;
         }
 
+        private async Task<DialogResult?> OpenAuditDialogAsync(KieuHanhDong kieuHanhDong)
+        {
+            var parameters = new DialogParameters<Audit_Dialog>
+            {
+                { x => x.Action, kieuHanhDong },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
+            return await dialog.Result;
+        }
+
         //private async Task<DialogResult?> OpenUpdateExamDialogAsync(CaThiDto caThi)
         //{
         //    if (selectedExamBatchDetail == null)
@@ -431,6 +506,37 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         #endregion
 
         #region Other Methods
+
+        private string CreateActionHistory(KieuHanhDong kieuHanhDong, string chiTiet, string lyDo)
+        {
+            var updateHistory = new LichSuHoatDong()
+            {
+                HanhDong = kieuHanhDong,
+                ChiTiet = chiTiet,
+                UserId = userId,
+                NguoiThucHien = name ?? string.Empty,
+                LyDo = lyDo
+            };
+
+            var jsonText = ConvertActionHistory(updateHistory);
+            return jsonText;
+        }
+
+        private string ConvertActionHistory(LichSuHoatDong actionHistory)
+        {
+            List<LichSuHoatDong> result = [];
+            if (!string.IsNullOrWhiteSpace(selectedExamSession!.LichSuHoatDong))
+            {
+                var history = System.Text.Json.JsonSerializer.Deserialize<List<LichSuHoatDong>>(selectedExamSession.LichSuHoatDong);
+                if (history != null && history.Count > 0)
+                {
+                    result = history;
+                }
+            }
+
+            result.Add(actionHistory);
+            return JsonSerializer.Serialize(result);
+        }
 
         private void PadEmptyRows(List<DotThiDto>? newDotThis)
         {

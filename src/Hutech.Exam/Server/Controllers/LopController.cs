@@ -13,7 +13,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/lops")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class LopController(LopService lopService) : Controller
     {
         #region Private Fields
@@ -49,6 +49,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Insert([FromBody] LopCreateRequest lop)
         {
             var id = await _lopService.Insert(lop);
@@ -60,6 +61,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] LopUpdateRequest lop)
         {
             var result = await _lopService.Update(id, lop);
@@ -81,6 +83,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var result = await _lopService.Remove(id);
@@ -93,6 +96,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id}/force")]
+        [Authorize(Roles = "DaoTao")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             var result = await _lopService.ForceRemove(id);

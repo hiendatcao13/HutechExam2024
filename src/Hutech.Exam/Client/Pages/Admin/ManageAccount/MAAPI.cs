@@ -17,9 +17,25 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
                 : ([], 0, 0);
         }
 
+        private async Task<(List<UserDto>, int pageNumber, int pageSize)> Users_GetAll_Supervisor_PagedAPI(int pageNumber, int pageSize)
+        {
+            var response = await SenderAPI.GetAsync<Paged<UserDto>>($"api/users/supervisor?pageNumber={pageNumber + 1}&pageSize={pageSize}");
+            return (response.Success && response.Data != null)
+                ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords)
+                : ([], 0, 0);
+        }
+
         private async Task<(List<UserDto>, int pageNumber, int pageSize)> Users_GetAll_Search_PagedAPI(string keyword, int pageNumber, int pageSize)
         {
             var response = await SenderAPI.GetAsync<Paged<UserDto>>($"api/users/search?keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
+            return (response.Success && response.Data != null)
+                ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords)
+                : ([], 0, 0);
+        }
+
+        private async Task<(List<UserDto>, int pageNumber, int pageSize)> Users_GetAll_Search_Supervisor_PagedAPI(string keyword, int pageNumber, int pageSize)
+        {
+            var response = await SenderAPI.GetAsync<Paged<UserDto>>($"api/users/search/supervisor?keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             return (response.Success && response.Data != null)
                 ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords)
                 : ([], 0, 0);

@@ -1,6 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
-using System.Net.Http.Json;
 
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession

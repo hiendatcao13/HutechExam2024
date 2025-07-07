@@ -3,7 +3,7 @@
 @using Hutech.Exam.Shared.DTO
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "QuanTri")]
 
 <PageTitle>Mange Ca Thi</PageTitle>
 
@@ -84,7 +84,7 @@
                         <MudTd>
                             <MudButtonGroup Style="zoom: 0.7">
                                 <MudTooltip Text="Lịch sử">
-                                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" OnClick="async () => await OnClickEditExamSessionAsync(item)" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" OnClick="async () => await OnClickViewHistoryAsync(item)" />
                                 </MudTooltip>
                                 <MudTooltip Text="Chỉnh sửa">
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamSessionAsync(item)" />

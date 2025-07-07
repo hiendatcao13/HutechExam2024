@@ -1,6 +1,7 @@
 ﻿@page "/admin/monitor"
 @using Hutech.Exam.Shared.DTO
-@attribute [Authorize(Roles = "Admin")]
+@using Hutech.Exam.Shared.Enums
+@attribute [Authorize(Roles = "QuanTri")]
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
@@ -69,9 +70,12 @@
 								<MudTooltip Text="Xem chi tiết bài">
 									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Info" OnClick="async () => await OnClickViewExamSubmissionDetailAsync(item)" />
 								</MudTooltip>
-								<MudTooltip Text="Xóa">
-									<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteExamSessionDetailAsync(item)" />
-								</MudTooltip>
+								@if (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+								{
+									<MudTooltip Text="Xóa">
+										<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteExamSessionDetailAsync(item)" />
+									</MudTooltip>
+								}
 							</MudButtonGroup>
 						</MudTd>
 					</RowTemplate>

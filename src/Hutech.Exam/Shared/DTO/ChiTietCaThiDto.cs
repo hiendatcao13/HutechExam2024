@@ -18,8 +18,6 @@ namespace Hutech.Exam.Shared.DTO
 
         public long? MaDeThi { get; set; }
 
-        public string? KyHieuDe { get; set; } // đánh dấu không tồn tại trong Model
-
         public DateTime? ThoiGianBatDau { get; set; }
 
         public DateTime? ThoiGianKetThuc { get; set; }
@@ -40,6 +38,9 @@ namespace Hutech.Exam.Shared.DTO
 
         // không nằm trong database, chỉ thêm vào
         public string? LyDoCong { get; set; }
+        public string? KyHieuDe { get; set; }
+
+        public string? TenLop { get; set; }
 
         public virtual ICollection<ChiTietBaiThiDto> ChiTietBaiThis { get; set; } = new List<ChiTietBaiThiDto>();
 

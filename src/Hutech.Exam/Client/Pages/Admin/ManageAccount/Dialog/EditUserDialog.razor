@@ -16,9 +16,9 @@
 			<MudItem xs="4"><MudText>Vai trò:</MudText></MudItem>
 			<MudItem xs="8">
 				<MudSelect Disabled Label="Vai trò" T="int" @bind-Value="tempUser.MaVaiTro">
-					@foreach (KieuRole kieu in Enum.GetValues(typeof(KieuRole)))
+					@foreach (KieuVaiTro kieu in Enum.GetValues(typeof(KieuVaiTro)))
 					{
-						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu</MudSelectItem>
+						<MudSelectItem Value="@((int)kieu)">[@((int)kieu)]: @kieu.GetDisplayName()</MudSelectItem>
 					}
 				</MudSelect>
 			</MudItem>

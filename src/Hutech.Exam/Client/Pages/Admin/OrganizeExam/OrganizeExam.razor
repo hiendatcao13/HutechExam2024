@@ -1,8 +1,9 @@
 ﻿@page "/admin/organize"
 @using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.Enums
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "KhaoThi,DaoTao,CNTT,Admin")]
 
 
 <PageTitle>Organize Exam</PageTitle>
@@ -18,10 +19,13 @@
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await StartAsync()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchAsync()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchAsync()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchAsync()">Xóa</MudButton>
+                            @if (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+                            {
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await StartAsync()">Sync</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchAsync()">Thêm</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchAsync()">Sửa</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchAsync()">Xóa</MudButton>
+                            }
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -51,10 +55,13 @@
                         <ToolBarContent>
                             <MudText Typo="Typo.h6">Thông tin chi tiết đợt thi</MudText>
                             <MudSpacer />
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamBatchDetailAsync()">Sync</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
-                            <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchDetailAsync()">Xóa</MudButton>
+                            @if (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+                            {
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamBatchDetailAsync()">Sync</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
+                                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamBatchDetailAsync()">Xóa</MudButton>
+                            }
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>ID</MudTh>
@@ -82,11 +89,14 @@
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Thông tin ca thi</MudText>
                     <MudSpacer />
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickUploadStudentListToExamSessionAsync()">Cập nhật sinh viên vào ca thi</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamSessionAsync()">Sync</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamSessionAsync()">Thêm</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamSessionAsync()">Sửa</MudButton>
-                    <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamSessionAsync()">Xóa</MudButton>
+                    @if (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+                    {
+                        <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.People" OnClick="async () => await OnClickUploadStudentListToExamSessionAsync()">Thêm file SV</MudButton>
+                        <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamSessionAsync()">Sync</MudButton>
+                        <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamSessionAsync()">Thêm</MudButton>
+                        <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickEditExamSessionAsync()">Sửa</MudButton>
+                        <MudButton Class="add-button final-table-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="async () => await OnClickDeleteExamSessionAsync()">Xóa</MudButton>
+                    }
                     <MudTextField @bind-Value="searchString" Style="margin-left: 15px" Placeholder="Nhập tên hoặc mã ca thi" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="async () => await FilterAsync()" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                 </ToolBarContent>
                 <HeaderContent>
@@ -115,11 +125,20 @@
                     <MudTd DataLabel="TG Kết Thúc">@item?.ThoiDiemKetThuc</MudTd>
                     <MudTd>
                         <MudButtonGroup Style="zoom: 0.7">
+                            @if (roleName.Contains(KieuVaiTro.KhaoThi.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+                            {
+                                <MudTooltip Text="Gán đề">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickUpdateExamAsync(item)" />
+                                </MudTooltip>
+                            }
+                            @if (roleName.Contains(KieuVaiTro.CNTT.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+                            {
+                                <MudTooltip Text="Duyệt đề">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Checklist" Color="Color.Success" OnClick="async () => await OnClickApproveExamSession(item)" />
+                                </MudTooltip>
+                            }
                             <MudTooltip Text="Xem chi tiết">
-                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Primary" OnClick="async () => await OnClickShowExamBatchDetailAsync(item)" />
-                            </MudTooltip>
-                            <MudTooltip Text="Cập nhật đề thi">
-                                <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickUpdateExamAsync(item)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.ArrowOutward" Color="Color.Primary" OnClick="async () => await OnClickShowExamBatchDetailAsync(item)" />
                             </MudTooltip>
                         </MudButtonGroup>
                     </MudTd>

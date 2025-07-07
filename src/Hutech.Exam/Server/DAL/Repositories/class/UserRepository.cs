@@ -72,9 +72,72 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         }
 
+        public async Task<Paged<UserDto>> GetAll_GiamThi_Paged(int pageNumber, int pageSize)
+        {
+            using DatabaseReader sql = new("NguoiDung_GetAll_GiamThi_Paged");
+
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<UserDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (await dataReader!.ReadAsync())
+            {
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
+                result.Add(user);
+            }
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (dataReader.Read())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<UserDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+
+        }
+
         public async Task<Paged<UserDto>> GetAll_Search_Paged(string keyword, int pageNumber, int pageSize)
         {
             using DatabaseReader sql = new("NguoiDung_GetAll_Search_Paged");
+
+            sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<UserDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (await dataReader!.ReadAsync())
+            {
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
+                result.Add(user);
+            }
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (await dataReader.ReadAsync())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<UserDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+
+        }
+
+        public async Task<Paged<UserDto>> GetAll_Search_GiamThi_Paged(string keyword, int pageNumber, int pageSize)
+        {
+            using DatabaseReader sql = new("NguoiDung_GetAll_Search_GiamThi_Paged");
 
             sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
             sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
@@ -116,6 +179,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             if (await dataReader!.ReadAsync())
             {
                 user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
             }
 
             return user;
@@ -129,8 +193,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, user.LoginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, user.Email);
             sql.SqlParams("@Ten", SqlDbType.NVarChar, user.Name);
-            sql.SqlParams("@Password", SqlDbType.NVarChar, user.Password);
-            sql.SqlParams("@DateCreated", SqlDbType.DateTime, user.DateCreated);
+            sql.SqlParams("@MatKhau", SqlDbType.NVarChar, user.Password);
+            sql.SqlParams("@NgayTao", SqlDbType.DateTime, user.DateCreated);
             sql.SqlParams("@GhiChu", SqlDbType.NVarChar, user.Comment);
 
             return (Guid)(await sql.ExecuteScalarAsync() ?? new Guid());
@@ -216,11 +280,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> UpdatePassword(Guid id, UserUpdatePasswordRequest user)
         {
-            using DatabaseReader sql = new("NguoiDung_UpdatePassword");
+            using DatabaseReader sql = new("NguoiDung_UpdateMatKhau");
 
             sql.SqlParams("@MaNguoiDung", SqlDbType.UniqueIdentifier, id);
-            sql.SqlParams("@Password", SqlDbType.NVarChar, user.Password);
-            sql.SqlParams("@LastPasswordChangedDate", SqlDbType.DateTime, user.LastPasswordChangedDate);
+            sql.SqlParams("@MatKhau", SqlDbType.NVarChar, user.Password);
+            sql.SqlParams("@ThoiGianDoiMatKhau", SqlDbType.DateTime, user.LastPasswordChangedDate);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
@@ -236,7 +300,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public async Task<bool> CheckExistName(string loginName, string email)
         {
-            using DatabaseReader sql = new("NguoiDung_CheckName");
+            using DatabaseReader sql = new("NguoiDung_CheckTen");
 
             sql.SqlParams("@TenDangNhap", SqlDbType.NVarChar, loginName);
             sql.SqlParams("@Email", SqlDbType.NVarChar, email);

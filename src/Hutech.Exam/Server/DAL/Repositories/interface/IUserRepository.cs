@@ -13,7 +13,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize);
 
+        Task<Paged<UserDto>> GetAll_GiamThi_Paged(int pageNumber, int pageSize);
+
         Task<Paged<UserDto>> GetAll_Search_Paged(string keyword, int pageNumber, int pageSize);
+
+        Task<Paged<UserDto>> GetAll_Search_GiamThi_Paged(string keyword, int pageNumber, int pageSize);
 
         Task<Guid> Insert(UserCreateRequest user);
 

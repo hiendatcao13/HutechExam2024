@@ -8,6 +8,7 @@ using Hutech.Exam.Shared.DTO;
 using MudBlazor;
 using Hutech.Exam.Client.Components.Dialogs;
 using Hutech.Exam.Client.API;
+using System.Security.Claims;
 
 namespace Hutech.Exam.Client.Pages.Info
 {
@@ -176,7 +177,7 @@ namespace Hutech.Exam.Client.Pages.Info
             long ma_sinh_vien = -1;
             // chuyển đổi string thành long
             if (authState != null && authState.User.Identity != null)
-                long.TryParse(authState.User.Identity.Name, out ma_sinh_vien);
+                long.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out ma_sinh_vien);
 
             await GetExamSessionInformationAsync(ma_sinh_vien);
         }
