@@ -10,11 +10,10 @@ namespace Hutech.Exam.Server.DAL.Helper
             var dt = new DataTable();
 
             dt.Columns.Add("MaChiTietCaThi", typeof(int));
-            dt.Columns.Add("MaDeHV", typeof(long));
-            dt.Columns.Add("MaNhom", typeof(int));
-            dt.Columns.Add("MaCauHoi", typeof(int));
-            dt.Columns.Add("MaCLO", typeof(int));
-            dt.Columns.Add("CauTraLoi", typeof(int));
+            dt.Columns.Add("MaDeThi", typeof(long));
+            dt.Columns.Add("MaNhom", typeof(Guid));
+            dt.Columns.Add("MaCauHoi", typeof(Guid));
+            dt.Columns.Add("CauTraLoi", typeof(Guid));
             dt.Columns.Add("NgayTao", typeof(DateTime));
             dt.Columns.Add("NgayCapNhat", typeof(DateTime));
             dt.Columns.Add("KetQua", typeof(bool));
@@ -24,10 +23,9 @@ namespace Hutech.Exam.Server.DAL.Helper
             {
                 dt.Rows.Add(
                     item.MaChiTietCaThi,
-                    item.MaDeHv,
+                    item.MaDeThi,
                     item.MaNhom,
                     item.MaCauHoi,
-                    item.MaClo,
                     item.CauTraLoi,
                     item.NgayTao,
                     item.NgayCapNhat,

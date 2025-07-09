@@ -6,24 +6,21 @@
 
 @code {
     [Parameter] public int InitialSeconds { get; set; }
-
     [Parameter] public EventCallback OnFinish { get; set; }
 
     private System.Timers.Timer? _timer;
-
     private string? DisplayTime { get; set; }
-
     private int RemainingSeconds;
+    private bool _isInitialized = false;
 
     protected override async Task OnParametersSetAsync()
     {
-        Console.WriteLine("tong_thoi_gian_nekkk" + InitialSeconds);
-        RemainingSeconds = InitialSeconds;
-        DisplayTime = FormatTime(RemainingSeconds);
-
-        if (RemainingSeconds > 0)
+        if (!_isInitialized && InitialSeconds > 0)
         {
+            RemainingSeconds = InitialSeconds;
+            DisplayTime = FormatTime(RemainingSeconds);
             StartTimer();
+            _isInitialized = true;
         }
 
         await base.OnParametersSetAsync();
@@ -32,11 +29,12 @@
     private void StartTimer()
     {
         _timer = new System.Timers.Timer
-			{
-				Interval = 1000, // 1000 = 1ms
-				AutoReset = true,
-				Enabled = true
-			};
+            {
+                Interval = 1000,
+                AutoReset = true,
+                Enabled = true
+            };
+
         _timer.Elapsed += async (s, e) =>
         {
             if (RemainingSeconds > 0)
@@ -51,19 +49,18 @@
                 await InvokeAsync(OnFinish.InvokeAsync);
             }
         };
+
+        _timer.Start(); // <- Đừng quên dòng này
+    }
+
+    private string FormatTime(int totalSeconds)
+    {
+        TimeSpan time = TimeSpan.FromSeconds(totalSeconds);
+        return $"{(int)time.TotalMinutes:D2}:{time.Seconds:D2}";
     }
 
     public void Dispose()
     {
         _timer?.Dispose();
     }
-
-    private string FormatTime(int totalSeconds)
-    {
-		TimeSpan time = TimeSpan.FromSeconds(totalSeconds);
-		return $"{(int)time.TotalMinutes:D2}:{time.Seconds:D2}";// format từ giây sang phút/giây với D2 là 2 số nguyên
-	}
-
-	
-
 }

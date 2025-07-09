@@ -1,0 +1,154 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.DeThi
+@using Hutech.Exam.Shared.DTO.Request.User
+@using System.Text.RegularExpressions
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 800px; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="12" Style="">
+				<MudTable Elevation="24" T="DeThiDto" Items="@exams" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Style="max-width: 800px; overflow-y: auto">
+					<HeaderContent>
+						<MudTh>Mã đề</MudTh>
+						<MudTh>Tên đề</MudTh>
+						<MudTh>Ký hiệu đề</MudTh>
+						<MudTh>Ngày tạo</MudTh>
+						<MudTh>Chọn</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd>@item.Guid</MudTd>
+						<MudTd>@item.TenDeThi</MudTd>
+						<MudTd><MudTextField Variant="Variant.Outlined" Style="height: 35px" @bind-Value="item.KyHieuDe" InputType="InputType.Text"></MudTextField></MudTd>
+						<MudTd>@item.NgayTao</MudTd>
+						<MudTd><MudSwitch T="bool" Value="item.DaChon" Color="Color.Success" ValueChanged="(value) => OnValueChangeSelect(value, item)"></MudSwitch></MudTd>
+					</RowTemplate>
+				</MudTable>
+			</MudItem>
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="async () => await OnClickSubmit()">Gán đề</MudButton>
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Parameter] public CaThiDto ExamSession { get; set; } = default!;
+
+	[Parameter] public MonHocDto Subject { get; set; } = default!;
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	private List<DeThiDto> exams = new();
+
+	private List<DeThiDto> selectExams = new();
+
+
+	private const string MissingExamCode = "Ký hiệu đề không được để trống";
+	private const string NotChooseExam = "Vui lòng chọn ít nhất 1 đề để gán cho ca thi";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private async Task HandleInput()
+	{
+		exams = await Exams_GetAllAPI();
+	}
+	private void OnClickExit()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickSubmit()
+	{
+		if (!ValidateDeThi())
+		{
+			Snackbar.Add(MissingExamCode, Severity.Error);
+			return;
+		}
+
+		if (selectExams.Count == 0)
+		{
+			Snackbar.Add(NotChooseExam, Severity.Error);
+			return;
+		}
+
+		var result = await Exam_SaveBatch(selectExams.Select(x => new DeThiCreateRequest
+			{
+				Guid = x.Guid,
+				KyHieuDe = x.KyHieuDe!,
+				TenDeThi = x.TenDeThi,
+				MaMonHoc = Subject.MaMonHoc
+			}).ToList());
+
+		if(result)
+		{
+			MudDialog?.Close(DialogResult.Ok(true));
+		}
+	}
+
+	private List<Guid> GetAllExamCodeAsync()
+	{
+		return selectExams.Select(_ => _.Guid).ToList();
+	}
+
+
+	private void OnValueChangeSelect(bool value, DeThiDto selectDeThi)
+	{
+		selectDeThi.DaChon = value;
+		if (value)
+		{
+			selectExams.Add(selectDeThi);
+		}
+		else
+		{
+			selectExams.Remove(selectDeThi);
+		}
+	}
+
+	private bool ValidateDeThi()
+	{
+		foreach (var item in selectExams)
+		{
+			if (string.IsNullOrWhiteSpace(item.KyHieuDe))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private async Task<List<DeThiDto>> Exams_GetAllAPI()
+	{
+		var response = await SenderAPI.GetAsync<List<DeThiDto>>("api/dethis/mock-api");
+		return (response.Success && response.Data != null) ? response.Data : [];
+	}
+
+	private async Task<bool> Exam_SaveBatch(List<DeThiCreateRequest> deThis)
+	{
+		var response = await SenderAPI.PostAsync<DeThiDto>("api/dethis/batch", deThis);
+		return response.Success;
+	}
+}

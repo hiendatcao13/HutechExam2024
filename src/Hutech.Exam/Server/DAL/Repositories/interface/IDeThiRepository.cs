@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.DeThi;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -8,15 +9,17 @@ namespace Hutech.Exam.Server.DAL.Repositories
     {
         DeThiDto GetProperty(IDataReader dataReader, int start = 0);
 
-        Task<int> Insert(int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan);
+        Task<int> Insert(int ma_mon_hoc, string ten_de_thi, Guid guid, DateTime ngay_tao, string ky_hieu_de);
 
-        Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan, bool da_duyet, bool luu_tam);
+        Task<bool> Update(long ma_de_thi, int ma_mon_hoc, string ten_de_thi, Guid guid, string ky_hieu_de);
 
-        Task<bool> Delete(int ma_de_thi);
+        Task Save_Batch(List<DeThiDto> deThis);
 
-        Task<bool> ForceDelete(int ma_de_thi);
+        Task<bool> Delete(long ma_de_thi);
 
-        Task<DeThiDto> SelectOne(int ma_de_thi);
+        Task<bool> ForceDelete(long ma_de_thi);
+
+        Task<DeThiDto> SelectOne(long ma_de_thi);
 
         Task<DeThiDto> SelectBy_ma_de_hv(long ma_de_hv);
 

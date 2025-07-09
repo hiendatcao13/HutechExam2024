@@ -5,13 +5,16 @@
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Dark" Variant="Variant.Outlined" OnClick="Cancel">Thoát</MudButton>
-        <MudButton Color="Color.Error" Variant="Variant.Outlined" OnClick="ForceRemove">Xóa ràng buộc</MudButton>
+        @if (!IsOnlySafeDetlet)
+        {
+            <MudButton Color="Color.Error" Variant="Variant.Outlined" OnClick="ForceRemove">Xóa ràng buộc</MudButton>
+        }
         <MudButton Color="Color.Info" Variant="Variant.Outlined" OnClick="Remove">Xóa an toàn</MudButton>
     </DialogActions>
 </MudDialog>
 <style>
     .my-custom-class {
-        backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     }
 </style>
 @code {
@@ -29,6 +32,9 @@
 
     [Parameter]
     public EventCallback? onHandleCancel { get; set; }
+
+    [Parameter]
+    public bool IsOnlySafeDetlet { get; set;  } = false;
 
     private async Task Remove()
     {

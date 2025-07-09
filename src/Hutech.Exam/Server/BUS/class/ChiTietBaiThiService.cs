@@ -14,25 +14,6 @@ namespace Hutech.Exam.Server.BUS
         #endregion
 
         #region Public Methods
-        public async Task<long> Insert(int ma_chi_tiet_ca_thi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, DateTime NgayTao, int ThuTu)
-        {
-            return await _chiTietBaiThiRepository.Insert(ma_chi_tiet_ca_thi, MaDeHV, MaNhom, MaCauHoi, MaClo, NgayTao, ThuTu);
-        }
-
-        public async Task<bool> Update(long MaChiTietBaiThi, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
-        {
-            return await _chiTietBaiThiRepository.Update(MaChiTietBaiThi, CauTraLoi, NgayCapNhat, KetQua);
-        }
-
-        public async Task<bool> Update_v2(int MaChiTietCaThi, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayCapNhat, bool KetQua)
-        {
-            return await _chiTietBaiThiRepository.Update_v2(MaChiTietCaThi, MaCauHoi, MaClo, CauTraLoi, NgayCapNhat, KetQua);
-        }
-
-        public async Task Save(int MaChiTietCaThi, long MaDeHV, int MaNhom, int MaCauHoi, int MaClo, int CauTraLoi, DateTime NgayTao, DateTime NgayCapNhat, bool KetQua, int ThuTu)
-        {
-            await _chiTietBaiThiRepository.Save(MaChiTietCaThi, MaDeHV, MaNhom, MaCauHoi, MaClo, CauTraLoi, NgayTao, NgayCapNhat, KetQua, ThuTu);
-        }
 
         public async Task Save_Batch(List<ChiTietBaiThiDto> chiTietBaiThis)
         {
@@ -55,27 +36,9 @@ namespace Hutech.Exam.Server.BUS
             return await _chiTietBaiThiRepository.Delete(ma_chi_tiet_bai_thi);
         }
 
-        public async Task<ChiTietBaiThiDto> SelectOne_v2(int ma_chi_tiet_ca_thi, long ma_de_hv, int ma_nhom, int ma_cau_hoi)
-        {
-            return await _chiTietBaiThiRepository.SelectOne_v2(ma_chi_tiet_ca_thi, ma_de_hv, ma_nhom, ma_cau_hoi);
-        }
 
 
-
-        public Dictionary<int, int> GetDapAnKhoanh_SelectByListCTBT(List<ChiTietBaiThiRequest> listChiTietBaiThi)
-        {
-            Dictionary<int, int> result = [];
-            foreach (var chiTietBaiThi in listChiTietBaiThi)
-            {
-                if (chiTietBaiThi != null && chiTietBaiThi.CauTraLoi != null)
-                {
-                    result[chiTietBaiThi.MaCauHoi] = (int)chiTietBaiThi.CauTraLoi;
-                }
-            }
-            return result;
-        }
-
-        public void UpdateDungSai_SelectByListCTBT_DapAn(Dictionary<int, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<int, int> dapAns)
+        public void UpdateDungSai_SelectByListCTBT_DapAn(Dictionary<Guid, ChiTietBaiThiRequest> chiTietBaiThis, Dictionary<Guid, Guid> dapAns)
         {
 
             foreach (var (cauSo, dapAn) in dapAns)
@@ -89,7 +52,7 @@ namespace Hutech.Exam.Server.BUS
         }
 
 
-        public (List<bool?>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<int, int?> dapAnKhoanhs, Dictionary<int, int> dapAns)
+        public (List<bool?>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<Guid, Guid?> dapAnKhoanhs, Dictionary<Guid, Guid> dapAns)
         {
             var ketQuaList = new List<bool?>(dapAns.Count);
             int soCauDung = 0;

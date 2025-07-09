@@ -40,7 +40,7 @@ namespace Hutech.Exam.Server.Hubs
         }
 
         // gửi thông điệp yêu cầu chi tiết bài thi từ Redis
-        public async Task<Dictionary<int, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<Guid, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
         {
             return await _examRecoveryService.GetDapAnKhoanhAsync(ma_chi_tiet_ca_thi);
         }

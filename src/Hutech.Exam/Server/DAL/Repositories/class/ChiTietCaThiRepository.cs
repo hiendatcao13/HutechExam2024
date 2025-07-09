@@ -206,7 +206,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using DatabaseReader sql = new("ChiTietCaThi_UpdateBatDau");
 
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
-            sql.SqlParams("@thoi_gian_bat_dau", SqlDbType.DateTime, thoi_gian_bat_dau ?? (Object)DBNull.Value);
+            sql.SqlParams("@ThoiGianBatDau", SqlDbType.DateTime, thoi_gian_bat_dau ?? (Object)DBNull.Value);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

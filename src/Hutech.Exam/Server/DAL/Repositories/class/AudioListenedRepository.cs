@@ -41,10 +41,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return listenedCount;
         }
 
-        public async Task<int> UpdateAsync(int examSessionDetailId, string fileName)
+        public async Task<int> UpdateAsync(int examSessionDetailId, Guid groupQuestionId, string fileName)
         {
             using DatabaseReader sql = new("Audio_Update");
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, examSessionDetailId);
+            sql.SqlParams("@MaNhom", SqlDbType.UniqueIdentifier, groupQuestionId);
             sql.SqlParams("@TenFile", SqlDbType.Int, fileName);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync());

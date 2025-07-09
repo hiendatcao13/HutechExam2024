@@ -22,6 +22,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         public async Task OnFocusLostAsync()
         {
             var result = await OpenLostFocusDialogAsync();
+            TheSateHasChanged();
             if (result != null && !result.Canceled && result.Data != null)
             {
                 if(result.Data is bool and true)
@@ -35,19 +36,9 @@ namespace Hutech.Exam.Client.Pages.Exam
         public async Task EndTimeSubmissionAsync() // kết thúc thời gian làm bài
         {
             var DsKhoanh = SelectedAnswers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
-            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = Students.MaSinhVien, MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi, MaDeThiHoanVi = ExamSessionDetail.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
-
-            // lưu dự phòng ở đây
-            await SaveDataAsync(DsKhoanh);
+            await StudentHub.RequestSubmit( new SubmitRequest { MaSinhVien = Students.MaSinhVien, MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi, MaDeThi = ExamSessionDetail.MaDeThi ?? -1, DapAnKhoanhs = DsKhoanh, ThoiGianNopBai = DateTime.Now });
 
             Nav?.NavigateTo("/result");
-        }
-
-        // save data cho trường hợp lỗi nặng
-        public async Task SaveDataAsync(Dictionary<int, int?> dsKhoanh)
-        {
-            var selectData = new SubmitRequest { IsLanDau = false, MaSinhVien = Students.MaSinhVien, MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi, MaDeThiHoanVi = ExamSessionDetail.MaDeThi ?? -1, DapAnKhoanhs = dsKhoanh, ThoiGianNopBai = DateTime.Now, DsDapAnDuPhong = _dsThiSinhDaKhoanh, IsRecoverySubmit = true };
-            await SessionStorage.SetItemAsync("SubmitRequest", selectData);
         }
     }
 }

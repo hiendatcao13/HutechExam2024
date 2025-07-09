@@ -407,7 +407,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 name = await SessionStorage.GetItemAsStringAsync("Name");
                 Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
-                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
             }
         }
 

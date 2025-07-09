@@ -85,7 +85,13 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             {
                 name = await SessionStorage.GetItemAsStringAsync("Name");
                 Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
-                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
             }
         }
 
@@ -311,18 +317,19 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             await Dialog.ShowAsync<Delete_Dialog>("XÓA CA THI", parameters, options);
         }
 
-        private async Task OnClickShowExamBatchDetailAsync(CaThiDto caThi)
+        private async Task OnClickShowExamBatchDetailAsync(CaThiDto examSession)
         {
             await SaveDataAsync();
             // set Ca Thi cho trang EM, ko tốn API lấy lại
-            await SessionStorage.SetItemAsync("CaThi", caThi);
+            await SessionStorage.SetItemAsync("CaThi", examSession);
             // set cho trang Manage Exam 
             await SetItemsInSessionStorageAsync();
-            Nav.NavigateTo($"admin/monitor?ma_ca_thi={caThi.MaCaThi}");
+            Nav.NavigateTo($"admin/monitor?ma_ca_thi={examSession.MaCaThi}");
         }
 
-        private async Task OnClickUpdateExamAsync(CaThiDto caThi)
+        private void OnClickUpdateExamAsync(CaThiDto examSession)
         {
+            Nav.NavigateTo($"/admin/approved-exam?ma_ca_thi={examSession.MaCaThi}");
             //var result = await OpenUpdateExamDialogAsync(caThi);
             //// lấy data là mã đề thi mới cho ca thi
             //if (result != null && result.Data != null && !result.Canceled && examSessions != null)
@@ -479,6 +486,17 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenExamDialogAsync(CaThiDto examSession)
+        {
+            var parameters = new DialogParameters<ExamDialog>
+            {
+                { x => x.ExamSession, examSession },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<ExamDialog>("GÁN ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 

@@ -1,0 +1,265 @@
+﻿@page "/admin/approved-exam"
+@using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.DTO.Custom
+@using Syncfusion.Blazor.Charts
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+@attribute [Authorize(Roles = "KhaoThi,Admin")]
+
+<PageTitle>Exam Evaluation</PageTitle>
+
+<MudContainer Class="d-flex justify-center align-center">
+	<MudGrid Style="margin-top: 5px; margin-left: 5px">
+		<MudItem xs="12" md="4">
+			@if (subjects != null)
+			{
+				<MudTable Elevation="3" T="MonHocDto" Items="@subjects" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedSubject(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassSubjectFunc"
+						  TotalItems="totalRecords_Subject" RowsPerPage="rowsPerPage_Subject" CurrentPageChanged="OnCurrentPageChange_Subject" RowsPerPageChanged="OnRowsPerPageChange_Subject">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin môn thi</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchSubjectAsync()">Sync</MudButton>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>Mã số</MudTh>
+						<MudTh>Tên</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item?.MaMonHoc</MudTd>
+						<MudTd DataLabel="Mã số">@item?.MaSoMonHoc</MudTd>
+						<MudTd DataLabel="Tên">@item?.TenMonHoc</MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+
+		<MudItem xs="12" md="8">
+			@if (exams != null)
+			{
+				<MudTable Elevation="3" T="DeThiDto" Items="@exams" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true" OnRowClick="async (value) => await OnRowClickedExam(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamFunc"
+						  TotalItems="totalRecords_Exam" RowsPerPage="rowsPerPage_Exam" CurrentPageChanged="OnCurrentPageChange_Exam" RowsPerPageChanged="OnRowsPerPageChange_Exam">
+					<ToolBarContent>
+						<MudText Typo="Typo.h6">Thông tin đề thi</MudText>
+						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamAsync()">Sync</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamAsync()">Thêm</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickEditExamAsync()">Sửa</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Edit" OnClick="async () => await OnClickDeleteExamAsync()">Xóa</MudButton>
+					</ToolBarContent>
+					<HeaderContent>
+						<MudTh>ID</MudTh>
+						<MudTh>GUID</MudTh>
+						<MudTh>Tên</MudTh>
+						<MudTh>Ký hiệu đề</MudTh>
+						<MudTh>Ngày tạo</MudTh>
+						<MudTh>Gán đề</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd DataLabel="ID">@item.MaDeThi</MudTd>
+						<MudTd DataLabel="GUID">@item.Guid</MudTd>
+						<MudTd DataLabel="Tên">@item.TenDeThi</MudTd>
+						<MudTd DataLabel="Ký hiệu đề">@item.KyHieuDe</MudTd>
+						<MudTd DataLabel="Ngày tạo">@(item.NgayTao.ToString("dd/MM/yyyy"))</MudTd>
+						<MudTd DataLabel="Gán đề"><MudSwitch T="bool" Value="item.DaChon" Color="Color.Success" ValueChanged="(value) => OnClickChooseExam(value, item)"></MudSwitch></MudTd>
+					</RowTemplate>
+					<PagerContent>
+						<MudTablePager PageSizeOptions="new int[] {20, 30, 60, 100}" AllItemsText="All" />
+					</PagerContent>
+				</MudTable>
+			}
+		</MudItem>
+
+		<MudItem xs="12">
+			<MudTable Elevation="3" T="DeThiDto" Items="@newExams" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Style="max-width: 800px; overflow-y: auto">
+				<ToolBarContent>
+					<MudText Typo="Typo.h6">Thông tin đề thi mới</MudText>
+					<MudSpacer />
+					<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchNewExamAsync()">Lấy đề mới</MudButton>
+					<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddNewExamAsync()">Thêm</MudButton>
+				</ToolBarContent>
+				<HeaderContent>
+					<MudTh>GUID</MudTh>
+					<MudTh>Tên đề</MudTh>
+					<MudTh>Ký hiệu đề</MudTh>
+					<MudTh>Ngày tạo</MudTh>
+					<MudTh>Chọn</MudTh>
+				</HeaderContent>
+				<RowTemplate Context="item">
+					<MudTd>@item.Guid</MudTd>
+					<MudTd>@item.TenDeThi</MudTd>
+					<MudTd><MudTextField Variant="Variant.Outlined" Style="height: 35px" @bind-Value="item.KyHieuDe" InputType="InputType.Text"></MudTextField></MudTd>
+					<MudTd>@item.NgayTao</MudTd>
+					<MudTd><MudSwitch T="bool" Value="item.DaChon" Color="Color.Info" ValueChanged="(value) => OnValueChangeSelect(value, item)"></MudSwitch></MudTd>
+				</RowTemplate>
+			</MudTable>
+		</MudItem>
+
+	</MudGrid>
+</MudContainer>
+
+<style>
+	.add-button {
+		transform: scale(0.85);
+	}
+
+	.final-table-button {
+		margin-top: 1%;
+	}
+
+	.checkbox {
+		transform: scale(0.85);
+	}
+
+	.selected-row {
+		background-color: #e0f7fa !important;
+		font-weight: bold;
+	}
+
+	.my-custom-table {
+		border: 1px solid #ccc !important;
+		border-radius: 6px !important;
+	}
+
+		.my-custom-table .mud-table-row:hover {
+			background-color: #f1f1f1 !important;
+			cursor: pointer !important;
+		}
+</style>
+
+<script>
+	window.downloadFileFromText = function (fileName, textContent) {
+		const blob = new Blob([textContent], { type: 'application/json' });
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(blob);
+		link.download = fileName;
+		link.click();
+		URL.revokeObjectURL(link.href);
+	};
+</script>
+
+@code {
+	string GetColorStyle(double phanTram) =>
+		phanTram < 0.5 ? "color:red" : "color:black";
+
+	// thông số cho bảng môn thi
+	private int currentPage_Subject = 0;
+	private int rowsPerPage_Subject = 20;
+	private int totalRecords_Subject = 20;
+	private int totalPages_Subject = 1;
+
+	// thông số cho bảng đề thi
+	private int currentPage_Exam = 0;
+	private int rowsPerPage_Exam = 20;
+	private int totalRecords_Exam = 20;
+	private int totalPages_Exam = 1;
+
+	private List<int> selectedPages_Subject = new() { 0 }; // luôn load có trang đầu tiên
+	private List<int> selectedPages_Exam = new() { 0 }; // luôn load có trang đầu tiên
+
+	private bool isShowLevelStudent = false;
+
+
+	private async Task OnRowsPerPageChange_Subject(int rows)
+	{
+		if (rows == rowsPerPage_Subject)
+			return;
+
+		this.rowsPerPage_Subject = rows;
+		currentPage_Subject = 0; //Reset về trang đầu tiên
+
+		(var newMons, _, _) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
+		PadEmptyRows(newMons);
+	}
+	private async Task OnCurrentPageChange_Subject(int page)
+	{
+		if (page == currentPage_Subject)
+			return;
+
+		this.currentPage_Subject = page;
+		if (selectedPages_Subject.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newMons, _, _) = await Subjects_GetAll_PagedAPI(currentPage_Subject, rowsPerPage_Subject);
+		PadEmptyRows(newMons);
+		selectedPages_Subject?.Add(currentPage_Subject);
+	}
+
+	private async Task OnRowsPerPageChange_Exam(int rows)
+	{
+		if (rows == rowsPerPage_Exam)
+			return;
+
+		this.rowsPerPage_Exam = rows;
+		currentPage_Exam = 0; //Reset về trang đầu tiên
+
+		(var newDeThis, _, _) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject?.MaMonHoc ?? -1, currentPage_Exam, rowsPerPage_Exam);
+		PadEmptyRows(newDeThis);
+	}
+	private async Task OnCurrentPageChange_Exam(int page)
+	{
+		if (page == currentPage_Exam)
+			return;
+
+		this.currentPage_Exam = page;
+		if (selectedPages_Exam.Contains(page))
+			return;
+
+		//chỉ thực hiện load data khi người dùng chọn trang mới
+		(var newDeThis, _, _) = await Exams_SelectBy_SubjectId_PagedAPI(selectedSubject?.MaMonHoc ?? -1, currentPage_Exam, rowsPerPage_Exam);
+		PadEmptyRows(newDeThis);
+		selectedPages_Exam?.Add(currentPage_Exam);
+	}
+
+	private async Task OnRowClickedSubject(TableRowClickEventArgs<MonHocDto> args)
+	{
+		if (args.Item == selectedSubject)
+			return;
+
+		selectedSubject = args.Item;
+
+		exams?.Clear();
+
+		await FetchExamAsync();
+	}
+
+	private async Task OnRowClickedExam(TableRowClickEventArgs<DeThiDto> args)
+	{
+		if (args.Item == selectedExam)
+			return;
+
+		selectedExam = args.Item;
+
+		if (selectedExam == null)
+			return;
+
+	}
+
+	private void OnValueChangeSelect(bool value, DeThiDto selectDeThi)
+	{
+		selectDeThi.DaChon = value;
+		if (value)
+		{
+			selectNewExams.Add(selectDeThi);
+		}
+		else
+		{
+			selectNewExams.Remove(selectDeThi);
+		}
+	}
+
+
+	private string SelectedRowClassSubjectFunc(MonHocDto item, int rowNumber)
+	{
+		return item == selectedSubject ? "selected-row" : string.Empty;
+	}
+
+	private string SelectedRowClassExamFunc(DeThiDto item, int rowNumber)
+	{
+		return item == selectedExam ? "selected-row" : string.Empty;
+	}
+}

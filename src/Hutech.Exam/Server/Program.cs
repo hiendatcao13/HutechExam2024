@@ -4,11 +4,8 @@ using Hutech.Exam.Server.BUS.RabbitServices;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Server.Installers;
 using Hutech.Exam.Server.Middleware;
-using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Shared.Profiles;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 

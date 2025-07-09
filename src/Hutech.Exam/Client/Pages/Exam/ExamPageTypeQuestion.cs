@@ -10,13 +10,14 @@ namespace Hutech.Exam.Client.Pages.Exam
         private bool isFirstTimeGetAudio = true;
         private void ModifyGroupQuestion()
         {
-            int ma_nhom = 0;
+            Guid ma_nhom = new();
             if (CustomExams != null)
             {
                 int thu_tu_cau_hoi = 0;
                 foreach (var item in CustomExams)
                 {
                     // thêm các câu hỏi vào danh sách check đã khoanh hay chưa?
+                    item.ThuTuCauHoi = thu_tu_cau_hoi + 1;
                     SelectedAnswers?.Add(item.MaCauHoi, (++thu_tu_cau_hoi, null));
 
                     // thêm các chữ A,B,C,D vào nội dung câu trả lời
@@ -28,8 +29,8 @@ namespace Hutech.Exam.Client.Pages.Exam
                         {
                             item.CauTraLois[key] = $"{_alphabet[stt++]}. {item.CauTraLois[key]}";
                         }
-                    }    
-                    
+                    }
+
                     if (item.MaNhom != ma_nhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
                     {
                         ma_nhom = item.MaNhom;
@@ -38,7 +39,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                         if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio") && ExamSessionDetail != null)
                         {
                             //xử lí dsAudioListened
-                            AudioListeneds.Add(item.MaNhom, new () { AudioUrl = HandleAudioSource(item.NoiDungCauHoiNhom), AudioText = HandleTextBeforeAudio(item.NoiDungCauHoiNhom)});
+                            AudioListeneds.Add(item.MaNhom, new() { AudioUrl = HandleAudioSource(item.NoiDungCauHoiNhom), AudioText = HandleTextBeforeAudio(item.NoiDungCauHoiNhom) });
                             item.GhiChu = 0 + "";
                         }
                         // xử lí câu hỏi điền khuyết
@@ -50,12 +51,14 @@ namespace Hutech.Exam.Client.Pages.Exam
                 }
             }
         }
+
         private static string HandleDienKhuyet(string text, long STT)
         {
             if (!text.Contains("(*)"))
                 return text;
             return Regex.Replace(text, @"\(\*\)", m => "(" + (STT++).ToString() + ")");
         }
+
         private static string? HandleAudioSource(string text)
         {
             var doc = new HtmlDocument();
@@ -82,6 +85,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
             return null;
         }
+
         private string HandleTextBeforeAudio(string text)
         {
             int index_audio = text.IndexOf("<audio");
@@ -89,7 +93,8 @@ namespace Hutech.Exam.Client.Pages.Exam
                 return string.Empty;
             return text.Substring(0, index_audio);
         }
-        private async Task OnPlayAudioAsync(CustomDeThi deThi, int ma_nhom)
+
+        private async Task OnPlayAudioAsync(CustomDeThi deThi, Guid ma_nhom)
         {
             // Nếu lần đầu tiên, gọi API và cập nhật GhiChu
             if (isFirstTimeGetAudio || deThi.GhiChu != "-1")
@@ -97,6 +102,7 @@ namespace Hutech.Exam.Client.Pages.Exam
                 var soLanNghe = await GetTotalAudioListenedAPI(new Shared.DTO.AudioListenedDto
                 {
                     MaChiTietCaThi = ExamSessionDetail.MaChiTietCaThi,
+                    MaNhom = ma_nhom,
                     TenFile = AudioListeneds[ma_nhom].AudioUrl
                 });
 

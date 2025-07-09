@@ -18,19 +18,19 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords) : (null, 0, 0);
         }
 
-        private async Task<List<CustomThongKeCauHoi>> QuestionReport_SelectBy_ExamAPI(int maDeThi)
+        private async Task<List<CustomThongKeCauHoi>> QuestionReport_SelectBy_ExamAPI(long maDeThi)
         {
             var response = await SenderAPI.GetAsync<List<CustomThongKeCauHoi>>($"api/dethis/{maDeThi}/report-cauhoi");
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 
-        private async Task<List<CustomThongKeDiem>> ScoreReport_SelectBy_ExamAPI(int maDeThi)
+        private async Task<List<CustomThongKeDiem>> ScoreReport_SelectBy_ExamAPI(long maDeThi)
         {
             var response = await SenderAPI.GetAsync<List<CustomThongKeDiem>>($"api/dethis/{maDeThi}/report-diem");
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 
-        private async Task<CustomThongKeCapBacSV> StudentLevelReport_SelectBy_ExamAPI(int maDeThi)
+        private async Task<CustomThongKeCapBacSV> StudentLevelReport_SelectBy_ExamAPI(long maDeThi)
         {
             var response = await SenderAPI.GetAsync<CustomThongKeCapBacSV>($"api/dethis/{maDeThi}/report-capbacsv");
             return (response.Success && response.Data != null) ? response.Data : new();

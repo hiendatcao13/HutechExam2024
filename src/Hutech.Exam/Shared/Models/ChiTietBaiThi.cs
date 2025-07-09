@@ -9,14 +9,13 @@ public partial class ChiTietBaiThi
 
     public int MaChiTietCaThi { get; set; }
 
-    public long MaDeHv { get; set; }
+    public long MaDeThi { get; set; }
 
-    public int MaNhom { get; set; }
-    public int MaClo { get; set; }
+    public Guid MaNhom { get; set; }
 
-    public int MaCauHoi { get; set; }
+    public Guid MaCauHoi { get; set; }
 
-    public int? CauTraLoi { get; set; }
+    public Guid? CauTraLoi { get; set; }
 
     public DateTime NgayTao { get; set; }
 

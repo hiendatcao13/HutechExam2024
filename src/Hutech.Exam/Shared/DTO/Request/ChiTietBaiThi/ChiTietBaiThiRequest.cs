@@ -18,40 +18,35 @@ namespace Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi
         public int MaChiTietCaThi { get; set; }
 
         [Key(2)]
-        public long MaDeHv { get; set; }
+        public long MaDeThi { get; set; }
 
         [Key(3)]
-        public int MaNhom { get; set; }
+        public Guid MaNhom { get; set; }
 
         [Key(4)]
-        public int MaClo { get; set; }
+        public Guid MaCauHoi { get; set; }
 
         [Key(5)]
-        public int MaCauHoi { get; set; }
+        public Guid? CauTraLoi { get; set; }
 
         [Key(6)]
-        public int? CauTraLoi { get; set; }
-
-        [Key(7)]
         public DateTime NgayTao { get; set; }
 
-        [Key(8)]
+        [Key(7)]
         public DateTime? NgayCapNhat { get; set; }
         
-        [Key(9)]
+        [Key(8)]
         public bool? KetQua { get; set; }
 
-        [Key(10)]
+        [Key(9)]
         public int ThuTu { get; set; }
 
-        public ChiTietBaiThiRequest() { }
-        public ChiTietBaiThiRequest(long maChiTietBaiThi, int maChiTietCaThi, long maDeHv, int maNhom, int maClo, int maCauHoi, int? cauTraLoi, DateTime ngayTao, DateTime? ngayCapNhat, bool? ketQua, int thuTu)
+        public ChiTietBaiThiRequest(long maChiTietBaiThi, int maChiTietCaThi, long maDeThi, Guid maNhom, Guid maCauHoi, Guid? cauTraLoi, DateTime ngayTao, DateTime? ngayCapNhat, bool? ketQua, int thuTu)
         {
             MaChiTietBaiThi = maChiTietBaiThi;
             MaChiTietCaThi = maChiTietCaThi;
-            MaDeHv = maDeHv;
+            MaDeThi = maDeThi;
             MaNhom = maNhom;
-            MaClo = maClo;
             MaCauHoi = maCauHoi;
             CauTraLoi = cauTraLoi;
             NgayTao = ngayTao;

@@ -9,7 +9,6 @@ using Hutech.Exam.Client.Authentication;
 using MudBlazor;
 using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
-using Hutech.Exam.Shared.Models;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
@@ -46,14 +45,14 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         private ChiTietCaThiDto ExamSessionDetail { get; set; } = default!;
 
-        private Dictionary<int, (int, int?)> SelectedAnswers { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
+        private Dictionary<Guid, (int ThuTuCauHoi, Guid? MaCauTraLoi)> SelectedAnswers { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
 
-        private Dictionary<int, AudioInfo> AudioListeneds { get; set; } = []; // lưu vết các câu hỏi đã nghe audio của sinh viên (để hiển thị số lần nghe audio cho sinh viên)
+        private Dictionary<Guid, AudioInfo> AudioListeneds { get; set; } = []; // lưu vết các câu hỏi đã nghe audio của sinh viên (để hiển thị số lần nghe audio cho sinh viên)
 
         // các biến chỉ trong backend
         private HubConnection? _hubConnection; // cập nhật tình trạng đang thi, đã hoàn thành thi của thí sinh, ca thi
 
-        private Dictionary<int, ChiTietBaiThiRequest> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
+        private Dictionary<Guid, ChiTietBaiThiRequest> _dsThiSinhDaKhoanh = []; // lưu vết các câu hỏi đã chọn và câu trả lời đã chọn của sinh viên
 
         private int _thuTuTraLoi = 0; // thứ tự trả lời câu hỏi cho sv
 
@@ -142,7 +141,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             //Time(); // xử lí countdown
             await CreateHubConnectionAsync();
 
-            CustomExams = await ShuffleExam_SelectOneAPI(ExamSessionDetail.MaDeThi ?? -1) ?? [];
+            CustomExams = await Exam_SelectOneAPI(ExamSessionDetail.MaDeThi ?? -1) ?? [];
             Console.WriteLine("Số lượng câu hỏi" + CustomExams.Count);
             ModifyGroupQuestion();
 
@@ -221,7 +220,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             await Dialog.ShowAsync<Simple_Dialog>("Kết thúc bài làm", parameters, options);
         }
 
-        private async Task OnClickAnswerAsync(CustomDeThi deThi, int? ma_cau_tra_loi)
+        private async Task OnClickAnswerAsync(CustomDeThi deThi, Guid? ma_cau_tra_loi)
         {
             // xanh phần tô
             SelectedAnswers[deThi.MaCauHoi] = (SelectedAnswers[deThi.MaCauHoi].Item1, ma_cau_tra_loi);
@@ -231,11 +230,11 @@ namespace Hutech.Exam.Client.Pages.Exam
             ChiTietBaiThiRequest chiTietBai;
             if (!_dsThiSinhDaKhoanh.ContainsKey(deThi.MaCauHoi))
             {
-                chiTietBai = new(-1, ExamSessionDetail.MaChiTietCaThi, ExamSessionDetail.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++_thuTuTraLoi);
+                chiTietBai = new(-1, ExamSessionDetail.MaChiTietCaThi, ExamSessionDetail.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCauHoi, ma_cau_tra_loi, DateTime.Now, null, null, ++_thuTuTraLoi);
             }
             else
             {
-                chiTietBai = new(-1, ExamSessionDetail.MaChiTietCaThi, ExamSessionDetail.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCLO, deThi.MaCauHoi, ma_cau_tra_loi, _dsThiSinhDaKhoanh[deThi.MaCauHoi].NgayTao, DateTime.Now, null, _dsThiSinhDaKhoanh[deThi.MaCauHoi].ThuTu);
+                chiTietBai = new(-1, ExamSessionDetail.MaChiTietCaThi, ExamSessionDetail.MaDeThi ?? -1, deThi.MaNhom, deThi.MaCauHoi, ma_cau_tra_loi, _dsThiSinhDaKhoanh[deThi.MaCauHoi].NgayTao, DateTime.Now, null, _dsThiSinhDaKhoanh[deThi.MaCauHoi].ThuTu);
             }
 
             _dsThiSinhDaKhoanh[deThi.MaCauHoi] = chiTietBai;
@@ -247,7 +246,7 @@ namespace Hutech.Exam.Client.Pages.Exam
 
         #region Other Methods
 
-        private async Task ScrollToQuestionAsync(int questionIndex)
+        private async Task ScrollToQuestionAsync(Guid questionIndex)
         {
             await Js.InvokeVoidAsync("scrollToElement", $"question-{questionIndex}");
         }
@@ -255,7 +254,7 @@ namespace Hutech.Exam.Client.Pages.Exam
         {
             await Js.InvokeVoidAsync("window.focusWatcher.dispose");
 
-            //await StudentHub.LeaveGroup(CaThi.MaCaThi); // rời khỏi nhóm thi
+            await StudentHub.LeaveGroup(ExamSession.MaCaThi); // rời khỏi nhóm thi
         }
 
         #endregion

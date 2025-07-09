@@ -175,9 +175,9 @@ namespace Hutech.Exam.Server.Controllers
 
         [HttpPatch("{id:int}/update-dethi")]
         [Authorize(Roles = "KhaoThi")]
-        public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromQuery] int maDeThi, [FromQuery] bool isOrderMSSV, [FromBody] List<long> dsDeThiHVs)
+        public async Task<IActionResult> UpdateDeThi([FromRoute] int id, [FromBody] CaThiUpdateDeThiRequest request)
         {
-            var result = await _caThiService.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
+            var result = await _caThiService.UpdateDeThi(id, request);
             if (!result)
             {
                 return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));

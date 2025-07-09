@@ -1,35 +1,33 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
 using Hutech.Exam.Shared.DTO.Request.ChiTietDeThiHoanVi;
+using Hutech.Exam.Shared.DTO.Request.DeThi;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Helper
 {
     public class DeThiHelper
     {
-        public static DataTable ToDataTable(List<ChiTietDeThiHoanViCreateBatchRequest> chiTietDeThiHoanVis)
+        public static DataTable ToDataTable(List<DeThiDto> deThis)
         {
             var dt = new DataTable();
-            dt.Columns.Add("MaNhom", typeof(int));
-            dt.Columns.Add("ThuTuNhom", typeof(int));
+            dt.Columns.Add("MaMonHoc", typeof(int));
+            dt.Columns.Add("TenDeThi", typeof(string));
+            dt.Columns.Add("Guid", typeof(Guid));
+            dt.Columns.Add("KyHieuDe", typeof(string));
+            dt.Columns.Add("NgayTao", typeof(DateTime));
 
-            dt.Columns.Add("MaCauHoi", typeof(int));
-            dt.Columns.Add("ThuTuCauHoi", typeof(int));
-            dt.Columns.Add("HoanViTraLoi", typeof(string));
-            dt.Columns.Add("DapAn", typeof(int));
-
-            foreach (var item in chiTietDeThiHoanVis)
+            foreach (var item in deThis)
             {
                 var row = dt.NewRow();
 
-                row["MaNhom"] = item.MaNhom;
-                row["ThuTuNhom"] = item.ThuTuNhom;
+                row["MaMonHoc"] = item.MaMonHoc;
+                row["TenDeThi"] = item.TenDeThi;
 
-                row["MaCauHoi"] = item.MaCauHoi;
-                row["ThuTuCauHoi"] = item.ThuTuCauHoi;
+                row["Guid"] = item.Guid;
+                row["KyHieuDe"] = item.KyHieuDe;
 
-                row["HoanViTraLoi"] = item.HoanViTraLoi ?? (object)DBNull.Value;
-                row["DapAn"] = item.DapAn;
+                row["NgayTao"] = item.NgayTao;
 
                 dt.Rows.Add(row);
             }

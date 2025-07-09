@@ -130,7 +130,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
 
         #region Other Methods
 
-        private async Task ReportScoreAsync(int maDeThi)
+        private async Task ReportScoreAsync(long maDeThi)
         {
             customScoreReports = await ScoreReport_SelectBy_ExamAPI(maDeThi);
 

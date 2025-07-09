@@ -13,7 +13,7 @@ namespace Hutech.Exam.Shared.DTO
         {
         }
 
-        public int MaNhom { get; set; }
+        public Guid MaNhom { get; set; }
 
         public int MaChiTietCaThi { get; set; }
 

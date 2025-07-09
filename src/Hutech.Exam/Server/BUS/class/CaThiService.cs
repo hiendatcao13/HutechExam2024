@@ -84,9 +84,9 @@ namespace Hutech.Exam.Server.BUS
             return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.ThoiGianThi, caThi.MatMa);
         }
 
-        public async Task<bool> UpdateDeThi(int id, int maDeThi, bool isOrderMSSV, List<long> dsDeThiHVs)
+        public async Task<bool> UpdateDeThi(int id, CaThiUpdateDeThiRequest caThi)
         {
-            return await _caThiRepository.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
+            return await _caThiRepository.UpdateDeThi(id, caThi.IsOrderMSSV, caThi.LichSuHoatDong, caThi.DsDeThis);
         }
 
         public async Task<bool> UpdateLichSuHoatDong(int ma_ca_thi, string lichSuHoatDong)

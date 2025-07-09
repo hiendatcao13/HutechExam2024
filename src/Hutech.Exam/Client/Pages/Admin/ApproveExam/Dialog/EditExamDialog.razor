@@ -1,0 +1,104 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.DeThi
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 450px; max-height: auto; overflow: visible">
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên đề thi:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên đề thi" Required @bind-Value="@tempExam.TenDeThi" InputType="InputType.Text"></MudTextField></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Ký hiệu đề:</MudText></MudItem>
+            <MudItem xs="8"><MudTextField Label="Tên đề thi" Required @bind-Value="@tempExam.KyHieuDe" InputType="InputType.Text"></MudTextField></MudItem>
+
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+    backdrop-filter: blur(10px);
+    }
+
+    .title-text {
+    font-weight: bold;
+    }
+</style>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+
+    [Parameter] public DeThiDto? Exam { get; set; } = default!;
+
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+    private DeThiDto tempExam { get; set; } = default!;
+
+    private DateTime? createdDate = DateTime.Now;
+
+    private const string INVALID_FORM = "Vui lòng nhập ít nhất tên đề thi";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HandleInput();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInput()
+    {
+        if (Exam != null)
+        {
+            tempExam = new DeThiDto(Exam);
+            createdDate = tempExam.NgayTao;
+            return;
+        }
+        tempExam = new();
+    }
+
+    private bool CheckValidForm()
+    {
+        return !string.IsNullOrWhiteSpace(tempExam.TenDeThi);
+    }
+
+
+    private void OnClickExit()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async Task OnClickEditAsync()
+    {
+        if (!CheckValidForm())
+        {
+            Snackbar.Add(INVALID_FORM, Severity.Error);
+        }
+        var result = await UpdateAPI(tempExam.MaDeThi, new DeThiUpdateRequest
+            {
+                MaMonHoc = tempExam.MaMonHoc,
+                TenDeThi = tempExam.TenDeThi ?? string.Empty,
+				Guid = tempExam.Guid,
+				KyHieuDe = tempExam.KyHieuDe ?? string.Empty,
+            });
+        if (result != null && result.MaDeThi != 0)
+        {
+            MudDialog?.Close(DialogResult.Ok(result));
+        }
+    }
+
+    private async Task<DeThiDto?> UpdateAPI(long id, DeThiUpdateRequest deThi)
+    {
+        var response = await SenderAPI.PutAsync<DeThiDto>($"api/dethis/{id}", deThi);
+        return (response.Success) ? response.Data : null;
+    }
+}

@@ -105,20 +105,20 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private void HandleDsKhoanh(List<ChiTietBaiThiDto> dsChiTietBaiThi)
         {
-            if (CustomDeThis != null && CustomDeThis.Count != 0)
-            {
-                int stt = 0;
-                foreach (var noidung in CustomDeThis)
-                {
-                    DSKhoanhDapAn.Add(noidung.MaCauHoi, (++stt, null, null)); // khởi tạo tất cả các câu hỏi với giá trị null)
-                }
-            }
+            //if (CustomDeThis != null && CustomDeThis.Count != 0)
+            //{
+            //    int stt = 0;
+            //    foreach (var noidung in CustomDeThis)
+            //    {
+            //        DSKhoanhDapAn.Add(noidung.MaCauHoi, (++stt, null, null)); // khởi tạo tất cả các câu hỏi với giá trị null)
+            //    }
+            //}
 
-            // xử lí câu đáp án đã khoanh
-            foreach (var item in dsChiTietBaiThi)
-            {
-                DSKhoanhDapAn[item.MaCauHoi] = (DSKhoanhDapAn[item.MaCauHoi].Item1,item.CauTraLoi, item.KetQua);
-            }
+            //// xử lí câu đáp án đã khoanh
+            //foreach (var item in dsChiTietBaiThi)
+            //{
+            //    DSKhoanhDapAn[item.MaCauHoi] = (DSKhoanhDapAn[item.MaCauHoi].Item1,item.CauTraLoi, item.KetQua);
+            //}
         }
 
 

@@ -15,8 +15,8 @@
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
 				@if (CustomExams != null)
 				{
-					int current_parentGroupQuestion = -1;
-					int current_groupQuestion = 0;
+					Guid current_parentGroupQuestion = new Guid();
+					Guid current_groupQuestion = new Guid();
 
 					foreach (var item in CustomExams)
 					{
@@ -67,11 +67,11 @@
 						// Hiển thị nội dung câu trả lời
 						@if (item.CauTraLois != null)
 						{
-							<MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="SelectedAnswers[item.MaCauHoi].Item2" ValueChanged="async (value) => await OnClickAnswerAsync(item, value)">
+							<MudRadioGroup T="Guid?" Class="mt-2" Style="padding-bottom: 10px" Value="SelectedAnswers[item.MaCauHoi].Item2" ValueChanged="async (value) => await OnClickAnswerAsync(item, value)">
 								@foreach (var noidung in item.CauTraLois)
 								{
 									<MudItem xs="12" sm="6">
-										<MudRadio T="int?" Value="noidung.Key"><ContentFragment Content="@noidung.Value"></ContentFragment></MudRadio>
+										<MudRadio T="Guid?" Value="noidung.Key"><ContentFragment Content="@noidung.Value"></ContentFragment></MudRadio>
 									</MudItem>
 								}
 							</MudRadioGroup>
@@ -86,7 +86,6 @@
 			<MudPaper Style="text-align: center; border: 1px solid #ccc; margin-bottom: 15%;">
 				<MudGrid>
 					<MudItem xs="6" Style="align-content: center">
-						@* <MudText Typo="Typo.h5" Style="color: #333; margin-right: 10%">⏰: <b class="time-clock">@DisplayTime</b></MudText> *@
 						<Hutech.Exam.Client.Pages.Exam.Components.ClockComponent InitialSeconds="@CalculateTotalSeconds()" OnFinish="EndTimeSubmissionAsync"></Hutech.Exam.Client.Pages.Exam.Components.ClockComponent>
 					</MudItem>
 					<MudItem xs="6">
@@ -156,12 +155,12 @@
 
 				visibilityChangeHandler = function () {
 					if (document.hidden) {
-						dotNetHelperRef.invokeMethodAsync('OnFocusLost');
+						dotNetHelperRef.invokeMethodAsync('OnFocusLostAsync');
 					}
 				};
 
 				blurHandler = function () {
-					dotNetHelperRef.invokeMethodAsync('OnFocusLost');
+					dotNetHelperRef.invokeMethodAsync('OnFocusLostAsync');
 				};
 
 				document.addEventListener('visibilitychange', visibilityChangeHandler);

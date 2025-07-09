@@ -17,14 +17,13 @@ namespace Hutech.Exam.Shared.DTO
 
         public int MaChiTietCaThi { get; set; }
 
-        public long MaDeHv { get; set; }
+        public long MaDeThi { get; set; }
 
-        public int MaNhom { get; set; }
-        public int MaClo { get; set; }
+        public Guid MaNhom { get; set; }
 
-        public int MaCauHoi { get; set; }
+        public Guid MaCauHoi { get; set; }
 
-        public int? CauTraLoi { get; set; }
+        public Guid? CauTraLoi { get; set; }
 
         public DateTime NgayTao { get; set; }
 
@@ -35,37 +34,5 @@ namespace Hutech.Exam.Shared.DTO
         public int ThuTu { get; set; }
 
         public virtual ChiTietCaThiDto MaChiTietCaThiNavigation { get; set; } = null!;
-
-        public ChiTietBaiThiDto(long maChiTietBaiThi, int maChiTietCaThi, long maDeHv, int maNhom, int maClo, int maCauHoi, int? cauTraLoi, DateTime ngayTao, DateTime? ngayCapNhat, bool? ketQua, int thuTu, ChiTietCaThiDto maChiTietCaThiNavigation)
-        {
-            MaChiTietBaiThi = maChiTietBaiThi;
-            MaChiTietCaThi = maChiTietCaThi;
-            MaDeHv = maDeHv;
-            MaNhom = maNhom;
-            MaClo = maClo;
-            MaCauHoi = maCauHoi;
-            CauTraLoi = cauTraLoi;
-            NgayTao = ngayTao;
-            NgayCapNhat = ngayCapNhat;
-            KetQua = ketQua;
-            ThuTu = thuTu;
-            MaChiTietCaThiNavigation = maChiTietCaThiNavigation;
-        }
-
-        public ChiTietBaiThiDto(ChiTietBaiThiDto other)
-        {
-            MaChiTietBaiThi = other.MaChiTietBaiThi;
-            MaChiTietCaThi = other.MaChiTietCaThi;
-            MaDeHv = other.MaDeHv;
-            MaNhom = other.MaNhom;
-            MaClo = other.MaClo;
-            MaCauHoi = other.MaCauHoi;
-            CauTraLoi = other.CauTraLoi;
-            NgayTao = other.NgayTao;
-            NgayCapNhat = other.NgayCapNhat;
-            KetQua = other.KetQua;
-            ThuTu = other.ThuTu;
-            MaChiTietCaThiNavigation = other.MaChiTietCaThiNavigation;
-        }
     }
 }

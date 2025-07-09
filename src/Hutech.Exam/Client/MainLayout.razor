@@ -91,6 +91,10 @@
 		{ "/admin/classroom", "Quản lý lớp học"},
 		{ "/admin/test-review", "Đánh giá đề thi" },
 		{ "/admin/account", "Quản lý tài khoản" },
+
+		// 1 số trang phụ
+		{"/admin/approved-exam", "Gán đề thi"},
+		{"/admin/monitor", "Giám sát ca thi" }
 	};
 
 	private void ToggleDrawer()
@@ -101,19 +105,31 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await GetIdentityRoleName();
-		Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
+
+		// Gán tiêu đề ngay lần đầu load
+		UpdateTitle(Nav.Uri);
+
+		// Đăng ký lắng nghe sự kiện điều hướng
+		Nav.LocationChanged += OnLocationChanged;
+
 		await base.OnInitializedAsync();
 	}
 
 	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
 	{
-		var path = new Uri(e.Location).PathAndQuery; // e.Location là string, ép sang Uri để lấy Path
-
-		tittle = names.ContainsKey(path) ? names[path] : "Trang chủ"; // lấy tên trang dựa vào path
-
-		tittle = (path.Contains("/admin/monitor")) ? "Giám sát ca thi" : tittle;  // riêng trang giám sát thi thì không có trong names
+		UpdateTitle(e.Location);
 		StateHasChanged();
 	}
+
+	private void UpdateTitle(string fullUri)
+	{
+		var path = new Uri(fullUri).AbsolutePath; // Chỉ lấy phần Path, bỏ qua query string
+
+		// Tìm key phù hợp trong từ điển names
+		var match = names.FirstOrDefault(kv => path.Equals(kv.Key, StringComparison.OrdinalIgnoreCase));
+		tittle = !string.IsNullOrWhiteSpace(match.Key) ? match.Value : "Trang chủ";
+	}
+
 	private async Task onClickDangXuat()
 	{
 		var parameters = new DialogParameters<Simple_Dialog>
@@ -150,7 +166,10 @@
 		{
 			foreach (var claim in authState.User.Claims)
 			{
-				roleName += claim.Value + ",";
+				if (claim.Type == ClaimTypes.Role)
+				{
+					roleName += claim.Value + ",";
+				}
 			}
 
             name = authState.User.FindFirst(ClaimTypes.Name)?.Value ?? "Người dùng";

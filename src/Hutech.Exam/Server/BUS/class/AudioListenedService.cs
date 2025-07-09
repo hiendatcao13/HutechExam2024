@@ -16,7 +16,7 @@ namespace Hutech.Exam.Server.BUS
         #region Public Methods
         public async Task<int> Save(AudioListenedDto audio)
         {
-            return await _audioListenedRepository.UpdateAsync(audio.MaChiTietCaThi, audio.TenFile ?? string.Empty);
+            return await _audioListenedRepository.UpdateAsync(audio.MaChiTietCaThi, audio.MaNhom, audio.TenFile ?? string.Empty);
         }
         #endregion
 

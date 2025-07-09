@@ -11,16 +11,16 @@ namespace Hutech.Exam.Server.BUS
 
         #region Public Methods
         // dành cho thí sinh tiếp tục thi khi bị treo máy
-        public async Task<Dictionary<int, ChiTietBaiThiRequest>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<Guid, ChiTietBaiThiRequest>> GetDapAnKhoanhAsync(int ma_chi_tiet_ca_thi)
         {
             try
             {
                 var cacheKey = $"ChiTietBaiThi:{ma_chi_tiet_ca_thi}";
-                var cacheData = await _redisService.GetHashAsync<ChiTietBaiThiRequest>(cacheKey); // key: field, value: byte[]
+                var cacheData = await _redisService.GetHashChiTietBaiThiAsync<ChiTietBaiThiRequest>(cacheKey); // key: field, value: byte[]
 
                 if (cacheData == null || cacheData.Count == 0)
                 {
-                    _logger.LogWarning("[Redis] No data found for key chitietbailam: {Key} when student request exam recovery", cacheKey);
+                    _logger.LogWarning("[Redis] No data found for key {Key} when student request exam recovery", cacheKey);
                     return [];
                 }
 

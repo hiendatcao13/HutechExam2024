@@ -2,6 +2,7 @@
 using Hutech.Exam.Server.DAL.DataReader;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.Audit;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -221,14 +222,14 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, bool isOrderMSSV, List<long> dsDeThiHVs)
+        public async Task<bool> UpdateDeThi(int ma_ca_thi, bool isOrderMSSV,string lichSuHoatDong, List<Guid> dsDeThis)
         {
             using DatabaseReader sql = new("CaThi_UpdateDeThi");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
-            sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
-            sql.SqlParams("@IsOrderMSSV", SqlDbType.Bit, isOrderMSSV);
-            sql.SqlParams("@DsDeThiHoanVi", SqlDbType.NVarChar, string.Join(",", dsDeThiHVs));
+            sql.SqlParams("@XepMSSV", SqlDbType.Bit, isOrderMSSV);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
+            sql.SqlParams("@DsDeThi", SqlDbType.NVarChar, string.Join(",", dsDeThis));
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }

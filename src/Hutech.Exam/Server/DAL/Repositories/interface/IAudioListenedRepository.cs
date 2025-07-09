@@ -9,6 +9,6 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<int> SelectOneAsync(int examSessionDetailId, string fileName);
 
-        Task<int> UpdateAsync(int examSessionDetailId, string fileName);
+        Task<int> UpdateAsync(int examSessionDetailId, Guid groupQuestionId, string fileName);
     }
 }

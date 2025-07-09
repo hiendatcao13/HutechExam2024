@@ -1,4 +1,6 @@
 ﻿using System.Data.SqlClient;
+using System.Text.Json;
+using AutoMapper;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
@@ -13,48 +15,101 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/dethis")]
     [ApiController]
-    [Authorize(Roles = "QuanTri")]
-    public class DeThiController() : Controller
+    [Authorize]
+    public partial class DeThiController : Controller
     {
-        //#region Private Fields
+        #region Private Fields
 
-
-        //private readonly DeThiService _deThiService = deThiService;
+        private readonly DeThiService _deThiService;
+        private readonly RedisService _redisService;
+        private readonly string _approvedExamsUrl;
+        private readonly string _sampleExamUrl;
         //private readonly CustomMaDeThiService _customMaDeThiService = customMaDeThiService;
         //private readonly CustomThongKeService _customThongKeService = customThongKeService;
 
+        private readonly IMapper _mapper;
 
-        //#endregion
 
-        //#region Get Methods
+        private const string NotFoundMessage = "Không tìm thấy đề thi";
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.GetAll(), message: "Lấy danh sách đề thi thành công"));
-        //}
+        public DeThiController(DeThiService deThiService, RedisService redisService, IConfiguration configuration, IMapper mapper)
+        {
+            _deThiService = deThiService;
+            _redisService = redisService;
 
-        //[HttpGet("{id:int}")]
-        //public async Task<IActionResult> SelectOne([FromRoute] int id)
-        //{
-        //    var result = await _deThiService.SelectOne(id);
-        //    if (result.MaDeThi == 0)
-        //    {
-        //        return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi"));
-        //    }
-        //    return Ok(APIResponse<DeThiDto>.SuccessResponse(data: result, message: "Lấy đề thi thành công"));
-        //}
+            _approvedExamsUrl = configuration["ExternalApiSettings:ApprovedExamsUrl"]!;
+            _sampleExamUrl = configuration["ExternalApiSettings:SampleExamUrl"]!;
+            _mapper = mapper;
+        }
+        #endregion
 
-        //[HttpGet("filter-by-monhoc")]
-        //public async Task<IActionResult> SelectByMonHoc([FromQuery] int maMonHoc, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
-        //{
-        //    if (pageNumber.HasValue && pageSize.HasValue)
-        //    {
-        //        var pagedResult = await _deThiService.SelectByMonHoc_Paged(maMonHoc, pageNumber.Value, pageSize.Value);
-        //        return Ok(APIResponse<Paged<DeThiDto>>.SuccessResponse(pagedResult, message: "Lấy danh sách đề thi thành công"));
-        //    }
-        //    return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
-        //}
+        #region Get Methods
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.GetAll(), message: "Lấy danh sách đề thi thành công"));
+        }
+
+        [HttpGet("mock-api")]
+        public async Task<IActionResult> GetAllDeThi()
+        {
+            //var httpClient = new HttpClient();
+            //httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
+
+            //var response = await httpClient.GetAsync(_approvedExamsUrl);
+            //if (!response.IsSuccessStatusCode)
+            //{
+            //    return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
+            //}
+
+            //var jsonData = await response.Content.ReadAsStringAsync();
+
+            //// Nếu bạn biết kiểu dữ liệu trả về, bạn có thể deserialize vào model cụ thể
+            //// Ví dụ:
+            //var exams = JsonSerializer.Deserialize<List<DeThiDto>>(jsonData) ?? [];
+
+            var exams = JsonSerializer.Deserialize<List<DeThiMock>>(jsonDeThi) ?? [];
+            var result = _mapper.Map<List<DeThiDto>>(exams);
+
+            // Tạm thời trả nguyên json về client
+            //return Content(jsonData, "application/json");
+
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: result, message: "Lấy danh sách đề thi thành công"));
+        }
+
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> SelectOne([FromRoute] long id)
+        {
+            var result = await _deThiService.SelectOne(id);
+            if (result.MaDeThi == 0)
+            {
+                return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi"));
+            }
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(data: result, message: "Lấy đề thi thành công"));
+        }
+
+        [HttpGet("{id:long}/mock")]
+        public async Task<IActionResult> SelectOneExam([FromRoute] long id)
+        {
+            var deThi = await _deThiService.SelectOne(id);
+            var result = await _redisService.GetDeThiAsync(deThi.Guid);
+
+            return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: result, message: "Lấy nội dung đề thi thành công"));
+        }
+
+        [HttpGet("filter-by-monhoc")]
+        [Authorize(Roles = "QuanTri")]
+        public async Task<IActionResult> SelectByMonHoc([FromQuery] int maMonHoc, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        {
+            if (pageNumber.HasValue && pageSize.HasValue)
+            {
+                var pagedResult = await _deThiService.SelectByMonHoc_Paged(maMonHoc, pageNumber.Value, pageSize.Value);
+                return Ok(APIResponse<Paged<DeThiDto>>.SuccessResponse(pagedResult, message: "Lấy danh sách đề thi thành công"));
+            }
+            return Ok(APIResponse<List<DeThiDto>>.SuccessResponse(data: await _deThiService.SelectByMonHoc(maMonHoc), message: "Lấy danh sách đề thi thành công"));
+        }
 
         //[HttpGet("{id:int}/thong-tin-ma-de-thi")]
         //public async Task<IActionResult> GetThongTinMaDeThi([FromRoute] int id)
@@ -99,114 +154,83 @@ namespace Hutech.Exam.Server.Controllers
         //    return Ok(APIResponse<CustomThongKeCapBacSV>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         //}
 
-        //#endregion
+        #endregion
 
-        //#region Post Methods
+        #region Post Methods
 
-        //[HttpPost]
-        //public async Task<IActionResult> Insert([FromBody] DeThiCreateRequest deThi)
-        //{
-        //    try
-        //    {
-        //        var id = await _deThiService.Insert(deThi);
-        //        return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Thêm đề thi thành công"));
-        //    }
-        //    catch (SqlException sqlEx)
-        //    {
-        //        return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Thêm đề thi không thành công", errorDetails: ex.Message));
-        //    }
-        //}
+        [HttpPost]
+        [Authorize(Roles = "KhaoThi")]
+        public async Task<IActionResult> Insert([FromBody] DeThiCreateRequest deThi)
+        {
+            var id = await _deThiService.Insert(deThi);
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Thêm đề thi thành công"));
+        }
 
-        //#endregion
+        [HttpPost("batch")]
+        [Authorize(Roles = "KhaoThi")]
+        public async Task<IActionResult> Save_Batch([FromBody] List<DeThiDto> deThis)
+        {
+            await _deThiService.Save_Batch(deThis);
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Thêm danh sách đề thi thành công"));
+        }
 
-        //#region Put Methods
 
-        //[HttpPut("{id:int}")]
-        //public async Task<IActionResult> Update([FromRoute] int id, [FromBody] DeThiUpdateRequest deThi)
-        //{
-        //    try
-        //    {
-        //        var result = await _deThiService.Update(id, deThi);
-        //        if (!result)
-        //        {
-        //            return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Không tìm thấy đề thi để cập nhật"));
-        //        }
-        //        return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Cập nhật đề thi thành công"));
-        //    }
-        //    catch (SqlException sqlEx)
-        //    {
-        //        return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Cập nhật đề thi không thành công", errorDetails: ex.Message));
-        //    }
-        //}
+        #endregion
 
-        //#endregion
+        #region Put Methods
 
-        //#region Patch Methods
+        [HttpPut("{id:long}")]
+        [Authorize(Roles = "KhaoThi")]
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] DeThiUpdateRequest deThi)
+        {
+            var result = await _deThiService.Update(id, deThi);
+            if (!result)
+            {
+                return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: NotFoundMessage));
+            }
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(data: await _deThiService.SelectOne(id), message: "Cập nhật đề thi thành công"));
+        }
+
+        #endregion
+
+        #region Patch Methods
 
 
 
-        //#endregion
+        #endregion
 
-        //#region Delete Methods
+        #region Delete Methods
 
-        //[HttpDelete("{id:int}")]
-        //public async Task<IActionResult> Delete([FromRoute] int id)
-        //{
-        //    try
-        //    {
-        //        var result = await _deThiService.Delete(id);
-        //        if (!result)
-        //        {
-        //            return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Xóa đề thi không thành công hoặc đang dính phải ràng buộc khóa ngoại"));
-        //        }
-        //        return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
-        //    }
-        //    catch (SqlException sqlEx)
-        //    {
-        //        return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công", errorDetails: ex.Message));
-        //    }
-        //}
+        [HttpDelete("{id:long}")]
+        [Authorize(Roles = "KhaoThi")]
+        public async Task<IActionResult> Delete([FromRoute] long id)
+        {
+            var result = await _deThiService.Delete(id);
+            if (!result)
+            {
+                return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: NotFoundMessage));
+            }
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
+        }
 
-        //[HttpDelete("{id:int}/force")]
-        //public async Task<IActionResult> ForceDelete([FromRoute] int id)
-        //{
-        //    try
-        //    {
-        //        var result = await _deThiService.ForceDelete(id);
-        //        if (!result)
-        //        {
-        //            return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: "Xóa đề thi không thành công"));
-        //        }
-        //        return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
-        //    }
-        //    catch (SqlException sqlEx)
-        //    {
-        //        return SQLExceptionHelper<DeThiDto>.HandleSqlException(sqlEx);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(APIResponse<DeThiDto>.ErrorResponse(message: "Xóa đề thi không thành công", errorDetails: ex.Message));
-        //    }
-        //}
+        [HttpDelete("{id:long}/force")]
+        [Authorize(Roles = "KhaoThi")]
+        public async Task<IActionResult> ForceDelete([FromRoute] long id)
+        {
+            var result = await _deThiService.ForceDelete(id);
+            if (!result)
+            {
+                return NotFound(APIResponse<DeThiDto>.NotFoundResponse(message: NotFoundMessage));
+            }
+            return Ok(APIResponse<DeThiDto>.SuccessResponse(message: "Xóa đề thi thành công"));
+        }
 
-        //#endregion
+        #endregion
 
-        //#region Private Methods
+        #region Private Methods
 
 
-        //#endregion
+        #endregion
 
     }
 }

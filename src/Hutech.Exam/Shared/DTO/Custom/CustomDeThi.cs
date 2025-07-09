@@ -11,47 +11,41 @@ namespace Hutech.Exam.Shared.DTO.Custom
     public class CustomDeThi
     {
         [Key(0)]
-        public int MaNhom { get; set; }
+        public Guid MaNhom { get; set; }
 
         [Key(1)]
-        public int MaCauHoi { get; set; }
+        public Guid MaCauHoi { get; set; }
 
         [Key(2)]
-        public int MaNhomCha { get; set; }
+        public Guid MaNhomCha { get; set; }
 
         [Key(3)]
-        public int MaCLO { get; set; }
-
-        [Key(4)]
-        public string? MaSoCLO { get; set; }
-
-        [Key(5)]
         public string? NoiDungCauHoiNhomCha { get; set; }
 
-        [Key(6)]
+        [Key(4)]
         public string? NoiDungCauHoiNhom { get; set; }
 
-        [Key(7)]
+        [Key(5)]
         public string? NoiDungCauHoi { get; set; }
 
-        [Key(8)]
+        [Key(6)]
         public int KieuNoiDungCauHoiNhom { get; set; }
 
-        [Key(9)]
-        public int KieuNoiDungCauHoi { get; set; }
+        [Key(7)]
+        public int KieuNoiDungCauHoi { get; set; } = -1;
 
-        [Key(10)]
-        public Dictionary<int, string?>? CauTraLois { get; set; }
+        [Key(8)]
+        public Dictionary<Guid, string?>? CauTraLois { get; set; }
         // ghi chú ở đây sử dụng cho mục đích hiển thị số lần nghe của audio theo từng cá nhân (xử lí riêng ở trang exam)
 
-        [Key(11)]
+        [Key(9)]
         public string? HoanViCauTraLoi { get; set; }
 
-        [Key(12)]
+        [Key(10)]
         public string? GhiChu { get; set; }
 
-        [Key(13)]
-        public long ThuTuCauHoi { get; set; }
+        [Key(11)]
+        public int ThuTuCauHoi { get; set; } // custom thêm để hiện thị thứ tự câu hỏi
 
     }
 }

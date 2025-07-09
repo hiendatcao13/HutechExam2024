@@ -10,9 +10,10 @@ using Hutech.Exam.Shared.DTO.Request.ChiTietBaiThi;
 
 namespace Hutech.Exam.Server.BUS
 {
-    public class SubmitService(ChiTietBaiThiService chiTietBaiThiService, ChiTietCaThiService chiTietCaThiService, RedisService redisService, IHubContext<SinhVienHub> sinhVienHub, IHubContext<AdminHub> adminHub, ILogger<SubmitService> logger, IMapper mapper)
+    public class SubmitService(DeThiService deThiService, ChiTietBaiThiService chiTietBaiThiService, ChiTietCaThiService chiTietCaThiService, RedisService redisService, IHubContext<SinhVienHub> sinhVienHub, IHubContext<AdminHub> adminHub, ILogger<SubmitService> logger, IMapper mapper)
     {
         #region Private Fields
+        private readonly DeThiService _deThiService = deThiService;
         private readonly ChiTietBaiThiService _chiTietBaiThiService = chiTietBaiThiService;
         private readonly ChiTietCaThiService _chiTietCaThiService = chiTietCaThiService;
         private readonly IHubContext<SinhVienHub> _sinhVienHub = sinhVienHub;
@@ -31,7 +32,8 @@ namespace Hutech.Exam.Server.BUS
             {
                 submitRequest = MessagePackSerializer.Deserialize<SubmitRequest>(message);
 
-                Dictionary<int, int> dapAns = await _redisService.GetDapAnAsync(submitRequest.MaDeThiHoanVi);
+                var deThi = await _deThiService.SelectOne(submitRequest.MaDeThi);
+                Dictionary<Guid, Guid> dapAns = await _redisService.GetDapAnAsync(deThi.Guid);
 
                 if (submitRequest.IsLanDau) // chỉ thực hiện cho lần đầu
                 {
@@ -65,33 +67,14 @@ namespace Hutech.Exam.Server.BUS
                 //////////////////////////////////Xử lí cho background nền lưu bài\\\\\\\\\\\\\\\\\\\\\\\
 
                 // lấy toàn bộ bài thi của sinh viên từ Redis
-                Dictionary<int, ChiTietBaiThiRequest> data = await _redisService.GetChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
-
-                // xử lí cho recovery xảy ra
-                if (submitRequest.IsRecoverySubmit)
-                {
-                    await HandleRecoverySubmit(submitRequest, dapAns);
-                    await _redisService.RemoveSubmitAsync(submitRequest.MaChiTietCaThi);
-                    return;
-                }
+                Dictionary<Guid, ChiTietBaiThiRequest> data = await _redisService.GetChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
 
                 int length = submitRequest.DapAnKhoanhs.Count(p => p.Value != null);
                 // Kiểm tra xem số lượng bài trong Redis nhận đủ hay chưa, nếu chưa nhận đủ thì throw để vào hàng đợi lại (cơ chế FIFO, nó đứng cuối hàng đợi lại)
                 // Trường hợp may thì được xử lí ngay tại chỗ
                 if (data.Count != length)
                 {
-                    int so_lan_fail = await _redisService.GetFailSubmitAsync(submitRequest.MaChiTietCaThi);
-                    if (so_lan_fail == 3)
-                    {
-                        await NotifySVFailedCacheRedis(submitRequest.MaSinhVien);
-
-                        // xóa dữ liệu khi đã báo cho client
-                        await _redisService.RemoveSubmitAsync(submitRequest.MaChiTietCaThi);
-                        return;
-                    }
-
-                    await _redisService.SetFailSubmitAsync(submitRequest.MaChiTietCaThi, so_lan_fail + 1); // tăng số lần bị fail
-                    _logger.LogWarning("[CONFLICT] Data count mismatch: Redis {dataCount} vs Message {dapAnsCount} of maSV {maSV} failed {fail}", data.Count, length, submitRequest.MaSinhVien, so_lan_fail);
+                    _logger.LogWarning("[CONFLICT] Dữ liệu không trùng nhau: Redis {dataCount} vs thông tin nhận từ RabbitMQ {dapAnsCount} của maSV {maSV} failed", data.Count, length, submitRequest.MaSinhVien);
                     throw new Exception();
                 }
 
@@ -102,7 +85,7 @@ namespace Hutech.Exam.Server.BUS
                 await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(data.Values.ToList()));
 
                 // xóa dữ liệu khi đã lưu xong thành công
-                await _redisService.RemoveSubmitAsync(submitRequest.MaChiTietCaThi);
+                await _redisService.RemoveChiTietBaiThiAsync(submitRequest.MaChiTietCaThi);
 
             }
             catch (SqlException sqlEx)
@@ -119,28 +102,6 @@ namespace Hutech.Exam.Server.BUS
         #endregion
 
         #region Private Methods
-        // hàm sử dụng khi thí sinh bị mất bài nộp hoặc thiếu bài nộp
-        private async Task HandleRecoverySubmit(SubmitRequest request, Dictionary<int, int> dapAns)
-        {
-            if (request.DsDapAnDuPhong != null && request.DsDapAnDuPhong.Count != 0)
-            {
-                //cập nhật đúng sai cho từng câu
-                _chiTietBaiThiService.UpdateDungSai_SelectByListCTBT_DapAn(request.DsDapAnDuPhong, dapAns);
-
-                // tiến hành lưu vào database TVP chiTietBaiThi
-                await _chiTietBaiThiService.Insert_Batch(_mapper.Map<List<ChiTietBaiThiDto>>(request.DsDapAnDuPhong.Values.ToList()));
-
-                // xóa dữ liệu khi đã lưu xong thành công
-                await _redisService.RemoveChiTietBaiThiAsync(request.MaChiTietCaThi);
-            }
-        }
-
-        // hàm hỗ trợ cho việc redis cache dữ liệu bị thiếu sót hoặc có vấn đề xảy ra khi vượt quá số lần bị fail
-        private async Task NotifySVFailedCacheRedis(long ma_sinh_vien)
-        {
-            var connectionId = await _redisService.GetConnectionIdAsync(ma_sinh_vien);
-            await _sinhVienHub.Clients.Client(connectionId).SendAsync("RequestRecoverySubmit");
-        }
 
 
         private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)

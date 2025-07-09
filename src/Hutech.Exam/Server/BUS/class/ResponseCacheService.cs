@@ -1,4 +1,5 @@
-﻿using Hutech.Exam.Server.BUS;
+﻿using System.Text.Json;
+using Hutech.Exam.Server.BUS;
 using MessagePack;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;

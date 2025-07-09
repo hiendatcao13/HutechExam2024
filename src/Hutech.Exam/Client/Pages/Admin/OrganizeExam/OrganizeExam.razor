@@ -128,7 +128,7 @@
                             @if (roleName.Contains(KieuVaiTro.KhaoThi.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
                             {
                                 <MudTooltip Text="Gán đề">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="async () => await OnClickUpdateExamAsync(item)" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="() => OnClickUpdateExamAsync(item)" />
                                 </MudTooltip>
                             }
                             @if (roleName.Contains(KieuVaiTro.CNTT.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))

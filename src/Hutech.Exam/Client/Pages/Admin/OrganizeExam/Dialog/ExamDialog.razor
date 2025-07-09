@@ -1,0 +1,236 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.User
+@using System.Text.RegularExpressions
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 800px; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="4" md="2" Style="align-content: center"><MudText>SL thí sinh:</MudText></MudItem>
+			<MudItem xs="8" md="1"><MudText>@ExamSession?.TongSV</MudText></MudItem>
+			<MudItem xs="6" md="3"><MudSwitch Label="Xếp nâng cao" T="bool" Color="Color.Secondary" @bind-Value="isSmartArrange"></MudSwitch></MudItem>
+			<MudItem xs="6" md="3"><MudSwitch Label="Xếp theo MSSV" T="bool" Color="Color.Info" Value="isSortExamCode" ValueChanged="OnValueChangeSortExamCode"></MudSwitch></MudItem>
+			<MudItem xs="6" md="3"><MudSwitch Label="Xếp theo Tên" T="bool" Color="Color.Info" Value="isSortName" ValueChanged="OnValueChangeSortName"></MudSwitch></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Số lượng dọc / ngang: </MudText></MudItem>
+			<MudItem xs="4"><MudTextField Variant="Variant.Outlined" Label="Số lượng dọc" Required InputType="InputType.Number" @bind-Value="colNumber" ReadOnly="@(!isSmartArrange)"></MudTextField></MudItem>
+			<MudItem xs="4"><MudTextField Variant="Variant.Outlined" Label="Số lượng hàng" Required InputType="InputType.Number" @bind-Value="rowNumber" ReadOnly="@(!isSmartArrange)"></MudTextField></MudItem>
+
+			<MudItem xs="12" Style="">
+				<MudTable Elevation="24" T="DeThiDto" Items="@exams" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Style="max-width: 800px; overflow-y: auto">
+					<HeaderContent>
+						<MudTh>Mã đề</MudTh>
+						<MudTh>Tên đề</MudTh>
+						<MudTh>Ký hiệu đề</MudTh>
+						<MudTh>Ngày tạo</MudTh>
+						<MudTh>Chọn</MudTh>
+					</HeaderContent>
+					<RowTemplate Context="item">
+						<MudTd>@item.Guid</MudTd>
+						<MudTd>@item.TenDeThi</MudTd>
+						<MudTd><MudTextField Variant="Variant.Outlined" Style="height: 35px" @bind-Value="item.KyHieuDe" InputType="InputType.Text"></MudTextField></MudTd>
+						<MudTd>@item.NgayTao</MudTd>
+						<MudTd><MudSwitch T="bool" Value="item.DaChon" Color="Color.Success" ValueChanged="(value) => OnValueChangeSelect(value, item)"></MudSwitch></MudTd>
+					</RowTemplate>
+				</MudTable>
+			</MudItem>
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="async () => await OnClickSubmit()">Gán đề</MudButton>
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[Parameter] public CaThiDto? ExamSession { get; set; }
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	private List<DeThiDto> exams = new();
+
+	private List<DeThiDto> selectExams = new();
+
+	private int rowNumber, colNumber, totalNumberOfStudent;
+
+	private bool isSortExamCode = false, isSortName = true, isSmartArrange = false;
+
+	private const string MissingExamCode = "Ký hiệu đề không được để trống";
+	private const string ErrorShuffleFormat = "Không thể gán đề thi cho các thí sinh khi số lượng ngang x dọc bé hơn tổng thí sinh";
+	private const string NotChooseExam = "Vui lòng chọn ít nhất 1 đề để gán cho ca thi";
+	private const string ErrorShuffleNumber = "Số lượng dọc và ngang không thể nhỏ hơn 1";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private async Task HandleInput()
+	{
+		exams = await Exams_GetAllAPI();
+	}
+	private void OnClickExit()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickSubmit()
+	{
+		if (!ValidateForm())
+		{
+			return;
+		}
+
+		if (!ValidateDeThi())
+		{
+			Snackbar.Add(MissingExamCode, Severity.Error);
+			return;
+		}
+
+		if (selectExams.Count == 0)
+		{
+			Snackbar.Add(NotChooseExam, Severity.Error);
+			return;
+		}
+
+		// var examCodes = isSmartArrange ? ArrageExamSmartForStudentAsync() : ArrageExamForStudentAsync();
+
+		// var result = await UpdateExam(ExamSession!.MaCaThi, selectedExam.MaDeThi, isSortExamCode, listShuffleExams);
+
+		// if (result)
+		// {
+		// 	MudDialog?.Close(DialogResult.Ok(selectedExam.MaDeThi));
+		// }
+	}
+
+	private List<Guid> ArrageExamSmartForStudentAsync()
+	{
+		var listExamCodes = GetAllExamCodeAsync();
+
+		int totalShuffleExam = listExamCodes.Count;
+
+		List<Guid> listExamCodeForStudents = [];
+		int studentCounter = 0;
+		for (int i = 0; i < rowNumber; i++)
+		{
+			for (int j = 0; j < colNumber; j++)
+			{
+				if (studentCounter >= totalNumberOfStudent)
+				{
+					break;
+				}
+
+				listExamCodeForStudents.Add(listExamCodes[(i + j) % totalShuffleExam]);
+				studentCounter++;
+			}
+		}
+
+		return listExamCodeForStudents;
+	}
+
+	private List<Guid> ArrageExamForStudentAsync()
+	{
+		List<Guid> listExamCodeForStudents = [];
+		int totalExam = selectExams.Count;
+		for (int i = 0; i < totalNumberOfStudent; i++)
+		{
+			listExamCodeForStudents.Add(selectExams[i % totalExam].Guid);
+		}
+
+		return listExamCodeForStudents;
+	}
+
+	private List<Guid> GetAllExamCodeAsync()
+	{
+		return selectExams.Select(_ => _.Guid).ToList();
+	}
+
+
+	private void OnValueChangeSelect(bool value, DeThiDto selectDeThi)
+	{
+		selectDeThi.DaChon = value;
+		if(value)
+		{
+			selectExams.Add(selectDeThi);
+		}
+		else
+		{
+			selectExams.Remove(selectDeThi);
+		}
+	}
+
+	private bool ValidateDeThi()
+	{
+		foreach(var item in selectExams)
+		{
+			if(string.IsNullOrWhiteSpace(item.KyHieuDe))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private bool ValidateForm()
+	{
+		if(!isSmartArrange)
+		{
+			return true;
+		}
+		if (colNumber <= 0 || rowNumber <= 0)
+		{
+			Snackbar.Add(ErrorShuffleNumber, Severity.Error);
+			return false;
+		}
+		if (rowNumber * colNumber < totalNumberOfStudent)
+		{
+			Snackbar.Add(ErrorShuffleFormat, Severity.Error);
+			return false;
+		}
+
+		return true;
+	}
+
+	private void OnValueChangeSortName(bool value)
+	{
+		isSortName = value;
+		isSortExamCode = !isSortName;
+	}
+
+	private void OnValueChangeSortExamCode(bool value)
+	{
+		isSortExamCode = value;
+		isSortName = !isSortExamCode;
+	}
+
+	private async Task<List<DeThiDto>> Exams_GetAllAPI()
+	{
+		var response = await SenderAPI.GetAsync<List<DeThiDto>>("api/dethis/mock-api");
+		return (response.Success && response.Data != null) ? response.Data : [];
+	}
+
+	private async Task<bool> UpdateExamAPI(int examSessionId, int examId, bool isOrderExamCode, List<Guid> listShuffleExam)
+	{
+		var response = await SenderAPI.PatchAsync<bool>($"api/cathis/{examSessionId}/update-dethi?maDeThi={examId}&isOrderMSSV={isOrderExamCode}", listShuffleExam);
+		return response.Success;
+	}
+}

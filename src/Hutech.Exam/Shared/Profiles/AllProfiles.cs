@@ -56,7 +56,9 @@ namespace Hutech.Exam.Shared.Profiles
             CreateMap<ChiTietBaiThiRequest, ChiTietBaiThiDto>();
             CreateMap<ChiTietBaiThiDto, ChiTietBaiThiRequest>();
 
-
+            // ánh xạ giữa mockAPI và DTo
+            CreateMap<DeThiDto, DeThiMock>();
+            CreateMap<DeThiMock, DeThiDto>();
         }
     }
 }

@@ -51,11 +51,11 @@ namespace Hutech.Exam.Client.DAL
                 await hubConnection.SendAsync("SelectDapAn", chiTietBaiThi);
             }
         }
-        public async Task<Dictionary<int, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
+        public async Task<Dictionary<Guid, ChiTietBaiThiRequest>> RequestTiepTucThi(int ma_chi_tiet_ca_thi)
         {
             if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
-                return await hubConnection.InvokeAsync<Dictionary<int, ChiTietBaiThiRequest>>("RequestTiepTucThi", ma_chi_tiet_ca_thi);
+                return await hubConnection.InvokeAsync<Dictionary<Guid, ChiTietBaiThiRequest>>("RequestTiepTucThi", ma_chi_tiet_ca_thi);
             }
             return [];
         }
@@ -69,7 +69,7 @@ namespace Hutech.Exam.Client.DAL
 
         public async Task RecoverySubmit(SubmitRequest request)
         {
-            if(hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+            if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
             {
                 await hubConnection.SendAsync("RecoverySubmit", request);
             }

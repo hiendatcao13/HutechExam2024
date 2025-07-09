@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Hutech.Exam.Server.DAL.DataReader;
+using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.DeThi;
 using Hutech.Exam.Shared.Models;
 using System.Data;
 
@@ -18,50 +20,52 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             DeThi deThi = new()
             {
-                MaDeThi = dataReader.GetInt32(0 + start),
+                MaDeThi = dataReader.GetInt64(0 + start),
                 MaMonHoc = dataReader.GetInt32(1 + start),
                 TenDeThi = dataReader.GetString(2 + start),
-                Guid = dataReader.IsDBNull(3 + start) ? null : dataReader.GetGuid(3 + start),
+                Guid = dataReader.GetGuid(3 + start),
                 KyHieuDe = dataReader.GetString(4 + start),
                 NgayTao = dataReader.GetDateTime(5 + start),
             };
             return _mapper.Map<DeThiDto>(deThi);
         }
 
-        public async Task<int> Insert(int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan)
+        public async Task<int> Insert(int ma_mon_hoc, string ten_de_thi, Guid guid, DateTime ngay_tao, string ky_hieu_de)
         {
             using DatabaseReader sql = new("DeThi_Insert");
 
             sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
             sql.SqlParams("@TenDeThi", SqlDbType.NVarChar, ten_de_thi);
+            sql.SqlParams("@Guid", SqlDbType.UniqueIdentifier, guid);
+            sql.SqlParams("@KyHieuDe", SqlDbType.VarChar, ky_hieu_de);
             sql.SqlParams("@NgayTao", SqlDbType.DateTime, ngay_tao);
-            sql.SqlParams("@NguoiTao", SqlDbType.Int, nguoi_tao);
-            sql.SqlParams("@GhiChu", SqlDbType.NVarChar, ghi_chu);
-            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
-            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
-            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync() ?? -1);
         }
 
-        public async Task<bool> Update(int ma_de_thi, int ma_mon_hoc, string ten_de_thi, DateTime ngay_tao, int nguoi_tao, string ghi_chu, bool bo_chuong_phan, bool da_duyet, bool luu_tam)
+        public async Task<bool> Update(long ma_de_thi, int ma_mon_hoc, string ten_de_thi, Guid guid, string ky_hieu_de)
         {
             using DatabaseReader sql = new("DeThi_Update");
 
-            sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
+            sql.SqlParams("@MaDeThi", SqlDbType.BigInt, ma_de_thi);
             sql.SqlParams("@MaMonHoc", SqlDbType.Int, ma_mon_hoc);
             sql.SqlParams("@TenDeThi", SqlDbType.NVarChar, ten_de_thi);
-            sql.SqlParams("@NgayTao", SqlDbType.DateTime, ngay_tao);
-            sql.SqlParams("@NguoiTao", SqlDbType.Int, nguoi_tao);
-            sql.SqlParams("@GhiChu", SqlDbType.NVarChar, ghi_chu);
-            sql.SqlParams("@BoChuongPhan", SqlDbType.Bit, bo_chuong_phan);
-            sql.SqlParams("@DaDuyet", SqlDbType.Bit, da_duyet);
-            sql.SqlParams("@LuuTam", SqlDbType.Bit, luu_tam);
+            sql.SqlParams("@Guid", SqlDbType.UniqueIdentifier, guid);
+            sql.SqlParams("@KyHieuDe", SqlDbType.VarChar, ky_hieu_de);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> Delete(int ma_de_thi)
+        public async Task Save_Batch(List<DeThiDto> deThis)
+        {
+            var dt = DeThiHelper.ToDataTable(deThis);
+            using DatabaseReader sql = new("DeThi_Save_Batch");
+            sql.SqlParams("@Data", SqlDbType.Structured, dt);
+
+            await sql.ExecuteNonQueryAsync();
+        }
+
+        public async Task<bool> Delete(long ma_de_thi)
         {
             using DatabaseReader sql = new("DeThi_Delete");
 
@@ -70,7 +74,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> ForceDelete(int ma_de_thi)
+        public async Task<bool> ForceDelete(long ma_de_thi)
         {
             DatabaseReader sql = new("DeThi_ForceDelete");
 
@@ -80,7 +84,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         }
 
 
-        public async Task<DeThiDto> SelectOne(int ma_de_thi)
+        public async Task<DeThiDto> SelectOne(long ma_de_thi)
         {
             using DatabaseReader sql = new("DeThi_SelectOne");
 

@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DAL\Models\**" />
+    <Content Remove="DAL\Models\**" />
+    <EmbeddedResource Remove="DAL\Models\**" />
+    <None Remove="DAL\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
@@ -43,10 +50,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Client\Hutech.Exam.Client.csproj" />
     <ProjectReference Include="..\Shared\Hutech.Exam.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DAL\Models\" />
   </ItemGroup>
 
 </Project>

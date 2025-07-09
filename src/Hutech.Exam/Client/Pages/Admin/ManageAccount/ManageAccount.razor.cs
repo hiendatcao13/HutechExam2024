@@ -64,7 +64,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             var authState = AuthenticationState != null ? await AuthenticationState : null;
             if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
-                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
             }
         }
 
@@ -142,8 +148,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_USER_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync(false))   }
+                { x => x.IsOnlySafeDetlet, true },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync())   },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA NGƯỜI DÙNG", parameters, options);
@@ -177,7 +183,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
         #endregion
 
         #region HandleDialog Methods
-        private async Task HandleDeleteUserAsync(bool isForce)
+        private async Task HandleDeleteUserAsync()
         {
             if (selectedUser != null)
             {

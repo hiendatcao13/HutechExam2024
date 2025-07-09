@@ -11,9 +11,9 @@ namespace Hutech.Exam.Client.Pages.Exam
 {
     public partial class ExamPage
     {
-        private async Task<List<CustomDeThi>?> ShuffleExam_SelectOneAPI(long ma_de_hoan_vi)
+        private async Task<List<CustomDeThi>?> Exam_SelectOneAPI(long examId)
         {
-            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
+            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethis/{examId}/mock");
             return (response.Success) ? response.Data : null;
         }
 
@@ -22,6 +22,7 @@ namespace Hutech.Exam.Client.Pages.Exam
             var response = await SenderAPI.PutAsync<int>($"api/audios", audio);
             return (response.Success) ? response.Data : -1;
         }
+
         private async Task<bool> UpdateLogoutAPI(long ma_sinh_vien)
         {
             var response = await SenderAPI.PostAsync<SinhVienDto>($"api/sinhviens/{ma_sinh_vien}/logout", null);
