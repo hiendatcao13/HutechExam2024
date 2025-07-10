@@ -106,6 +106,7 @@
                     <MudTh>Thời Lượng</MudTh>
                     <MudTh>Tổng SL thí sinh</MudTh>
                     <MudTh>Có Đề?</MudTh>
+                    <MudTh>Đã Duyệt?</MudTh>
                     <MudTh>Kích Hoạt?</MudTh>
                     <MudTh>TG Kích Hoạt</MudTh>
                     <MudTh>Kết Thúc?</MudTh>
@@ -119,6 +120,7 @@
                     <MudTd DataLabel="Thời Lượng">@item?.ThoiGianThi</MudTd>
                     <MudTd DataLabel="Tổng SL thí sinh">@item?.TongSV</MudTd>
                     <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="item.DaGanDe" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
+                    <MudTd DataLabel="Có Đề?"><MudSwitch ReadOnly="true" Class="checkbox" Value="item.DaDuyet" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="Kích Hoạt?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.KichHoat" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
                     <MudTd DataLabel="TG Kích Hoạt">@item?.ThoiGianKichHoat</MudTd>
                     <MudTd DataLabel="Kết Thúc?"><MudSwitch Class="checkbox" ReadOnly="true" Value="@item.KetThuc" Color="Color.Success" UncheckedColor="Color.Dark"></MudSwitch></MudTd>
@@ -128,7 +130,7 @@
                             @if (roleName.Contains(KieuVaiTro.KhaoThi.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
                             {
                                 <MudTooltip Text="Gán đề">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="() => OnClickUpdateExamAsync(item)" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Calculate" Color="Color.Info" OnClick="() => OnClickAssignExamAsync(item)" />
                                 </MudTooltip>
                             }
                             @if (roleName.Contains(KieuVaiTro.CNTT.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))

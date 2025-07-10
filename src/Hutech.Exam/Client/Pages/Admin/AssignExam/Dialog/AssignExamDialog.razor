@@ -75,12 +75,14 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await HandleInput();
+		await HandleInputAsync();
 		await base.OnInitializedAsync();
 	}
-	private async Task HandleInput()
-	{
 
+	private async Task HandleInputAsync()
+	{
+		totalNumberOfStudent = ExamSession?.TongSV ?? 0;
+		await GetIdentityUserName();
 	}
 
 	private async Task GetIdentityUserName()
@@ -120,25 +122,32 @@
 
 		var examCodes = isSmartArrange ? ArrageExamSmartForStudentAsync() : ArrageExamForStudentAsync();
 
-		var result = await UpdateExamAPI(ExamSession!.MaCaThi, new CaThiUpdateDeThiRequest()
+		var reason = await OpenAuditDialogAsync(KieuHanhDong.GanDeThi);
+		if (reason != null && !reason.Canceled && reason.Data != null)
 		{
-			IsOrderMSSV = isSortExamCode,
-			DsDeThis = examCodes
-		});
+			string jsonText = CreateActionHistory(KieuHanhDong.GanDeThi, "", reason.Data.ToString()!);
+			var result = await UpdateExamAPI(ExamSession!.MaCaThi, new CaThiUpdateDeThiRequest()
+				{
+					IsOrderMSSV = isSortExamCode,
+					DsDeThis = examCodes,
+					LichSuHoatDong = jsonText,
+				});
 
-		// if (result)
-		// {
-		// 	MudDialog?.Close(DialogResult.Ok(selectedExam.MaDeThi));
-		// }
+			if (result)
+			{
+				MudDialog?.Close(true);
+			}
+		}
+		
 	}
 
-	private List<Guid> ArrageExamSmartForStudentAsync()
+	private List<long> ArrageExamSmartForStudentAsync()
 	{
 		var listExamCodes = GetAllExamCodeAsync();
 
 		int totalShuffleExam = listExamCodes.Count;
 
-		List<Guid> listExamCodeForStudents = [];
+		List<long> listExamCodeForStudents = [];
 		int studentCounter = 0;
 		for (int i = 0; i < rowNumber; i++)
 		{
@@ -157,21 +166,21 @@
 		return listExamCodeForStudents;
 	}
 
-	private List<Guid> ArrageExamForStudentAsync()
+	private List<long> ArrageExamForStudentAsync()
 	{
-		List<Guid> listExamCodeForStudents = [];
+		List<long> listExamCodeForStudents = GetAllExamCodeAsync();
 		int totalExam = Exams.Count;
 		for (int i = 0; i < totalNumberOfStudent; i++)
 		{
-			listExamCodeForStudents.Add(Exams[i % totalExam].Guid);
+			listExamCodeForStudents.Add(Exams[i % totalExam].MaDeThi);
 		}
 
 		return listExamCodeForStudents;
 	}
 
-	private List<Guid> GetAllExamCodeAsync()
+	private List<long> GetAllExamCodeAsync()
 	{
-		return Exams.Select(_ => _.Guid).ToList();
+		return Exams.Select(_ => _.MaDeThi).ToList();
 	}
 
 
@@ -274,7 +283,7 @@
 
 	private async Task<bool> UpdateExamAPI(int examSessionId, CaThiUpdateDeThiRequest request)
 	{
-		var response = await SenderAPI.PatchAsync<bool>($"api/cathis/{examSessionId}/update-dethi", request);
+		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/update-dethi", request);
 		return response.Success;
 	}
 }

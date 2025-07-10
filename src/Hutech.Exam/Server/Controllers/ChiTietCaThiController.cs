@@ -185,7 +185,7 @@ namespace Hutech.Exam.Server.Controllers
         private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
         {
             // 0: bắt đầu thi, 1: kết thúc thi
-            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian, -1);
         }
 
         private async Task<byte[]> ConvertToByteFile(List<ChiTietCaThiDto> chiTietCaThis)

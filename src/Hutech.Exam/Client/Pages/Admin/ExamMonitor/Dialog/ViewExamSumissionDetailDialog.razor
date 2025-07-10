@@ -1,7 +1,7 @@
 ﻿@page "/monitor/mocktest"
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "QuanTri")]
 
 @using Hutech.Exam.Shared.DTO
 @using System.Text.Json
@@ -31,8 +31,8 @@
             <MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
                 @if (CustomDeThis != null)
                 {
-                    int current_parent_group_id = -1;
-                    int current_group_id = 0;
+                    Guid? current_parentGroupQuestion = new Guid();
+                    Guid current_groupQuestion = new Guid();
 
                     foreach (var item in CustomDeThis)
                     {
@@ -76,7 +76,7 @@
                         if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
                         {
                             <MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
-                                <b>(@item.MaSoCLO) (@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoi" /></b>
+                                <b>@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoi" /></b>
                             </MudText>
                         }
 

@@ -102,12 +102,9 @@ namespace Hutech.Exam.Client.Pages.Result
             {
                 Context = await CanvasReference.CreateCanvas2DAsync();
                 await Context.SetFontAsync("35px Arial");
-                if (score - (int)score != 0)
-                {
-                    await Context.FillTextAsync(score.ToString(), 5, 35);
-                }
-                string text = score + ".0";
-                await Context.FillTextAsync(text.ToString(), 5, 35);
+
+                string text = (score % 1 == 0) ? $"{score:0.0}" : score.ToString();
+                await Context.FillTextAsync(text, 5, 35);
             }
             await base.OnAfterRenderAsync(firstRender);
         }

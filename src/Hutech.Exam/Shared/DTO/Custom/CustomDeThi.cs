@@ -17,7 +17,7 @@ namespace Hutech.Exam.Shared.DTO.Custom
         public Guid MaCauHoi { get; set; }
 
         [Key(2)]
-        public Guid MaNhomCha { get; set; }
+        public Guid? MaNhomCha { get; set; }
 
         [Key(3)]
         public string? NoiDungCauHoiNhomCha { get; set; }

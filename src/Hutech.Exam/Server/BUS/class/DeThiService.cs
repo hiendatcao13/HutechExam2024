@@ -52,6 +52,11 @@ namespace Hutech.Exam.Server.BUS
             return await _deThiRepository.SelectBy_ma_de_hv(ma_de_hv);
         }
 
+        public async Task<List<CustomThongKeDiem>> Report(long maDeThi)
+        {
+            return await _deThiRepository.Report(maDeThi);
+        }
+
         public async Task<List<DeThiDto>> GetAll()
         {
             return await _deThiRepository.GetAll();

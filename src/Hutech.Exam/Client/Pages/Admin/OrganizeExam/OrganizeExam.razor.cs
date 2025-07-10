@@ -47,7 +47,8 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
         private const string DELETE_DOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa đợt thi này không? Mối quan hệ phụ thuộc: CHITIETDOTTHI &rarr; CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
         private const string DELETE_CATHI_MESSAGE = "Bạn có chắc chắn muốn xóa ca thi này không? Mối quan hệ phụ thuộc: CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
         private const string DELETE_CTDOTTHI_MESSAGE = "Bạn có chắc chắn muốn xóa chi tiết đợt thi này không? Mối quan hệ phụ thuộc: CATHI &rarr; CHITIETCATHI &rarr; CHITIETBAITHI, AUDIOLISTENED";
-        private const string CONFIRM_APPROVE = "Bạn có chắc chắn muốn duyệt cho ca thi này không? Sau khi duyệt, ca thi sẽ không thể thay đổi được nữa. Nếu muốn thay đổi, bạn phải xóa và tạo lại ca thi mới.";
+        private const string CONFIRM_APPROVE = "Bạn có chắc chắn muốn duyệt cho ca thi này không? Sau khi duyệt, ca thi sẽ không thể thay đổi được nữa.";
+        private const string NO_ASSIGN_WHEN_APPROVED = "Không thể thao tác khi ca thi được duyêt. Vui lòng liên hệ quản trị viên";
 
         #endregion
 
@@ -286,6 +287,12 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 return;
             }
 
+            if(selectedExamSession.DaDuyet)
+            {
+                Snackbar.Add(NO_ASSIGN_WHEN_APPROVED, Severity.Error);
+                return;
+            }    
+
             var result = await OpenExamSessionDialogAsync(true);
             if (result != null && !result.Canceled && result.Data != null && examSessions != null)
             {
@@ -327,19 +334,15 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             Nav.NavigateTo($"admin/monitor?ma_ca_thi={examSession.MaCaThi}");
         }
 
-        private void OnClickUpdateExamAsync(CaThiDto examSession)
+        private void OnClickAssignExamAsync(CaThiDto examSession)
         {
+            if(examSession.DaDuyet)
+            {
+                Snackbar.Add(NO_ASSIGN_WHEN_APPROVED, Severity.Error);
+                return;
+            }
+            
             Nav.NavigateTo($"/admin/approved-exam?ma_ca_thi={examSession.MaCaThi}");
-            //var result = await OpenUpdateExamDialogAsync(caThi);
-            //// lấy data là mã đề thi mới cho ca thi
-            //if (result != null && result.Data != null && !result.Canceled && examSessions != null)
-            //{
-            //    int index = examSessions.FindIndex(ct => ct.MaCaThi == caThi.MaCaThi);
-            //    if (index != -1)
-            //    {
-            //        examSessions[index].MaDeThi = (int)result.Data;
-            //    }
-            //}
         }
 
         private async Task OnClickUploadStudentListToExamSessionAsync()
@@ -364,12 +367,12 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
                 { x => x.ContentText, CONFIRM_APPROVE },
                 { x => x.ButtonText, "Xác nhận" },
                 { x => x.Color, Color.Error },
-                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleApprove())   }
+                { x => x.onHandleSubmit, EventCallback.Factory.Create(this, async () => await HandleApproveAsync())   }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
 
-            await Dialog.ShowAsync<Simple_Dialog>("Đăng xuất", parameters, options);
+            await Dialog.ShowAsync<Simple_Dialog>("DUYỆT ĐỀ", parameters, options);
 
         }
 
@@ -400,12 +403,12 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             }
         }
 
-        private async Task HandleApprove()
+        private async Task HandleApproveAsync()
         {
             var reason = await OpenAuditDialogAsync(KieuHanhDong.DuyetDeThi);
             if (reason != null && !reason.Canceled && reason.Data != null)
             {
-                string jsonText = CreateActionHistory(KieuHanhDong.XoaThiSinh, "", reason.Data.ToString()!);
+                string jsonText = CreateActionHistory(KieuHanhDong.DuyetDeThi, "", reason.Data.ToString()!);
                 var result = await ExamSession_UpdateApproveAPI(selectedExamSession!.MaCaThi, jsonText);
                 if(result != null)
                 {

@@ -2,6 +2,7 @@
 using Hutech.Exam.Server.DAL.DataReader;
 using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.DeThi;
 using Hutech.Exam.Shared.Models;
@@ -116,6 +117,23 @@ namespace Hutech.Exam.Server.DAL.Repositories
             }
 
             return deThi;
+        }
+
+        public async Task<List<CustomThongKeDiem>> Report(long maDeThi)
+        {
+            using DatabaseReader sql = new("DeThi_ThongKeDiem");
+
+            sql.SqlParams("@MaDeThi", SqlDbType.BigInt, maDeThi);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<CustomThongKeDiem> result = [];
+
+            while (dataReader != null && dataReader.Read())
+            {
+                result.Add(new CustomThongKeDiem { Diem = dataReader.GetDouble(0), SoLuong = dataReader.GetInt32(1) });
+            }
+
+            return result;
         }
 
         public async Task<List<DeThiDto>> GetAll()

@@ -3,6 +3,7 @@ using System.Text.Json;
 using AutoMapper;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
+using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Custom;
@@ -55,18 +56,17 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("mock-api")]
         public async Task<IActionResult> GetAllDeThi()
         {
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
+            //var httpClient = new HttpClient();
+            //httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
 
-            var response = await httpClient.GetAsync(_approvedExamsUrl);
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
-            }
+            //var response = await httpClient.GetAsync(_approvedExamsUrl);
+            //if (!response.IsSuccessStatusCode)
+            //{
+            //    return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
+            //}
 
-            var jsonData = await response.Content.ReadAsStringAsync();
-
-            Console.WriteLine("Hellllllllllllo" +  jsonData);
+            //var jsonData = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine("Hellllllllllllo" +  jsonData);
 
             //// Nếu bạn biết kiểu dữ liệu trả về, bạn có thể deserialize vào model cụ thể
             //// Ví dụ:
@@ -98,7 +98,7 @@ namespace Hutech.Exam.Server.Controllers
             var deThi = await _deThiService.SelectOne(id);
             var result = await _redisService.GetDeThiAsync(deThi.Guid);
 
-            return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: result, message: "Lấy nội dung đề thi thành công"));
+            return Ok(APIResponse<List<CustomDeThi>>.SuccessResponse(data: TestExam.GetTestExam(), message: "Lấy nội dung đề thi thành công"));
         }
 
         [HttpGet("filter-by-monhoc")]
@@ -142,12 +142,12 @@ namespace Hutech.Exam.Server.Controllers
         //    return Ok(APIResponse<List<CustomThongKeCauHoi>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
         //}
 
-        //[HttpGet("{id:int}/report-diem")]
-        //public async Task<IActionResult> ThongKeDiem_SelectBy_DeThi([FromRoute] int id)
-        //{
-        //    var result = await _customThongKeService.ThongKeDiem_SelectBy_DeThi(id);
-        //    return Ok(APIResponse<List<CustomThongKeDiem>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
-        //}
+        [HttpGet("{id:long}/report")]
+        public async Task<IActionResult> ThongKeDiem_SelectBy_DeThi([FromRoute] long id)
+        {
+            var result = await _deThiService.Report(id);
+            return Ok(APIResponse<List<CustomThongKeDiem>>.SuccessResponse(data: result, message: "Lấy dữ liệu thống kê thành công"));
+        }
 
         //[HttpGet("{id:int}/report-capbacsv")]
         //public async Task<IActionResult> ThongKeCapBacSV_SelectBy_DeThi([FromRoute] int id)

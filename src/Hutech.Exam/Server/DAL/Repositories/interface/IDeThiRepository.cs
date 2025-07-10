@@ -1,4 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
+using Hutech.Exam.Shared.DTO.Custom;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.DeThi;
 using System.Data;
@@ -22,6 +23,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
         Task<DeThiDto> SelectOne(long ma_de_thi);
 
         Task<DeThiDto> SelectBy_ma_de_hv(long ma_de_hv);
+
+        Task<List<CustomThongKeDiem>> Report(long maDeThi);
 
         Task<List<DeThiDto>> GetAll();
 

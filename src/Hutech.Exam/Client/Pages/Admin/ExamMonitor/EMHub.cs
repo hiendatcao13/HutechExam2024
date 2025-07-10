@@ -19,11 +19,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                     }
                 });
 
-                hubConnection.On<int, bool, DateTime>("ChangeCTCaThi_SVThi", (ma_chi_tiet_ca_thi, isBDThi, thoi_gian) =>
+                hubConnection.On<int, bool, DateTime, double>("ChangeCTCaThi_SVThi", (ma_chi_tiet_ca_thi, isBDThi, thoi_gian, diem) =>
                 {
                     if (examSessionDetails.Exists(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi))
                     {
-                        CallLoadUpdateCTCaThi(ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+                        CallLoadUpdateCTCaThi(ma_chi_tiet_ca_thi, isBDThi, thoi_gian, diem);
                         StateHasChanged();
                     }
                 });
@@ -47,7 +47,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 //1 số thành phần khác không thuộc ở trang này
             }
         }
-        private void CallLoadUpdateCTCaThi(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
+        private void CallLoadUpdateCTCaThi(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian, double diem)
         {
             ChiTietCaThiDto? existingCTCaThi = examSessionDetails?.FirstOrDefault(p => p.MaChiTietCaThi == ma_chi_tiet_ca_thi);
             if(existingCTCaThi != null)
@@ -61,6 +61,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 {
                     existingCTCaThi.DaHoanThanh = true;
                     existingCTCaThi.ThoiGianKetThuc = thoi_gian;
+                    existingCTCaThi.Diem = diem;
                 }
             }
         }

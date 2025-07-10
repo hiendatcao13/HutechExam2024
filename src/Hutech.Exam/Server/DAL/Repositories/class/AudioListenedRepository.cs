@@ -46,7 +46,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using DatabaseReader sql = new("Audio_Update");
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, examSessionDetailId);
             sql.SqlParams("@MaNhom", SqlDbType.UniqueIdentifier, groupQuestionId);
-            sql.SqlParams("@TenFile", SqlDbType.Int, fileName);
+            sql.SqlParams("@TenFile", SqlDbType.NVarChar, fileName);
 
             return Convert.ToInt32(await sql.ExecuteScalarAsync());
         }

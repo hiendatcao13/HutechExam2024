@@ -62,76 +62,6 @@
 			}
 		</MudItem>
 
-		<MudItem xs="12" md="12" lg="12">
-			<SfChart Title="Thống kê mức độ câu hỏi" Width="1100px">
-				<ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" Title="Mã câu hỏi - Mã CLO" LabelRotation="-90" />
-				<ChartPrimaryYAxis Title="Số lượng thí sinh" />
-				<ChartLegendSettings Visible="true" />
-				<ChartTooltipSettings Enable="true" />
-				<ChartSeriesCollection>
-					<ChartSeries Type="ChartSeriesType.Column" DataSource="customQuestionReports" XName="MaCauHoiCLO" YName="TongSLSai" Name="Tổng SL trả lời sai" Fill="#90A4AE">
-						<ChartMarker>
-							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
-						</ChartMarker>
-					</ChartSeries>
-
-					<ChartSeries Type="ChartSeriesType.Column" DataSource="customQuestionReports" XName="MaCauHoiCLO" YName="TongSLDung" Name="Tổng SL trả lời đúng" Fill="#FFA726">
-						<ChartMarker>
-							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
-						</ChartMarker>
-					</ChartSeries>
-
-					<ChartSeries Type="ChartSeriesType.Line" DataSource="customQuestionReports" XName="MaCauHoiCLO" YName="PhanTram" Fill="red" Width="3" Name="(%) tỉ lệ đúng">
-						<ChartMarker>
-							<ChartDataLabel Visible="true" Fill="red"></ChartDataLabel>
-						</ChartMarker>
-					</ChartSeries>
-				</ChartSeriesCollection>
-			</SfChart>
-		</MudItem>
-
-		<MudItem xs="12">
-			@if (customQuestionReports != null)
-			{
-				<MudTable Elevation="3" T="CustomThongKeCauHoi" Items="@customQuestionReports" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
-					<ToolBarContent>
-						<MudText Typo="Typo.h6">Bảng tần số câu hỏi</MudText>
-						<MudSpacer />
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Download" OnClick="async () => await OnClickDownload()">Download JSON thống kê</MudButton>
-						<MudSwitch Label="Hiển thị cấp bậc SV (27%)" T="bool" Value="isShowLevelStudent" ValueChanged="async (value) => await OnValueChangeShowStudentLevel(value)" Color="Color.Success"></MudSwitch>
-					</ToolBarContent>
-					<HeaderContent>
-						<MudTh>Mã câu hỏi</MudTh>
-						<MudTh>Mã số CLO</MudTh>
-						<MudTh>SL Đúng</MudTh>
-						<MudTh>SL Sai</MudTh>
-						@if(isShowLevelStudent)
-						{
-							<MudTh>(%) SVTop đúng</MudTh>
-							<MudTh>(%) SVBottom đúng</MudTh>
-						}
-						<MudTh>Tổng SL</MudTh>
-						<MudTh>Tỉ lệ (%)</MudTh>
-					</HeaderContent>
-					<RowTemplate Context="item">
-						<MudTd DataLabel="Mã câu hỏi">@item.MaCauHoi</MudTd>
-						<MudTd DataLabel="Mã câu hỏi">@item.MaSoCLO</MudTd>
-						<MudTd DataLabel="SL Đúng">@item.TongSLDung</MudTd>
-						<MudTd DataLabel="SL Sai">@item.TongSLSai</MudTd>
-						@if(isShowLevelStudent && item.CustomThongKeCapBacCauHoi != null)
-						{
-							double phanTramSVTop = (item.CustomThongKeCapBacCauHoi.TongSVTop == 0) ? 0 : (float)item.CustomThongKeCapBacCauHoi.TongSVTopDung / item.CustomThongKeCapBacCauHoi.TongSVTop;
-							double phanTramSVBottom = (item.CustomThongKeCapBacCauHoi.TongSVBottom == 0) ? 0 : (float)item.CustomThongKeCapBacCauHoi.TongSVBottomDung / item.CustomThongKeCapBacCauHoi.TongSVBottom;
-							<MudTd DataLabel="(%) SVTop đúng" Style="@GetColorStyle(phanTramSVTop)">@phanTramSVTop</MudTd>
-							<MudTd DataLabel="(%) SVBottom đúng" Style="@GetColorStyle(phanTramSVBottom)">@phanTramSVBottom</MudTd>
-						}
-						<MudTd DataLabel="Tổng SL">@item.TongSLTraLoi</MudTd>
-						<MudTd DataLabel="Tỉ lệ (%)" Style=@GetColorStyle(item.PhanTramDung)>@item.PhanTramDung</MudTd>
-					</RowTemplate>
-				</MudTable>
-			}
-		</MudItem>
-
 		<MudItem xs="3">
 			<MudPaper Class="box-text" Style="transform: scale(0.8)" Elevation="3">
 				<MudText Typo="Typo.h5" Align="Align.Center">Tổng số thí sinh</MudText>
@@ -167,7 +97,7 @@
 				<ChartLegendSettings Visible="true" />
 				<ChartTooltipSettings Enable="true" />
 				<ChartSeriesCollection>
-					<ChartSeries Type="ChartSeriesType.Column" DataSource="customScoreReports" XName="Diem" YName="SoLuong" Name="Điểm" Fill="#64B5F6">
+					<ChartSeries Type="ChartSeriesType.Column" DataSource="customScoreReports" XName="Diem" YName="SoLuong" Name="Điểm" Fill="#FFCC80">
 						<ChartMarker>
 							<ChartDataLabel Visible="true" EnableRotation="true" Angle="-90"></ChartDataLabel>
 						</ChartMarker>
@@ -330,7 +260,7 @@
 		if (selectedExam == null)
 			return;
 
-		customQuestionReports = await QuestionReport_SelectBy_ExamAPI(selectedExam.MaDeThi);
+		//customQuestionReports = await QuestionReport_SelectBy_ExamAPI(selectedExam.MaDeThi);
 		isFirstRenderLevelReport = true;
 
 		await ReportScoreAsync(selectedExam.MaDeThi);

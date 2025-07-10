@@ -38,13 +38,13 @@ namespace Hutech.Exam.Client.Pages.Admin.AssignExam
         DeThiDto? selectedExam;
 
         // mockAPI đề thi mới
-        List<DeThiDto> newExams = [];
         private List<DeThiDto> selectNewExams = [];
 
         List<DeThiDto> selectedExams = [];
 
 
         private const string NO_SELECT_OBJECT_DETHI = "Vui lòng chọn đề thi";
+        private const string NO_SELECT_OBJECT_MONHOC = "Vui lòng chọn môn học";
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
         private const string DELETE_DETHI_MESSAGE = "Bạn có chắc chắn muốn xóa đề thi này không? Chỉ có thể xóa an toàn";
 
@@ -104,17 +104,17 @@ namespace Hutech.Exam.Client.Pages.Admin.AssignExam
 
             selectedExam = null;
         }
-
-        private async Task FetchNewExamAsync()
-        {
-            newExams = await Exams_GetAllAPI();
-        }
         #endregion
 
         #region OnClick Methods
 
         private async Task OnClickAddExamAsync()
         {
+            if(selectedSubject == null)
+            {
+                Snackbar.Add(NO_SELECT_OBJECT_MONHOC, Severity.Warning);
+                return;
+            }    
             var result = await OpenNewExamDialogAsync();
             if(result != null && !result.Canceled && result.Data != null)
             {
@@ -172,13 +172,23 @@ namespace Hutech.Exam.Client.Pages.Admin.AssignExam
 
         private async Task OnClickAssignExamAsync()
         {
-            if(selectedExams.Count == 0)
+            if (selectedSubject == null)
+            {
+                Snackbar.Add(NO_SELECT_OBJECT_MONHOC, Severity.Warning);
+                return;
+            }
+            if (selectedExams.Count == 0)
             {
                 Snackbar.Add(NO_SELECT_OBJECT_DETHI, Severity.Error);
                 return;
             }
 
             var result = await OpenAssignExamDialogAsync();
+
+            if(result != null && !result.Canceled && result.Data != null)
+            {
+
+            }    
         }
 
         #endregion

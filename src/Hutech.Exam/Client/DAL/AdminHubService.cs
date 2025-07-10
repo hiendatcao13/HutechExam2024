@@ -30,23 +30,44 @@ namespace Hutech.Exam.Client.DAL
 
                 hubConnection.Closed += async (error) =>
                 {
-                    await Task.Delay(5000); // Chờ 5s trước khi thử kết nối lại
-                    await GetConnectionAsync(); // Thử kết nối lại
+                    Console.WriteLine("Kết nối SignalR đã đóng. Chờ reconnect..." + error);
                 };
 
-                await hubConnection.StartAsync();
+                // Khi kết nối lại thành công, gọi lại JoinGroup
+                hubConnection.Reconnected += async (connectionId) =>
+                {
+                    Console.WriteLine($"Kết nối lại SignalR thành công: {connectionId}");
+                    await hubConnection.InvokeAsync("JoinGroupAdminMonitor");
+                };
+
+                        await hubConnection.StartAsync();
 
                 await hubConnection.InvokeAsync("JoinGroupAdminMonitor");
             }
+
+            if(hubConnection.State == HubConnectionState.Disconnected)
+            {
+                await ReconnectionAsync();
+            }    
 
             return hubConnection;
         }
 
         public async Task DisconnectionAsync()
         {
-            if (hubConnection != null)
+            if (hubConnection != null && hubConnection.State != HubConnectionState.Disconnected)
             {
                 await hubConnection.StopAsync();
+            }
+        }
+
+        public async Task ReconnectionAsync()
+        {
+            if (hubConnection != null)
+            {
+                await hubConnection.StartAsync();
+
+                await hubConnection.InvokeAsync("JoinGroupAdminMonitor");
             }
         }
 

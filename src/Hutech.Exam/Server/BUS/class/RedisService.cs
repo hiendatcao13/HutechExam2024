@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using Hutech.Exam.Server.DAL.Repositories;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Custom;
@@ -14,9 +15,8 @@ namespace Hutech.Exam.Server.BUS
     {
         #region Private Fields
         private readonly DeThiService _deThiService;
-        //private readonly DeThiHoanViService _deThiHoanViService = deThiHoanViService;
-        //private readonly CustomDeThiService _customDeThiService = customDeThiService;
-        private readonly string _sampleExamUrl;
+        private string _examUrl;
+        private readonly Guid _sampleExamGuid;
 
         private readonly IResponseCacheService _cacheService;
         private readonly ILogger _logger;
@@ -25,11 +25,10 @@ namespace Hutech.Exam.Server.BUS
         public RedisService(DeThiService deThiService, IResponseCacheService cacheService, ILogger<RedisService> logger, IConfiguration configuration)
         {
             _deThiService = deThiService;
-
             _cacheService = cacheService;
             _logger = logger;
-            _sampleExamUrl = configuration["ExternalApiSettings:SampleExamUrl"]!;
-
+            _examUrl = configuration["ExternalApiSettings:LoadExamUrl"]!;
+            _sampleExamGuid = Guid.Parse(configuration["ExternalApiSettings:SampleGuidExam"]!);
         }
 
         #endregion
@@ -302,10 +301,22 @@ namespace Hutech.Exam.Server.BUS
 
                 // Nếu không có, thực hiện logic lấy dữ liệu từ database
 
+                //Kiểm tra xem có phải đề mẫu không
+                if(id == _sampleExamGuid)
+                {
+                    var testResult = TestExam.GetTestExam();
+                    await _cacheService.SetCacheResponseAsync(cacheKey, testResult, TimeSpan.FromMinutes(150));
+
+                    var testAnswers = TestExam.GetAnswerTest();
+                    await SetDapAnAsync(id, testAnswers);
+
+                    return testResult;
+                }
+
                 //var httpClient = new HttpClient();
                 //httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
-
-                //var response = await httpClient.GetAsync(_sampleExamUrl);
+                //_examUrl = _examUrl.Replace("{}", id.ToString());
+                //var response = await httpClient.GetAsync(_examUrl);
                 //if (!response.IsSuccessStatusCode)
                 //{
                 //    return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
@@ -317,9 +328,10 @@ namespace Hutech.Exam.Server.BUS
                 //// Ví dụ:
                 //var exams = JsonSerializer.Deserialize<NoiDungDeThiMock>(jsonData) ?? new();
 
+
                 var exams = JsonSerializer.Deserialize<APIResponse<NoiDungDeThiMock>>(jsonNoiDungDeThi) ?? new();
 
-                Console.WriteLine("Hellllllllllllllllllllo" + JsonSerializer.Serialize(exams));
+                //Console.WriteLine("Hellllllllllllllllllllo" + JsonSerializer.Serialize(exams));
 
                 // xử lí luôn cho đáp án
                 var dict = exams.Data!.Phans

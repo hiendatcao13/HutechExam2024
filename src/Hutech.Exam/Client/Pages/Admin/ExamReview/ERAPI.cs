@@ -26,7 +26,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamReview
 
         private async Task<List<CustomThongKeDiem>> ScoreReport_SelectBy_ExamAPI(long maDeThi)
         {
-            var response = await SenderAPI.GetAsync<List<CustomThongKeDiem>>($"api/dethis/{maDeThi}/report-diem");
+            var response = await SenderAPI.GetAsync<List<CustomThongKeDiem>>($"api/dethis/{maDeThi}/report");
             return (response.Success && response.Data != null) ? response.Data : [];
         }
 

@@ -39,6 +39,9 @@ builder.Services.AddMudServices(config =>
     //Gi?i h?n s? l??ng Snackbar
     config.SnackbarConfiguration.MaxDisplayedSnackbars = 5;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+    config.SnackbarConfiguration.VisibleStateDuration = 2000; //2 giây
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 500;
 });
 
 await builder.Build().RunAsync();

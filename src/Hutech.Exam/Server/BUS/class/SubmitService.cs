@@ -59,7 +59,7 @@ namespace Hutech.Exam.Server.BUS
                     await _chiTietCaThiService.UpdateKetThuc(submitRequest.MaChiTietCaThi, chiTietCaThiUpdateKTThiRequest);
 
                     // thông báo cho người giám sát thí sinh đã nộp bài
-                    await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai);
+                    await NotifSVStatusThiToAdmin(submitRequest.MaChiTietCaThi, false, submitRequest.ThoiGianNopBai, diem);
 
                     submitRequest.IsLanDau = false;
                 }
@@ -104,10 +104,10 @@ namespace Hutech.Exam.Server.BUS
         #region Private Methods
 
 
-        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian)
+        private async Task NotifSVStatusThiToAdmin(int ma_chi_tiet_ca_thi, bool isBDThi, DateTime thoi_gian, double diem)
         {
             // 0: bắt đầu thi, 1: kết thúc thi
-            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+            await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian, diem);
         }
         #endregion
 

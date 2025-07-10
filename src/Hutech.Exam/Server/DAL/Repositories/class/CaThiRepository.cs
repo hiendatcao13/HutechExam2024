@@ -128,6 +128,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             if (await dataReader!.ReadAsync())
             {
                 result = GetProperty(dataReader);
+                result.TongSV = dataReader.GetInt32(COLUMN_LENGTH);
             }
 
             return result;
@@ -222,7 +223,16 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> UpdateDeThi(int ma_ca_thi, bool isOrderMSSV,string lichSuHoatDong, List<Guid> dsDeThis)
+        public async Task<bool> UpdateAllResetLogin(int maCaThi)
+        {
+            using DatabaseReader sql = new("CaThi_UpdateAllResetLogin");
+
+            sql.SqlParams("@MaCaThi", SqlDbType.Int, maCaThi);
+
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
+
+        public async Task<bool> UpdateDeThi(int ma_ca_thi, bool isOrderMSSV,string lichSuHoatDong, List<long> dsDeThis)
         {
             using DatabaseReader sql = new("CaThi_UpdateDeThi");
 

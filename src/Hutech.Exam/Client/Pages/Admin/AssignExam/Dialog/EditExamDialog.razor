@@ -12,16 +12,16 @@
     <DialogContent>
         <MudGrid>
             <MudItem xs="4" Style="align-content: center"><MudText>Tên đề thi:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên đề thi" Required @bind-Value="@tempExam.TenDeThi" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Tên đề thi" Required @bind-Value="@tempExam.TenDeThi" InputType="InputType.Text"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Ký hiệu đề:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Ký hiệu đề" Required @bind-Value="@tempExam.KyHieuDe" InputType="InputType.Text"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Ký hiệu đề" Required @bind-Value="@tempExam.KyHieuDe" InputType="InputType.Text"></MudTextField></MudItem>
 
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
-        <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
     </DialogActions>
 </MudDialog>
 <style>

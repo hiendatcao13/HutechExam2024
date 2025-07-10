@@ -12,6 +12,6 @@ namespace Hutech.Exam.Shared.DTO.Request.CaThi
 
         public string LichSuHoatDong { get; set; } = string.Empty;
 
-        public List<Guid> DsDeThis { get; set; } = [];
+        public List<long> DsDeThis { get; set; } = [];
     }
 }

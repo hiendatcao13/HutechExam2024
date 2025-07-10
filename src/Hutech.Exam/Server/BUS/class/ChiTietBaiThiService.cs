@@ -54,6 +54,7 @@ namespace Hutech.Exam.Server.BUS
 
         public (List<bool?>, int, double) GetDungSai_SelectBy_DapAnKhoanh(Dictionary<Guid, Guid?> dapAnKhoanhs, Dictionary<Guid, Guid> dapAns)
         {
+            
             var ketQuaList = new List<bool?>(dapAns.Count);
             int soCauDung = 0;
 
@@ -61,7 +62,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 bool? ketQua = null;
 
-                if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet))
+                if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet) && chiTiet != null)
                 {
                     ketQua = (dapAn == chiTiet);
                 }
@@ -75,6 +76,7 @@ namespace Hutech.Exam.Server.BUS
             }
 
             double diem = TinhDem(ketQuaList.Count, soCauDung);
+
             return (ketQuaList, soCauDung, diem);
         }
         #endregion

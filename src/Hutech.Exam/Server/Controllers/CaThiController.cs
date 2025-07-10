@@ -210,6 +210,17 @@ namespace Hutech.Exam.Server.Controllers
             return Ok(APIResponse<CaThiDto>.SuccessResponse(data: await _caThiService.SelectOne(id), message: "Duyệt đề thi thành công"));
         }
 
+        [HttpPatch("{id:int}/all-reset-login")]
+        public async Task<IActionResult> ResetAllLogin([FromRoute] int id)
+        {
+            var result = await _caThiService.UpdateAllResetLogin(id);
+            if(!result)
+            {
+                return NotFound(APIResponse<CaThiDto>.NotFoundResponse(message: NotFoundMessage));
+            }
+            return Ok(APIResponse<CaThiDto>.SuccessResponse(message: "Reset đăng nhập toàn bộ thí sinh thành công"));
+        }
+
         #endregion
 
         #region Delete Methods

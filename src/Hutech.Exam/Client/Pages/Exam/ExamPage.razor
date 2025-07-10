@@ -15,7 +15,7 @@
 			<MudPaper Class="pa-4" Style="border: 1px solid #ccc;">
 				@if (CustomExams != null)
 				{
-					Guid current_parentGroupQuestion = new Guid();
+					Guid? current_parentGroupQuestion = new Guid();
 					Guid current_groupQuestion = new Guid();
 
 					foreach (var item in CustomExams)

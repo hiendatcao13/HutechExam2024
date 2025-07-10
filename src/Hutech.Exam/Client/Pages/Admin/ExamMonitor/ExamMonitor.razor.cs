@@ -331,15 +331,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task<DialogResult?> OpenAddTimeDialogAsync(ChiTietCaThiDto chiTietCaThi)
         {
-            if (chiTietCaThi.DaThi == false || chiTietCaThi.GioCongThem != 0)
+            if (chiTietCaThi.DaThi == false)
             {
                 Snackbar.Add(FAILED_CONGGIO, Severity.Error);
                 return null;
             }
 
-            if(chiTietCaThi.ThoiDiemCong != null)
+            if(chiTietCaThi.ThoiDiemCong != null || chiTietCaThi.GioCongThem != 0)
             {
-                Snackbar.Add("Không thể cộng giờ khi đã thêm trước đó", Severity.Error);
+                Snackbar.Add("Không thể cộng giờ nhiều lần khi đã thêm trước đó", Severity.Error);
                 return null;
             }   
             

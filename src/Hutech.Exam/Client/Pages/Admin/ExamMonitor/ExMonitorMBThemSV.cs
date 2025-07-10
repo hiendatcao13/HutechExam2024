@@ -38,16 +38,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private List<long> GetAllShuffleExamIds()
         {
-            List<long> result = [];
+            HashSet<long> uniqueIds = new HashSet<long>();
             if (examSessionDetails != null)
             {
                 foreach (var item in examSessionDetails)
                 {
                     if (item.MaDeThi != null)
-                        result.Add((long)item.MaDeThi);
+                        uniqueIds.Add((long)item.MaDeThi); // HashSet tự loại bỏ trùng lặp
                 }
             }
-            return result;
+            return uniqueIds.ToList();
         }
         private List<string> GetAllStudentCodes()
         {
