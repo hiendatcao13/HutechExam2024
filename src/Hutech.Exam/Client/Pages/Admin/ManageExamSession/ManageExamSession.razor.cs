@@ -83,7 +83,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
             var authState = AuthenticationState != null ? await AuthenticationState : null;
             if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
-                roleName = authState.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
             }
         }
 
@@ -157,16 +163,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         private async Task OnClickExamSessionDetailAsync(CaThiDto examSession)
         {
-            if (examSession.DaDuyet == false)
-            {
-                Snackbar.Add(NotAprrovedMessage, Severity.Warning);
-                return;
-            }
-            if (examSession.DaGanDe == false)
-            {
-                Snackbar.Add(NotContainsExamMessage, Severity.Warning);
-                return;
-            }
             if (!await VerifyPassword(examSession))
             {
                 return;

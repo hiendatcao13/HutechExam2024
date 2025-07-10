@@ -1,0 +1,280 @@
+﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Client.Components.Dialogs
+@using Hutech.Exam.Shared.DTO
+@using System.Text.Json
+@using System.Text
+@using System.Text.Json.Serialization
+@using Hutech.Exam.Shared.DTO.Custom
+@using Hutech.Exam.Shared.DTO.Request.Audit
+@using Hutech.Exam.Shared.DTO.Request.CaThi
+@using Hutech.Exam.Shared.DTO.Request.User
+@using System.Text.RegularExpressions
+@using System.Security.Claims
+@using Hutech.Exam.Shared.Enums
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="max-width: 500px; overflow: visible">
+	<DialogContent>
+		<MudGrid>
+			<MudItem xs="4" md="4" Style="align-content: center"><MudText>SL thí sinh:</MudText></MudItem>
+			<MudItem xs="8" md="2"><MudText>@ExamSession?.TongSV</MudText></MudItem>
+
+			<MudItem xs="4" md="4" Style="align-content: center"><MudText>SL đề ghi nhận:</MudText></MudItem>
+			<MudItem xs="8" md="2"><MudText>@Exams.Count</MudText></MudItem>
+
+			<MudItem xs="6" md="4"><MudSwitch Label="Xếp nâng cao" T="bool" Color="Color.Secondary" @bind-Value="isSmartArrange"></MudSwitch></MudItem>
+			<MudItem xs="6" md="4"><MudSwitch Label="Xếp theo MSSV" T="bool" Color="Color.Info" Value="isSortExamCode" ValueChanged="OnValueChangeSortExamCode"></MudSwitch></MudItem>
+			<MudItem xs="6" md="4"><MudSwitch Label="Xếp theo Tên" T="bool" Color="Color.Info" Value="isSortName" ValueChanged="OnValueChangeSortName"></MudSwitch></MudItem>
+
+			<MudItem xs="4" Style="align-content: center"><MudText>Số lượng dọc / ngang: </MudText></MudItem>
+			<MudItem xs="4"><MudTextField Variant="Variant.Outlined" Label="Số lượng dọc" Required InputType="InputType.Number" @bind-Value="colNumber" ReadOnly="@(!isSmartArrange)"></MudTextField></MudItem>
+			<MudItem xs="4"><MudTextField Variant="Variant.Outlined" Label="Số lượng hàng" Required InputType="InputType.Number" @bind-Value="rowNumber" ReadOnly="@(!isSmartArrange)"></MudTextField></MudItem>
+
+		</MudGrid>
+	</DialogContent>
+	<DialogActions>
+		<MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+		<MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="async () => await OnClickSubmit()">Gán đề</MudButton>
+
+	</DialogActions>
+</MudDialog>
+<style>
+	.my-custom-class {
+	backdrop-filter: blur(10px);
+	}
+
+	.title-text {
+	font-weight: bold;
+	}
+</style>
+
+@code {
+	[CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+	[CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+	[Parameter] public CaThiDto? ExamSession { get; set; }
+
+	[Parameter] public List<DeThiDto> Exams { get; set; } = default!;
+
+	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
+
+	private int rowNumber, colNumber, totalNumberOfStudent;
+
+	private bool isSortExamCode = false, isSortName = true, isSmartArrange = false;
+
+	private string? name;
+	private Guid userId;
+	string roleName = string.Empty;
+
+	private const string MissingExamCode = "Ký hiệu đề không được để trống";
+	private const string ErrorShuffleFormat = "Không thể gán đề thi cho các thí sinh khi số lượng ngang x dọc bé hơn tổng thí sinh";
+	private const string NotChooseExam = "Vui lòng chọn ít nhất 1 đề để gán cho ca thi";
+	private const string ErrorShuffleNumber = "Số lượng dọc và ngang không thể nhỏ hơn 1";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await HandleInput();
+		await base.OnInitializedAsync();
+	}
+	private async Task HandleInput()
+	{
+
+	}
+
+	private async Task GetIdentityUserName()
+	{
+		var authState = AuthenticationState != null ? await AuthenticationState : null;
+		if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+		{
+			name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+			Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+			foreach (var claim in authState.User.Claims)
+			{
+				if (claim.Type == ClaimTypes.Role)
+				{
+					roleName += claim.Value + ",";
+				}
+			}
+		}
+	}
+
+	private void OnClickExit()
+	{
+		MudDialog?.Cancel();
+	}
+
+	private async Task OnClickSubmit()
+	{
+		if (!ValidateForm())
+		{
+			return;
+		}
+
+		if (!ValidateDeThi())
+		{
+			Snackbar.Add(MissingExamCode, Severity.Error);
+			return;
+		}
+
+		var examCodes = isSmartArrange ? ArrageExamSmartForStudentAsync() : ArrageExamForStudentAsync();
+
+		var result = await UpdateExamAPI(ExamSession!.MaCaThi, new CaThiUpdateDeThiRequest()
+		{
+			IsOrderMSSV = isSortExamCode,
+			DsDeThis = examCodes
+		});
+
+		// if (result)
+		// {
+		// 	MudDialog?.Close(DialogResult.Ok(selectedExam.MaDeThi));
+		// }
+	}
+
+	private List<Guid> ArrageExamSmartForStudentAsync()
+	{
+		var listExamCodes = GetAllExamCodeAsync();
+
+		int totalShuffleExam = listExamCodes.Count;
+
+		List<Guid> listExamCodeForStudents = [];
+		int studentCounter = 0;
+		for (int i = 0; i < rowNumber; i++)
+		{
+			for (int j = 0; j < colNumber; j++)
+			{
+				if (studentCounter >= totalNumberOfStudent)
+				{
+					break;
+				}
+
+				listExamCodeForStudents.Add(listExamCodes[(i + j) % totalShuffleExam]);
+				studentCounter++;
+			}
+		}
+
+		return listExamCodeForStudents;
+	}
+
+	private List<Guid> ArrageExamForStudentAsync()
+	{
+		List<Guid> listExamCodeForStudents = [];
+		int totalExam = Exams.Count;
+		for (int i = 0; i < totalNumberOfStudent; i++)
+		{
+			listExamCodeForStudents.Add(Exams[i % totalExam].Guid);
+		}
+
+		return listExamCodeForStudents;
+	}
+
+	private List<Guid> GetAllExamCodeAsync()
+	{
+		return Exams.Select(_ => _.Guid).ToList();
+	}
+
+
+	private bool ValidateDeThi()
+	{
+		foreach(var item in Exams)
+		{
+			if(string.IsNullOrWhiteSpace(item.KyHieuDe))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private bool ValidateForm()
+	{
+		if(!isSmartArrange)
+		{
+			return true;
+		}
+		if (colNumber <= 0 || rowNumber <= 0)
+		{
+			Snackbar.Add(ErrorShuffleNumber, Severity.Error);
+			return false;
+		}
+		if (rowNumber * colNumber < totalNumberOfStudent)
+		{
+			Snackbar.Add(ErrorShuffleFormat, Severity.Error);
+			return false;
+		}
+
+		return true;
+	}
+
+	private async Task HandleApprove()
+	{
+		var reason = await OpenAuditDialogAsync(KieuHanhDong.GanDeThi);
+		if (reason != null && !reason.Canceled && reason.Data != null)
+		{
+			string jsonText = CreateActionHistory(KieuHanhDong.XoaThiSinh, "", reason.Data.ToString()!);
+			
+		}
+	}
+
+	private async Task<DialogResult?> OpenAuditDialogAsync(KieuHanhDong kieuHanhDong)
+	{
+		var parameters = new DialogParameters<Audit_Dialog>
+			{
+				{ x => x.Action, kieuHanhDong },
+			};
+		var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+		var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
+		return await dialog.Result;
+	}
+
+	private string CreateActionHistory(KieuHanhDong kieuHanhDong, string chiTiet, string lyDo)
+	{
+		var updateHistory = new LichSuHoatDong()
+		{
+			HanhDong = kieuHanhDong,
+			ChiTiet = chiTiet,
+			UserId = userId,
+			NguoiThucHien = name ?? string.Empty,
+			LyDo = lyDo
+		};
+
+		var jsonText = ConvertActionHistory(updateHistory);
+		return jsonText;
+	}
+
+	private string ConvertActionHistory(LichSuHoatDong actionHistory)
+	{
+		List<LichSuHoatDong> result = [];
+		if (!string.IsNullOrWhiteSpace(ExamSession!.LichSuHoatDong))
+		{
+			var history = System.Text.Json.JsonSerializer.Deserialize<List<LichSuHoatDong>>(ExamSession.LichSuHoatDong);
+			if (history != null && history.Count > 0)
+			{
+				result = history;
+			}
+		}
+
+		result.Add(actionHistory);
+		return JsonSerializer.Serialize(result);
+	}
+
+	private void OnValueChangeSortName(bool value)
+	{
+		isSortName = value;
+		isSortExamCode = !isSortName;
+	}
+
+	private void OnValueChangeSortExamCode(bool value)
+	{
+		isSortExamCode = value;
+		isSortName = !isSortExamCode;
+	}
+
+	private async Task<bool> UpdateExamAPI(int examSessionId, CaThiUpdateDeThiRequest request)
+	{
+		var response = await SenderAPI.PatchAsync<bool>($"api/cathis/{examSessionId}/update-dethi", request);
+		return response.Success;
+	}
+}

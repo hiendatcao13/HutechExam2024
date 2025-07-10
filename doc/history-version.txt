@@ -246,6 +246,10 @@
 - Đã hoàn thành phân quyền
 - TODO: đã có dữ liệu test API từ Dlinh, tạo chức năng và mock test
 ------------------------------------------------
-09-07-2025 6AM
+09-07-2025 6PM
 - Đã hoàn thành làm lại mock test API từ đề thi
 - TODO: tiếp tục phân quyền cho duyệt đề cho trung tâm cntt và gán đề cho phòng khảo thí
+-----------------------------------------------
+10-07-2025 6AM
+- Đang hoàn thiện trang gán dề
+- TODO: viết 1 JSON đề thi dầy dủ, test toàn bộ API

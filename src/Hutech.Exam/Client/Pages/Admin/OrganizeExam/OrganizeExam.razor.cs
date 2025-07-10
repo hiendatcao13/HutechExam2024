@@ -83,7 +83,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             var authState = AuthenticationState != null ? await AuthenticationState : null;
             if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
-                name = await SessionStorage.GetItemAsStringAsync("Name");
+                name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
                 Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
                 foreach (var claim in authState.User.Claims)
                 {
@@ -406,7 +406,7 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             if (reason != null && !reason.Canceled && reason.Data != null)
             {
                 string jsonText = CreateActionHistory(KieuHanhDong.XoaThiSinh, "", reason.Data.ToString()!);
-                var result = await ExamSession_UpdateApprove(selectedExamSession!.MaCaThi, jsonText);
+                var result = await ExamSession_UpdateApproveAPI(selectedExamSession!.MaCaThi, jsonText);
                 if(result != null)
                 {
                     int index = examSessions!.FindIndex(ct => ct.MaCaThi == result.MaCaThi);
@@ -486,17 +486,6 @@ namespace Hutech.Exam.Client.Pages.Admin.OrganizeExam
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
-            return await dialog.Result;
-        }
-
-        private async Task<DialogResult?> OpenExamDialogAsync(CaThiDto examSession)
-        {
-            var parameters = new DialogParameters<ExamDialog>
-            {
-                { x => x.ExamSession, examSession },
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
-            var dialog = await Dialog.ShowAsync<ExamDialog>("GÁN ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 

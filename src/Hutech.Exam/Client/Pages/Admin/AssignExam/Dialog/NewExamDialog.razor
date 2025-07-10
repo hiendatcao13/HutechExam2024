@@ -94,13 +94,7 @@
 			return;
 		}
 
-		var result = await Exam_SaveBatch(selectExams.Select(x => new DeThiCreateRequest
-			{
-				Guid = x.Guid,
-				KyHieuDe = x.KyHieuDe!,
-				TenDeThi = x.TenDeThi,
-				MaMonHoc = Subject.MaMonHoc
-			}).ToList());
+		var result = await Exam_SaveBatch(selectExams);
 
 		if(result)
 		{
@@ -119,6 +113,7 @@
 		selectDeThi.DaChon = value;
 		if (value)
 		{
+			selectDeThi.MaMonHoc = Subject.MaMonHoc;
 			selectExams.Add(selectDeThi);
 		}
 		else
@@ -146,7 +141,7 @@
 		return (response.Success && response.Data != null) ? response.Data : [];
 	}
 
-	private async Task<bool> Exam_SaveBatch(List<DeThiCreateRequest> deThis)
+	private async Task<bool> Exam_SaveBatch(List<DeThiDto> deThis)
 	{
 		var response = await SenderAPI.PostAsync<DeThiDto>("api/dethis/batch", deThis);
 		return response.Success;

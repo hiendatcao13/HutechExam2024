@@ -145,7 +145,7 @@
         var authState = AuthenticationState != null ? await AuthenticationState : null;
         if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
         {
-            name = await SessionStorage.GetItemAsStringAsync("Name");
+            name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
             Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
         }
     }

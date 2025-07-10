@@ -55,16 +55,18 @@ namespace Hutech.Exam.Server.Controllers
         [HttpGet("mock-api")]
         public async Task<IActionResult> GetAllDeThi()
         {
-            //var httpClient = new HttpClient();
-            //httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
 
-            //var response = await httpClient.GetAsync(_approvedExamsUrl);
-            //if (!response.IsSuccessStatusCode)
-            //{
-            //    return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
-            //}
+            var response = await httpClient.GetAsync(_approvedExamsUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, "Không tìm thấy API từ bên ngoài");
+            }
 
-            //var jsonData = await response.Content.ReadAsStringAsync();
+            var jsonData = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine("Hellllllllllllo" +  jsonData);
 
             //// Nếu bạn biết kiểu dữ liệu trả về, bạn có thể deserialize vào model cụ thể
             //// Ví dụ:

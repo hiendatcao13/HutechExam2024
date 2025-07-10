@@ -1,21 +1,22 @@
-﻿using System.Data.SqlClient;
-using System.Drawing;
-using Hutech.Exam.Server.BUS;
+﻿using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
 using Hutech.Exam.Server.Hubs;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi;
+using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-using Syncfusion.PdfExport;
-using System.Drawing;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using Spire.Xls;
+using Syncfusion.PdfExport;
+using System.Data.SqlClient;
+using System.Drawing;
 
 namespace Hutech.Exam.Server.Controllers
 {
@@ -95,163 +96,16 @@ namespace Hutech.Exam.Server.Controllers
         [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> GenerateExcelFile([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
         {
-            // Cấp phép cho EPPlus
-            ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
-
-            using (var package = new ExcelPackage())
-            {
-                // Tạo worksheet
-                var ws = package.Workbook.Worksheets.Add("Data");
-
-                //// Chèn Logo HUTECH
-                //// Load ảnh bằng ImageSharp
-                //var imagePath = "./images/exam/ava.jpg";
-                //using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(imagePath);
-
-                //// Chuyển ảnh thành stream
-                //using var ms = new MemoryStream();
-                //image.SaveAsPng(ms); // có thể dùng SaveAsJpeg nếu là jpg
-                //ms.Position = 0;
-
-                //// Chèn vào Excel
-                //var picture = ws.Drawings.AddPicture("LogoHutech", ms);
-                //picture.SetPosition(0, 0, 0, 0); // Dòng 1, cột A
-
-                // Merge Tiêu đề Viện Hợp Tác
-                ws.Cells["C1:H1"].Merge = true;
-                ws.Cells["C1"].Value = "VIỆN HỢP TÁC VÀ PHÁT TRIỂN ĐÀO TẠO";
-                ws.Cells["C1"].Style.Font.Bold = true;
-                ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                ws.Cells["C2:H2"].Merge = true;
-                ws.Cells["C2"].Value = "(Đề thi có 9 trang)";
-                ws.Cells["C2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                // Tiêu đề ĐỀ THI
-                ws.Cells["D4:H4"].Merge = true;
-                ws.Cells["D4"].Value = "ĐỀ THI KẾT THÚC HỌC PHẦN";
-                ws.Cells["D4"].Style.Font.Bold = true;
-                ws.Cells["D4"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                ws.Cells["D5:H5"].Merge = true;
-                ws.Cells["D5"].Value = "HỌC KỲ II NĂM HỌC 2024 - 2025";
-                ws.Cells["D5"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                // Thông tin chi tiết
-                ws.Cells["A7"].Value = "Ngành/Lớp:";
-                ws.Cells["A8"].Value = "Tên học phần:";
-                ws.Cells["A9"].Value = "Mã học phần:";
-                ws.Cells["A10"].Value = "Ngày thi:";
-                ws.Cells["A11"].Value = "Thời gian làm bài:";
-                ws.Cells["A12"].Value = "Mã đề:";
-
-                ws.Cells["D7"].Value = "24TXTHB1 + 24TXTHC1";
-                ws.Cells["D8"].Value = "Lập trình Hướng đối tượng";
-                ws.Cells["D9"].Value = "ECMP167… Số TC: 3";
-                ws.Cells["D11"].Value = "60 phút";
-
-                // Checkbox sử dụng tài liệu
-                ws.Cells["A13"].Value = "SỬ DỤNG TÀI LIỆU:";
-                ws.Cells["C13"].Value = "CÓ □";
-                ws.Cells["E13"].Value = "KHÔNG ☑";
-
-                // Định dạng các ô
-                ws.Cells["A1:H15"].Style.Font.Name = "Times New Roman";
-                ws.Cells["A1:H15"].Style.Font.Size = 11;
-
-                // Thêm dữ liệu
-                ws.Cells[17, 1].Value = "STT";
-                ws.Cells[17, 2].Value = "MSSV";
-                ws.Cells[17, 3].Value = "HoVaTenLot";
-                ws.Cells[17, 4].Value = "TenSinhVien";
-                ws.Cells[17, 5].Value = "Diem";
-
-                if (chiTietCaThis != null)
-                {
-                    int rowIndex = 18; // Bắt đầu từ hàng thứ 18 (dòng dữ liệu)
-                    foreach (var item in chiTietCaThis)
-                    {
-                        SinhVienDto? sv = item.MaSinhVienNavigation;
-                        if (sv != null)
-                        {
-                            ws.Cells[rowIndex, 1].Value = rowIndex - 1; // Số thứ tự
-                            ws.Cells[rowIndex, 2].Value = sv.MaSoSinhVien;
-                            ws.Cells[rowIndex, 3].Value = sv.HoVaTenLot;
-                            ws.Cells[rowIndex, 4].Value = sv.TenSinhVien;
-                            ws.Cells[rowIndex, 5].Value = item.Diem;
-                            rowIndex++;
-                        }
-                    }
-                }
-
-                // Tự động điều chỉnh cột
-                ws.Cells.AutoFitColumns();
-
-                // Trả về dữ liệu Excel dưới dạng mảng byte
-                var result = await Task.FromResult(package.GetAsByteArray());
+                var result = await ConvertToByteFile(chiTietCaThis);
                 return Ok(APIResponse<byte[]>.SuccessResponse(data: result, message: "Xử lí file chi tiết ca thi thành công"));
-            }
         }
 
         [HttpPost("export-pdf")]
         [Authorize(Roles = "QuanTri")]
-        public Task<IActionResult> ExportToPdf([FromBody] List<ChiTietCaThiDto> data)
+        public async Task<IActionResult> ExportToPdf([FromBody] List<ChiTietCaThiDto> chiTietCaThis)
         {
-            using var document = new PdfDocument();
-            var page = document.Pages.Add();
-
-            // Đọc font hỗ trợ Unicode
-            var fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
-            using var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read);
-            var unicodeFont = new PdfTrueTypeFont(fontStream, 12);
-            var titleFont = new PdfTrueTypeFont(fontStream, 16, PdfFontStyle.Bold); // font to và đậm hơn
-
-            // Vẽ tiêu đề lên đầu trang
-            string title = "BẢNG ĐIỂM THÍ SINH";
-            // Tạo brush màu đen
-            PdfBrush blackBrush = new PdfSolidBrush(new PdfColor(0, 0, 0));
-            page.Graphics.DrawString(title, titleFont, blackBrush, new System.Drawing.PointF(180, 20));
-
-            // Tạo PdfGrid và định nghĩa số cột
-            PdfGrid pdfGrid = new PdfGrid();
-            pdfGrid.Columns.Add(4);
-
-            // Thêm header
-            pdfGrid.Headers.Add(1);
-            var headerRow = pdfGrid.Headers[0];
-            headerRow.Cells[0].Value = "MSSV";
-            headerRow.Cells[1].Value = "Họ lót";
-            headerRow.Cells[2].Value = "Tên";
-            headerRow.Cells[3].Value = "Điểm";
-
-            // Thêm từng hàng dữ liệu
-            foreach (var item in data)
-            {
-                var sv = item.MaSinhVienNavigation;
-                var row = pdfGrid.Rows.Add();
-                row.Cells[0].Value = sv?.MaSoSinhVien ?? "";
-                row.Cells[1].Value = sv?.HoVaTenLot ?? "";
-                row.Cells[2].Value = sv?.TenSinhVien ?? "";
-                row.Cells[3].Value = item.Diem.ToString();
-            }
-
-            // Áp dụng font cho bảng
-            pdfGrid.Style.Font = unicodeFont;
-            pdfGrid.Headers[0].Style.Font = unicodeFont;
-
-            // Padding cho nội dung bảng
-            pdfGrid.Style.CellPadding = new PdfPaddings(5, 4, 5, 4);
-            headerRow.Style.BackgroundBrush = new PdfSolidBrush(new PdfColor(173, 216, 230));
-
-            // Vẽ bảng cách tiêu đề khoảng 50px
-            pdfGrid.Draw(page, new System.Drawing.PointF(0, 60));
-
-            using var stream = new MemoryStream();
-            document.Save(stream);
-            stream.Position = 0;
-            var bytes = stream.ToArray();
-
-            return Task.FromResult<IActionResult>(Ok(APIResponse<byte[]>.SuccessResponse(data: bytes, message: "Xử lí file PDF chi tiết ca thi thành công")));
+            var result = await ConvertExcelBytesToPdf(chiTietCaThis);
+            return Ok(APIResponse<byte[]>.SuccessResponse(data: result, message: "Xử lí file chi tiết ca thi thành công"));
         }
 
         #endregion
@@ -332,6 +186,195 @@ namespace Hutech.Exam.Server.Controllers
         {
             // 0: bắt đầu thi, 1: kết thúc thi
             await _adminHub.Clients.Group("admin").SendAsync("ChangeCTCaThi_SVThi", ma_chi_tiet_ca_thi, isBDThi, thoi_gian);
+        }
+
+        private async Task<byte[]> ConvertToByteFile(List<ChiTietCaThiDto> chiTietCaThis)
+        {
+            // Cấp phép cho EPPlus
+            ExcelPackage.License.SetNonCommercialPersonal("Pino Dat");
+
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("DeThi");
+                //Đường dẫn đến ảnh logo(có thể là đường dẫn tương đối trong wwwroot)
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images\\Logo.png");
+
+                // Kiểm tra ảnh tồn tại
+                if (System.IO.File.Exists(imagePath))
+                {
+                    using var image = Image.Load<Rgba32>(imagePath); // ImageSharp
+                    using var ms = new MemoryStream();
+                    image.SaveAsPng(ms);
+                    ms.Position = 0;
+
+                    var picture = ws.Drawings.AddPicture("LogoHutech", ms);
+                    picture.SetPosition(1, 1, 2, 0); // Dòng 1, cột B
+                    picture.SetSize(110); // Kích thước hợp lý
+                }
+
+
+                // Font toàn trang
+                ws.Cells.Style.Font.Name = "Times New Roman";
+                ws.Cells.Style.Font.Size = 15;
+
+                // Chèn tiêu đề trái (Logo / Viện)
+                ws.Cells["C5:D5"].Merge = true;
+                ws.Cells["C5"].Value = "VIỆN HỢP TÁC";
+                ws.Cells["C5"].Style.Font.Bold = true;
+                ws.Cells["C5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                ws.Cells["B6:E6"].Merge = true;
+                ws.Cells["B6"].Value = "VÀ PHÁT TRIỂN ĐÀO TẠO";
+                ws.Cells["B6"].Style.Font.Bold = true;
+                ws.Cells["B6"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                // Chèn tiêu đề phải
+                ws.Cells["F2:K2"].Merge = true;
+                ws.Cells["F2"].Value = "ĐỀ THI KẾT THÚC HỌC PHẦN";
+                ws.Cells["F2"].Style.Font.Bold = true;
+                ws.Cells["F2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                ws.Cells["F3:K3"].Merge = true;
+                ws.Cells["F3"].Value = "NĂM HỌC 2024 - 2025";
+                ws.Cells["F3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                // Thông tin học phần
+                ws.Cells["F4:G4"].Merge = true;
+                ws.Cells["F4"].Value = " Ngành";
+                ws.Cells["F4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["F5:G5"].Merge = true;
+                ws.Cells["F5"].Value = " Tên học phần";
+                ws.Cells["F5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["F6:G6"].Merge = true;
+                ws.Cells["F6"].Value = " Mã học phần";
+                ws.Cells["F6"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["F7:G7"].Merge = true;
+                ws.Cells["F7"].Value = " Ngày thi";
+                ws.Cells["F7"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["F8:G8"].Merge = true;
+                ws.Cells["F8"].Value = " Thời gian làm bài";
+                ws.Cells["F8"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["H4:K4"].Merge = true;
+                ws.Cells["H4"].Value = ": Công nghệ phần mềm";
+                ws.Cells["H4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["H5:K5"].Merge = true;
+                ws.Cells["H5"].Value = ": Lập trình hướng đối tượng";
+                ws.Cells["H5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["H6:K6"].Merge = true;
+                ws.Cells["H6"].Value = ": CMP12";
+                ws.Cells["H6"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["H7:K7"].Merge = true;
+                ws.Cells["H7"].Value = ": 07/07/2025";
+                ws.Cells["H7"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                ws.Cells["H8:K8"].Merge = true;
+                ws.Cells["H8"].Value = ": 90 phút";
+                ws.Cells["H8"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+
+                // Dòng tiêu đề bảng dữ liệu
+                string[] headers = { "STT", "MaSV", "HoLotSV", "TenSV", "Ngày sinh", "Mã lớp", "Điện thoại", "Email", "Mã đề", "Điểm" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    ws.Cells[11, i + 2].Value = headers[i];
+                    ws.Cells[11, i + 2].Style.Font.Bold = true;
+                    ws.Cells[11, i + 2].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    ws.Cells[11, i + 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                }
+
+                // Dữ liệu sinh viên
+                int rowIndex = 12;
+                int stt = 1;
+                foreach (var item in chiTietCaThis)
+                {
+                    var sv = item.MaSinhVienNavigation;
+                    if (sv != null)
+                    {
+                        ws.Cells[rowIndex, 2].Value = stt++; // STT
+                        ws.Cells[rowIndex, 3].Value = sv.MaSoSinhVien;
+                        ws.Cells[rowIndex, 4].Value = sv.HoVaTenLot;
+                        ws.Cells[rowIndex, 5].Value = sv.TenSinhVien;
+                        ws.Cells[rowIndex, 6].Value = sv.NgaySinh?.ToString("dd/MM/yyyy");
+                        ws.Cells[rowIndex, 7].Value = sv.MaLop;
+                        ws.Cells[rowIndex, 8].Value = sv.DienThoai;
+                        ws.Cells[rowIndex, 9].Value = sv.Email;
+                        ws.Cells[rowIndex, 10].Value = item.KyHieuDe;
+                        ws.Cells[rowIndex, 11].Value = item.Diem;
+                        rowIndex++;
+                    }
+                }
+
+                // Căn chỉnh và kẻ bảng
+                ws.Cells[12, 2, rowIndex - 1, 11].AutoFitColumns();
+                ws.Cells[2, 2, 8, 5].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                ws.Cells[2, 6, 8, 11].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+                ws.Cells[12, 2, rowIndex - 1, 11].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                var range = ws.Cells[12, 2, rowIndex - 1, 11];
+
+                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                // Tự động điều chỉnh cột
+                ws.Cells.AutoFitColumns();
+
+
+                // Trả về dữ liệu Excel dưới dạng mảng byte
+                return await Task.FromResult(package.GetAsByteArray());
+            }
+        }
+
+        public async Task<byte[]> ConvertExcelBytesToPdf(List<ChiTietCaThiDto> chiTietCaThis)
+        {
+            var excelBytes = await ConvertToByteFile(chiTietCaThis);
+            // Bước 1: Lưu byte[] thành file Excel tạm
+            var tempExcelPath = Path.Combine(Path.GetTempPath(), $"temp_{Guid.NewGuid()}.xlsx");
+            System.IO.File.WriteAllBytes(tempExcelPath, excelBytes);
+
+            // Bước 2: Load bằng Spire.XLS
+            Workbook workbook = new Workbook();
+            workbook.LoadFromFile(tempExcelPath);
+            Worksheet sheet = workbook.Worksheets[0];
+
+            // FREESTYLE PDF STRUCTURE — CHÈN VÀO ĐÂY
+            sheet.PageSetup.FitToPagesWide = 0;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.Zoom = 100;
+
+            sheet.PageSetup.PaperSize = PaperSizeType.PaperA3;
+
+            sheet.PageSetup.TopMargin = 0;
+            sheet.PageSetup.BottomMargin = 0;
+            sheet.PageSetup.LeftMargin = 0;
+            sheet.PageSetup.RightMargin = 0;
+
+            sheet.PageSetup.CenterHorizontally = false;
+            sheet.PageSetup.CenterVertically = false;
+            sheet.PageSetup.Orientation = PageOrientationType.Landscape;
+
+
+            // Bước 3: Lưu thành file PDF tạm
+            var tempPdfPath = Path.ChangeExtension(tempExcelPath, ".pdf");
+            workbook.SaveToFile(tempPdfPath, FileFormat.PDF);
+
+            // Bước 4: Đọc lại file PDF trả về byte[]
+            var pdfBytes = System.IO.File.ReadAllBytes(tempPdfPath);
+
+            // Dọn dẹp file tạm
+            System.IO.File.Delete(tempExcelPath);
+            System.IO.File.Delete(tempPdfPath);
+
+            return pdfBytes;
         }
 
         #endregion

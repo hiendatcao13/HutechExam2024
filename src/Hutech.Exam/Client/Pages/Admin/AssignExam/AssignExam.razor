@@ -45,6 +45,7 @@
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin đề thi</MudText>
 						<MudSpacer />
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Calculate" OnClick="async () => await OnClickAssignExamAsync()">Gán đề</MudButton>
 						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchExamAsync()">Sync</MudButton>
 						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddExamAsync()">Thêm</MudButton>
 						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickEditExamAsync()">Sửa</MudButton>
@@ -71,31 +72,6 @@
 					</PagerContent>
 				</MudTable>
 			}
-		</MudItem>
-
-		<MudItem xs="12">
-			<MudTable Elevation="3" T="DeThiDto" Items="@newExams" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true" Style="max-width: 800px; overflow-y: auto">
-				<ToolBarContent>
-					<MudText Typo="Typo.h6">Thông tin đề thi mới</MudText>
-					<MudSpacer />
-					<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Sync" OnClick="async () => await FetchNewExamAsync()">Lấy đề mới</MudButton>
-					<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await OnClickAddNewExamAsync()">Thêm</MudButton>
-				</ToolBarContent>
-				<HeaderContent>
-					<MudTh>GUID</MudTh>
-					<MudTh>Tên đề</MudTh>
-					<MudTh>Ký hiệu đề</MudTh>
-					<MudTh>Ngày tạo</MudTh>
-					<MudTh>Chọn</MudTh>
-				</HeaderContent>
-				<RowTemplate Context="item">
-					<MudTd>@item.Guid</MudTd>
-					<MudTd>@item.TenDeThi</MudTd>
-					<MudTd><MudTextField Variant="Variant.Outlined" Style="height: 35px" @bind-Value="item.KyHieuDe" InputType="InputType.Text"></MudTextField></MudTd>
-					<MudTd>@item.NgayTao</MudTd>
-					<MudTd><MudSwitch T="bool" Value="item.DaChon" Color="Color.Info" ValueChanged="(value) => OnValueChangeSelect(value, item)"></MudSwitch></MudTd>
-				</RowTemplate>
-			</MudTable>
 		</MudItem>
 
 	</MudGrid>

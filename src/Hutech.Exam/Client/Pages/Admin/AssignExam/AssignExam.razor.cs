@@ -7,13 +7,13 @@ using Microsoft.JSInterop;
 using System.Net.Http.Headers;
 using MudBlazor;
 using Hutech.Exam.Client.Pages.Admin.OrganizeExam.Dialog;
-using Hutech.Exam.Client.Pages.Admin.ApproveExam.Dialog;
 using Hutech.Exam.Client.Components.Dialogs;
 using Hutech.Exam.Shared.DTO.Custom;
+using Hutech.Exam.Client.Pages.Admin.AssignExam.Dialog;
 
-namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
+namespace Hutech.Exam.Client.Pages.Admin.AssignExam
 {
-    public partial class ApproveExam
+    public partial class AssignExam
     {
         #region Private Fields
 
@@ -66,8 +66,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
                     return;
                 }
 
-                examSession = await ExamSession_SelectOneAPI(maCaThi);
                 Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                examSession = await ExamSession_SelectOneAPI(maCaThi);
             }
             else
             {
@@ -125,7 +125,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
 
         private async Task OnClickEditExamAsync()
         {
-            var result = await OpenExamDialogAsync();
+            var result = await OpenEditExamDialogAsync();
             if (result != null && !result.Canceled && subjects != null && result.Data != null)
             {
                 var newdeThi = (DeThiDto)result.Data;
@@ -159,16 +159,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
             await Dialog.ShowAsync<Delete_Dialog>("XÓA ĐỀ THI", parameters, options);
         }
 
-        private async Task OnClickAddNewExamAsync()
-        {
-            var result = await Exam_SaveBatchAPI(selectNewExams);
-
-            if(result)
-            {
-                exams!.AddRange(selectNewExams);
-            }    
-        }
-
         private void OnClickChooseExam(bool value, DeThiDto deThi)
         {
             deThi.DaChon = value;
@@ -178,6 +168,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
                 return;
             }
             selectedExams.Remove(deThi);
+        }
+
+        private async Task OnClickAssignExamAsync()
+        {
+            if(selectedExams.Count == 0)
+            {
+                Snackbar.Add(NO_SELECT_OBJECT_DETHI, Severity.Error);
+                return;
+            }
+
+            var result = await OpenAssignExamDialogAsync();
         }
 
         #endregion
@@ -220,7 +221,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
             return await dialog.Result;
         }
 
-        private async Task<DialogResult?> OpenExamDialogAsync()
+        private async Task<DialogResult?> OpenEditExamDialogAsync()
         {
             var parameters = new DialogParameters<EditExamDialog>
             {
@@ -228,6 +229,18 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<EditExamDialog>("SỬA ĐỀ THI", parameters, options);
+            return await dialog.Result;
+        }
+
+        private async Task<DialogResult?> OpenAssignExamDialogAsync()
+        {
+            var parameters = new DialogParameters<AssignExamDialog>
+            {
+                { x => x.Exams, selectedExams },
+                { x => x.ExamSession, examSession }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+            var dialog = await Dialog.ShowAsync<AssignExamDialog>("GÁN ĐỀ THI", parameters, options);
             return await dialog.Result;
         }
 

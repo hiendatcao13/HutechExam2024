@@ -4,9 +4,9 @@ using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Request.DeThi;
 
-namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
+namespace Hutech.Exam.Client.Pages.Admin.AssignExam
 {
-    public partial class ApproveExam
+    public partial class AssignExam
     {
         private async Task<(List<MonHocDto>?, int, int)> Subjects_GetAll_PagedAPI(int pageNumber, int pageSize)
         {
@@ -22,7 +22,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ApproveExam
 
         private async Task<CaThiDto> ExamSession_SelectOneAPI(int ma_ca_thi)
         {
-            var response = await SenderAPI.GetAsync<CaThiDto>($"api/cathi/{ma_ca_thi}");
+            var response = await SenderAPI.GetAsync<CaThiDto>($"api/cathis/{ma_ca_thi}");
             return (response.Success && response.Data != null) ? (response.Data) : new();
         }
 
