@@ -1,9 +1,15 @@
 ﻿@using Hutech.Exam.Client.API
+@using Hutech.Exam.Client.Components.Dialogs
 @using Hutech.Exam.Shared.DTO
 @using System.Text
 @using Hutech.Exam.Shared.DTO.Request
+@using Hutech.Exam.Shared.DTO.Request.Audit
 @using Hutech.Exam.Shared.DTO.Request.ChiTietCaThi
+@using System.Security.Claims
+@using Hutech.Exam.Shared.Enums
+@using System.Text.Json
 @inject ISnackbar Snackbar
+@inject IDialogService Dialog
 
 <MudDialog Style="max-width: 500px">
 	<DialogContent>
@@ -71,6 +77,10 @@
 @code {
 	[CascadingParameter] public IMudDialogInstance? MudDialog { get; set; }
 
+	[CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+	[Parameter] public CaThiDto ExamSession { get; set; } = default!;
+
 	[Parameter][EditorRequired] public List<long>? ShuffleExams { get; set; }
 
 	[Parameter][EditorRequired] public List<string>? StudentCodes { get; set; }
@@ -97,17 +107,40 @@
 	private const string INVALID_MADETHI = "Vui lòng chọn mã đề";
 	private const string INVALID_MSSV = "Vui lòng nhập mã sinh viên";
 
+	private string? name;
+	private Guid userId;
+	string roleName = string.Empty;
+
+
 
 	protected override async Task OnInitializedAsync()
 	{
 		tempExamSessionDetail.MaSinhVienNavigation = new SinhVienDto(); // thêm thuộc tính sinh viên vào
-
+		await GetIdentityUserName();
 		await base.OnInitializedAsync();
 	}
+
 	private void HandleKeyDown(KeyboardEventArgs args)
 	{
 		isExist = false;
 		tempExamSessionDetail.MaSinhVienNavigation = new SinhVienDto();
+	}
+
+	private async Task GetIdentityUserName()
+	{
+		var authState = AuthenticationState != null ? await AuthenticationState : null;
+		if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+		{
+			name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+			Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+			foreach (var claim in authState.User.Claims)
+			{
+				if (claim.Type == ClaimTypes.Role)
+				{
+					roleName += claim.Value + ",";
+				}
+			}
+		}
 	}
 
 	private void OnClickExit()
@@ -117,26 +150,34 @@
 
 	private async Task OnClickSaveAsync()
 	{
-		SinhVienDto student = tempExamSessionDetail.MaSinhVienNavigation ?? new();
+		var audit = await OpenAuditDialogAsync(KieuHanhDong.ThemThiSinhKhanCap);
 
-		// handle data
-		tempExamSessionDetail.MaCaThi = examSessionId;
-		tempExamSessionDetail.MaDeThi = shuffleExamId;
-
-		if (ShuffleExams != null && examSessionId != null && tempExamSessionDetail.MaCaThi != null && tempExamSessionDetail.MaDeThi != null && tempExamSessionDetail.MaSinhVien != null)
+		if(audit != null && !audit.Canceled && audit.Data != null)
 		{
-			var result = await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
+			SinhVienDto student = tempExamSessionDetail.MaSinhVienNavigation ?? new();
+
+			await UpdateLichSuHoatDongAPI(ExamSession.MaCaThi, CreateActionHistory(KieuHanhDong.ThemThiSinhKhanCap, $"MSSV {student.MaSoSinhVien} thí sinh {student.HoVaTenLot} {student.TenSinhVien}", audit.Data.ToString()!));
+
+			// handle data
+			tempExamSessionDetail.MaCaThi = examSessionId;
+			tempExamSessionDetail.MaDeThi = shuffleExamId;
+
+			if (ShuffleExams != null && examSessionId != null && tempExamSessionDetail.MaCaThi != null && tempExamSessionDetail.MaDeThi != null && tempExamSessionDetail.MaSinhVien != null)
+			{
+				var result = await InsertChiTietCaThiAPI(new ChiTietCaThiCreateRequest
 				{
 					MaCaThi = (int)examSessionId,
 					MaDeThi = (long)tempExamSessionDetail.MaDeThi,
 					MaSinhVien = (long)tempExamSessionDetail.MaSinhVien
 				});
 
-			if(result != null)
-			{
-				MudDialog?.Close(DialogResult.Ok(result));
+				if (result != null)
+				{
+					MudDialog?.Close(DialogResult.Ok(result));
+				}
 			}
 		}
+		
 	}
 	private async Task OnClickCheckAsync()
 	{
@@ -172,15 +213,65 @@
 
 
 	}
+
+	private async Task<DialogResult?> OpenAuditDialogAsync(KieuHanhDong kieuHanhDong)
+	{
+		var parameters = new DialogParameters<Audit_Dialog>
+			{
+				{ x => x.Action, kieuHanhDong },
+			};
+		var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+		var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
+		return await dialog.Result;
+	}
+
+	private string CreateActionHistory(KieuHanhDong kieuHanhDong, string chiTiet, string lyDo)
+	{
+		var updateHistory = new LichSuHoatDong()
+		{
+			HanhDong = kieuHanhDong,
+			ChiTiet = chiTiet,
+			UserId = userId,
+			NguoiThucHien = name ?? string.Empty,
+			LyDo = lyDo
+		};
+
+		var jsonText = ConvertActionHistory(updateHistory);
+		return jsonText;
+	}
+
+	private string ConvertActionHistory(LichSuHoatDong actionHistory)
+	{
+		List<LichSuHoatDong> result = [];
+		if (!string.IsNullOrWhiteSpace(ExamSession!.LichSuHoatDong))
+		{
+			var history = System.Text.Json.JsonSerializer.Deserialize<List<LichSuHoatDong>>(ExamSession.LichSuHoatDong);
+			if (history != null && history.Count > 0)
+			{
+				result = history;
+			}
+		}
+
+		result.Add(actionHistory);
+		return JsonSerializer.Serialize(result);
+	}
+
 	private async Task<ChiTietCaThiDto?> InsertChiTietCaThiAPI(ChiTietCaThiCreateRequest chiTietCaThi)
 	{
 		var response = await SenderAPI.PostAsync<ChiTietCaThiDto>($"api/chitietcathis", chiTietCaThi);
 		return (response.Success) ? response.Data : null;
 	}
+
 	private async Task<SinhVienDto?> CheckStudentAPI(string ma_so_sinh_vien)
 	{
 		var response = await SenderAPI.GetAsync<SinhVienDto>($"api/sinhviens/filter-by-mssv?maSoSinhVien={ma_so_sinh_vien}");
 		return (response.Success) ? response.Data : null;
+	}
+
+	private async Task<bool> UpdateLichSuHoatDongAPI(int maCaThi, string jsonText)
+	{
+		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{maCaThi}/update-audit", jsonText);
+		return (response.Success);
 	}
 }
 

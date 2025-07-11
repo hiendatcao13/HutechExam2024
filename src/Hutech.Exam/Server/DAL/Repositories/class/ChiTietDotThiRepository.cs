@@ -154,7 +154,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             using DatabaseReader sql = new("ChiTietDotThi_Insert");
 
-            sql.SqlParams("@ten_chi_tiet_dot_thi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
+            sql.SqlParams("@TenChiTietDotThi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
             sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
             sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
             sql.SqlParams("@LanThi", SqlDbType.NVarChar, lan_thi);
@@ -166,7 +166,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             using DatabaseReader sql = new("ChiTietDotThi_Update");
 
             sql.SqlParams("@MaChiTietDotThi", SqlDbType.Int, ma_chi_tiet_dot_thi);
-            sql.SqlParams("@ten_chi_tiet_dot_thi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
+            sql.SqlParams("@TenChiTietDotThi", SqlDbType.NVarChar, ten_chi_tiet_dot_thi);
             sql.SqlParams("@MaLopAo", SqlDbType.Int, ma_lop_ao);
             sql.SqlParams("@MaDotThi", SqlDbType.Int, ma_dot_thi);
             sql.SqlParams("@LanThi", SqlDbType.NVarChar, lan_thi);

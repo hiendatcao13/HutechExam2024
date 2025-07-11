@@ -15,6 +15,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
                 examSessionDetails.Add(newChiTietCaThi);
+
+                // cập nhật lại ca thi
+                examSession = await ExamSession_SelectOneAPI(examSession!.MaCaThi);
+                await SessionStorage.SetItemAsync("CaThi", examSession);
             }
         }
         private async Task<DialogResult?> OpenAddStudentDialogAsync()
@@ -27,6 +31,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 { x => x.StudentCodes, GetAllStudentCodes() },
                 { x => x.ShuffleExams, GetAllShuffleExamIds() },
                 { x => x.examSessionId, examSession?.MaCaThi},
+                { x => x.ExamSession, examSession},
                 { x => x.classRoom, await GetClassRoom()}
             };
 
@@ -64,7 +69,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task<string?> GetClassRoom()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataMC");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataME");
             return storedData.LopAo?.TenLopAo;
         }
     }

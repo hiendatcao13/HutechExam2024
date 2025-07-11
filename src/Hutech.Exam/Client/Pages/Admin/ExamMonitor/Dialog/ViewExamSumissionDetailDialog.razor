@@ -12,7 +12,7 @@
 <PageTitle>Exam Page</PageTitle>
 
 
-@*<MudPaper Elevation="4" Class="pa-4">
+<MudPaper Elevation="4" Class="pa-4">
     <!-- Header Section -->
     <MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-4">
         <MudItem xs="12" md="4">
@@ -37,18 +37,18 @@
                     foreach (var item in CustomDeThis)
                     {
                         //Hiển thị nội dung câu hỏi nhóm cha cấp 1 - chương phần
-                        if (current_parent_group_id != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
+                        if (current_parentGroupQuestion != item.MaNhomCha && !string.IsNullOrEmpty(item.NoiDungCauHoiNhomCha))
                         {
-                            current_parent_group_id = item.MaNhomCha;
+                            current_parentGroupQuestion = item.MaNhomCha;
                             <MudText Typo="Typo.h6" GutterBottom="true" Style="text-transform: uppercase" Class="nhomCauHoiCha">
                                 <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoiNhomCha.ToUpper()" IsParentContent="true" />
                             </MudText>
                         }
 
                         //Hiển thị nội dung câu hỏi nhóm con cấp 2
-                        if (current_group_id != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
+                        if (current_groupQuestion != item.MaNhom && !string.IsNullOrEmpty(item.NoiDungCauHoiNhom))
                         {
-                            current_group_id = item.MaNhom;
+                            current_groupQuestion = item.MaNhom;
 
                             // xử lí câu hỏi âm thanh
                             if (item.KieuNoiDungCauHoiNhom == 2 && item.NoiDungCauHoiNhom.Contains("<audio"))
@@ -76,27 +76,27 @@
                         if (!string.IsNullOrEmpty(item.NoiDungCauHoi))
                         {
                             <MudText id=@($"question-{item.MaCauHoi}") Typo="Typo.body1" GutterBottom="true">
-                                <b>@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoi" /></b>
+                                <b>(@item.MaCauHoi) Câu hỏi @(item.ThuTuCauHoi): <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@item.NoiDungCauHoi" /></b>
                             </MudText>
                         }
 
                         // Hiển thị nội dung câu trả lời
                         @if (item.CauTraLois != null)
                         {
-                            <MudRadioGroup T="int?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi].Item2" ReadOnly>
+                            <MudRadioGroup T="Guid?" Class="mt-2" Style="padding-bottom: 10px" Value="DSKhoanhDapAn[item.MaCauHoi].Item2" ReadOnly>
                                 @foreach (var noidung in item.CauTraLois)
                                 {
                                     DsDapAn.TryGetValue(item.MaCauHoi, out var cau_tra_loi);
                                     if(cau_tra_loi == noidung.Key)
                                     {
                                         <MudItem xs="12" sm="6">
-                                            <MudRadio T="int?" Value="noidung.Key" Style="color: green; font-weight: 900" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value" IsBold="true"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
+                                            <MudRadio T="Guid?" Value="noidung.Key" Style="color: green; font-weight: 900" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value" IsBold="true"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
                                         </MudItem>
                                     }
                                     else
                                     {
                                         <MudItem xs="12" sm="6">
-                                            <MudRadio T="int?" Value="noidung.Key" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
+                                            <MudRadio T="Guid?" Value="noidung.Key" ReadOnly>(@noidung.Key) <Hutech.Exam.Client.Pages.Exam.ContentFragment Content="@noidung.Value"></Hutech.Exam.Client.Pages.Exam.ContentFragment></MudRadio>
                                         </MudItem>
                                     }
                                 }
@@ -125,7 +125,7 @@
                         {
                             <MudItem xs="2" md="3" Style="padding-left: 15px">
                                 <MudButton Size="Size.Small" Variant="Variant.Filled" Color="(item.Value.Item3 == true) ? Color.Success : (item.Value.Item3 == false) ? Color.Error : Color.Default" OnClick="async () => await ScrollToQuestion(item.Key)">
-                                    @item.Key
+                                    @item.Value.Item1
                                 </MudButton>
                             </MudItem>
                         }
@@ -155,8 +155,8 @@
 
 @code {
 
-    private async Task ScrollToQuestion(int questionIndex)
+    private async Task ScrollToQuestion(Guid questionIndex)
     {
         await Js.InvokeVoidAsync("scrollToElement", $"question-{questionIndex}");
     }
-}*@
+}

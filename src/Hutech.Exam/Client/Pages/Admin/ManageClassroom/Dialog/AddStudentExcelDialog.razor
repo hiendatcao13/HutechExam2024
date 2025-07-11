@@ -129,10 +129,10 @@
                     HoVaTenLot = NormalizeString(worksheet.Cells[row, 2].Text),
                     TenSinhVien = NormalizeString(worksheet.Cells[row, 3].Text),
                     GioiTinh = (!string.IsNullOrEmpty(gioiTinhText) && (gioiTinhText == "1" || gioiTinhText == "0")) ? short.Parse(gioiTinhText) : null,
-                    NgaySinh = DateTime.TryParse(worksheet.Cells[row, 4].Text?.Trim(), out DateTime ngaySinh) ? ngaySinh : null,
-                    DiaChi = NormalizeString(worksheet.Cells[row, 5].Text),
-                    Email = NormalizeString(worksheet.Cells[row, 6].Text),
-                    DienThoai = NormalizeString(worksheet.Cells[row, 7].Text),
+                    NgaySinh = DateTime.TryParse(worksheet.Cells[row, 5].Text?.Trim(), out DateTime ngaySinh) ? ngaySinh : null,
+                    DiaChi = NormalizeString(worksheet.Cells[row, 6].Text),
+                    Email = NormalizeString(worksheet.Cells[row, 7].Text),
+                    DienThoai = NormalizeString(worksheet.Cells[row, 8].Text),
                     MaLop = ClassRoom.MaLop,
                 };
 

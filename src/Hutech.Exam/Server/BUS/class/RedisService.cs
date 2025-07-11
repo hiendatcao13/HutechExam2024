@@ -43,7 +43,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError("[Redis] Error setting connectionId: {message}", ex.Message);
+                _logger.LogError("[Redis] Có lỗi khi set khóa ConnectionId: {message}", ex.Message);
             }
         }
 
@@ -58,51 +58,11 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError("[Redis] Error retrieving connectionId: {message}", ex.Message);
+                _logger.LogError("[Redis] Có lỗi khi cố gắng lấy ConnectionId: {message}", ex.Message);
                 return string.Empty;
             }
         }
 
-        public async Task SetFailSubmitAsync(int ma_chi_tiet_ca_thi, int so_lan_fail)
-        {
-            try
-            {
-                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
-                await _cacheService.SetCacheResponseAsync(cacheKey, so_lan_fail, TimeSpan.FromMinutes(150));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("[Redis] Error setting failsubmit: {message}", ex.Message);
-            }
-        }
-
-        public async Task<int> GetFailSubmitAsync(int ma_chi_tiet_ca_thi)
-        {
-            try
-            {
-                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
-                var cacheData = await _cacheService.GetCacheResponseAsync<int>(cacheKey);
-
-                return cacheData;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("[Redis] Error retrieving failsubmit: {message}", ex.Message);
-                return 0;
-            }
-        }
-        public async Task RemoveSubmitAsync(int ma_chi_tiet_ca_thi)
-        {
-            try
-            {
-                var cacheKey = $"failsubmit:{ma_chi_tiet_ca_thi}";
-                await _cacheService.RemoveCacheResponseAsync(cacheKey);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("[Redis] Error removing failsubmit: {message}", ex.Message);
-            }
-        }
 
         public async Task RemoveCacheAsync(string key)
         {
@@ -130,17 +90,6 @@ namespace Hutech.Exam.Server.BUS
             await _cacheService.SetCacheResponseAsync(cacheKey, data!, TimeSpan.FromMinutes(minutes));
         }    
 
-        public async Task SetHashAsync(string key, string field, object value, TimeSpan? expiration = null)
-        {
-            try
-            {
-                await _cacheService.SetHashAsync(key, field, value, expiration);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("[Redis] Error setting hash: {message}", ex.Message);
-            }
-        }
 
         public async Task<Dictionary<Guid, TData>?> GetHashChiTietBaiThiAsync<TData>(string key)
         {
@@ -162,7 +111,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                     else
                     {
-                        _logger.LogWarning("[Redis] Invalid GUID key: {key}", kvp.Key);
+                        _logger.LogWarning("[Redis] Có lỗi khi cố convert tiết bài thi thành GUID: {key}", kvp.Key);
                     }
                 }
 
@@ -170,7 +119,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError("[Redis] Error getting hash: {message}", ex.Message);
+                _logger.LogError("[Redis] Có lỗi khi lấy dữ liệu chi tiết bài thi: {message}", ex.Message);
                 return default;
             }
         }
@@ -184,7 +133,7 @@ namespace Hutech.Exam.Server.BUS
 
                 if (cacheData == null || cacheData.Count == 0)
                 {
-                    _logger.LogWarning("[Redis] No data found for key: {Key}", cacheKey);
+                    _logger.LogWarning("[Redis] Không tìm thấy bài thi: {Key}", cacheKey);
                     return [];
                 }
 
@@ -198,7 +147,7 @@ namespace Hutech.Exam.Server.BUS
                     }
                     else
                     {
-                        _logger.LogWarning("[Redis] Invalid Guid key in ChiTietBaiThi: {Key}", item.Key);
+                        _logger.LogWarning("[Redis] Khóa của chi tiết bài thi không phải GUID. Vui lòng kiểm tra : {Key}", item.Key);
                     }
                 }
 
@@ -206,7 +155,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving ChiTietBaiThi.");
+                _logger.LogError("[Redis] Có lỗi khi cố gắng lấy dữ liệu từ chi tiết bài thi: {message}", ex.Message);
                 return [];
             }
         }
@@ -220,7 +169,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while setting ChiTietBaiThi.");
+                _logger.LogError(ex, "[Redis] Có lỗi khi lưu dữ liệu chi tiết bài thi.");
             }
         }
 
@@ -233,7 +182,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while removing ChiTietBaiThi.");
+                _logger.LogError("[Redis] Có lỗi khi xóa dữ liệu chi tiết bài thi: {message}", ex.Message);
             }
         }
 
@@ -247,7 +196,7 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while setting DapAn.");
+                _logger.LogError("[Redis] Có lỗi khi lưu dữ liệu đáp án. {message}", ex.Message);
             }
         }
 
@@ -257,7 +206,6 @@ namespace Hutech.Exam.Server.BUS
             {
                 var cacheKey = $"DapAn:{maDeThi}";
 
-                // Lấy dữ liệu từ Redis
                 var cachedData = await _cacheService.GetCacheResponseAsync<Dictionary<string, string>>(cacheKey);
 
                 if (cachedData != null && cachedData.Count > 0)
@@ -275,12 +223,34 @@ namespace Hutech.Exam.Server.BUS
 
                     return result;
                 }
+                else
+                {
+                    // Lấy dữ liệu từ đề thi lại
+                    await GetDeThiAsync(maDeThi);
+
+                    var cachedDataAgain = await _cacheService.GetCacheResponseAsync<Dictionary<string, string>>(cacheKey);
+                    if (cachedDataAgain != null && cachedDataAgain.Count > 0)
+                    {
+                        var result = new Dictionary<Guid, Guid>();
+
+                        foreach (var kvp in cachedDataAgain)
+                        {
+                            if (Guid.TryParse(kvp.Key, out var keyGuid) &&
+                                Guid.TryParse(kvp.Value, out var valueGuid))
+                            {
+                                result[keyGuid] = valueGuid;
+                            }
+                        }
+
+                        return result;
+                    }
+                }
 
                 return [];
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] An error occurred while retrieving DapAn.");
+                _logger.LogError("[Redis] Có lỗi khi lấy cố gắng lấy dữ liệu đáp án: {message}", ex.Message);
                 return [];
             }
         }
@@ -315,7 +285,7 @@ namespace Hutech.Exam.Server.BUS
 
                 //var httpClient = new HttpClient();
                 //httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MyApp/1.0)");
-                //_examUrl = _examUrl.Replace("{}", id.ToString());
+                //_examUrl = _examUrl.Replace("*", id.ToString());
                 //var response = await httpClient.GetAsync(_examUrl);
                 //if (!response.IsSuccessStatusCode)
                 //{
@@ -353,25 +323,10 @@ namespace Hutech.Exam.Server.BUS
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[Redis] Có lỗi xảy ra khi lấy đề thi.");
+                _logger.LogError("[Redis] Có lỗi xảy ra khi lấy đề thi: {message}", ex.Message);
                 return [];
             }
         }
-
-        //public async Task RemoveDeThi(long id)
-        //{
-        //    try
-        //    {
-        //        var cacheKey = $"DeThi:{id}";
-
-        //        await _cacheService.RemoveCacheResponseAsync(cacheKey);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "[Redis] An error occurred while removing DeThi.");
-        //    }
-        //}
-        //#endregion
 
     }
 }

@@ -53,7 +53,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        [Authorize(Roles = "DaoTao")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert([FromBody] DotThiCreateRequest dotThi)
         {
             var id = await _dotThiService.Insert(dotThi);
@@ -65,7 +65,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "DaoTao")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] DotThiUpdateRequest dotThi)
         {
             var result = await _dotThiService.Update(id, dotThi);
@@ -88,7 +88,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "DaoTao")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var result = await _dotThiService.Remove(id);
@@ -100,7 +100,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
-        [Authorize(Roles = "DaoTao")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             var result = await _dotThiService.ForceRemove(id);

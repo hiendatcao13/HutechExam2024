@@ -223,11 +223,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
                 LopAo = selectedExamRoom,
                 LanThi = selectedAttemptNumber
             };
-            await SessionStorage.SetItemAsync("storedDataMC", selectedData);
+            await SessionStorage.SetItemAsync("storedDataME", selectedData);
         }
         private async Task GetItemsInSessionStorageAsync()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataMC");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataME");
             if (storedData != null)
             {
                 selectedExamBatch = storedData.DotThi;

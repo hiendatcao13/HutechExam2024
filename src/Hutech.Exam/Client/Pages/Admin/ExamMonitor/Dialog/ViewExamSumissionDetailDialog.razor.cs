@@ -33,10 +33,10 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private List<ChiTietBaiThiDto> chiTietBaiThis = default!;
 
-        private Dictionary<int, int> DsDapAn { get; set; } = []; // ds đáp án của đề thi
+        private Dictionary<Guid, Guid> DsDapAn { get; set; } = []; // ds đáp án của đề thi
 
         // Item1: số thứ tự câu hỏi, Item2: mã câu trả lời, Item3: kết quả của câu
-        private Dictionary<int, (int, int?, bool?)> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
+        private Dictionary<Guid, (int, Guid?, bool?)> DSKhoanhDapAn { get; set; } = []; // lưu vết các câu hỏi đã chọn hay chưa chọn của sinh viên
 
 
         private bool _shouldRender = false;
@@ -105,20 +105,20 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
 
         private void HandleDsKhoanh(List<ChiTietBaiThiDto> dsChiTietBaiThi)
         {
-            //if (CustomDeThis != null && CustomDeThis.Count != 0)
-            //{
-            //    int stt = 0;
-            //    foreach (var noidung in CustomDeThis)
-            //    {
-            //        DSKhoanhDapAn.Add(noidung.MaCauHoi, (++stt, null, null)); // khởi tạo tất cả các câu hỏi với giá trị null)
-            //    }
-            //}
+            if (CustomDeThis != null && CustomDeThis.Count != 0)
+            {
+                int stt = 0;
+                foreach (var noidung in CustomDeThis)
+                {
+                    DSKhoanhDapAn.Add(noidung.MaCauHoi, (++stt, null, null)); // khởi tạo tất cả các câu hỏi với giá trị null)
+                }
+            }
 
-            //// xử lí câu đáp án đã khoanh
-            //foreach (var item in dsChiTietBaiThi)
-            //{
-            //    DSKhoanhDapAn[item.MaCauHoi] = (DSKhoanhDapAn[item.MaCauHoi].Item1,item.CauTraLoi, item.KetQua);
-            //}
+            // xử lí câu đáp án đã khoanh
+            foreach (var item in dsChiTietBaiThi)
+            {
+                DSKhoanhDapAn[item.MaCauHoi] = (DSKhoanhDapAn[item.MaCauHoi].Item1, item.CauTraLoi, item.KetQua);
+            }
         }
 
 
@@ -140,15 +140,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor.Dialog
             return (response.Success) ? response.Data : null;
         }
 
-        private async Task<List<CustomDeThi>?> GetDeThiAPI(long? ma_de_hoan_vi)
+        private async Task<List<CustomDeThi>?> GetDeThiAPI(long? maDeThi)
         {
-            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethihoanvis/{ma_de_hoan_vi}");
+            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethis/{maDeThi}/de-thi");
             return (response.Success) ? response.Data : null;
         }
 
-        private async Task<Dictionary<int, int>?> GetDapAnAPI(long maDeHV)
+        private async Task<Dictionary<Guid, Guid>?> GetDapAnAPI(long maDeHV)
         {
-            var response = await SenderAPI.GetAsync<Dictionary<int, int>>($"api/dethihoanvis/{maDeHV}/dap-an");
+            var response = await SenderAPI.GetAsync<Dictionary<Guid, Guid>>($"api/dethis/{maDeHV}/dap-an");
             return (response.Success) ? response.Data : null; 
         }
     }

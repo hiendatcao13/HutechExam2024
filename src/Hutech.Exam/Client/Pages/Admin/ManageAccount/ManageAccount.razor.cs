@@ -27,10 +27,13 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
         List<UserDto> users = [];
 
+        private string? name;
+        private Guid userId;
         string roleName = string.Empty;
 
         private const string NO_SELECT = "Vui lòng chọn ít nhất 1 đối tượng";
         private const string DELETE_USER_MESSAGE = "Bạn có chắc chắn muốn xóa người dùng này. Chỉ có phép xóa an toàn";
+        private const string NOT_MYSELF = "Không thể thao tác trên chính tài khoản của mình";
 
         #endregion
 
@@ -64,6 +67,8 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             var authState = AuthenticationState != null ? await AuthenticationState : null;
             if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
             {
+                name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+                Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
                 foreach (var claim in authState.User.Claims)
                 {
                     if (claim.Type == ClaimTypes.Role)
@@ -109,6 +114,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
                 return;
             }
 
+            if(selectedUser.Ten == name)
+            {
+                Snackbar.Add(NOT_MYSELF, Severity.Error);
+                return;
+            }    
+
             var result = await OpenEditUserDialogAsync(selectedUser);
 
             if (result != null && !result.Canceled && result.Data is UserDto newUser && users != null)
@@ -142,6 +153,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             if (selectedUser == null)
             {
                 Snackbar.Add(NO_SELECT, Severity.Warning);
+                return;
+            }
+            if (selectedUser.Ten == name)
+            {
+                Snackbar.Add(NOT_MYSELF, Severity.Error);
                 return;
             }
 

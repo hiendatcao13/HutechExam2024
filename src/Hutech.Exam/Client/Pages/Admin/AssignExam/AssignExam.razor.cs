@@ -224,6 +224,7 @@ namespace Hutech.Exam.Client.Pages.Admin.AssignExam
             var parameters = new DialogParameters<NewExamDialog>
             {
                 { x => x.ExamSession, examSession },
+                { x => x.Exams, exams },
                 { x => x.Subject, selectedSubject }
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };

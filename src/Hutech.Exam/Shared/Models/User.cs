@@ -25,7 +25,7 @@ public partial class User
 
     public DateTime? ThoiGianHoatDong { get; set; }
 
-    public DateTime? ThoiGianDangXuat { get; set; }
+    public DateTime? ThoiGianDangNhap { get; set; }
 
     public DateTime? ThoiGianDoiMatKhau { get; set; }
 

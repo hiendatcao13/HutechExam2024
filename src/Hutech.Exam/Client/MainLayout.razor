@@ -35,7 +35,7 @@
 					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
 					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
 				}
-				@if(roleName.Contains(KieuVaiTro.DaoTao.ToString()))
+				@if (roleName.Contains(KieuVaiTro.Admin.ToString()) || roleName.Contains(KieuVaiTro.DaoTao.ToString()))
 				{
 					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
 				}

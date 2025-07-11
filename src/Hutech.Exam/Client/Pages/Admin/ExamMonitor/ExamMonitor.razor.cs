@@ -14,6 +14,7 @@ using Hutech.Exam.Shared.Enums;
 using Hutech.Exam.Shared.DTO.Request.Audit;
 using System.Security.Claims;
 using System.Text.Json;
+using Hutech.Exam.Client.Pages.Admin.ManageExamSession;
 
 namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 {
@@ -45,6 +46,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private string? name;
         private Guid userId;
         private string roleName = string.Empty;
+        private StoredDataME? storedDataME;
 
         private const string ERROR_PAGE = "Cách hoạt động trang trang web không hợp lệ. Vui lòng quay lại";
         private const string SUCCESS_NOPBAI = "Nộp bài của thí sinh thành công";
@@ -97,7 +99,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             CreateSchedule();
             (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
             CreateFakeData();
-
+            storedDataME = await SessionStorage.GetItemAsync<StoredDataME>("storedDataME");
 
             await CreateHubConnectionAsync();
         }
@@ -170,10 +172,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickDownloadExcelAsync()
         {
-            if (examSessionDetails != null)
+            if (examSessionDetails != null && examSession != null && storedDataME != null)
             {
                 Snackbar.Add(WAITING_DOWNLOADEXCEL, Severity.Info);
-                var excelData = await GetExcelFileAPI(examSessionDetails);
+                var excelData = await GetExcelFileAPI(examSession.MaCaThi, new Shared.DTO.Request.CaThi.CaThiExportFileRequest { 
+                    CaThi = examSession, 
+                    ChiTietCaThis = examSessionDetails, 
+                    MonHoc = storedDataME.MonHoc!, 
+                    DotThi = storedDataME.DotThi!, 
+                    TenPhongThi = storedDataME.LopAo!.TenLopAo!
+                });
                 if (excelData != null)
                 {
                     var base64 = Convert.ToBase64String(excelData);
@@ -187,10 +195,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickDownloadPdfAsync()
         {
-            if (examSessionDetails != null)
+            if (examSessionDetails != null && examSession != null && storedDataME != null)
             {
                 Snackbar.Add("Đang tạo file PDF...", Severity.Info);
-                var pdfData = await GetPdfFileAPI(examSessionDetails);
+                var pdfData = await GetPdfFileAPI(examSession.MaCaThi, new Shared.DTO.Request.CaThi.CaThiExportFileRequest
+                {
+                    CaThi = examSession,
+                    ChiTietCaThis = examSessionDetails,
+                    MonHoc = storedDataME.MonHoc!,
+                    DotThi = storedDataME.DotThi!,
+                    TenPhongThi = storedDataME.LopAo!.TenLopAo!
+                });
 
                 if (pdfData != null)
                 {
@@ -207,6 +222,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         {
             searchString = string.Empty;
             (examSessionDetails, totalRecords, totalPages) = await ExamSessionDetails_SelectBy_ExamSessionId_PagedAPI(examSession?.MaCaThi ?? -1, currentPage, rowsPerPage);
+            examSession = await ExamSession_SelectOneAPI(examSession!.MaCaThi);
         }
 
         private async Task OnClickViewExamSubmissionDetailAsync(ChiTietCaThiDto chiTietCaThi)

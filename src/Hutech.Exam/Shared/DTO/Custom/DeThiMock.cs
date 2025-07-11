@@ -16,7 +16,6 @@ namespace Hutech.Exam.Shared.DTO.Custom
         [JsonPropertyName("MaDeThi")]
         public Guid? Guid { get; set; }
 
-        [JsonPropertyName("Hello")] // tạm thời ứng biến trước
         public DateTime NgayTao { get; set; } = DateTime.Now;
     }
 }

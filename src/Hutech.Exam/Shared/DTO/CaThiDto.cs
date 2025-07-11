@@ -43,7 +43,7 @@ namespace Hutech.Exam.Shared.DTO
 
         public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
 
-        public virtual ChiTietDotThiDto MaChiTietDotThiNavigation { get; set; } = null!;
+        public virtual ChiTietDotThiDto? MaChiTietDotThiNavigation { get; set; }
 
         //Phần custom thêm
         public int TongSV { get; set; }

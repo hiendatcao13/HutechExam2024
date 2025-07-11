@@ -13,7 +13,7 @@ namespace Hutech.Exam.Client.Pages.Exam
     {
         private async Task<List<CustomDeThi>?> Exam_SelectOneAPI(long examId)
         {
-            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethis/{examId}/mock");
+            var response = await SenderAPI.GetAsync<List<CustomDeThi>>($"api/dethis/{examId}/de-thi");
             return (response.Success) ? response.Data : null;
         }
 

@@ -36,19 +36,6 @@
                 <MudTimePicker Editable="true" Variant="Variant.Outlined" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
-            <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
-            <MudItem xs="8">
-                <MudSelect T="DeThiDto" Variant="Variant.Outlined" @bind-Value="selectedExam" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
-                    @if (exams != null)
-                    {
-                        foreach (var item in exams)
-                        {
-                            <MudSelectItem Value="@item">[@item.MaDeThi] @item.TenDeThi</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
-            </MudItem>
-
             <MudItem xs="4" Style="align-content: center"><MudText>Thời lượng:</MudText></MudItem>
             <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
 

@@ -111,7 +111,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
         {
             List<ChiTietBaiThiDto> result = [];
 
-            using DatabaseReader sql = new("ChiTietBaiThi_SelectBy_ma_chi_tiet_ca_thi");
+            using DatabaseReader sql = new("ChiTietBaiThi_SelectBy_MaChiTietCaThi");
 
             sql.SqlParams("@MaChiTietCaThi", SqlDbType.Int, ma_chi_tiet_ca_thi);
 

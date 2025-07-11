@@ -50,7 +50,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@GioiTinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
             sql.SqlParams("@NgaySinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
             sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@DiaChi", SqlDbType.Text, dia_chi ?? (object)DBNull.Value);
+            sql.SqlParams("@DiaChi", SqlDbType.NVarChar, dia_chi ?? (object)DBNull.Value);
             sql.SqlParams("@Email", SqlDbType.NVarChar, email ?? (object)DBNull.Value);
             sql.SqlParams("@DienThoai", SqlDbType.NVarChar, dien_thoai ?? (object)DBNull.Value);
             sql.SqlParams("@MaSoSinhVien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);
@@ -78,7 +78,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@GioiTinh", SqlDbType.SmallInt, gioi_tinh ?? (object)DBNull.Value);
             sql.SqlParams("@NgaySinh", SqlDbType.DateTime, ngay_sinh ?? (object)DBNull.Value);
             sql.SqlParams("@MaLop", SqlDbType.Int, ma_lop ?? (object)DBNull.Value);
-            sql.SqlParams("@DiaChi", SqlDbType.Text, NormalizeString(dia_chi) ?? (object)DBNull.Value);
+            sql.SqlParams("@DiaChi", SqlDbType.NVarChar, NormalizeString(dia_chi) ?? (object)DBNull.Value);
             sql.SqlParams("@Email", SqlDbType.NVarChar, NormalizeString(email) ?? (object)DBNull.Value);
             sql.SqlParams("@DienThoai", SqlDbType.NVarChar, NormalizeString(dien_thoai) ?? (object)DBNull.Value);
             sql.SqlParams("@MaSoSinhVien", SqlDbType.NVarChar, ma_so_sinh_vien ?? (object)DBNull.Value);

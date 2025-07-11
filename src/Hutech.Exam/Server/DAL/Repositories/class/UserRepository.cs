@@ -30,7 +30,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 DaXoa = dataReader.GetBoolean(7 + start),
                 DaKhoa = dataReader.GetBoolean(8 + start),
                 ThoiGianHoatDong = dataReader.IsDBNull(9 + start) ? null : dataReader.GetDateTime(9 + start),
-                ThoiGianDangXuat = dataReader.IsDBNull(10 + start) ? null : dataReader.GetDateTime(10 + start),
+                ThoiGianDangNhap = dataReader.IsDBNull(10 + start) ? null : dataReader.GetDateTime(10 + start),
                 ThoiGianDoiMatKhau = dataReader.IsDBNull(11 + start) ? null : dataReader.GetDateTime(11 + start),
                 ThoiGianKhoa = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
                 SoLanDangNhapSai = dataReader.IsDBNull(13 + start) ? null : dataReader.GetInt32(13 + start),

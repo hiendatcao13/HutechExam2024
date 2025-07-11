@@ -317,10 +317,10 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 KieuNoiDungCauHoiNhom = -1,
                 KieuNoiDungCauHoi = -1,
                 CauTraLois = new Dictionary<Guid, string?> {
-                    { Guid.Parse("9272a413-3453-4fe8-8507-b063554444b7"), "<latex> \begin{cases}x=t\\y= 0\\z = 0\end{cases}</latex>" },
-                    { Guid.Parse("331408c1-e8b1-4b76-bdc2-d70e91ae987a"), "<latex> \begin{cases}x=0\\y=t\\z = 0\end{cases} </latex>        " },
-                    { Guid.Parse("821a8c53-6160-466b-92a7-b5c006579320"), "<latex> \begin{cases}x=0\\y= t\\z = t\end{cases} </latex>" },
-                    { Guid.Parse("6485ea41-de6b-406b-a8a5-1ec3c7359dde"), "<latex> \begin{cases}x=0\\y=0\\z=1+t\end{cases} </latex>" }//
+                    { Guid.Parse("9272a413-3453-4fe8-8507-b063554444b7"), "<latex> \\begin{cases}x=t\\\\y= 0\\\\z = 0\\end{cases}</latex>" },
+                    { Guid.Parse("331408c1-e8b1-4b76-bdc2-d70e91ae987a"), "<latex> \\begin{cases}x=0\\\\y=t\\\\z = 0\\end{cases}</latex>" },
+                    { Guid.Parse("821a8c53-6160-466b-92a7-b5c006579320"), "<latex> \\begin{cases}x=0\\\\y= t\\\\z = t\\end{cases}</latex>" },
+                    { Guid.Parse("6485ea41-de6b-406b-a8a5-1ec3c7359dde"), "<latex> \\begin{cases}x=0\\\\y=0\\\\z=1+t\\end{cases}</latex>" }//
                 },
                 HoanViCauTraLoi = "1234",
                 GhiChu = null,

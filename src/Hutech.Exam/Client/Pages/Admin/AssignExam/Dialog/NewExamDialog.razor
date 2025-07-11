@@ -151,7 +151,7 @@
 
 	private async Task<List<DeThiDto>> Exams_GetAllAPI()
 	{
-		var response = await SenderAPI.GetAsync<List<DeThiDto>>("api/dethis/mock-api");
+		var response = await SenderAPI.GetAsync<List<DeThiDto>>("api/dethis/mock");
 		return (response.Success && response.Data != null) ? response.Data : [];
 	}
 
