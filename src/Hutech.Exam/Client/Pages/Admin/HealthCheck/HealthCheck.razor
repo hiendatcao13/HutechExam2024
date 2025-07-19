@@ -11,7 +11,7 @@
 		<MudItem xs="12">
 			@if (healthChecks != null)
 			{
-				<MudTable Elevation="24" Items="@healthChecks" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+				<MudTable Elevation="3" Items="@healthChecks" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin các kết nối</MudText>
 						<MudSpacer />
@@ -38,11 +38,11 @@
 		<MudItem xs="12">
 			@if (healthFragments != null)
 			{
-				<MudTable Elevation="24" Items="@healthFragments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
+				<MudTable Elevation="3" Items="@healthFragments" Hover="true" Bordered="true" Dense="true" FixedHeader="true" Striped="true">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin độ phân mảnh các chỉ mục</MudText>
 						<MudSpacer />
-						<MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Speed" OnClick="async() => await OnClickReorganizeIndexAsync()">Tự động REORGANIZE, REBUILD</MudButton>
+						<MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Speed" OnClick="async() => await OnClickReorganizeIndexAsync()">Tự động REORGANIZE, REBUILD</MudButton>
 					</ToolBarContent>
 					<HeaderContent>
 						<MudTh Style="text-align: center">Bảng</MudTh>

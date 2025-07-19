@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @using System.Net.Http.Headers
 @using Hutech.Exam.Client.DAL
+@using Hutech.Exam.Shared.Enums
 @inherits LayoutComponentBase
 @inject IDialogService Dialog
 @{
@@ -29,12 +30,25 @@
 			<MudNavMenu>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="() => RoutingPage(0)">@names.ElementAt(0).Value</MudNavLink>
 				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DesktopMac" OnClick="() => RoutingPage(1)">@names.ElementAt(1).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DocumentScanner" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.HealthAndSafety" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
+				@if (!roleName.Contains(KieuVaiTro.GiamThi.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CoPresent" OnClick="() => RoutingPage(2)">@names.ElementAt(2).Value</MudNavLink>
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.BarChart" OnClick="() => RoutingPage(5)">@names.ElementAt(5).Value</MudNavLink>
+				}
+				@if (roleName.Contains(KieuVaiTro.Admin.ToString()) || roleName.Contains(KieuVaiTro.KhaoThi.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DocumentScanner" OnClick="() => RoutingPage(3)">@names.ElementAt(3).Value</MudNavLink>
+				}
+				@if (roleName.Contains(KieuVaiTro.Admin.ToString()) || roleName.Contains(KieuVaiTro.DaoTao.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PeopleAlt" OnClick="() => RoutingPage(4)">@names.ElementAt(4).Value</MudNavLink>
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.ManageAccounts" OnClick="() => RoutingPage(6)">@names.ElementAt(6).Value</MudNavLink>
+				}
+				@if (roleName.Contains(KieuVaiTro.Admin.ToString()))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.HealthAndSafety" OnClick="() => RoutingPage(7)">@names.ElementAt(7).Value</MudNavLink>
+				}
+
 			</MudNavMenu>
 		</MudDrawer>
 	}
@@ -60,24 +74,35 @@
 	private ErrorBoundary? _errorBoundary;
 	// Hiển thị alert báo lỗi -> click ok -> refresh lại page
 	private void ResetErrorBoundary() => _errorBoundary?.Recover();
+
 	[Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
 	[Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
 	[Inject] private NavigationManager Nav { get; set; } = default!;
+
+	[CascadingParameter] Task<AuthenticationState>? AuthenticationState { get; set; }
 
 	private string tittle = "Trang chủ";
 	private string name = "";
 	private bool _open = false;
 	private const string LOGOUT_MESSAGE = "Bạn có chắc chắn muốn đăng xuất?";
+	private string roleName = "";
+
 	private Dictionary<string, string> names = new Dictionary<string, string>
 	{
-		{ "/admin/home", "Trang chủ" },
-		{ "/admin/control", "Quản lý ca thi" },
-		{ "/admin/organize", "Tổ chức kì thi" },
-		{ "/admin/question", "Tổ chức đề thi" },
-		{ "/admin/classroom", "Quản lý lớp học"},
-		{ "/admin/test-review", "Đánh giá đề thi" },
-		{ "/admin/account", "Quản lý tài khoản" },
-		{ "/admin/system", "Kiểm tra sức khỏe"}
+		{ "/admin/home", "Trang chủ" }, //0
+		{ "/admin/control", "Quản lý ca thi" }, //1
+		{ "/admin/organize", "Tổ chức kì thi" }, //2
+		{ "/admin/question", "Tổ chức đề thi" }, //3
+		{ "/admin/classroom", "Quản lý lớp học"}, //4
+		{ "/admin/test-review", "Đánh giá đề thi" }, //5
+		{ "/admin/account", "Quản lý tài khoản" }, //6
+		{ "/admin/system", "Kiểm tra sức khỏe"}, //7
+
+		// 1 số trang phụ
+		{"/admin/approved-exam", "Gán đề thi"},
+		{"/admin/monitor", "Giám sát ca thi" }
 	};
 
 	private void ToggleDrawer()
@@ -87,20 +112,32 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		name = await SessionStorage.GetItemAsStringAsync("Name");
-		Nav.LocationChanged += OnLocationChanged; // lắng nghe sự kiện chuyển trang
+		await GetIdentityRoleName();
+
+		// Gán tiêu đề ngay lần đầu load
+		UpdateTitle(Nav.Uri);
+
+		// Đăng ký lắng nghe sự kiện điều hướng
+		Nav.LocationChanged += OnLocationChanged;
+
 		await base.OnInitializedAsync();
 	}
 
 	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
 	{
-		var path = new Uri(e.Location).PathAndQuery; // e.Location là string, ép sang Uri để lấy Path
-
-		tittle = names.ContainsKey(path) ? names[path] : "Trang chủ"; // lấy tên trang dựa vào path
-
-		tittle = (path.Contains("/admin/monitor")) ? "Giám sát ca thi" : tittle;  // riêng trang giám sát thi thì không có trong names
+		UpdateTitle(e.Location);
 		StateHasChanged();
 	}
+
+	private void UpdateTitle(string fullUri)
+	{
+		var path = new Uri(fullUri).AbsolutePath; // Chỉ lấy phần Path, bỏ qua query string
+
+		// Tìm key phù hợp trong từ điển names
+		var match = names.FirstOrDefault(kv => path.Equals(kv.Key, StringComparison.OrdinalIgnoreCase));
+		tittle = !string.IsNullOrWhiteSpace(match.Key) ? match.Value : "Trang chủ";
+	}
+
 	private async Task onClickDangXuat()
 	{
 		var parameters = new DialogParameters<Simple_Dialog>
@@ -128,6 +165,23 @@
 	{
 		var path = names.ElementAt(index).Key;
 		Nav.NavigateTo(path);
+	}
+
+	private async Task GetIdentityRoleName()
+	{
+		var authState = AuthenticationState != null ? await AuthenticationState : null;
+		if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+		{
+			foreach (var claim in authState.User.Claims)
+			{
+				if (claim.Type == ClaimTypes.Role)
+				{
+					roleName += claim.Value + ",";
+				}
+			}
+
+			name = authState.User.FindFirst(ClaimTypes.Name)?.Value ?? "Người dùng";
+		}
 	}
 }
 

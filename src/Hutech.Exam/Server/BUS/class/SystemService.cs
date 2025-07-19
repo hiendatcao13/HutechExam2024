@@ -13,9 +13,9 @@ namespace Hutech.Exam.Server.BUS
             return await _customThongKeRepository.ThongKeDoPhanManh();
         }
 
-        public async Task RebuildOrReorganizeChiMuc()
+        public async Task<bool> RebuildOrReorganizeChiMuc()
         {
-            await _customThongKeRepository.RebuildOrReorganizeChiMuc();
+            return await _customThongKeRepository.RebuildOrReorganizeChiMuc();
         }
 
         public async Task<long> GetTotalOnlineStudent()

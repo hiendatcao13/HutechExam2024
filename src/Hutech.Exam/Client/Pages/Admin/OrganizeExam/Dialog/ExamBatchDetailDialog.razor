@@ -9,10 +9,13 @@
 
 <MudDialog Style="min-width: 350px; max-height: auto; overflow: visible">
     <DialogContent>
-        <MudText>Tên đợt thi: <span class="title-text">@ExamBatchName</span></MudText>
         <MudGrid>
-            <MudItem xs="9">
-                <MudSelect T="MonHocDto" Label="Môn thi" Value="selectedSubject" Clearable="true" ValueChanged="async (value) => await OnValueChangeSubjectAsync(value)">
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên đợt thi:</MudText></MudItem>
+            <MudItem xs="8"><MudText>Tên đợt thi: <span class="title-text">@ExamBatchName</span></MudText></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Môn thi:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect T="MonHocDto" Variant="Variant.Outlined" Label="Môn thi" Value="selectedSubject" Clearable="true" ValueChanged="async (value) => await OnValueChangeSubjectAsync(value)">
                     @if (subjects != null)
                     {
                         foreach (var item in subjects)
@@ -21,18 +24,15 @@
                         }
                     }
                 </MudSelect>
-            </MudItem>
-            <MudItem xs="3" Style="align-content: end;">
-                <MudButtonGroup Style="zoom: 0.7">
+                <MudButtonGroup Style="zoom: 0.7; align-content: end;">
                     <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickAddSubjectAsync()" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditSubjectAsync()"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditSubjectAsync()" />
                 </MudButtonGroup>
             </MudItem>
-        </MudGrid>
 
-        <MudGrid>
-            <MudItem xs="9">
-                <MudSelect T="LopAoDto" Label="Phòng thi (theo môn thi)" @bind-Value="selectedExamRoom" Clearable="true">
+            <MudItem xs="4" Style="align-content: center"><MudText>Phòng thi:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect T="LopAoDto" Variant="Variant.Outlined" Label="Phòng thi (theo môn thi)" @bind-Value="selectedExamRoom" Clearable="true">
                     @if (examRooms != null)
                     {
                         foreach (var item in examRooms)
@@ -41,45 +41,47 @@
                         }
                     }
                 </MudSelect>
-            </MudItem>
-            <MudItem xs="2" Style="align-content:end;">
-                <MudButtonGroup Style="zoom: 0.7;">
+                <MudButtonGroup Style="zoom: 0.7;align-content: end;">
                     <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="async () => await OnClickAddExamRoomAsync()" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamRoomAsync()"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamRoomAsync()" />
                 </MudButtonGroup>
             </MudItem>
-        </MudGrid>
 
-        <MudSelect T="int" Label="Lần thi" @bind-Value="selectedLanThi" Clearable="true">
-            @foreach (var item in attemptNumbers)
-            {
-                <MudSelectItem Value="item">Lần @item</MudSelectItem>
-            }
-        </MudSelect>
+            <MudItem xs="4" Style="align-content: center"><MudText>Lần thi:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect T="int" Label="Lần thi" Variant="Variant.Outlined" @bind-Value="selectedLanThi" Clearable="true">
+                    @foreach (var item in attemptNumbers)
+                    {
+                        <MudSelectItem Value="item">Lần @item</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickThoat" Color="Color.Default">Thoát</MudButton>
         @if (IsEdit)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="async () => await OnClickEditExamBatchDetailAsync()">Sửa</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="async () => await OnClickAddExamBatchDetailAsync()">Thêm</MudButton>
         }
 
     </DialogActions>
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
-    .tools{
-    align-content: end;
+
+    .tools {
+        align-content: end;
     }
 
     .title-text {
-    font-weight: bold;
+        font-weight: bold;
     }
 </style>
 
@@ -122,8 +124,9 @@
         await base.OnInitializedAsync();
     }
 
-    private async Task OnValueChangeSubjectAsync(MonHocDto monHoc){
-        if(selectedSubject == monHoc)
+    private async Task OnValueChangeSubjectAsync(MonHocDto monHoc)
+    {
+        if (selectedSubject == monHoc)
             return;
         selectedSubject = monHoc;
         selectedExamRoom = null;
@@ -142,19 +145,21 @@
         }
     }
 
-    private async Task OnClickAddExamBatchDetailAsync(){
+    private async Task OnClickAddExamBatchDetailAsync()
+    {
         if (selectedSubject == null || selectedExamRoom == null || selectedLanThi == 0)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
 
-        var result = await InsertAPI( new ChiTietDotThiCreateRequest { 
-            MaDotThi = ExamBatchId ?? -1, 
-            TenChiTietDotThi = ExamBatchName ?? string.Empty, 
-            MaLopAo = selectedExamRoom.MaLopAo, 
-            LanThi = selectedLanThi
-        });
+        var result = await InsertAPI(new ChiTietDotThiCreateRequest
+            {
+                MaDotThi = ExamBatchId ?? -1,
+                TenChiTietDotThi = ExamBatchName ?? string.Empty,
+                MaLopAo = selectedExamRoom.MaLopAo,
+                LanThi = selectedLanThi
+            });
 
         if (result != null && result.MaChiTietDotThi != 0)
         {
@@ -186,10 +191,11 @@
     private async Task OnClickAddSubjectAsync()
     {
         var result = await OpenSubjectDialog(false);
-        if(result != null && !result.Canceled && subjects != null && result.Data != null)
+        if (result != null && !result.Canceled && subjects != null && result.Data != null)
         {
             var monHoc = (MonHocDto)result.Data;
-            if(monHoc != null){
+            if (monHoc != null)
+            {
                 subjects.Add(monHoc);
                 selectedSubject = monHoc;
             }
@@ -205,7 +211,7 @@
             if (monHoc != null && selectedSubject != null)
             {
                 int index = subjects.FindIndex(m => m.MaMonHoc == selectedSubject.MaMonHoc);
-                if(index != -1)
+                if (index != -1)
                 {
                     subjects[index] = monHoc;
                     selectedSubject = monHoc;
@@ -222,7 +228,8 @@
             return;
         }
         var result = await OpenExamRoomDialog(false);
-        if(result != null && result.Data != null && examRooms != null && !result.Canceled){
+        if (result != null && result.Data != null && examRooms != null && !result.Canceled)
+        {
             var lopAo = (LopAoDto)result.Data;
             if (lopAo != null)
             {
@@ -246,7 +253,7 @@
             if (lopAo != null && selectedExamRoom != null)
             {
                 int index = examRooms.FindIndex(l => l.MaLopAo == selectedExamRoom.MaLopAo);
-                if(index != -1)
+                if (index != -1)
                 {
                     examRooms[index] = lopAo;
                     selectedExamRoom = lopAo;
@@ -255,9 +262,10 @@
         }
     }
 
-    private async Task<DialogResult?> OpenSubjectDialog(bool isEdit){
-        var parameters = new DialogParameters<SubjectDialog> 
-        { 
+    private async Task<DialogResult?> OpenSubjectDialog(bool isEdit)
+    {
+        var parameters = new DialogParameters<SubjectDialog>
+        {
             { x => x.IsEdit, isEdit},
             { x => x.Subject, selectedSubject }
         };
@@ -293,12 +301,14 @@
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<ChiTietDotThiDto?> InsertAPI(ChiTietDotThiCreateRequest chiTietDotThi){
+    private async Task<ChiTietDotThiDto?> InsertAPI(ChiTietDotThiCreateRequest chiTietDotThi)
+    {
         var response = await SenderAPI.PostAsync<ChiTietDotThiDto>("api/chitietdotthis", chiTietDotThi);
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<ChiTietDotThiDto?> UpdateAPI(int ma_chi_tiet_dot_thi, ChiTietDotThiUpdateRequest chiTietDotThi){
+    private async Task<ChiTietDotThiDto?> UpdateAPI(int ma_chi_tiet_dot_thi, ChiTietDotThiUpdateRequest chiTietDotThi)
+    {
         var response = await SenderAPI.PutAsync<ChiTietDotThiDto>($"api/chitietdotthis/{ma_chi_tiet_dot_thi}", chiTietDotThi);
         return (response.Success) ? response.Data : null;
     }

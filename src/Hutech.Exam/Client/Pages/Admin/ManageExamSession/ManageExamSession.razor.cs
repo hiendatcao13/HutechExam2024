@@ -8,6 +8,9 @@ using MudBlazor;
 using Hutech.Exam.Client.API;
 using Hutech.Exam.Client.Pages.Admin.ManageExamSession.Dialog;
 using Hutech.Exam.Client.Components.Dialogs;
+using System.Text.Json;
+using Hutech.Exam.Shared.DTO.Request.Audit;
+using System.Security.Claims;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 {
@@ -38,8 +41,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         private readonly List<int> attemptNumber = [1, 2, 3, 4, 5];
 
+        private string roleName = string.Empty;
 
-        private const string VERIFY_PASSWORD = "Vui lòng nhập mật khẩu cho ca thi";
+
+        private const string VerifyPassMessage = "Vui lòng nhập mật khẩu cho ca thi";
+        private const string NotAprrovedMessage = "Ca thi chưa được duyệt. Vui lòng liên hệ phòng trung tâm CNTT";
+        private const string NotContainsExamMessage = "Ca thi chưa được gán đề thi. Vui lòng liên hệ phòng khảo thí";
         #endregion
 
         #region Initial Methods
@@ -62,12 +69,28 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         private async Task StartAsync()
         {
+            await GetRoleName();
             examBatchs = await ExamBatchs_GetAllAPI();
             subjects = await Subjects_GetAllAPI();
 
             await GetItemsInSessionStorageAsync();
 
             //await CreateHubConnection();
+        }
+
+        private async Task GetRoleName()
+        {
+            var authState = AuthenticationState != null ? await AuthenticationState : null;
+            if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+            {
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
+            }
         }
 
         #endregion
@@ -96,6 +119,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
         private async Task OnClickEditExamSessionAsync(CaThiDto examSession)
         {
+            if (examSession.Approved == false)
+            {
+                Snackbar.Add(NotAprrovedMessage, Severity.Warning);
+                return;
+            }
+
             if (!await VerifyPassword(examSession))
             {
                 return;
@@ -109,6 +138,24 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
                 UpdateExamSession((CaThiDto)result.Data);
             }
         }
+
+        private async Task OnClickViewHistoryAsync(CaThiDto examSession)
+        {
+            if (string.IsNullOrWhiteSpace(examSession!.LichSuHoatDong))
+            {
+                Snackbar.Add("Không có lịch sử hoạt động nào để hiển thị", Severity.Warning);
+                return;
+            }
+
+            var parameters = new DialogParameters<ViewHistory_Dialog>
+            {
+                { x => x.HistoryVersions, JsonSerializer.Deserialize<List<LichSuHoatDong>>(examSession.LichSuHoatDong) },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+
+            await Dialog.ShowAsync<ViewHistory_Dialog>("XEM LỊCH SỬ", parameters, options);
+        }
+
 
         private async Task OnClickExamSessionDetailAsync(CaThiDto examSession)
         {
@@ -136,7 +183,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
             var parameters = new DialogParameters<Password_Dialog>
             {
-                { x => x.ContentText, VERIFY_PASSWORD },
+                { x => x.ContentText, VerifyPassMessage },
                 { x => x.ButtonText, "OK" },
                 { x => x.OnVerifyPassword, (Func<string, Task<bool>>)verifyDelegate },
                 { x => x.RecognizeCode, $"ExamSession{examSession.MaCaThi}" },
@@ -172,11 +219,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
                 LopAo = selectedExamRoom,
                 LanThi = selectedAttemptNumber
             };
-            await SessionStorage.SetItemAsync("storedDataMC", selectedData);
+            await SessionStorage.SetItemAsync("storedDataME", selectedData);
         }
         private async Task GetItemsInSessionStorageAsync()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataMC");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataME");
             if (storedData != null)
             {
                 selectedExamBatch = storedData.DotThi;
@@ -202,6 +249,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
 
             return false;
         }
+
 
         private void UpdateExamSession(CaThiDto caThi)
         {

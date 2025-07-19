@@ -7,6 +7,8 @@ using System.Net.Http.Headers;
 using Hutech.Exam.Client.Components.Dialogs;
 using MudBlazor;
 using Hutech.Exam.Client.Pages.Admin.ManageAccount.Dialog;
+using System.Security.Claims;
+using Hutech.Exam.Shared.Enums;
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 {
@@ -21,10 +23,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+        [CascadingParameter] Task<AuthenticationState>? AuthenticationState { get; set; }
+
         List<UserDto> users = [];
+
+        private string? name;
+        private Guid userId;
+        string roleName = string.Empty;
 
         private const string NO_SELECT = "Vui lòng chọn ít nhất 1 đối tượng";
         private const string DELETE_USER_MESSAGE = "Bạn có chắc chắn muốn xóa người dùng này. Chỉ có phép xóa an toàn";
+        private const string NOT_MYSELF = "Không thể thao tác trên chính tài khoản của mình";
 
         #endregion
 
@@ -49,7 +58,25 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
         private async Task StartAsync()
         {
+            await GetRoleName();
             await FetchUsersAsync();
+        }
+
+        private async Task GetRoleName()
+        {
+            var authState = AuthenticationState != null ? await AuthenticationState : null;
+            if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+            {
+                name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+                Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+                foreach (var claim in authState.User.Claims)
+                {
+                    if (claim.Type == ClaimTypes.Role)
+                    {
+                        roleName += claim.Value + ",";
+                    }
+                }
+            }
         }
 
         #endregion
@@ -57,7 +84,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
         #region Fetch Methods
         private async Task FetchUsersAsync()
         {
-            (users, totalPages_User, totalRecords_User) = await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
+            (users, totalPages_User, totalRecords_User) = (!roleName.Contains(KieuVaiTro.Admin.ToString()))
+                ? await Users_GetAll_Supervisor_PagedAPI(currentPage_User, rowsPerPage_User)
+                : await Users_GetAll_PagedAPI(currentPage_User, rowsPerPage_User);
             CreateFakeData_User();
         }
 
@@ -70,8 +99,9 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
             var result = await OpenAddUserDialogAsync();
 
-            if (result != null && !result.Canceled && result.Data is UserDto newUser)
+            if (result != null && !result.Canceled && result.Data != null)
             {
+                var newUser = (UserDto)result.Data;
                 users?.Insert(0, newUser);
             }
         }
@@ -81,6 +111,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             if (selectedUser == null)
             {
                 Snackbar.Add(NO_SELECT, Severity.Warning);
+                return;
+            }
+
+            if (selectedUser.Name == name)
+            {
+                Snackbar.Add(NOT_MYSELF, Severity.Error);
                 return;
             }
 
@@ -119,12 +155,17 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
                 Snackbar.Add(NO_SELECT, Severity.Warning);
                 return;
             }
+            if (selectedUser.Name == name)
+            {
+                Snackbar.Add(NOT_MYSELF, Severity.Error);
+                return;
+            }
 
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_USER_MESSAGE },
-                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync(false))   },
-                { x => x.onHandleForceRemove, EventCallback.Factory.Create(this, () => { })   }
+                { x => x.IsOnlySafeDetlet, true },
+                { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync())   },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
             await Dialog.ShowAsync<Delete_Dialog>("XÓA NGƯỜI DÙNG", parameters, options);
@@ -136,7 +177,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
         #region Dialog Methods
         private async Task<DialogResult?> OpenAddUserDialogAsync()
         {
-            var parameters = new DialogParameters<AddUserDialog>{};
+            var parameters = new DialogParameters<AddUserDialog> { };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, BackgroundClass = "my-custom-class" };
             var dialog = await Dialog.ShowAsync<AddUserDialog>("THÊM NGƯỜI DÙNG", parameters, options);
             return await dialog.Result;
@@ -158,7 +199,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
         #endregion
 
         #region HandleDialog Methods
-        private async Task HandleDeleteUserAsync(bool isForce)
+        private async Task HandleDeleteUserAsync()
         {
             if (selectedUser != null)
             {
@@ -166,8 +207,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
 
                 if (result)
                 {
-                    users?.Remove(selectedUser);
-                    selectedUser = null;
+                    int index = users.FindIndex(k => k.UserId == selectedUser.UserId);
+                    if (index != -1)
+                    {
+                        users[index].IsDeleted = true;
+                    }
                 }
             }
         }

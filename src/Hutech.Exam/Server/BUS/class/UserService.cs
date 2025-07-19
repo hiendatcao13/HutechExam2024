@@ -27,9 +27,20 @@ namespace Hutech.Exam.Server.BUS
             return await _userRepository.GetAll_Paged(pageNumber, pageSize);
         }
 
+        public async Task<Paged<UserDto>> GetAll_GiamThi_Paged(int pageNumber, int pageSize)
+        {
+
+            return await _userRepository.GetAll_GiamThi_Paged(pageNumber, pageSize);
+        }
+
         public async Task<Paged<UserDto>> GetAll_Search_Paged(string keyword, int pageNumber, int pageSize)
         {
             return await _userRepository.GetAll_Search_Paged(keyword, pageNumber, pageSize);
+        }
+
+        public async Task<Paged<UserDto>> GetAll_GiamThi_Search_Paged(string keyword, int pageNumber, int pageSize)
+        {
+            return await _userRepository.GetAll_GiamThi_Search_Paged(keyword, pageNumber, pageSize);
         }
 
 
@@ -44,7 +55,7 @@ namespace Hutech.Exam.Server.BUS
             return await _userRepository.SelectByLoginName(loginName);
         }
 
-        public async Task<List<string>> Login(string loginName)
+        public async Task<User> Login(string loginName)
         {
             return await _userRepository.Login(loginName);
         }

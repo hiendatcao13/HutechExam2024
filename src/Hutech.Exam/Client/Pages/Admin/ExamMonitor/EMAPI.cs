@@ -1,5 +1,6 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
+using Hutech.Exam.Shared.DTO.Request.CaThi;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -37,15 +38,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             return response.Success;
         }
 
-        private async Task<byte[]?> GetExcelFileAPI(List<ChiTietCaThiDto> chiTietCaThis)
+        private async Task<byte[]?> GetExcelFileAPI(int maCaThi, CaThiExportFileRequest request)
         {
-            var response = await SenderAPI.PostAsync<byte[]>("api/chitietcathis/export-excel", chiTietCaThis);
+            var response = await SenderAPI.PostAsync<byte[]>($"api/cathis/{maCaThi}/export-excel", request);
             return (response.Success) ? response.Data : [];
         }
 
-        private async Task<byte[]?> GetPdfFileAPI(List<ChiTietCaThiDto> chiTietCaThis)
+        private async Task<byte[]?> GetPdfFileAPI(int maCaThi, CaThiExportFileRequest request)
         {
-            var response = await SenderAPI.PostAsync<byte[]>("api/chitietcathis/export-pdf", chiTietCaThis);
+            var response = await SenderAPI.PostAsync<byte[]>($"api/cathis/{maCaThi}/export-pdf", request);
             return (response.Success) ? response.Data : [];
         }
 
@@ -58,6 +59,12 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         private async Task<bool> ExamSessionDetail_ForceDeleteAPI(int examSessionId)
         {
             var response = await SenderAPI.DeleteAsync<ChiTietCaThiDto>($"api/chitietcathis/{examSessionId}/force");
+            return response.Success;
+        }
+
+        private async Task<bool> ExamSession_UpdateAudit(int examSessionId, string history_action)
+        {
+            var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/update-audit", history_action);
             return response.Success;
         }
     }

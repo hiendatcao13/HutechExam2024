@@ -1,6 +1,5 @@
 ﻿using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
-using System.Net.Http.Json;
 
 
 namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
@@ -48,6 +47,6 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageExamSession
             var response = await SenderAPI.GetAsync<Paged<CaThiDto>>($"api/cathis/filter-by-chitietdotthi-search-paged?maChiTietDotThi={ma_chi_tiet_dot_thi}&keyword={keyword}&pageNumber={pageNumber + 1}&pageSize={pageSize}");
             return (response.Success && response.Data != null) ? (response.Data.Data, response.Data.TotalPages, response.Data.TotalRecords) : ([], 0, 0);
         }
-        
+
     }
 }

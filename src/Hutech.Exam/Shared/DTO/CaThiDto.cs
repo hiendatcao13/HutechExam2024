@@ -40,9 +40,11 @@ namespace Hutech.Exam.Shared.DTO
 
         public bool Approved { get; set; }
 
+        public string LichSuHoatDong { get; set; } = string.Empty;
+
         public virtual ICollection<ChiTietCaThiDto> ChiTietCaThis { get; set; } = new List<ChiTietCaThiDto>();
 
-        public virtual ChiTietDotThiDto MaChiTietDotThiNavigation { get; set; } = null!;
+        public virtual ChiTietDotThiDto? MaChiTietDotThiNavigation { get; set; }
 
         //Phần custom thêm
         public int TongSV { get; set; }

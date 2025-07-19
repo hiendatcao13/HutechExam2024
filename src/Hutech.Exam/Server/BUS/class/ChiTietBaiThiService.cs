@@ -98,7 +98,7 @@ namespace Hutech.Exam.Server.BUS
             {
                 bool? ketQua = null;
 
-                if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet))
+                if (dapAnKhoanhs.TryGetValue(cauSo, out var chiTiet) && chiTiet != null)
                 {
                     ketQua = (dapAn == chiTiet);
                 }

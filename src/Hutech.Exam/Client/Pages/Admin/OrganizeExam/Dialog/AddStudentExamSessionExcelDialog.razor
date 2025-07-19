@@ -19,7 +19,7 @@
             </MudItem>
 
             <MudItem xs="12">
-                <MudTextField Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="numberOfStudentCode" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" HelperText="không check vui lòng để -1" />
+                <MudTextField Variant="Variant.Outlined" Label="SL kí tự quy định MSSV" Style="width:200px" @bind-Value="numberOfStudentCode" Typo="Typo.body2" Color="Color.Default" InputType="InputType.Number" HelperText="không check vui lòng để -1" />
             </MudItem>
 
             <MudItem xs="6" Style="padding-top: 10px">
@@ -36,20 +36,20 @@
 
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (isReadyToSave)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled>Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled>Lưu</MudButton>
         }
     </DialogActions>
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
 
 </style>
@@ -70,7 +70,7 @@
     bool isStudentCodeAllNumber = false; // chỉ chứa toàn số
 
 
-    const string MESSAGE = "Bảng sheet theo trình tự: <b style='color:red;'>[MSSV], [MaCaThi], [MaDeHV?] </b>";
+    const string MESSAGE = "Bảng sheet theo trình tự: <b style='color:red;'>[MSSV], [MaCaThi], [MaDeThi?] </b>";
     const string NOTE = "Lưu ý: File excel có thể có hoặc không có tiêu đề HEADING, dữ liệu đọc bắt đầu từ ô A2 tại sheet 1. \nFile tối đa 5MB. MSSV và mã ca thi bắt buộc không được rỗng hoặc MSSV trùng lặp trong file." +
                             "Thêm thí sinh vào ca thi thành công chỉ khi thí sinh đó đã tồn tại trong bảng sinh viên";
     const string NOT_FORMAT_EXCEL = "Định dạng file không phải Excel hoặc file rỗng";
@@ -114,11 +114,11 @@
         {
 
             var chiTietCaThi = new ChiTietCaThiCreateBatchRequest
-            {
-                MaSoSinhVien = NormalizeString(worksheet.Cells[row, 1].Text) + "",
-                MaCaThi = int.TryParse(worksheet.Cells[row, 2].Text?.Trim(), out int maCaThi) ? maCaThi : 0,
-                MaDeThi = long.TryParse(worksheet.Cells[row, 3].Text?.Trim(), out long maDeThi) ? maDeThi : null,
-            };
+                {
+                    MaSoSinhVien = NormalizeString(worksheet.Cells[row, 1].Text) + "",
+                    MaCaThi = int.TryParse(worksheet.Cells[row, 2].Text?.Trim(), out int maCaThi) ? maCaThi : 0,
+                    MaDeThi = long.TryParse(worksheet.Cells[row, 3].Text?.Trim(), out long maDeThi) ? maDeThi : null,
+                };
 
 
             if (!ValidateData(row, chiTietCaThi))
@@ -189,7 +189,7 @@
         Snackbar.Add(WAITING_MESSAGE, Severity.Info);
         if (await Insert_BatchAPI(examSessionDetails.Values.ToList()))
         {
-            MudDialog?.Close(DialogResult.Ok(true));
+            MudDialog?.Close(DialogResult.Ok(totalRecords));
         }
     }
 

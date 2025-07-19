@@ -35,10 +35,14 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 // them MudBlazor
 builder.Services.AddMudServices(config =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
 
-    //Gi?i h?n s? l??ng Snackbar
-    config.SnackbarConfiguration.MaxDisplayedSnackbars = 3;
+    //Gioi han so luong Snackbar
+    config.SnackbarConfiguration.MaxDisplayedSnackbars = 5;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+    config.SnackbarConfiguration.VisibleStateDuration = 2000; //2 giây
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 500;
 });
 
 builder.Services.AddScoped<ApiService>();

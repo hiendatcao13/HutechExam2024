@@ -9,45 +9,53 @@
 
 <MudDialog Style="max-width: 500px; max-height: auto; overflow: visible">
     <DialogContent>
-        @if(tempExamBatch != null)
-        {
-            <MudTextField Label="Tên đợt thi" Required InputType="InputType.Text" @bind-Value="tempExamBatch.TenDotThi" />
-            <MudSelect T="int" Label="Năm học" @bind-Value="nam_hoc" Clearable="true">
-                @if (schoolYears != null)
-                {
-                    foreach (var item in schoolYears)
+        <MudGrid>
+            <MudItem xs="4" Style="align-content: center"><MudText>Tên đợt thi:</MudText></MudItem>
+            <MudItem xs="8"> <MudTextField Label="Tên đợt thi" Required InputType="InputType.Text" @bind-Value="tempExamBatch.TenDotThi" Variant="Variant.Outlined" /></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Năm học:</MudText></MudItem>
+            <MudItem xs="8">
+                <MudSelect T="int" Label="Năm học" @bind-Value="nam_hoc" Clearable="true" Variant="Variant.Outlined">
+                    @if (schoolYears != null)
                     {
-                        <MudSelectItem Value="item.Key">@item.Key - @item.Value</MudSelectItem>
+                        foreach (var item in schoolYears)
+                        {
+                            <MudSelectItem Value="item.Key">@item.Key - @item.Value</MudSelectItem>
+                        }
                     }
-                }
-            </MudSelect>
-            <MudDatePicker Editable="true" Label="Thời gian bắt đầu" @bind-Date="tempExamBatch.ThoiGianBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
-            <MudDatePicker Editable="true" Label="Thời gian kết thúc" @bind-Date="tempExamBatch.ThoiGianKetThuc" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
-        }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Thời gian bắt đầu:</MudText></MudItem>
+            <MudItem xs="8"><MudDatePicker Variant="Variant.Outlined" Editable="true" Label="Thời gian bắt đầu" @bind-Date="tempExamBatch.ThoiGianBatDau" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" /></MudItem>
+
+            <MudItem xs="4" Style="align-content: center"><MudText>Thời gian kết thúc:</MudText></MudItem>
+            <MudItem xs="8"><MudDatePicker Variant="Variant.Outlined" Editable="true" Label="Thời gian kết thúc" @bind-Date="tempExamBatch.ThoiGianKetThuc" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" /></MudItem>
+        </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
-        @if(IsEdit)
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        @if (IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
 
     </DialogActions>
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
 </style>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
-    [Inject] private ISenderAPI SenderAPI   { get; set; } = default!;
+    [Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
     [Parameter] public DotThiDto? ExamBatch { get; set; }
 
@@ -59,7 +67,7 @@
     private int nam_hoc = DateTime.Now.Year;
 
 
-    private DotThiDto? tempExamBatch;
+    private DotThiDto tempExamBatch = new();
 
     private const string INVALID_FORM = "Vui lòng nhập đầy đủ thông tin";
     private const string ERROR_ENDDATE = "Thời gian kết thúc không được nhỏ hơn thời gian bắt đầu";
@@ -83,32 +91,32 @@
         {
             schoolYears?.Add(nam_hien_tai + i, nam_hien_tai + i + 1);
         }
-        if(IsEdit && ExamBatch != null)
+        if (IsEdit && ExamBatch != null)
         {
             tempExamBatch = new DotThiDto(ExamBatch);
             return;
         }
-        tempExamBatch = new DotThiDto();
     }
 
     private async Task OnClickAddAsync()
     {
-        if (tempExamBatch == null || tempExamBatch.TenDotThi == null  || tempExamBatch.ThoiGianBatDau == null || tempExamBatch.ThoiGianKetThuc == null)
+        if (tempExamBatch == null || tempExamBatch.TenDotThi == null || tempExamBatch.ThoiGianBatDau == null || tempExamBatch.ThoiGianKetThuc == null)
         {
             Snackbar.Add(INVALID_FORM, Severity.Error);
             return;
         }
-        if(!ValidateDate())
+        if (!ValidateDate())
         {
             return;
         }
 
-        var result = await AddAPI(new DotThiCreateRequest{ 
-            TenDotThi = tempExamBatch.TenDotThi, 
-            ThoiGianBatDau = (DateTime)tempExamBatch.ThoiGianBatDau, 
-            ThoiGianKetThuc = (DateTime)tempExamBatch.ThoiGianKetThuc,
-            NamHoc = nam_hoc
-        });
+        var result = await AddAPI(new DotThiCreateRequest
+            {
+                TenDotThi = tempExamBatch.TenDotThi,
+                ThoiGianBatDau = (DateTime)tempExamBatch.ThoiGianBatDau,
+                ThoiGianKetThuc = (DateTime)tempExamBatch.ThoiGianKetThuc,
+                NamHoc = nam_hoc
+            });
 
         if (result != null && result.MaDotThi != 0)
         {
@@ -137,16 +145,16 @@
                 NamHoc = nam_hoc
             });
 
-        if(result != null && result.MaDotThi != 0)
+        if (result != null && result.MaDotThi != 0)
         {
-			MudDialog?.Close(DialogResult.Ok(result));
+            MudDialog?.Close(DialogResult.Ok(result));
         }
 
     }
 
     private bool ValidateDate()
     {
-        if(tempExamBatch == null)
+        if (tempExamBatch == null)
         {
             return false;
         }

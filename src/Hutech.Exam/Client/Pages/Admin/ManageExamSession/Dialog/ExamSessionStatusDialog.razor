@@ -3,6 +3,9 @@
 @using Hutech.Exam.Client.API
 @using Hutech.Exam.Client.Components.Dialogs
 @using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.DTO.Request.Audit
+@using System.Security.Claims
+@using Hutech.Exam.Shared.Enums
 @implements IDisposable
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
@@ -33,11 +36,11 @@
 	</DialogContent>
 	<DialogActions>
 		<!--3 trạng thái: 0: đã kích hoạt - tiếp tục ca thi, 1: chưa kích hoạt / dừng ca thi, 2: kết thúc ca thi-->
-		<MudButton Color="Color.Success" Disabled="@((status != 1))" Variant="Variant.Filled" OnClick="async () => { if (status == 1) await onClickActiveAsync(); }">Kích hoạt</MudButton>
-		<MudButton Color="Color.Error" Disabled="@((status != 0))" Variant="Variant.Filled" OnClick="async () => { if (status == 0) await onClickInActiveAsync(); }">Hủy kích hoạt</MudButton>
-		<MudButton Color="Color.Info" Disabled="@((status != 0))" Variant="Variant.Filled" OnClick="async () => { if (status == 0) await onClickPauseAsync(); }">Dừng ca thi</MudButton>
-		<MudButton Color="Color.Warning" Disabled="@((status == 2))" Variant="Variant.Filled" OnClick="async () => { if (status != 2) await onClickFinishAsync(); }">Kết thúc ca thi</MudButton>
-		<MudButton Color="Color.Default" Variant="Variant.Filled" OnClick="OnClickExit">Thoát</MudButton>
+		<MudButton Color="Color.Success" Disabled="@((status != 1))" Variant="Variant.Outlined" OnClick="async () => { if (status == 1) await onClickActiveAsync(); }">Kích hoạt</MudButton>
+		<MudButton Color="Color.Error" Disabled="@((status != 0))" Variant="Variant.Outlined" OnClick="async () => { if (status == 0) await onClickInActiveAsync(); }">Hủy kích hoạt</MudButton>
+		<MudButton Color="Color.Info" Disabled="@((status != 0))" Variant="Variant.Outlined" OnClick="async () => { if (status == 0) await onClickPauseAsync(); }">Dừng ca thi</MudButton>
+		<MudButton Color="Color.Warning" Disabled="@((status == 2))" Variant="Variant.Outlined" OnClick="async () => { if (status != 2) await onClickFinishAsync(); }">Kết thúc ca thi</MudButton>
+		<MudButton Color="Color.Default" Variant="Variant.Outlined" OnClick="OnClickExit">Thoát</MudButton>
 	</DialogActions>
 </MudDialog>
 <style>
@@ -68,47 +71,56 @@
 
 	[Inject] private ISenderAPI SenderAPI { get; set; } = default!;
 
+	[Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+
+	[CascadingParameter] Task<AuthenticationState>? AuthenticationState { get; set; }
+
 	private CaThiDto tempExamSession = default!;
 	private System.Timers.Timer? timer { get; set; }
 	private string? displayTime { get; set; }
 	private int status { get; set; }
 
+	private string? name;
+	private Guid userId;
+	private string jsonText = string.Empty;
+
 	private const string UPDATE_SUCCESS_TINHTRANGCATHI = "Cập nhật tình trạng ca thi thành công";
 	private const string UPDATE_FAILED_TINHTRANGCATHI = "Cập nhật tình trạng ca thi không thành công. Vui lòng kiểm tra lại";
 
-	private const string FAILED_KETTHUC_HUY = "Không thể kết thúc ca thi khi ca thi chưa được hủy kích hoạt hoặc dừng. Vui lòng chọn hủy kích hoạt hoặc dừng trước";
 	private const string ALERT_KETTHUCCATHI = "Hệ thống sẽ mất ít thời gian để xóa toàn bộ dữ liệu";
 
 	private const string CONFIRM_KICHHOATCATHI = "Bạn có muốn kích hoạt ca thi?";
+	private const string FIRST_TIME_CONFIRM_KICHHOATCATHI = "Bạn có muốn kích hoạt ca thi? Lần đầu kích hoạt, hệ thống sẽ rà soát và reset đăng nhập cho tất cả thí sinh trong ca thi";
 	private const string CONFRIM_HUYKICHHOATCATHI = "Bạn có chắc chắn muốn hủy kích hoạt ca thi. Hệ thống sẽ hủy toàn bộ những ghi nhận phần bài làm mà tất cả sinh viên đã làm trong ca thi này nhưng điểm số vẫn giữ nguyên. Nếu bạn chỉ muốn dừng tạm thời ca thi, hãy chọn \"Dừng ca thi\"";
 	private const string CONFRIM_KETTHUCCATHI = "Bạn có chắc chắn muốn kết thúc ca thi. Việc này sẽ không thể kích hoạt lại ca thi này nữa. Hãy hủy kích hoạt ca thi trước để làm sạch toàn bộ phần bài làm của sinh viên trước khi kết thúc";
 	private const string CONFRIM_DUNGCATHI = "Bạn có chắc chắn muốn dừng ca thi. Việc này sẽ sẽ khiến toàn bộ sinh viên đang làm bài bị out ra tạm thời cho đến khi được kích hoạt trở lại";
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		tempExamSession = new CaThiDto(ExamSession);
 		UpdateStatus();
 		HandleTime();
+		await GetIdentityUserName();
 	}
 
 	private async Task onClickActiveAsync()
 	{
-		await OnShowDialogConfirmAsync(CONFIRM_KICHHOATCATHI, "Kích hoạt", Color.Success, async () => await ActiveAPI(tempExamSession.MaCaThi));
+		await OnShowDialogConfirmAsync((ExamSession.ActivatedDate == null) ? FIRST_TIME_CONFIRM_KICHHOATCATHI : CONFIRM_KICHHOATCATHI, "Kích hoạt", Color.Success, async () => await ActiveAPI(tempExamSession.MaCaThi, KieuHanhDong.KichHoatCaThi));
 	}
 
 	private async Task onClickInActiveAsync()
 	{
-		await OnShowDialogConfirmAsync(CONFRIM_HUYKICHHOATCATHI, "Hủy kích hoạt", Color.Error, async () => await InActiveAPI(tempExamSession.MaCaThi));
+		await OnShowDialogConfirmAsync(CONFRIM_HUYKICHHOATCATHI, "Hủy kích hoạt", Color.Error, async () => await InActiveAPI(tempExamSession.MaCaThi, KieuHanhDong.HuyKichHoatCaThi));
 	}
 
 	private async Task onClickPauseAsync()
 	{
-		await OnShowDialogConfirmAsync(CONFRIM_DUNGCATHI, "Dừng", Color.Info, async () => await PauseAPI(tempExamSession.MaCaThi));
+		await OnShowDialogConfirmAsync(CONFRIM_DUNGCATHI, "Dừng", Color.Info, async () => await PauseAPI(tempExamSession.MaCaThi, KieuHanhDong.DungCaThi));
 	}
 
 	private async Task onClickFinishAsync()
 	{
-		await OnShowDialogConfirmAsync(CONFRIM_KETTHUCCATHI, "Kết thúc", Color.Dark, async () => await FinishAPI(tempExamSession.MaCaThi));
+		await OnShowDialogConfirmAsync(CONFRIM_KETTHUCCATHI, "Kết thúc", Color.Dark, async () => await FinishAPI(tempExamSession.MaCaThi, KieuHanhDong.KetThucCaThi));
 	}
 
 	private void OnClickExit() => MudDialog?.Close(DialogResult.Ok(tempExamSession));
@@ -129,6 +141,47 @@
 		};
 	}
 
+	private async Task GetIdentityUserName()
+	{
+		var authState = AuthenticationState != null ? await AuthenticationState : null;
+		if (authState != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+		{
+			name = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+			Guid.TryParse(authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+		}
+	}
+
+	private string CreateActionHistory(KieuHanhDong kieuHanhDong, string lyDo)
+	{
+		var updateHistory = new LichSuHoatDong()
+			{
+				HanhDong = kieuHanhDong,
+				ChiTiet = "",
+				UserId = userId,
+				NguoiThucHien = name ?? string.Empty,
+				LyDo = lyDo
+			};
+
+		var jsonText = ConvertActionHistory(updateHistory);
+		return jsonText;
+	}
+
+	private string ConvertActionHistory(LichSuHoatDong actionHistory)
+	{
+		List<LichSuHoatDong> result = [];
+		if (!string.IsNullOrWhiteSpace(ExamSession.LichSuHoatDong))
+		{
+			var history = System.Text.Json.JsonSerializer.Deserialize<List<LichSuHoatDong>>(ExamSession.LichSuHoatDong);
+			if (history != null && history.Count > 0)
+			{
+				result = history;
+			}
+		}
+
+		result.Add(actionHistory);
+		return JsonSerializer.Serialize(result);
+	}
+
 	private async Task OnShowDialogConfirmAsync(string message, string button_message, MudBlazor.Color color, Func<Task> callback)
 	{
 		var parameters = new DialogParameters<Simple_Dialog>
@@ -142,64 +195,103 @@
 		await Dialog.ShowAsync<Simple_Dialog>("Thay đổi tình trạng ca thi", parameters, options);
 	}
 
+	private async Task<DialogResult?> OpenAuditDialogAsync(KieuHanhDong kieuHanhDong)
+	{
+		var parameters = new DialogParameters<Audit_Dialog>
+			{
+				{ x => x.Action, kieuHanhDong },
+			};
+		var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };
+		var dialog = await Dialog.ShowAsync<Audit_Dialog>("LỊCH SỬ HOẠT ĐỘNG", parameters, options);
+		return await dialog.Result;
+	}
+
 
 	private void UpdateStatus()
 	{
 		status = tempExamSession.KetThuc ? 2 : tempExamSession.IsActivated ? 0 : 1;
 	}
 
-	private async Task ActiveAPI(int ma_ca_thi)
+	private async Task ActiveAPI(int examSessionId, KieuHanhDong action)
 	{
-		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{ma_ca_thi}/active", null);
-		if (response.Success && response.Data != null)
+		var result = await OpenAuditDialogAsync(action);
+		if (result != null && !result.Canceled && result.Data != null)
 		{
-			tempExamSession = response.Data;
-			UpdateStatus();
+			var actionHistory = CreateActionHistory(action, result.Data.ToString()!);
+			var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/active", actionHistory);
+			if (response.Success && response.Data != null)
+			{
+				tempExamSession = response.Data;
+				UpdateStatus();
+
+				//nếu là lần đầu thì reset đăng nhập cho thí sinh
+				if (ExamSession.ActivatedDate == null)
+				{
+					await ResetAllLoginAPI(examSessionId);
+				}
+			}
 		}
 	}
 
-	private async Task InActiveAPI(int ma_ca_thi)
+	private async Task InActiveAPI(int examSessionId, KieuHanhDong action)
 	{
-		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{ma_ca_thi}/deactive", null);
-		if (response.Success && response.Data != null)
+		var result = await OpenAuditDialogAsync(action);
+		if (result != null && !result.Canceled && result.Data != null)
 		{
-			tempExamSession = response.Data;
-			UpdateStatus();
+			var actionHistory = CreateActionHistory(action, result.Data.ToString()!);
+			var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/deactive", actionHistory);
+			if (response.Success && response.Data != null)
+			{
+				tempExamSession = response.Data;
+				UpdateStatus();
+			}
 		}
+
 	}
 
-	private async Task PauseAPI(int ma_ca_thi)
+	private async Task PauseAPI(int examSessionId, KieuHanhDong action)
 	{
-		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{ma_ca_thi}/pause", null);
-		if (response.Success && response.Data != null)
+		var result = await OpenAuditDialogAsync(action);
+		if (result != null && !result.Canceled && result.Data != null)
 		{
-			tempExamSession = response.Data;
-			UpdateStatus();
+			var actionHistory = CreateActionHistory(action, result.Data.ToString()!);
+			var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/pause", actionHistory);
+			if (response.Success && response.Data != null)
+			{
+				tempExamSession = response.Data;
+				UpdateStatus();
+			}
 		}
+
 	}
 
-	private async Task FinishAPI(int ma_ca_thi)
+	private async Task FinishAPI(int examSessionId, KieuHanhDong action)
 	{
-		if (tempExamSession.IsActivated)
-		{
-			Snackbar.Add(FAILED_KETTHUC_HUY, Severity.Error);
-			return;
-		}
-
 		Snackbar.Add(ALERT_KETTHUCCATHI, Severity.Warning);
 
-		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{ma_ca_thi}/finish", null);
-		if (response.Success && response.Data != null)
+		var result = await OpenAuditDialogAsync(action);
+		if (result != null && !result.Canceled && result.Data != null)
 		{
-			tempExamSession = response.Data;
-			UpdateStatus();
+			var actionHistory = CreateActionHistory(action, result.Data.ToString()!);
+			var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/finish", actionHistory);
+			if (response.Success && response.Data != null)
+			{
+				tempExamSession = response.Data;
+				UpdateStatus();
+			}
 		}
+
+	}
+
+	private async Task<bool> ResetAllLoginAPI(int examSessionId)
+	{
+		var response = await SenderAPI.PatchAsync<CaThiDto>($"api/cathis/{examSessionId}/all-reset-login", null);
+		return response.Success;
 	}
 
 	public void Dispose()
 	{
-		if (timer != null)
-			timer.Dispose();
+		timer?.Dispose();
 	}
 
 }

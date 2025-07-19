@@ -1,6 +1,7 @@
 ﻿@page "/admin/monitor"
 @using Hutech.Exam.Shared.DTO
-@attribute [Authorize(Roles = "Admin")]
+@using Hutech.Exam.Shared.Enums
+@attribute [Authorize(Roles = "QuanTri")]
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
@@ -9,30 +10,30 @@
 <MudContainer Class="d-flex justify-center align-center">
 	<MudGrid Style="margin-top: 5px">
 		<MudItem xs="2">
-			<MudPaper Elevation="2" Class="pa-4" Style="margin-bottom: 20px">
+			<MudPaper Elevation="3" Class="pa-4" Style="margin-bottom: 20px">
 				<MudButton StartIcon="@Icons.Material.Filled.PersonAddAlt1" Color="Color.Default" OnClick="async () => await OnClickAddStudentAsync()">Thêm SV</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="async() => await OnClickRefreshAsync()">Refresh</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Default" OnClick="async () => await OnClickDownloadPdfAsync()">Export PDF</MudButton>
 				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.DocumentScanner" Color="Color.Default" OnClick="OnClickDownloadExcelAsync">Export EXCEL</MudButton>
+				<MudButton Class="button-side" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Default" OnClick="async () => await OnClickViewHistoryAsync()">Xem Lịch Sử</MudButton>
 			</MudPaper>
 
 
-			<MudPaper Elevation="2" Class="pa-4" Style="position: sticky; top: 15%">
+			<MudPaper Elevation="3" Class="pa-4" Style="position: sticky; top: 15%">
 				<MudText Typo="Typo.body1" Inline="false"><b style="color: brown">THỜI GIAN BIỂU</b></MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Tên thí sinh:</span><br />@studentName</MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Đăng nhập: </span>@loginTime</MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Đăng xuất: </span>@logoutTime</MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Bắt đầu thi:</span> @startTime</MudText><br />
 				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Kết thúc thi: </span>@endTime</MudText><br />
-				<MudText Typo="Typo.button" Inline="false"><span style="color: cornflowerblue">Thời gian cộng: </span>@addTime</MudText><br />
 			</MudPaper>
 		</MudItem>
 		@if (examSessionDetails != null)
 		{
 			<MudItem xs="10">
-				<MudTable T="ChiTietCaThiDto" Items="@examSessionDetails" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)"
-				CurrentPage="currentPage" CurrentPageChanged="async (value) => await OnCurrentPageChange(value)" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true"
-				SortLabel="Sort By" OnRowClick="OnRowClick">
+				<MudTable Elevation="3" T="ChiTietCaThiDto" Items="@examSessionDetails" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="async (value) => await OnRowsPerPageChange(value)" RowClass="cursor-pointer" RowClassFunc="SelectedRowClassExamSessionDetailFunc" OnRowClick="(value) => OnRowClickedExamSessionDetailAsync(value)"
+						  CurrentPage="currentPage" CurrentPageChanged="async (value) => await OnCurrentPageChange(value)" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true"
+						  SortLabel="Sort By">
 					<ToolBarContent>
 						<MudText Typo="Typo.h6">Thông tin ca thi</MudText>
 						<MudSpacer />
@@ -41,7 +42,7 @@
 					<HeaderContent>
 						<MudTh>STT</MudTh>
 						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.MaSoSinhVien ?? string.Empty)">MSSV</MudTableSortLabel></MudTh>
-						<MudTh>Họ và Tên</MudTh>
+						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>(x.MaSinhVienNavigation?.TenSinhVien, x.MaSinhVienNavigation?.HoVaTenLot))">Họ và Tên</MudTableSortLabel></MudTh>
 						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaDeThi ?? -1)">Mã Đề</MudTableSortLabel></MudTh>
 						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.DaHoanThanh)">Trạng Thái</MudTableSortLabel></MudTh>
 						<MudTh><MudTableSortLabel SortBy="new Func<ChiTietCaThiDto, object>(x=>x.MaSinhVienNavigation?.IsLoggedIn ?? false)">Đăng Nhập</MudTableSortLabel></MudTh>
@@ -56,22 +57,25 @@
 						<MudTd>@($"{item.KyHieuDe} ({item.MaDeThi})")</MudTd>
 						<MudTd Style="@($"color: {GetStatusTakeExam(item)}")">@(item.DaHoanThanh ? "Đã thi" : item.DaThi ? "Đang thi" : "Chưa thi")</MudTd>
 						<MudTd><MudSwitch T="bool" Value="item.MaSinhVienNavigation?.IsLoggedIn ?? false" ValueChanged="async (value) => await OnValueChangeStatusLogin(value, item.MaSinhVienNavigation)" Color="Color.Success" UncheckedColor="Color.Default"></MudSwitch></MudTd>
-						<MudTd>@(item.GioCongThem == 0 || item.GioCongThem == -1 ? "-" : $"{item.GioCongThem} ({item.LyDoCong})")</MudTd>
+						<MudTd>@(item.GioCongThem == 0 ? "-" : item.GioCongThem)</MudTd>
 						<MudTd>@(item.Diem == -1 ? "-" : item.Diem.ToString())</MudTd>
 						<MudTd>
 							<MudButtonGroup Style="zoom: 0.7">
 								<MudTooltip Text="Cộng giờ thêm">
-									<MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" OnClick="() => OnClickAddTimeAsync(item)" />
+									<MudIconButton Icon="@Icons.Material.Filled.Timer" Color="Color.Success" OnClick="() => OnClickAddTimeAsync(item)" />
 								</MudTooltip>
 								<MudTooltip Text="Buộc nộp bài">
 									<MudIconButton Icon="@Icons.Material.Filled.Warning" Color="Color.Info" OnClick="() => OnClickSubmitAsync(item)" />
 								</MudTooltip>
 								<MudTooltip Text="Xem chi tiết bài">
-									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Primary" OnClick="async () => await OnClickViewExamSubmissionDetailAsync(item)" />
+									<MudIconButton Icon="@Icons.Material.Filled.FindInPage" Color="Color.Secondary" OnClick="async () => await OnClickViewExamSubmissionDetailAsync(item)" />
 								</MudTooltip>
-								<MudTooltip Text="Xóa">
-									<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteExamSessionDetailAsync(item)" />
-								</MudTooltip>
+								@if (roleName.Contains(KieuVaiTro.DaoTao.ToString()) || roleName.Contains(KieuVaiTro.Admin.ToString()))
+								{
+									<MudTooltip Text="Xóa">
+										<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await OnClickDeleteExamSessionDetailAsync(item)" />
+									</MudTooltip>
+								}
 							</MudButtonGroup>
 						</MudTd>
 					</RowTemplate>
@@ -85,7 +89,12 @@
 </MudContainer>
 <style>
 	.button-side {
-	margin-top: 5%;
+		margin-top: 5%;
+	}
+
+	.selected-row {
+		background-color: #e0f7fa !important;
+		font-weight: bold;
 	}
 </style>
 <script>
@@ -107,7 +116,9 @@
 	private string GetStatusTakeExam(ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.DaHoanThanh ? "green" : chiTietCaThi.DaThi ? "black" : "red";
 	private string GetStatusLogin(ChiTietCaThiDto chiTietCaThi) => chiTietCaThi.MaSinhVienNavigation?.IsLoggedIn == true ? "blue" : "black";
 
-	private string? studentName, loginTime, logoutTime, startTime, endTime, addTime;
+	private string? studentName, loginTime, logoutTime, startTime, endTime;
+
+	private ChiTietCaThiDto? selectedExamSessionDetail;
 
 	private string searchString = "";
 	private int currentPage = 0;
@@ -124,7 +135,6 @@
 		logoutTime = "dd/mm/yyyy";
 		startTime = "dd/mm/yyyy";
 		endTime = "dd/mm/yyyy";
-		addTime = "dd/mm/yyyy";
 	}
 
 	private async Task Filter()
@@ -140,21 +150,6 @@
 			CreateFakeData();
 		}
 		CreateSchedule();
-	}
-
-	private void OnRowClick(TableRowClickEventArgs<ChiTietCaThiDto> args)
-	{
-		var clickedItem = args.Item;
-
-		if (clickedItem != null)
-		{
-			studentName = clickedItem.MaSinhVienNavigation?.HoVaTenLot + " " + clickedItem.MaSinhVienNavigation?.TenSinhVien;
-			loginTime = (clickedItem.MaSinhVienNavigation?.LastLoggedIn) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedIn.Value.ToString("dd/MM/yyyy HH:mm");
-			logoutTime = (clickedItem.MaSinhVienNavigation?.LastLoggedOut) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedOut.Value.ToString("dd/MM/yyyy HH:mm");
-			startTime = (clickedItem.ThoiGianBatDau) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianBatDau.Value.ToString("dd/MM/yyyy HH:mm");
-			endTime = (clickedItem.ThoiGianKetThuc) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy HH:mm");
-			addTime = (clickedItem.ThoiDiemCong) == null ? "dd/mm/yyyy" : clickedItem.ThoiDiemCong.Value.ToString("dd/MM/yyyy HH:mm");
-		}
 	}
 
 	private async Task OnRowsPerPageChange(int rows)
@@ -185,9 +180,32 @@
 
 	private async Task OnValueChangeStatusLogin(bool value, SinhVienDto? sinhVien)
 	{
-		if(value == false && sinhVien != null)
+
+		if (value == false && sinhVien != null)
 		{
 			await OnClickResetLoginAsync(sinhVien);
 		}
+	}
+
+	private void OnRowClickedExamSessionDetailAsync(TableRowClickEventArgs<ChiTietCaThiDto> args)
+	{
+		if (args.Item == selectedExamSessionDetail)
+			return;
+		selectedExamSessionDetail = args.Item;
+
+		var clickedItem = args.Item;
+
+		if (clickedItem != null)
+		{
+			studentName = clickedItem.MaSinhVienNavigation?.HoVaTenLot + " " + clickedItem.MaSinhVienNavigation?.TenSinhVien;
+			loginTime = (clickedItem.MaSinhVienNavigation?.LastLoggedIn) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedIn.Value.ToString("dd/MM/yyyy HH:mm");
+			logoutTime = (clickedItem.MaSinhVienNavigation?.LastLoggedOut) == null ? "dd/mm/yyyy" : clickedItem.MaSinhVienNavigation.LastLoggedOut.Value.ToString("dd/MM/yyyy HH:mm");
+			startTime = (clickedItem.ThoiGianBatDau) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianBatDau.Value.ToString("dd/MM/yyyy HH:mm");
+			endTime = (clickedItem.ThoiGianKetThuc) == null ? "dd/mm/yyyy" : clickedItem.ThoiGianKetThuc.Value.ToString("dd/MM/yyyy HH:mm");
+		}
+	}
+	private string SelectedRowClassExamSessionDetailFunc(ChiTietCaThiDto item, int rowNumber)
+	{
+		return item == selectedExamSessionDetail ? "selected-row" : string.Empty;
 	}
 }

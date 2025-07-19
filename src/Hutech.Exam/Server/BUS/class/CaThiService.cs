@@ -39,19 +39,19 @@ namespace Hutech.Exam.Server.BUS
         {
             return await _caThiRepository.GetAll();
         }
-        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated, string lichSuHoatDong)
         {
-            return await _caThiRepository.Activate(ma_ca_thi, IsActivated);
+            return await _caThiRepository.Activate(ma_ca_thi, IsActivated, lichSuHoatDong);
         }
 
-        public async Task<bool> HuyKichHoat(int ma_ca_thi)
+        public async Task<bool> HuyKichHoat(int ma_ca_thi, string lichSuHoatDong)
         {
-            return await _caThiRepository.HuyKichHoat(ma_ca_thi);
+            return await _caThiRepository.HuyKichHoat(ma_ca_thi, lichSuHoatDong);
         }
 
-        public async Task<bool> Ketthuc(int ma_ca_thi)
+        public async Task<bool> Ketthuc(int ma_ca_thi, string lichSuHoatDong)
         {
-            return await _caThiRepository.Ketthuc(ma_ca_thi);
+            return await _caThiRepository.Ketthuc(ma_ca_thi, lichSuHoatDong);
         }
 
         public async Task<int> Insert(CaThiCreateRequest caThi)
@@ -84,9 +84,24 @@ namespace Hutech.Exam.Server.BUS
             return await _caThiRepository.Update(id, caThi.TenCaThi, caThi.MaChiTietDotThi, caThi.ThoiGianBatDau, caThi.MaDeThi, caThi.ThoiGianThi, caThi.MatMa);
         }
 
-        public async Task<bool> UpdateDeThi(int id, int maDeThi, bool isOrderMSSV, List<long> dsDeThiHVs)
+        public async Task<bool> UpdateLichSuHoatDong(int id, string lichSuHoatDong)
         {
-            return await _caThiRepository.UpdateDeThi(id, maDeThi, isOrderMSSV, dsDeThiHVs);
+            return await _caThiRepository.UpdateLichSuHoatDong(id, lichSuHoatDong);
+        }
+
+        public async Task<bool> DuyetDe(int id, string lichSuHoatDong)
+        {
+            return await _caThiRepository.DuyetDe(id, lichSuHoatDong);
+        }
+
+        public async Task<bool> UpdateDeThi(int id, CaThiUpdateDeThiRequest request)
+        {
+            return await _caThiRepository.UpdateDeThi(id, request.MaDeThi, request.IsOrderMSSV, request.LichSuHoatDong, request.MaDeThiHVs);
+        }
+
+        public async Task<bool> UpdateAllResetLogin(int ma_ca_thi)
+        {
+            return await _caThiRepository.UpdateAllResetLogin(ma_ca_thi);
         }
         #endregion
     }

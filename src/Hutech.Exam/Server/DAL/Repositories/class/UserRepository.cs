@@ -16,7 +16,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         public static readonly int COLUMN_LENGTH = 20;
 
-        public UserDto GetProperty(IDataReader dataReader, int start = 0)
+        public User GetProperty(IDataReader dataReader, int start = 0)
         {
             User user = new()
             {
@@ -41,7 +41,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 Comment = dataReader.IsDBNull(18 + start) ? null : dataReader.GetString(18 + start),
                 IsBuildInUser = dataReader.GetBoolean(19 + start)
             };
-            return _mapper.Map<UserDto>(user);
+            return user;
         }
 
         public async Task<Paged<UserDto>> GetAll_Paged(int pageNumber, int pageSize)
@@ -57,7 +57,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             while (dataReader != null && dataReader.Read())
             {
-                UserDto user = GetProperty(dataReader);
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
                 user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 result.Add(user);
             }
@@ -89,7 +89,70 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             while (dataReader != null && dataReader.Read())
             {
-                UserDto user = GetProperty(dataReader);
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
+                result.Add(user);
+            }
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (dataReader.Read())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<UserDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+
+        }
+
+        public async Task<Paged<UserDto>> GetAll_GiamThi_Paged(int pageNumber, int pageSize)
+        {
+            using DatabaseReader sql = new("User_GetAll_GiamThi_Paged");
+
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<UserDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (dataReader != null && dataReader.Read())
+            {
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
+                result.Add(user);
+            }
+            //chuyển sang bảng thứ 2 đọc tổng số lượng bản ghi và tổng số lượng trang
+            if (dataReader != null && dataReader.NextResult())
+            {
+                while (dataReader.Read())
+                {
+                    tong_so_ban_ghi = dataReader.GetInt32(0);
+                    tong_so_trang = dataReader.GetInt32(1);
+                }
+            }
+
+            return new Paged<UserDto> { Data = result, TotalPages = tong_so_trang, TotalRecords = tong_so_ban_ghi };
+
+        }
+
+        public async Task<Paged<UserDto>> GetAll_GiamThi_Search_Paged(string keyword, int pageNumber, int pageSize)
+        {
+            using DatabaseReader sql = new("User_GetAll_GiamThi_Search_Paged");
+
+            sql.SqlParams("@Keyword", SqlDbType.NVarChar, keyword);
+            sql.SqlParams("@PageNumber", SqlDbType.Int, pageNumber);
+            sql.SqlParams("@PageSize", SqlDbType.Int, pageSize);
+
+            using var dataReader = await sql.ExecuteReaderAsync();
+            List<UserDto> result = [];
+            int tong_so_ban_ghi = 0, tong_so_trang = 0;
+
+            while (dataReader != null && dataReader.Read())
+            {
+                UserDto user = _mapper.Map<UserDto>(GetProperty(dataReader));
                 user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
                 result.Add(user);
             }
@@ -118,7 +181,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             if (dataReader != null && dataReader.Read())
             {
-                user = GetProperty(dataReader);
+                user = _mapper.Map<UserDto>(GetProperty(dataReader));
+                user.MaRoleNavigation = _roleRepository.GetProperty(dataReader, COLUMN_LENGTH);
             }
 
             return user;
@@ -150,26 +214,25 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
             if (dataReader != null && dataReader.Read())
             {
-                user = GetProperty(dataReader);
+                user = _mapper.Map<UserDto>(GetProperty(dataReader));
             }
 
             return user;
         }
 
-        public async Task<List<string>> Login(string loginName)
+        public async Task<User> Login(string loginName)
         {
             using DatabaseReader sql = new("User_Login");
 
             sql.SqlParams("@LoginName", SqlDbType.NVarChar, loginName);
 
             using var dataReader = await sql.ExecuteReaderAsync();
-            List<string> user = [];
+            User user = new();
 
-            if (dataReader != null && dataReader.Read())
+            if (await dataReader!.ReadAsync())
             {
-                user.Add(dataReader.GetGuid(0).ToString());
-                user.Add(dataReader.GetString(1));
-                user.Add(dataReader.GetString(2));
+                user = GetProperty(dataReader);
+                user.MaRoleNavigation = _mapper.Map<Role>(_roleRepository.GetProperty(dataReader, COLUMN_LENGTH));
             }
 
             return user;

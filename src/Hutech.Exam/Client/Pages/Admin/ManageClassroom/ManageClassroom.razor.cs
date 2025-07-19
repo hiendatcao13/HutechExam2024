@@ -19,11 +19,11 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageClassroom
         [Inject] private NavigationManager Nav { get; set; } = default!;
 
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-        
+
         [Inject] private Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-        
+
         [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-        
+
         [Inject] private AdminHubService AdminHub { get; set; } = default!;
 
         [Inject] private ISenderAPI SenderAPI { get; set; } = default!;

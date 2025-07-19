@@ -33,6 +33,8 @@ public partial class CaThi
 
     public string? ApprovedComments { get; set; }
 
+    public string LichSuHoatDong { get; set; } = string.Empty;
+
     public virtual ICollection<ChiTietCaThi> ChiTietCaThis { get; set; } = new List<ChiTietCaThi>();
 
     public virtual ChiTietDotThi MaChiTietDotThiNavigation { get; set; } = null!;

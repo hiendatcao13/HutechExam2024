@@ -43,6 +43,8 @@ namespace Hutech.Exam.Client.Pages.Info
 
         private string? DisplayTime { get; set; }
 
+        private ChiTietCaThiDto? selectedExamSessionDetail { get; set; }
+
         // biến nội bộ
 
         private System.Timers.Timer? _timer;

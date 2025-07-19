@@ -9,7 +9,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/chitietbaithis")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class ChiTietBaiThiController(ChiTietBaiThiService chiTietBaiThiService) : Controller
     {
         #region Private Fields

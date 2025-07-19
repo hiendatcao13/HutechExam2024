@@ -33,14 +33,14 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("{id:long}/dap-an")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectByMaDeHV_DapAn([FromRoute] long id)
         {
             return Ok(APIResponse<Dictionary<int, int>>.SuccessResponse(data: await _redisService.GetDapAnAsync(id), message: "Lấy danh sách đáp án thành công"));
         }
 
         [HttpGet("filter-by-dethi")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_DeThi([FromQuery] int maDeThi)
         {
             return Ok(APIResponse<List<DeThiHoanViDto>>.SuccessResponse(data: await _deThiHoanViService.SelectBy_MaDeThi(maDeThi), message: "Lấy danh sách đề thi hoán vị thành công"));

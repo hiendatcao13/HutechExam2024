@@ -54,7 +54,11 @@ namespace Hutech.Exam.Server.Controllers
         [HttpPut("reorganize-index")]
         public async Task<IActionResult> RebuildOrReorganizeChiMuc()
         {
-            await _systemService.RebuildOrReorganizeChiMuc();
+            var result = await _systemService.RebuildOrReorganizeChiMuc();
+            if (!result)
+            {
+                return BadRequest(APIResponse<bool>.ErrorResponse(message: "Tái tạo lại chỉ mục thất bại hoặc không có chỉ mục cần được tái tạo"));
+            }
             return Ok(APIResponse<bool>.SuccessResponse(message: "Tái tạo lại chỉ mục thành công"));
         }
         #endregion

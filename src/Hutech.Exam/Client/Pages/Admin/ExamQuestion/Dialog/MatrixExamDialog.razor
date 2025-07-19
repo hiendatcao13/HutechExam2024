@@ -41,8 +41,8 @@
             <MudItem xs="8"><MudTextField AutoGrow ReadOnly Label="Câu hỏi không HV" @bind-Value="listQuestion"></MudTextField></MudItem>
 
             <MudItem xs="12">
-                <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByChapter">HV chương</MudButton>
-                <MudButton Class="add-button" Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByGroupQuestion">HV nhóm</MudButton>
+                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByChapter">HV chương</MudButton>
+                <MudButton Class="add-button" Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Calculate" OnClick="OnClickShuffleByGroupQuestion">HV nhóm</MudButton>
             </MudItem>
 
             <MudItem xs="12">
@@ -52,14 +52,14 @@
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (isValid)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickSaveAsync()" Color="Color.Success">Luu</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickSaveAsync()" Color="Color.Success">Luu</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Disabled Color="Color.Success">Cập nhật đề</MudButton>
+            <MudButton Variant="Variant.Outlined" Disabled Color="Color.Success">Cập nhật đề</MudButton>
         }
     </DialogActions>
 </MudDialog>

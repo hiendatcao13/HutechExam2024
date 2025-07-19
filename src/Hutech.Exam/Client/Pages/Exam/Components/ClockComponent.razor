@@ -1,60 +1,66 @@
-﻿<MudText Typo="Typo.h5" Align="Align.Right" Style="color: #333; margin-right: 10%">
-	⏰: <b id="time-clock">@DisplayTime</b>
+﻿@implements IDisposable
+
+<MudText Typo="Typo.h5" Align="Align.Right" Style="color: #333; margin-right: 10%">
+    ⏰: <b id="time-clock">@DisplayTime</b>
 </MudText>
 
 @code {
-	[Parameter] public int InitialSeconds { get; set; }
+    [Parameter] public int InitialSeconds { get; set; }
+    [Parameter] public EventCallback OnFinish { get; set; }
 
-	[Parameter] public EventCallback OnFinish { get; set; }
+    private System.Timers.Timer? _timer;
+    private string? DisplayTime { get; set; }
+    private int RemainingSeconds;
+    private bool _isInitialized = false;
 
-	private System.Timers.Timer? _timer;
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_isInitialized && InitialSeconds > 0)
+        {
+            RemainingSeconds = InitialSeconds;
+            DisplayTime = FormatTime(RemainingSeconds);
+            StartTimer();
+            _isInitialized = true;
+        }
 
-	private string? DisplayTime { get; set; }
+        await base.OnParametersSetAsync();
+    }
 
-	private int RemainingSeconds;
+    private void StartTimer()
+    {
+        _timer = new System.Timers.Timer
+            {
+                Interval = 1000,
+                AutoReset = true,
+                Enabled = true
+            };
 
-	protected override async Task OnParametersSetAsync()
-	{
-		Console.WriteLine("tong_thoi_gian_nekkk" + InitialSeconds);
-		RemainingSeconds = InitialSeconds;
-		DisplayTime = FormatTime(RemainingSeconds);
+        _timer.Elapsed += async (s, e) =>
+        {
+            if (RemainingSeconds > 0)
+            {
+                RemainingSeconds--;
+                DisplayTime = FormatTime(RemainingSeconds);
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                _timer?.Stop();
+                await InvokeAsync(OnFinish.InvokeAsync);
+            }
+        };
 
-		if (RemainingSeconds > 0)
-		{
-			StartTimer();
-		}
+        _timer.Start(); // <- Đừng quên dòng này
+    }
 
-		await base.OnParametersSetAsync();
-	}
+    private string FormatTime(int totalSeconds)
+    {
+        TimeSpan time = TimeSpan.FromSeconds(totalSeconds);
+        return $"{(int)time.TotalMinutes:D2}:{time.Seconds:D2}";
+    }
 
-	private void StartTimer()
-	{
-		_timer = new System.Timers.Timer
-			{
-				Interval = 1000, // 1000 = 1ms
-				AutoReset = true,
-				Enabled = true
-			};
-		_timer.Elapsed += async (s, e) =>
-		{
-			if (RemainingSeconds > 0)
-			{
-				RemainingSeconds--;
-				DisplayTime = FormatTime(RemainingSeconds);
-				await InvokeAsync(StateHasChanged);
-			}
-			else
-			{
-				_timer?.Stop();
-				await InvokeAsync(OnFinish.InvokeAsync);
-			}
-		};
-	}
-
-	private string FormatTime(int totalSeconds)
-	{
-		TimeSpan time = TimeSpan.FromSeconds(totalSeconds);
-		return $"{(int)time.TotalMinutes:D2}:{time.Seconds:D2}";// format từ giây sang phút/giây với D2 là 2 số nguyên
-	}
-
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
 }

@@ -39,14 +39,14 @@
 
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (isReadyToSave)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="async() => await OnClickSaveAsync()">Lưu</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled>Lưu</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled>Lưu</MudButton>
         }
     </DialogActions>
 </MudDialog>

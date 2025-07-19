@@ -11,7 +11,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/lopaos")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class LopAoController(LopAoService lopAoService) : Controller
     {
         #region Private Fields
@@ -44,6 +44,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert([FromBody] LopAoCreateRequest lopAo)
         {
             try
@@ -66,6 +67,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] LopAoUpdateRequest lopAo)
         {
             try
@@ -98,6 +100,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             try
@@ -120,6 +123,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:int}/force")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> ForceDelete([FromRoute] int id)
         {
             try

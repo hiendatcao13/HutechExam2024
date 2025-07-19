@@ -3,7 +3,6 @@ using Hutech.Exam.Server.DAL.DataReader;
 using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Data;
 
 namespace Hutech.Exam.Server.DAL.Repositories
@@ -11,7 +10,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
     public class CaThiRepository(IMapper mapper) : ICaThiRepository
     {
         private readonly IMapper _mapper = mapper;
-        public static readonly int COLUMN_LENGTH = 14; // số lượng cột trong bảng CaThi
+        public static readonly int COLUMN_LENGTH = 15; // số lượng cột trong bảng CaThi
 
         public CaThiDto GetProperty(IDataReader dataReader, int start = 0)
         {
@@ -30,7 +29,8 @@ namespace Hutech.Exam.Server.DAL.Repositories
                 MatMa = dataReader.IsDBNull(10 + start) ? null : dataReader.GetString(10 + start),
                 Approved = dataReader.GetBoolean(11 + start),
                 ApprovedDate = dataReader.IsDBNull(12 + start) ? null : dataReader.GetDateTime(12 + start),
-                ApprovedComments = dataReader.IsDBNull(13 + start) ? null : dataReader.GetString(13 + start)
+                ApprovedComments = dataReader.IsDBNull(13 + start) ? null : dataReader.GetString(13 + start),
+                LichSuHoatDong = dataReader.IsDBNull(14 + start) ? string.Empty : dataReader.GetString(14 + start),
             };
             return _mapper.Map<CaThiDto>(caThi);
         }
@@ -44,7 +44,7 @@ namespace Hutech.Exam.Server.DAL.Repositories
             sql.SqlParams("@ma_lop", SqlDbType.Int, ma_lop);
             sql.SqlParams("@lan_thi", SqlDbType.Int, lan_thi);
 
-            using var dataReader =  await sql.ExecuteReaderAsync();
+            using var dataReader = await sql.ExecuteReaderAsync();
             while (dataReader != null && dataReader.Read())
             {
                 result.Add(GetProperty(dataReader));
@@ -150,29 +150,32 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return result;
         }
 
-        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated)
+        public async Task<bool> Activate(int ma_ca_thi, bool IsActivated, string lichSuHoatDong)
         {
             using DatabaseReader sql = new("ca_thi_Activate");
 
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
             sql.SqlParams("@IsActivated", SqlDbType.Bit, IsActivated);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> HuyKichHoat(int ma_ca_thi)
+        public async Task<bool> HuyKichHoat(int ma_ca_thi, string lichSuHoatDong)
         {
             using DatabaseReader sql = new("ca_thi_HuyKichHoat");
 
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
-        public async Task<bool> Ketthuc(int ma_ca_thi)
+        public async Task<bool> Ketthuc(int ma_ca_thi, string lichSuHoatDong)
         {
             using DatabaseReader sql = new("ca_thi_Ketthuc");
 
             sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
@@ -222,17 +225,41 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
-        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, bool isOrderMSSV, List<long> dsDeThiHVs)
+        public async Task<bool> UpdateDeThi(int ma_ca_thi, int ma_de_thi, bool isOrderMSSV, string lichSuHoatDong, List<long> dsDeThiHVs)
         {
             using DatabaseReader sql = new("ca_thi_UpdateDeThi");
 
             sql.SqlParams("@MaCaThi", SqlDbType.Int, ma_ca_thi);
             sql.SqlParams("@MaDeThi", SqlDbType.Int, ma_de_thi);
             sql.SqlParams("@IsOrderMSSV", SqlDbType.Bit, isOrderMSSV);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
             sql.SqlParams("@DsDeThiHoanVi", SqlDbType.NVarChar, string.Join(",", dsDeThiHVs));
 
             return await sql.ExecuteNonQueryAsync() > 0;
         }
 
+        public async Task<bool> DuyetDe(int ma_ca_thi, string lichSuHoatDong)
+        {
+            using DatabaseReader sql = new("ca_thi_DuyetDe");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
+
+        public async Task<bool> UpdateLichSuHoatDong(int ma_ca_thi, string lichSuHoatDong)
+        {
+            using DatabaseReader sql = new("ca_thi_UpdateLichSuHoatDong");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            sql.SqlParams("@LichSuHoatDong", SqlDbType.NVarChar, lichSuHoatDong);
+            return await sql.ExecuteNonQueryAsync() > 0;
+
+        }
+
+        public async Task<bool> UpdateAllResetLogin(int ma_ca_thi)
+        {
+            using DatabaseReader sql = new("ca_thi_UpdateAllResetLogin");
+            sql.SqlParams("@ma_ca_thi", SqlDbType.Int, ma_ca_thi);
+            return await sql.ExecuteNonQueryAsync() > 0;
+        }
     }
 }

@@ -24,58 +24,45 @@
             <MudItem xs="8"><MudText><span class="title-text">@AttemptNumber</span></MudText></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Tên Ca thi:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Tên Ca thi" Required InputType="InputType.Text" @bind-Value="examSessionName"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Label="Tên Ca thi" Required InputType="InputType.Text" @bind-Value="examSessionName"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Ngày thi:</MudText></MudItem>
             <MudItem xs="8">
-                <MudDatePicker Editable="true" Label="Ngày thi" @bind-Date="startTimeDate" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
+                <MudDatePicker Editable="true" Variant="Variant.Outlined" Label="Ngày thi" @bind-Date="startTimeDate" DateFormat="dd/MM/yyyy" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Thời gian:</MudText></MudItem>
             <MudItem xs="8">
-                <MudTimePicker Editable="true" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
-            </MudItem>
-
-            <MudItem xs="4" Style="align-content: center"><MudText>Mã đề:</MudText></MudItem>
-            <MudItem xs="8">
-                <MudSelect T="DeThiDto" @bind-Value="selectedExam" Label="Đề thi" Required ReadOnly="true" HelperText="Tùy chỉnh mã đề không khả dụng">
-                    @if (exams != null)
-                    {
-                        foreach (var item in exams)
-                        {
-                            <MudSelectItem Value="@item">[@item.MaDeThi] @item.TenDeThi</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
+                <MudTimePicker Editable="true" Variant="Variant.Outlined" Label="Thời gian" @bind-Time="displayExamDuration" TimeFormat="HH:mm" PickerVariant="PickerVariant.Dialog" />
             </MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Thời lượng:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Variant="Variant.Outlined" Required InputType="InputType.Number" @bind-Value="examDuration"></MudTextField></MudItem>
 
             <MudItem xs="4" Style="align-content: center"><MudText>Mật mã:</MudText></MudItem>
-            <MudItem xs="8"><MudTextField Label="Nhập mật mã" @bind-Value="password" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField></MudItem>
+            <MudItem xs="8"><MudTextField Label="Nhập mật mã" @bind-Value="password" Variant="Variant.Outlined" HelperText="Nếu không thay đổi thì bỏ qua" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField></MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (!IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
 
     </DialogActions>
 </MudDialog>
 <style>
     .my-custom-class {
-    backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
     }
 
-    .title-text{
-    font-weight: bold;
+    .title-text {
+        font-weight: bold;
     }
 </style>
 
@@ -149,14 +136,15 @@
     {
         exams = new();
         // thêm 1 trường null
-        exams?.Insert(0, new DeThiDto() {MaDeThi = -1, TenDeThi = "Chưa có mã đề"});
+        exams?.Insert(0, new DeThiDto() { MaDeThi = -1, TenDeThi = "Chưa có mã đề" });
         selectedExam = exams?[0];
-        if(IsEdit && ExamSession != null){
+        if (IsEdit && ExamSession != null)
+        {
             examSessionName = ExamSession.TenCaThi;
             startTimeDate = ExamSession.ThoiGianBatDau;
             displayExamDuration = new TimeSpan(startTimeDate.Value.Hour, startTimeDate.Value.Minute, startTimeDate.Value.Second);
             examDuration = ExamSession.ThoiGianThi;
-            selectedExam = await Exam_SelectOneAPI(ExamSession.MaDeThi);
+            //selectedExam = await Exam_SelectOneAPI(ExamSession.MaDeThi);
         }
     }
 
@@ -173,19 +161,19 @@
             return;
         }
         startTimeDate = new DateTime(startTimeDate.Value.Year, startTimeDate.Value.Month, startTimeDate.Value.Day, displayExamDuration.Value.Hours, displayExamDuration.Value.Minutes, 0);
-        
-        var result = await InsertAPI(new CaThiCreateRequest { 
-            TenCaThi = examSessionName, 
-            MaChiTietDotThi = (int)ExamBatchId, 
-            ThoiGianBatDau = (DateTime)startTimeDate, 
-            MaDeThi = selectedExam.MaDeThi, 
-            ThoiGianThi = (int)examDuration,
-            MatMa = password
-        });
-        
+
+        var result = await InsertAPI(new CaThiCreateRequest
+            {
+                TenCaThi = examSessionName,
+                MaChiTietDotThi = (int)ExamBatchId,
+                ThoiGianBatDau = (DateTime)startTimeDate,
+                ThoiGianThi = (int)examDuration,
+                MatMa = password
+            });
+
         if (result != null && result.MaCaThi != 0)
         {
-			MudDialog?.Close(DialogResult.Ok(result));
+            MudDialog?.Close(DialogResult.Ok(result));
         }
     }
 
@@ -202,7 +190,6 @@
                 TenCaThi = examSessionName,
                 MaChiTietDotThi = (int)ExamBatchId,
                 ThoiGianBatDau = (DateTime)startTimeDate,
-                MaDeThi = selectedExam.MaDeThi,
                 ThoiGianThi = (int)examDuration,
                 MatMa = password
             });
@@ -213,12 +200,14 @@
     }
 
 
-    private async Task<CaThiDto?> InsertAPI(CaThiCreateRequest caThi){
+    private async Task<CaThiDto?> InsertAPI(CaThiCreateRequest caThi)
+    {
         var response = await SenderAPI.PostAsync<CaThiDto>("api/cathis", caThi);
         return (response.Success) ? response.Data : null;
     }
 
-    private async Task<CaThiDto?> UpdateAPI(int ma_ca_thi, CaThiUpdateRequest caThi){
+    private async Task<CaThiDto?> UpdateAPI(int ma_ca_thi, CaThiUpdateRequest caThi)
+    {
         var response = await SenderAPI.PutAsync<CaThiDto>($"api/cathis/{ma_ca_thi}", caThi);
         return (response.Success) ? response.Data : null;
     }

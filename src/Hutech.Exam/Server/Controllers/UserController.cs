@@ -1,5 +1,4 @@
 ﻿using System.Data.SqlClient;
-using System.Threading.Tasks;
 using Hutech.Exam.Server.Authentication;
 using Hutech.Exam.Server.BUS;
 using Hutech.Exam.Server.DAL.Helper;
@@ -8,7 +7,6 @@ using Hutech.Exam.Shared.DTO;
 using Hutech.Exam.Shared.DTO.API.Response;
 using Hutech.Exam.Shared.DTO.Page;
 using Hutech.Exam.Shared.DTO.Request.User;
-using Hutech.Exam.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +14,7 @@ namespace Hutech.Exam.Server.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "QuanTri")]
     public class UserController(UserService userService, JwtAuthenticationManager jwtAuthenticationManager) : Controller
     {
         #region Private Fields
@@ -30,16 +28,34 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _userService.GetAll_Paged(pageNumber, pageSize);
             return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
         }
 
+        [HttpGet("supervisor")]
+        [Authorize(Roles = "DaoTao")]
+        public async Task<IActionResult> GetAll_GiamThi_Paged([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var result = await _userService.GetAll_GiamThi_Paged(pageNumber, pageSize);
+            return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
+        }
+
         [HttpGet("search")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll_Search_Paged([FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var result = await _userService.GetAll_Search_Paged(keyword, pageNumber, pageSize);
+            return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
+        }
+
+        [HttpGet("search/supervisor")]
+        [Authorize(Roles = "DaoTao")]
+        public async Task<IActionResult> GetAll_Search_GiamThi_Paged([FromQuery] string keyword, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var result = await _userService.GetAll_GiamThi_Search_Paged(keyword, pageNumber, pageSize);
             return Ok(APIResponse<Paged<UserDto>>.SuccessResponse(data: result, message: "Lấy danh sách người dùng thành công"));
         }
 
@@ -79,6 +95,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert([FromBody] UserCreateRequest user)
         {
             try
@@ -106,6 +123,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:Guid}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UserUpdateRequest user)
         {
             try
@@ -142,6 +160,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Patch Methods
 
         [HttpPatch("{id:Guid}/change-pasword")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> ChangePassword([FromRoute] Guid id, [FromBody] UserUpdatePasswordRequest user)
         {
             try
@@ -168,6 +187,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:Guid}")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             try

@@ -20,7 +20,7 @@ namespace Hutech.Exam.Server.Installers
 
             services.AddHealthChecks()
                 .AddSqlServer(configuration.GetConnectionString("DefaultConnection")!, name: "SQL Server")
-                .AddRedis(configuration.GetSection("RedisConfiguration").ToString()!, name: "Redis")
+                .AddRedis(configuration.GetSection("RedisConfiguration:ConnectionString").Value!, name: "Redis")
                 .AddRabbitMQ(sp =>
                 {
                     return factory.CreateConnectionAsync();
@@ -28,11 +28,11 @@ namespace Hutech.Exam.Server.Installers
                 .AddProcessAllocatedMemoryHealthCheck(1024 * 1024 * 1024, name:"Bộ nhớ cấp phát (.NET)") // 1GB
                 .AddPrivateMemoryHealthCheck(512 * 1024 * 1024, name: "Bộ nhớ riêng"); // 512MB
 
-            services.AddHealthChecksUI(setupSettings: setup =>
-            {
-                setup.SetEvaluationTimeInSeconds(10); // Kiểm tra mỗi 10 giây
-                setup.AddHealthCheckEndpoint("Basic Health", "/health");
-            }).AddInMemoryStorage();
+            //services.AddHealthChecksUI(setupSettings: setup =>
+            //{
+            //    setup.SetEvaluationTimeInSeconds(10); // Kiểm tra mỗi 10 giây
+            //    setup.AddHealthCheckEndpoint("Basic Health", "/health");
+            //}).AddInMemoryStorage();
 
         }
     }

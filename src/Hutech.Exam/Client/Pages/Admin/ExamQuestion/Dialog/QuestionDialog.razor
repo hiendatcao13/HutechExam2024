@@ -44,8 +44,8 @@
             </MudItem>
 
             <MudItem xs="12" Style="padding-top: 2px">
-                <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" Style="margin-right: 5px" OnClick="async () => await OnClickViewContent(tempQuestion.NoiDung)">Xem chuyển</MudButton>
-                <MudButton Class="add-button" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Accessibility" Color="Color.Secondary" OnClick="async () => await OnClickSupport()">Hỗ trợ</MudButton>
+                <MudButton Class="add-button" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" Style="margin-right: 5px" OnClick="async () => await OnClickViewContent(tempQuestion.NoiDung)">Xem chuyển</MudButton>
+                <MudButton Class="add-button" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Accessibility" Color="Color.Secondary" OnClick="async () => await OnClickSupport()">Hỗ trợ</MudButton>
                 <MudSwitch T="bool" Label="Hoán vị" Value="tempQuestion.HoanVi ?? false" ValueChanged="OnValueChangeShuffle" Color="Color.Success" />
             </MudItem>
 
@@ -77,7 +77,7 @@
                             <MudTd DataLabel="Chức năng">
                                 <MudButtonGroup Style="zoom: 0.7">
                                     <MudTooltip Text="Xem chuyển">
-                                        <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="async () => await OnClickViewContent(cauTraLoi.NoiDung)" Color="Color.Warning" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Variant="Variant.Outlined" OnClick="async () => await OnClickViewContent(cauTraLoi.NoiDung)" Color="Color.Warning" />
                                     </MudTooltip>
                                 </MudButtonGroup>
                             </MudTd>
@@ -91,14 +91,14 @@
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
+        <MudButton Variant="Variant.Outlined" OnClick="OnClickExit" Color="Color.Default">Thoát</MudButton>
         @if (!IsEdit)
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickAddAsync()" Color="Color.Success">Thêm</MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Filled" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="async () => await OnClickEditAsync()" Color="Color.Success">Sửa</MudButton>
         }
 
     </DialogActions>

@@ -3,14 +3,14 @@
 @using Hutech.Exam.Shared.DTO
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "QuanTri")]
 
 <PageTitle>Mange Ca Thi</PageTitle>
 
 <MudContainer Class="d-flex justify-center align-center">
     <MudGrid Style="margin-top: 5px">
         <MudItem xs="3">
-            <MudSelect Label="Đợt thi" T="DotThiDto" Value=@selectedExamBatch Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamBatchAsync(value))">
+            <MudSelect Label="Đợt thi" Variant="Variant.Outlined" T="DotThiDto" Value=@selectedExamBatch Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamBatchAsync(value))">
                 @if (examBatchs != null)
                 {
                     foreach (var item in examBatchs)
@@ -21,7 +21,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="3">
-            <MudSelect T="MonHocDto" Label="Môn thi" Value=@selectedSubject Clearable="true" ValueChanged="@(async (value) => await OnValueChangeSubjectAsync(value))">
+            <MudSelect T="MonHocDto" Variant="Variant.Outlined" Label="Môn thi" Value=@selectedSubject Clearable="true" ValueChanged="@(async (value) => await OnValueChangeSubjectAsync(value))">
                 @if (subjects != null)
                 {
                     foreach (var item in subjects)
@@ -32,7 +32,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="3">
-            <MudSelect T="LopAoDto" Label="Lớp" Value=@selectedExamRoom Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamRoomAsync(value))">
+            <MudSelect T="LopAoDto" Variant="Variant.Outlined" Label="Phòng thi" Value=@selectedExamRoom Clearable="true" ValueChanged="@(async (value) => await OnValueChangeExamRoomAsync(value))">
                 @if (examRooms != null)
                 {
                     foreach (var item in examRooms)
@@ -43,7 +43,7 @@
             </MudSelect>
         </MudItem>
         <MudItem xs="3">
-            <MudSelect T="int" Label="Lần thi" Value=@selectedAttemptNumber Clearable="true" ValueChanged="@(async (value) => await OnValueChangeAttemptNumberAsync(value))">
+            <MudSelect T="int" Variant="Variant.Outlined" Label="Lần thi" Value=@selectedAttemptNumber Clearable="true" ValueChanged="@(async (value) => await OnValueChangeAttemptNumberAsync(value))">
                 @if (attemptNumber != null)
                 {
                     foreach (var item in attemptNumber)
@@ -56,7 +56,7 @@
         @if (examSessions != null)
         {
             <MudItem xs="12">
-                <MudTable Items="@examSessions" Elevation="24" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="OnRowsPerPageChangeAsync"
+                <MudTable Items="@examSessions" Elevation="3" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" TotalItems="totalRecords" RowsPerPage="rowsPerPage" RowsPerPageChanged="OnRowsPerPageChangeAsync"
                           CurrentPage="currentPage" CurrentPageChanged="OnCurrentPageChangeAsync" FixedHeader="true" Striped="true" SortLabel="Sort By">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Thông tin các ca thi</MudText>
@@ -83,9 +83,15 @@
                         </MudTd>
                         <MudTd>
                             <MudButtonGroup Style="zoom: 0.7">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="() => OnClickExamSessionDetailAsync(item)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamSessionAsync(item)" />
-                                @* <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => OnClickXoaCaThi(item.MaCaThi)" /> *@
+                                <MudTooltip Text="Lịch sử">
+                                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Info" OnClick="async () => await OnClickViewHistoryAsync(item)" />
+                                </MudTooltip>
+                                <MudTooltip Text="Chỉnh sửa">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Warning" OnClick="async () => await OnClickEditExamSessionAsync(item)" />
+                                </MudTooltip>
+                                <MudTooltip Text="Vào ca thi">
+                                    <MudIconButton Icon="@Icons.Material.Filled.ArrowOutward" Color="Color.Success" OnClick="() => OnClickExamSessionDetailAsync(item)" />
+                                </MudTooltip>
                             </MudButtonGroup>
                         </MudTd>
                     </RowTemplate>

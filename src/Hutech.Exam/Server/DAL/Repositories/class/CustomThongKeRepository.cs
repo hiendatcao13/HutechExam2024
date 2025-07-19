@@ -124,11 +124,11 @@ namespace Hutech.Exam.Server.DAL.Repositories
             return result;
         }
 
-        public async Task RebuildOrReorganizeChiMuc()
+        public async Task<bool> RebuildOrReorganizeChiMuc()
         {
             using DatabaseReader sql = new("Custom_RebuildOrReorganizeIndexes");
 
-            using var daReader = await sql.ExecuteReaderAsync();
+            return await sql.ExecuteNonQueryAsync() > 0;
         }
     }
 }

@@ -1,0 +1,45 @@
+﻿@using Hutech.Exam.Shared.DTO.Request.Audit
+@using Hutech.Exam.Shared.Enums
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Style="min-width: 800px; max-height: auto; overflow: visible">
+    <DialogContent>
+		<MudTable Elevation="24" T="LichSuHoatDong" Items="@HistoryVersions" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" FixedHeader="true" Striped="true">
+			<HeaderContent>
+				<MudTh>Hành động</MudTh>
+				<MudTh>Chi tiết</MudTh>
+				<MudTh>Người thực hiện</MudTh>
+				<MudTh>Lý do</MudTh>
+				<MudTh>Thời điểm</MudTh>
+			</HeaderContent>
+			<RowTemplate Context="item">
+				<MudTd>@(item.HanhDong.GetDisplayName())</MudTd>
+				<MudTd>@item.ChiTiet</MudTd>
+				<MudTd>@item.NguoiThucHien</MudTd>
+				<MudTd>@item.LyDo</MudTd>
+				<MudTd>@item.ThoiDiem</MudTd>
+			</RowTemplate>
+		</MudTable>
+    </DialogContent>
+    <DialogActions>
+		<MudButton Color="Color.Info" Variant="Variant.Outlined" OnClick="Cancel">Xác nhận</MudButton>
+    </DialogActions>
+</MudDialog>
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+	public List<LichSuHoatDong> HistoryVersions { get; set; } = default!;
+
+	private void Cancel()
+	{
+		MudDialog?.Cancel();
+	}
+}

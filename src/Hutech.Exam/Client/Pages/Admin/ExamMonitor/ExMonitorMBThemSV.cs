@@ -15,11 +15,15 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
             {
                 var newChiTietCaThi = (ChiTietCaThiDto)result.Data;
                 examSessionDetails.Add(newChiTietCaThi);
+
+                // cập nhật lại ca thi
+                examSession = await ExamSession_SelectOneAPI(examSession!.MaCaThi);
+                await SessionStorage.SetItemAsync("CaThi", examSession);
             }
         }
         private async Task<DialogResult?> OpenAddStudentDialogAsync()
         {
-            
+
             Snackbar.Add(ALERT_ADDSV, Severity.Info);
             string?[] content_texts = [examSession?.TenCaThi ?? "", examSession?.ThoiGianBatDau.ToString() ?? "", examSession?.ThoiGianThi.ToString() ?? ""];
             var parameters = new DialogParameters<AddStudentDialog>
@@ -27,6 +31,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
                 { x => x.StudentCodes, GetAllStudentCodes() },
                 { x => x.ShuffleExams, GetAllShuffleExamIds() },
                 { x => x.examSessionId, examSession?.MaCaThi},
+                { x => x.ExamSession, examSession},
                 { x => x.classRoom, await GetClassRoom()}
             };
 
@@ -38,16 +43,16 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private List<long> GetAllShuffleExamIds()
         {
-            List<long> result = [];
+            HashSet<long> uniqueIds = new HashSet<long>();
             if (examSessionDetails != null)
             {
                 foreach (var item in examSessionDetails)
                 {
                     if (item.MaDeThi != null)
-                        result.Add((long)item.MaDeThi);
+                        uniqueIds.Add((long)item.MaDeThi); // HashSet tự loại bỏ trùng lặp
                 }
             }
-            return result;
+            return uniqueIds.ToList();
         }
         private List<string> GetAllStudentCodes()
         {
@@ -64,7 +69,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
         }
         private async Task<string?> GetClassRoom()
         {
-            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataMC");
+            var storedData = await SessionStorage.GetItemAsync<StoredDataME>("storedDataME");
             return storedData.LopAo?.TenLopAo;
         }
     }

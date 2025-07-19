@@ -38,7 +38,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Get Methods
 
         [HttpGet("filter-by-mssv")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_MSSV([FromQuery] string maSoSinhVien)
         {
             var result = await _sinhVienService.SelectBy_ma_so_sinh_vien(maSoSinhVien);
@@ -50,7 +50,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-lop-paged")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_MaLop_Paged([FromQuery] int maLop, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var result = await _sinhVienService.SelectBy_ma_lop_Paged(maLop, pageNumber, pageSize);
@@ -58,7 +58,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpGet("filter-by-lop-search-paged")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SelectBy_MaLop_Paged_Search([FromQuery] int maLop, [FromQuery] string keyword, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var result = await _sinhVienService.SelectBy_ma_lop_Search_Paged(maLop, keyword, pageNumber, pageSize);
@@ -70,7 +70,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Post Methods
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert([FromBody] SinhVienCreateRequest sinhVien)
         {
             try
@@ -89,7 +89,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPost("batch")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Insert_Batch([FromBody] List<SinhVienDto> sinhViens)
         {
             try
@@ -136,7 +136,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Put Methods
 
         [HttpPut("{id:long}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Update([FromRoute] long id, [FromBody] SinhVienUpdateRequest sinhVien)
         {
             try
@@ -166,7 +166,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Patch Methods
 
         [HttpPatch("{id:long}/reset-login")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> ResetLogin([FromRoute] long id)
         {
             // liên quan redis nên tốt nhất là try catch
@@ -183,7 +183,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpPatch("{id:long}/submit-exam")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "QuanTri")]
         public async Task<IActionResult> SubmitExam([FromRoute] int id)
         {
             try
@@ -202,7 +202,7 @@ namespace Hutech.Exam.Server.Controllers
         #region Delete Methods
 
         [HttpDelete("{id:long}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> Delete([FromRoute] long id)
         {
             try
@@ -225,7 +225,7 @@ namespace Hutech.Exam.Server.Controllers
         }
 
         [HttpDelete("{id:long}/force")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "DaoTao,Admin")]
         public async Task<IActionResult> ForceDelete([FromRoute] long id)
         {
             try

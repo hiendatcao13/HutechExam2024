@@ -25,13 +25,19 @@ namespace Hutech.Exam.Client.Authentication
                     // không tìm thấy người dùng thì trả về vô danh
                     return await Task.FromResult(new AuthenticationState(_anonymous));
                 }
-                var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userSession.Username + ""),
-                    new Claim(ClaimTypes.Role, userSession.Role + ""),
-                    new Claim(ClaimTypes.NameIdentifier, userSession.Username + "")
+                    new Claim(ClaimTypes.Name, userSession.Name!),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username!)
+                };
 
-                }, "JwtAuth"));
+                // Thêm từng role riêng biệt
+                foreach (var role in userSession.Roles!)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "JwtAuth"));
                 // trả về giấy xác thực người dùng
                 return await Task.FromResult(new AuthenticationState(claimsPrincipal));
             }
@@ -49,12 +55,19 @@ namespace Hutech.Exam.Client.Authentication
             ClaimsPrincipal claimsPrincipal;
             if (userSession != null) // khi nguời dùng log in
             {
-                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, userSession.Username + ""),
-                    new Claim(ClaimTypes.Role, userSession.Role + ""),
-                    new Claim(ClaimTypes.NameIdentifier, userSession.Username + "")
-                }));
+                    new Claim(ClaimTypes.Name, userSession.Name!),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.Username!)
+                };
+
+                // Thêm từng role riêng biệt
+                foreach (var role in userSession.Roles!)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims));
                 userSession.ExpiryTimeStamp = DateTime.Now.AddSeconds(userSession.ExpireIn);
                 await _sessionStorageService.SaveItemEncryptedAsync("UserSession", userSession);
             }
@@ -62,6 +75,8 @@ namespace Hutech.Exam.Client.Authentication
             {
                 claimsPrincipal = _anonymous;
                 await _sessionStorageService.RemoveItemAsync("UserSession");
+                // xóa các dữ liệu trong SessionStorage
+                await _sessionStorageService.ClearAsync();
             }
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
         }

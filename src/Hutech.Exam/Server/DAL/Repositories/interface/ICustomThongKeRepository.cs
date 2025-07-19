@@ -15,6 +15,6 @@ namespace Hutech.Exam.Server.DAL.Repositories
 
         Task<List<CustomThongKeDoPhanManh>> ThongKeDoPhanManh();
 
-        Task RebuildOrReorganizeChiMuc();
+        Task<bool> RebuildOrReorganizeChiMuc();
     }
 }
