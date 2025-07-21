@@ -150,7 +150,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task OnClickSubmitAsync(ChiTietCaThiDto chiTietCaThi)
         {
-            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
+            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;  
             if ((chiTietCaThi != null && chiTietCaThi.DaThi == false) || chiTietCaThi == null || sinhVien == null || sinhVien.IsLoggedIn == false)
             {
                 Snackbar.Add(FAILED_NOPBAI, Severity.Error);
@@ -334,12 +334,24 @@ namespace Hutech.Exam.Client.Pages.Admin.ExamMonitor
 
         private async Task HandleSubmitAsync(ChiTietCaThiDto chiTietCaThi)
         {
-            SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
-            bool result = await SubmitAPI(sinhVien?.MaSinhVien ?? -1);
-            if (result)
-                Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
-            else
-                Snackbar.Add(ERROR_NOPBAI, Severity.Error);
+            var audit = await OpenAddTimeDialogAsync(chiTietCaThi);
+            if(audit != null && !audit.Canceled && audit.Data != null)
+            {
+                SinhVienDto? sinhVien = chiTietCaThi.MaSinhVienNavigation;
+                bool result = await SubmitAPI(sinhVien?.MaSinhVien ?? -1);
+                if (result)
+                    Snackbar.Add(SUCCESS_NOPBAI, Severity.Success);
+                else
+                    Snackbar.Add(ERROR_NOPBAI, Severity.Error);
+
+                //cập nhật audit cho ca thi
+                var jsonText = CreateActionHistory(KieuHanhDong.BuocNopBai, $"MSSV {sinhVien?.MaSoSinhVien} thí sinh {sinhVien?.HoVaTenLot} {sinhVien?.TenSinhVien}", audit.Data.ToString()!);
+                if (await ExamSession_UpdateAudit(examSession?.MaCaThi ?? -1, jsonText))
+                {
+                    await UpdateViewHistory(jsonText);
+                }
+            }    
+
         }
 
         #endregion

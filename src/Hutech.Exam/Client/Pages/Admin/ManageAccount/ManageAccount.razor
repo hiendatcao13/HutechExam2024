@@ -1,5 +1,6 @@
 ﻿@page "/admin/account"
 @using Hutech.Exam.Shared.DTO
+@using Hutech.Exam.Shared.Enums
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 @attribute [Authorize(Roles = "Admin,DaoTao")]
@@ -95,7 +96,9 @@
 	{
 		if (!string.IsNullOrEmpty(searchString))
 		{
-			(users, totalRecords_User, totalPages_User) = await Users_GetAll_Search_PagedAPI(searchString, currentPage_User, rowsPerPage_User);
+			(users, totalPages_User, totalRecords_User) = (!roleName.Contains(KieuVaiTro.Admin.ToString()))
+			? (users, totalRecords_User, totalPages_User) = await Users_GetAll_Search_Supervisor_PagedAPI(searchString, currentPage_User, rowsPerPage_User)
+			: (users, totalRecords_User, totalPages_User) = await Users_GetAll_Search_PagedAPI(searchString, currentPage_User, rowsPerPage_User);
 			CreateFakeData_User();
 		}
 		else

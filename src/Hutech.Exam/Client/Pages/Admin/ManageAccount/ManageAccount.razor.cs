@@ -164,7 +164,7 @@ namespace Hutech.Exam.Client.Pages.Admin.ManageAccount
             var parameters = new DialogParameters<Delete_Dialog>
             {
                 { x => x.ContentText, DELETE_USER_MESSAGE },
-                { x => x.IsOnlySafeDetlet, true },
+                { x => x.IsOnlySafeDelete, true },
                 { x => x.onHandleRemove, EventCallback.Factory.Create(this, async () => await HandleDeleteUserAsync())   },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, BackgroundClass = "my-custom-class" };

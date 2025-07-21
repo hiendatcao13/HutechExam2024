@@ -23,7 +23,7 @@
 			</MudItem>
 
 			<MudItem xs="4"><MudText>LoginName:</MudText></MudItem>
-			<MudItem xs="8"><MudText><span class="title-text">@tempUser.LoginName</span></MudText></MudItem>
+			<MudItem xs="8"><MudText><MudTextField Label="Tên" Required class="title-text" @bind-Value="@tempUser.LoginName"></MudTextField></MudText></MudItem>
 
 			<MudItem xs="4" Style="align-content: center"><MudText>Email:</MudText></MudItem>
 			<MudItem xs="8"><MudTextField Label="Email" Required InputType="InputType.Email" @bind-Value="tempUser.Email" Placeholder="example@mail.com" /></MudItem>

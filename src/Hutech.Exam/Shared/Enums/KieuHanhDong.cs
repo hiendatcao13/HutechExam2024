@@ -41,5 +41,8 @@ namespace Hutech.Exam.Shared.Enums
         [Display(Name = "Duyệt ca thi")]
         DuyetCaThi = 10,
 
+        [Display(Name = "Buộc nộp bài cho thí sinh")]
+        BuocNopBai = 11,
+
     }
 }

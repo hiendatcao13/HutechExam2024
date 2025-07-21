@@ -5,7 +5,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Dark" Variant="Variant.Outlined" OnClick="Cancel">Thoát</MudButton>
-        @if (!IsOnlySafeDetlet)
+        @if (!IsOnlySafeDelete)
         {
             <MudButton Color="Color.Error" Variant="Variant.Outlined" OnClick="ForceRemove">Xóa ràng buộc</MudButton>
         }
@@ -34,7 +34,7 @@
     public EventCallback? onHandleCancel { get; set; }
 
     [Parameter]
-    public bool IsOnlySafeDetlet { get; set; } = false;
+    public bool IsOnlySafeDelete { get; set; } = false;
 
     private async Task Remove()
     {
